@@ -1,0 +1,22 @@
+from pathlib import Path
+root=Path(__file__).resolve().parents[1]
+def edit(path,old,new):
+ p=root/path;s=p.read_text(encoding='utf-8');assert old in s,(path,old[:80]);p.write_text(s.replace(old,new,1),encoding='utf-8')
+edit('src/core/server/Camps.luau','local Camps = {}','local Anchors = require(script.Parent.LobbyAnchors)\nlocal Camps = {}')
+edit('src/core/server/Camps.luau','local f = C.FOOTHOLD_SAFE','if workspace.World:FindFirstChild("Fairground") then\n\t\tif Anchors.contains(pos) then return true end\n\telse\n\tlocal f = C.FOOTHOLD_SAFE')
+edit('src/core/server/Camps.luau','\tfor name, cp in pairs(campPads) do\n\t\tif ((pos - cp.center)', '\tend\n\tfor name, cp in pairs(campPads) do\n\t\tif ((pos - cp.center)')
+edit('src/core/server/Camps.luau','local fire = world:WaitForChild("Regions"):WaitForChild("Foothold"):WaitForChild("Core"):FindFirstChild("Campfire")\n\tlocal corePart = fire and fire:FindFirstChild("Core")','local corePart = Anchors.resolve(world).Bank')
+edit('src/core/server/Camps.luau','ObjectText = "Expedition campfire"','ObjectText = "Expedition bank"')
+edit('src/core/server/Home.luau','local cabins = world:FindFirstChild("Cabins", true)','local fairground=world:FindFirstChild("Fairground")\n\t\tif fairground then\n\t\t\tlocal door=require(script.Parent.LobbyAnchors).resolve(world).HomeDoor\n\t\t\tportals[#portals+1]=door\n\t\t\tprompt(door,"HomePortalPrompt","Enter home / visit","Your personal home",function(plr)\n\t\t\t\tif ctx.sessions[plr] and not visits[plr] then directory[plr]=door;ctx.fx(plr,{kind="homeDirectory",open=true});ctx.push(plr) end\n\t\t\tend)\n\t\t\treturn\n\t\tend\n\t\tlocal cabins = world:FindFirstChild("Cabins", true)')
+edit('src/core/server/Training.luau','station=yard and yard:FindFirstChild("StartGate")','station=workspace.World:FindFirstChild("Fairground") and require(script.Parent.LobbyAnchors).resolve(workspace.World).PracticeStart or (yard and yard:FindFirstChild("StartGate"))')
+edit('src/core/server/CommerceDisplays.luau','local market=world.Regions.Foothold.Districts.ProvisionsMarket','local anchors=world:FindFirstChild("Fairground") and require(script.Parent.LobbyAnchors).resolve(world)\n local market=not anchors and world.Regions.Foothold.Districts.ProvisionsMarket')
+edit('src/core/server/CommerceDisplays.luau','ipairs(market:GetChildren())','ipairs(market and market:GetChildren() or {})')
+edit('src/core/server/CommerceDisplays.luau','assert(#stalls==4,"market layout changed")','assert(anchors or #stalls==4,"market layout changed")')
+edit('src/core/server/CommerceDisplays.luau',' for i,id in ipairs({"bundle","flag","trail"}) do',' if anchors then\n  for _,row in ipairs({{"bundle","Bundle"},{"flag","Flag"},{"trail","Trail"},{"next","Next"},{"coins100","Coins"}}) do display(row[1],anchors["Exchange_"..row[2]].Position-Vector3.new(0,1,0),row[2]) end\n  f.Parent=world;return f\n end\n for i,id in ipairs({"bundle","flag","trail"}) do')
+edit('src/core/server/CommerceDisplays.luau','local M={}','local M={}\nlocal connections={} ')
+edit('src/core/server/CommerceDisplays.luau',' local f=M.build()',' for _,c in connections do c:Disconnect() end;table.clear(connections)\n local f=M.build()')
+edit('src/core/server/CommerceDisplays.luau','  pr.Triggered:Connect(function(plr)','  table.insert(connections,pr.Triggered:Connect(function(plr)')
+edit('src/core/server/CommerceDisplays.luau','  end)\n end\nend','  end))\n end\nend')
+edit('src/core/server/Traversal.luau','local base = ctx.C.FOOTHOLD_SAFE','if workspace.World:FindFirstChild("Fairground") and require(script.Parent.LobbyAnchors).contains(pos) then return true end\n\tlocal base = ctx.C.FOOTHOLD_SAFE')
+edit('src/core/server/Traversal.luau','if ((pos - base.center)','if not workspace.World:FindFirstChild("Fairground") and ((pos - base.center)')
+edit('tools/sync_core.luau','local MAN = {','local MAN = {\n\t{ "tools/lobby_checks.luau", "ServerStorage/CC_DevTools", "LobbyChecks", "ModuleScript" },\n\t{ "src/core/server/LobbyAnchors.luau", "ServerScriptService/CC_CoreServer", "LobbyAnchors", "ModuleScript" },\n\t{ "src/world/FairgroundLobby.luau", "ServerStorage/CC_Generators", "FairgroundLobby", "ModuleScript" },')
