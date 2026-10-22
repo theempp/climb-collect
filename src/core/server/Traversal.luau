@@ -142,7 +142,7 @@ local function location(plr)
 end
 local function canUse(plr, section)
 	if not section or not K.launchRoutes[section.route] then return false end
-	if section.practice and ctx.Training and ctx.Training.canUseSection then return ctx.Training.canUseSection(plr, section.practice) end
+	if section.practice and ctx.Training and ctx.Training.canUseSection then return ctx.Training.canUseSection(plr, section.practice) or (ctx.DailyPractice and ctx.DailyPractice.canUseSection(plr, section.practice)) end
 	return true
 end
 local function nearest(plr, top)

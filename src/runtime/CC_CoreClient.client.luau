@@ -26,7 +26,7 @@ local preferences = { textScale = 1, reducedMotion = false, timingAssist = true,
 local clockSkew = 0
 local ui = { tab = "Backpack", page = 1, mode = "expedition", device = "keyboard", notices = {}, holding = {}, deferred = {}, renderAt = 0 }
 local render, openPanel, closePanel, refreshHud
-local profileUI,nameTags,newHUD
+local profileUI,nameTags,newHUD,dailyUI
 local function request(action, payload) reqEv:FireServer(action, payload or {}) end
 local function now() return os.time() + clockSkew end
 local function fmtTime(sec)
@@ -456,6 +456,7 @@ closePanel = function()
 	if mode == "locker" then request("lockerClose") elseif mode == "home" then request("homeClose") elseif mode == "directory" then request("homeDirectoryClose") elseif mode == "practice" then request("practiceClose") elseif mode == "swap" and state.swapOffer then request("swapLeave", { token = state.swapOffer.token }) end
 end
 openPanel = function(mode)
+	if dailyUI then dailyUI.close() end
 	if profileUI then profileUI.close() end
 	CommerceUI.close()
 	cancelHolds(); ui.mode, ui.choose, ui.page = mode or "expedition", nil, 1
@@ -561,6 +562,7 @@ end
 toastEv.OnClientEvent:Connect(function(p) if type(p) == "table" then notify(p.text, p.kind) end end)
 fxEv.OnClientEvent:Connect(function(p)
 	if type(p) ~= "table" then return end
+	if dailyUI and p.kind=="practiceDailyOpen" then dailyUI.open() end
 	if nameTags then nameTags.fx(p) end
 	if profileUI and p.kind=="profileOwn" then profileUI.own() end
 	CommerceUI.fx(p)
@@ -592,6 +594,7 @@ stateEv.OnClientEvent:Connect(function(st)
 	end
 	CommerceUI.update(st)
 	if profileUI then profileUI.updateOwner(st);nameTags.update(st) end
+	if dailyUI then dailyUI.update(st) end
 	refreshHud()
 	if st.swapOffer and (not previous.swapOffer or previous.swapOffer.token ~= st.swapOffer.token) then openPanel("swap")
 	elseif st.home and not previous.home then openPanel("home")
@@ -727,12 +730,13 @@ if Run:IsStudio() then
 		return true
 	end
 end
-CommerceUI.init({parent=gui,request=request,safe=safeGround,otherOpen=function() return ui.panel.Visible or (profileUI and profileUI.isOpen()) or plr:GetAttribute("CC_SummitPresentation")==true end,
- closeOtherPanels=function() if profileUI then profileUI.close() end;if ui.panel.Visible then closePanel() end;cancelHolds() end,
+CommerceUI.init({parent=gui,request=request,safe=safeGround,otherOpen=function() return ui.panel.Visible or (profileUI and profileUI.isOpen()) or (dailyUI and dailyUI.isOpen()) or plr:GetAttribute("CC_SummitPresentation")==true end,
+ closeOtherPanels=function() if dailyUI then dailyUI.close() end;if profileUI then profileUI.close() end;if ui.panel.Visible then closePanel() end;cancelHolds() end,
  onModalChanged=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end})
 if Run:IsStudio() then _G.CC_COMMERCE_UI=CommerceUI end
 profileUI=require(CoreRS.Client.ProfileUI).mount({parent=gui,request=request,modal=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end,closeOthers=function() CommerceUI.close();if ui.panel.Visible then closePanel() end end,collection=function() ui.tab="Collection";openPanel("expedition") end})
 nameTags=require(CoreRS.Client.NameTags).mount({parent=gui,request=request,profile=profileUI})
 newHUD=require(CoreRS.Client.ExpeditionHUD).mount({parent=gui,ui=ui,profile=profileUI,blocked=function() return ui.panel.Visible or profileUI.isOpen() or CommerceUI.isOpen() or plr:GetAttribute("CC_SummitPresentation")==true end})
 if Run:IsStudio() then local r=Instance.new("BindableFunction");r.Name="PortfolioReview";r.OnInvoke=function(action) if action=="open" then profileUI.own() elseif action=="close" then profileUI.close() end end;r.Parent=gui end
+dailyUI=require(CoreRS.Client.DailyPracticeUI).mount({parent=gui,request=request,modal=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end,closeOthers=function() profileUI.close();CommerceUI.close();if ui.panel.Visible then closePanel() end end})
 fit(); refreshHud(); request("state")

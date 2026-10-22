@@ -11,6 +11,7 @@ local function unlocked(d,i)
  local t=d.gear.training
  return i==1 or (t.unlocked and t.unlocked[tostring(i)]==true) or (t.level or 0)>=i
 end
+function Training.cancel(plr) if active[plr] and active[plr].finishing then return false end;active[plr]=nil;return true end
 function Training.canUseSection(plr,i)
 	local s=ctx.sessions[plr]
 	return s~=nil and unlocked(s.data,i)
@@ -76,6 +77,7 @@ function Training.init(c)
    ctx.toast(plr,"Your completed lesson is still saving. Please wait before starting another.","info")
    return
   end
+  if ctx.DailyPractice then ctx.DailyPractice.cancel(plr) end
   active[plr]={id=i,next=1,session=s}
   open[plr]=nil
   ctx.toast(plr,"Climb the practice walls in order. Take your time; the bell is your finish.","info")

@@ -24,6 +24,7 @@ function P.default()
 	return {
 		version = P.VERSION,
 		commerce = CommerceRules.default(),
+		dailyPractice=require(game.ReplicatedStorage.CC_Core.DailyPracticeRules).default(),
 		portfolio={titleId="",showcase={},frameId=""},
 		coins = 0,
 		xp = 0,
@@ -358,6 +359,7 @@ function P.sanitize(d)
 		end
 		out.home.companion = seen[home.companion] and home.companion or ""
 	end
+	out.dailyPractice=require(game.ReplicatedStorage.CC_Core.DailyPracticeRules).clean(d.dailyPractice)
 	out.portfolio=PortfolioRules.cleanSelections(d.portfolio,out.bank)
 	out.quarantine = q
 	return out, fixes

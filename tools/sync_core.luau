@@ -7,6 +7,12 @@ local HS = game:GetService("HttpService")
 local BASE = "http://127.0.0.1:8771/"
 local only = nil
 local MAN = {
+	{ "src/core/shared/DailyPracticeRules.luau", "ReplicatedStorage/CC_Core", "DailyPracticeRules", "ModuleScript" },
+	{ "src/core/server/DailyPractice.luau", "ServerScriptService/CC_CoreServer", "DailyPractice", "ModuleScript" },
+	{ "src/core/server/DailyPracticeTests.luau", "ServerScriptService/CC_CoreServer", "DailyPracticeTests", "ModuleScript" },
+	{ "src/core/client/DailyPracticeUI.luau", "ReplicatedStorage/CC_Core/Client", "DailyPracticeUI", "ModuleScript" },
+	{ "src/world/StarterSetPreview.luau", "ServerStorage/CC_Generators", "StarterSetPreview", "ModuleScript" },
+
 	{ "src/core/shared/PortfolioRules.luau", "ReplicatedStorage/CC_Core", "PortfolioRules", "ModuleScript" },
 	{ "src/core/shared/AchievementRules.luau", "ReplicatedStorage/CC_Core", "AchievementRules", "ModuleScript" },
 	{ "src/core/shared/ExpeditionUITheme.luau", "ReplicatedStorage/CC_Core", "ExpeditionUITheme", "ModuleScript" },

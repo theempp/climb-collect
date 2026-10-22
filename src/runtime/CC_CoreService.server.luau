@@ -604,7 +604,7 @@ end
 ---------------------------------------------------------------- gameplay modules (B)
 -- v4 P4 (run 2): Gear (shop, kit, canisters, Summit Points), Coop (rescue + party ropes), Training (Yard annex),
 -- Weather (day/night + weather states)
-for _, name in ipairs({ "Visuals", "Cargo", "DropPacks", "Camps", "Claims", "Nests", "Tutorial", "Gear", "Traversal", "Coop", "Training", "Home", "Discovery", "Weather", "CommerceCosmetics", "CommerceDisplays", "Commerce", "PublicProfile" }) do
+for _, name in ipairs({ "Visuals", "Cargo", "DropPacks", "Camps", "Claims", "Nests", "Tutorial", "Gear", "Traversal", "Coop", "Training", "Home", "Discovery", "Weather", "CommerceCosmetics", "CommerceDisplays", "Commerce", "PublicProfile", "DailyPractice" }) do
 	local m = SrvF:FindFirstChild(name)
 	if m then
 		local ok, mod = pcall(require, m)
