@@ -1,6 +1,7 @@
 local Players=game:GetService('Players')
 local R=require(game.ReplicatedStorage.CC_Core.PortfolioRules)
 local A=require(game.ReplicatedStorage.CC_Core.AchievementRules)
+local Earned=require(game.ReplicatedStorage.CC_Core.EarnedCosmetics)
 local P={};local ctx,roster;local buckets={}
 local function actor(p)
  local ch=p.Character;local h=ch and ch:FindFirstChildOfClass('Humanoid');local root=ch and ch:FindFirstChild('HumanoidRootPart')
@@ -43,15 +44,19 @@ function P.init(c)
     if type(value)~='table' or #value>3 then return {ok=false,reason='invalid'} end
     local clean=R.cleanSelections({showcase=value},d.bank);if #clean.showcase~=#value then return {ok=false,reason='ownership'} end;d.portfolio.showcase=clean.showcase
    elseif kind=='frame' then
-    if value~='' and not (type(value)=='string' and d.expedition.earnedCosmetics and d.expedition.earnedCosmetics[value]) then return {ok=false,reason='ownership'} end
+    if value~='' and not (type(value)=='string' and Earned[value] and d.expedition.earnedCosmetics and d.expedition.earnedCosmetics[value]) then return {ok=false,reason='ownership'} end
     d.portfolio.frameId=value
+   elseif kind=='earned' then
+    if value~='' and not (type(value)=='string' and Earned[value] and d.expedition.earnedCosmetics and d.expedition.earnedCosmetics[value]) then return {ok=false,reason='ownership'} end
+    d.expedition.earnedEquipped=value
    end
    return {ok=true}
-  end,function() ctx.push(plr) end)
+  end,function() if kind=='earned' then ctx.CommerceCosmetics.refresh(plr) end;ctx.push(plr) end)
  end
  ctx.handlers.profileSelectTitle=function(p,v) select(p,'title',v.titleId) end
  ctx.handlers.profileSetShowcase=function(p,v) select(p,'showcase',v.creatureIds) end
  ctx.handlers.profileSetFrame=function(p,v) select(p,'frame',v.frameId) end
+ ctx.handlers.profileEquipEarned=function(p,v) select(p,'earned',v.cosmeticId) end
  local f=workspace.World:FindFirstChild('Fairground')
  if f then local pr=require(script.Parent.Prompts).make(f.Anchors.Collection,{Name='CollectionPrompt',ActionText='Your portfolio',ObjectText='Field collection',HoldDuration=0,MaxActivationDistance=12});pr.Triggered:Connect(function(p) if require(script.Parent.Prompts).validate(pr,p) then ctx.fx(p,{kind='profileOwn'}) end end) end
 end

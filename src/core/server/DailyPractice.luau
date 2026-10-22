@@ -9,7 +9,7 @@ end
 function D.canUseSection(p,i)
  local a=active[p];return a and not a.finishing and a.day==R.dayKey(ctx.Clock.now()) and a.sections[a.next]=='Practice:'..i and inside(p) or false
 end
-function D.cancel(p) local a=active[p];if not a or not a.finishing then active[p]=nil end end
+function D.cancel(p) local a=active[p];if a and a.finishing then return false end;active[p]=nil;return true end
 local function finish(p,a)
  local s=ctx.sessions[p];if s~=a.session or a.inFlight or a.pending then return end
  if s.pending or s.busy or s.saving or s.outcomePending then return end

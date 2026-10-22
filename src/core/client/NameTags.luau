@@ -5,10 +5,10 @@ function N.mount(deps)
  local self={rows={},tags={},requestId=0,pending=nil};local localPlayer=Players.LocalPlayer;local nearest
  local function inspect(id)
   self.requestId+=1;self.pending=tostring(self.requestId)..':'..id
-  deps.profile.open(nil);deps.request('profileInspect',{subjectUserId=id,requestId=self.pending})
+  deps.profile.open(nil);self.generation=deps.profile.generation;deps.request('profileInspect',{subjectUserId=id,requestId=self.pending})
  end
  function self.fx(p)
-  if p.kind=='profileInspect' and p.requestId==self.pending then self.pending=nil;if p.status=='ok' then deps.profile.open(p.card) else deps.profile.unavailable('This explorer is '..p.status..'. Move nearby on safe ground and try again.') end end
+  if p.kind=='profileInspect' and p.requestId==self.pending then self.pending=nil;if self.generation~=deps.profile.generation or not deps.profile.isOpen() then return end;if p.status=='ok' then deps.profile.open(p.card) else deps.profile.unavailable('This explorer is '..p.status..'. Move nearby on safe ground and try again.') end end
  end
  function self.update(st) self.rows=st.playerTags or {} end
  local elapsed=0
@@ -29,6 +29,7 @@ function N.mount(deps)
      end
      tag.gui.Adornee=head;tag.gui.Enabled=not localPlayer:GetAttribute('CC_MenuOpen');tag.button.Active=d<=25;tag.button.Selectable=d<=25;tag.gui.Size=UDim2.fromOffset(d<=25 and 220 or 150,d<=25 and 68 or 36)
      tag.button.Text=d<=25 and (row.displayName..' • Lv '..row.level..'\n'..row.title) or row.displayName
+     local earned=require(script.Parent.Parent.EarnedCosmetics)[row.frameId];tag.button.BackgroundColor3=earned and earned.color or T.gold
      if d<=25 and d<nearestD then nearest=row.userId;nearestD=d end
     end
    end

@@ -13,7 +13,7 @@ function U.mount(deps)
  T.make('UIListLayout',body,{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder})
  local previous
  function self.close()
-  if not root.Visible then return end;root.Visible=false;deps.modal(false);GS.SelectedObject=previous and previous.Parent and previous or nil
+  self.generation=(self.generation or 0)+1;if not root.Visible then return end;root.Visible=false;deps.modal(false);GS.SelectedObject=previous and previous.Parent and previous or nil
  end
  local close=T.button(header,'×',self.close,T.gold);close.Size=UDim2.fromOffset(52,50);close.AnchorPoint=Vector2.new(1,0);close.Position=UDim2.new(1,-7,0,7)
  local function row(heading,detail,color)
@@ -46,6 +46,15 @@ function U.mount(deps)
    local d=self.details
    row('YOUR PRIVATE FIELD NOTES',d.banked..' total banked • '..d.mutationCount..' species / mutation combinations. Only permanent finds count. New obtainable species can lower completion.')
    for route,n in card.summitsByRoute do row(route,n..' successful summits') end
+   row('DAILY FIELD PRACTICE',(d.dailyPractice.stamps or 0)..' / 7 saved stamps • No streak required')
+   for id,cosmetic in require(script.Parent.Parent.EarnedCosmetics) do
+    if d.earnedCosmetics[id] then
+     T.button(body,'Wear '..cosmetic.name,function() deps.request('profileEquipEarned',{cosmeticId=id}) end,cosmetic.color)
+     T.button(body,'Nameplate • '..cosmetic.name,function() deps.request('profileSetFrame',{frameId=id}) end,T.cream)
+    end
+   end
+   T.button(body,'Classic flag & nameplate',function() deps.request('profileEquipEarned',{cosmeticId=''});deps.request('profileSetFrame',{frameId=''}) end,T.cream)
+   for _,r in d.successfulRuns do row('RECENT SUMMIT • '..r.route,string.format('%dm %02ds',math.floor(r.elapsedSeconds/60),r.elapsedSeconds%60)) end
    for _,a in A.titles do
     local unlocked=d.titles[a.id];T.button(body,(unlocked and 'Equip: ' or 'Locked: ')..a.name..' • '..(a.summits and (a.summits..' summits') or (a.percent..'% collection')),function() if unlocked then deps.request('profileSelectTitle',{titleId=a.id}) end end,unlocked and T.gold or T.cream)
    end
@@ -61,7 +70,7 @@ function U.mount(deps)
   if card.userId==game.Players.LocalPlayer.UserId then T.button(body,self.showDetails and 'Hide private details' or 'Your private details & selections',function() self.showDetails=not self.showDetails;self.draw() end,T.teal) end
  end
  function self.open(card,details)
-  deps.closeOthers();previous=GS.SelectedObject;self.card=card;self.details=details;self.showDetails=false;root.Visible=true;deps.modal(true);self.draw();GS.SelectedObject=close
+  self.generation=(self.generation or 0)+1;deps.closeOthers();previous=GS.SelectedObject;self.card=card;self.details=details;self.showDetails=false;root.Visible=true;deps.modal(true);self.draw();GS.SelectedObject=close
  end
  function self.updateOwner(st)
   self.owner=st.profile;self.ownerDetails=st.profileDetails

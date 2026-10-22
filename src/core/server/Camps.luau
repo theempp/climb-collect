@@ -39,6 +39,7 @@ end
 
 -- isSafe(pos) -> true inside the Foothold or any camp's tent radius (guardian-free, LOCKED)
 function Camps.isSafe(pos)
+ local stage=workspace.World:FindFirstChild('SummitStage');local zone=stage and stage:FindFirstChild('Arrival');if zone then local p=zone.CFrame:PointToObjectSpace(pos);if math.abs(p.X)<=zone.Size.X/2 and math.abs(p.Y)<=zone.Size.Y/2 and math.abs(p.Z)<=zone.Size.Z/2 then return true end end
 	if workspace.World:FindFirstChild("Fairground") then
 		if Anchors.contains(pos) then return true end
 	else
@@ -273,6 +274,7 @@ function Camps.init(c)
 end
 
 function Camps.onLoaded(plr, s)
+ local summit=s.data.expedition.summit;if summit and (summit.active or summit.pendingResult) then return end
 	local idx = s.data.highestCamp
 	local name = C.RESUME_CAMPS[idx]
 	if not name or not campPads[name] or not api then

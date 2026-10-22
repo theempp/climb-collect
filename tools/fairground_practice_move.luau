@@ -4,6 +4,7 @@ return function(oldGate)
  assert(not yard:GetAttribute('FairgroundMigrated'),'course already migrated')
  local target=CFrame.new(-72,53,2016)*CFrame.Angles(0,math.rad(90),0)
  local transform=target*oldGate:Inverse()
+ for _,p in yard:GetDescendants() do if p:IsA('BasePart') then p.CFrame=transform*p.CFrame end end
  local H=game.HttpService
  local function a(v) return {v.X,v.Y,v.Z} end
  local function point(p) return a(transform*Vector3.new(table.unpack(p))) end

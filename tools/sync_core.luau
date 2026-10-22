@@ -7,6 +7,18 @@ local HS = game:GetService("HttpService")
 local BASE = "http://127.0.0.1:8771/"
 local only = nil
 local MAN = {
+ { "src/core/shared/EarnedArt.luau", "ReplicatedStorage/CC_Core", "EarnedArt", "ModuleScript" },
+ { "src/world/ExpeditionPolish.luau", "ServerStorage/CC_Generators", "ExpeditionPolish", "ModuleScript" },
+ { "src/core/shared/EarnedCosmetics.luau", "ReplicatedStorage/CC_Core", "EarnedCosmetics", "ModuleScript" },
+	{ "src/core/shared/SummitConfig.luau", "ReplicatedStorage/CC_Core", "SummitConfig", "ModuleScript" },
+	{ "src/core/shared/ExpeditionRunRules.luau", "ReplicatedStorage/CC_Core", "ExpeditionRunRules", "ModuleScript" },
+	{ "src/core/shared/SummitArt.luau", "ReplicatedStorage/CC_Core", "SummitArt", "ModuleScript" },
+	{ "src/core/server/ExpeditionRun.luau", "ServerScriptService/CC_CoreServer", "ExpeditionRun", "ModuleScript" },
+	{ "src/core/server/SummitFinish.luau", "ServerScriptService/CC_CoreServer", "SummitFinish", "ModuleScript" },
+	{ "src/core/server/SummitTests.luau", "ServerScriptService/CC_CoreServer", "SummitTests", "ModuleScript" },
+	{ "src/core/client/SummitCinematic.luau", "ReplicatedStorage/CC_Core/Client", "SummitCinematic", "ModuleScript" },
+	{ "src/core/client/ResultsUI.luau", "ReplicatedStorage/CC_Core/Client", "ResultsUI", "ModuleScript" },
+	{ "src/world/SummitStage.luau", "ServerStorage/CC_Generators", "SummitStage", "ModuleScript" },
 	{ "src/core/shared/DailyPracticeRules.luau", "ReplicatedStorage/CC_Core", "DailyPracticeRules", "ModuleScript" },
 	{ "src/core/server/DailyPractice.luau", "ServerScriptService/CC_CoreServer", "DailyPractice", "ModuleScript" },
 	{ "src/core/server/DailyPracticeTests.luau", "ServerScriptService/CC_CoreServer", "DailyPracticeTests", "ModuleScript" },

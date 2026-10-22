@@ -34,7 +34,7 @@ return function()
  for _,id in {'Exchange_Bundle','Exchange_Flag','Exchange_Trail'} do a[id].CFrame+=Vector3.new(-7,0,14) end
  f.Exchange:PivotTo(f.Exchange:GetPivot()+Vector3.new(-7,0,14))
  workspace.World.CommerceDisplays:Destroy()
- require(game.ServerScriptService.CC_CoreServer.CommerceDisplays:Clone()).build()
+ require(game.ServerScriptService.CC_CoreServer.CommerceDisplays).build()
  a.PracticeStart.CFrame+=Vector3.new(10,0,12)
  return #m:GetDescendants()
 end

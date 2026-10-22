@@ -1,3 +1,4 @@
+local resultsUI
 -- Expedition UI: server snapshots own every inventory, bank, home and travel outcome.
 -- Landscape phones use full-size targets and scrolling sheets, never a shrunken desktop canvas.
 local Players = game:GetService("Players")
@@ -456,6 +457,7 @@ closePanel = function()
 	if mode == "locker" then request("lockerClose") elseif mode == "home" then request("homeClose") elseif mode == "directory" then request("homeDirectoryClose") elseif mode == "practice" then request("practiceClose") elseif mode == "swap" and state.swapOffer then request("swapLeave", { token = state.swapOffer.token }) end
 end
 openPanel = function(mode)
+ if plr:GetAttribute('CC_SummitPresentation') then return end
 	if dailyUI then dailyUI.close() end
 	if profileUI then profileUI.close() end
 	CommerceUI.close()
@@ -685,7 +687,8 @@ Run.RenderStepped:Connect(function(dt)
 	if state.saveState == "loading" and os.clock() - loadingAt > 5 then loadingAt = os.clock(); request("state") end
 	if ui.panel.Visible and ui.mode == "loss" and os.clock() - ui.renderAt > 1 then render() end
  CommerceUI.tick()
- if CommerceUI.isOpen() then ui.hud.Visible=false;ui.altitude.Visible=false;ui.tutorial.Visible=false;ui.notice.Visible=false;ui.save.Visible=false;ui.menuButton.Visible=false else ui.menuButton.Visible=true end
+ if resultsUI then resultsUI.update(state) end
+ if CommerceUI.isOpen() or plr:GetAttribute('CC_SummitPresentation') then ui.hud.Visible=false;ui.altitude.Visible=false;ui.tutorial.Visible=false;ui.notice.Visible=false;ui.save.Visible=false;ui.menuButton.Visible=false else ui.menuButton.Visible=true end
 end)
 plr:SetAttribute("CC_MenuOpen", false)
 local checkpointEvent = RS:WaitForChild("CC_Remotes"):FindFirstChild("Checkpoint")
@@ -734,9 +737,10 @@ CommerceUI.init({parent=gui,request=request,safe=safeGround,otherOpen=function()
  closeOtherPanels=function() if dailyUI then dailyUI.close() end;if profileUI then profileUI.close() end;if ui.panel.Visible then closePanel() end;cancelHolds() end,
  onModalChanged=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end})
 if Run:IsStudio() then _G.CC_COMMERCE_UI=CommerceUI end
-profileUI=require(CoreRS.Client.ProfileUI).mount({parent=gui,request=request,modal=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end,closeOthers=function() CommerceUI.close();if ui.panel.Visible then closePanel() end end,collection=function() ui.tab="Collection";openPanel("expedition") end})
+profileUI=require(CoreRS.Client.ProfileUI).mount({parent=gui,request=request,modal=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end,closeOthers=function() if dailyUI then dailyUI.close() end;CommerceUI.close();if ui.panel.Visible then closePanel() end end,collection=function() ui.tab="Collection";openPanel("expedition") end})
 nameTags=require(CoreRS.Client.NameTags).mount({parent=gui,request=request,profile=profileUI})
-newHUD=require(CoreRS.Client.ExpeditionHUD).mount({parent=gui,ui=ui,profile=profileUI,blocked=function() return ui.panel.Visible or profileUI.isOpen() or CommerceUI.isOpen() or plr:GetAttribute("CC_SummitPresentation")==true end})
+newHUD=require(CoreRS.Client.ExpeditionHUD).mount({parent=gui,ui=ui,profile=profileUI,blocked=function() return ui.panel.Visible or profileUI.isOpen() or (dailyUI and dailyUI.isOpen()) or CommerceUI.isOpen() or plr:GetAttribute("CC_SummitPresentation")==true end})
 if Run:IsStudio() then local r=Instance.new("BindableFunction");r.Name="PortfolioReview";r.OnInvoke=function(action) if action=="open" then profileUI.own() elseif action=="close" then profileUI.close() end end;r.Parent=gui end
 dailyUI=require(CoreRS.Client.DailyPracticeUI).mount({parent=gui,request=request,modal=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end,closeOthers=function() profileUI.close();CommerceUI.close();if ui.panel.Visible then closePanel() end end})
+resultsUI=require(CoreRS.Client.ResultsUI).mount({parent=gui,request=request,settings=function() return state.settings or {} end,modal=function(open) plr:SetAttribute('CC_MenuOpen',open);cancelHolds() end,closeOthers=function() profileUI.close();dailyUI.close();CommerceUI.close();closePanel() end})
 fit(); refreshHud(); request("state")

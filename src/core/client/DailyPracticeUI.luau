@@ -4,7 +4,7 @@ function U.mount(deps)
  local self={};local state={};local root=T.panel(deps.parent,'DailyPractice',T.cream);root.AnchorPoint=Vector2.new(.5,.5);root.Position=UDim2.fromScale(.5,.5);root.Size=UDim2.new(1,-30,1,-22);root.Visible=false;root.ZIndex=75
  T.make('UISizeConstraint',root,{MaxSize=Vector2.new(620,500)})
  local title=T.text(root,'DAILY PRACTICE • FREE',24);title.Position=UDim2.fromOffset(16,8);title.Size=UDim2.new(1,-88,0,48)
- local body=T.make('ScrollingFrame',root,{Position=UDim2.fromOffset(14,68),Size=UDim2.new(1,-28,1,-82),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new()});T.make('UIListLayout',body,{Padding=UDim.new(0,12)})
+ local body=T.make('ScrollingFrame',root,{Position=UDim2.fromOffset(14,68),Size=UDim2.new(1,-28,1,-82),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new()});T.make('UIListLayout',body,{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder})
  local route=T.text(body,'',21);route.Size=UDim2.new(1,-6,0,78)
  local progress=T.text(body,'',18);progress.Size=UDim2.new(1,-6,0,78)
  function self.close() root.Visible=false;deps.modal(false) end
@@ -18,7 +18,8 @@ function U.mount(deps)
  function self.isOpen() return root.Visible end
  function self.update(st)
   state=st.dailyPractice or {};local parts={};for _,s in state.sections or {} do table.insert(parts,s:gsub('Practice:','')) end
-  route.Text='TODAY: '..table.concat(parts,' → ')..'\nResets at 00:00 UTC'
+  local left=math.max(0,(state.resetAt or 0)-(st.now or os.time()))
+  route.Text='TODAY: '..table.concat(parts,' → ')..string.format('\nNext circuit in %dh %dm • 00:00 UTC',math.floor(left/3600),math.floor(left%3600/60))
   progress.Text=(state.stamps or 0)..' / 7 stamps • Earn the Practice Pennant\n'..(state.status=='replay' and 'Today’s stamp is saved. Replay freely.' or 'No streak needed. One saved stamp each day.')
   hud.Visible=state.active==true and not root.Visible
   text.Text=state.status=='saving' and 'Practice complete • confirming save…' or ('DAILY '..math.min(state.next or 1,#parts)..' / '..#parts..(state.timed and (' • '..(state.elapsed or 0)..'s') or ' • TAKE YOUR TIME'))

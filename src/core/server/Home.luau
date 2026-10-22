@@ -431,7 +431,7 @@ function Home.onLoaded(plr, s)
 	Home.settle(s.data, Clock.now())
 	s.dirty = true
 	-- A crash in a temporary home always resumes from the saved cabin doorway, never from a vanished court.
-	local ret = s.data.expedition.homeReturn
+	local ret = not (s.data.expedition.summit and s.data.expedition.summit.pendingResult) and s.data.expedition.homeReturn
 	if type(ret) == "table" and type(ret.x) == "number" and type(ret.y) == "number" and type(ret.z) == "number" then
 		task.delay(1, function()
 			if ctx.sessions[plr] == s and travel(plr, Vector3.new(ret.x, ret.y, ret.z), "homeReturn") then Profile.clearHomeReturn(s); ctx.saveSoon(s) end

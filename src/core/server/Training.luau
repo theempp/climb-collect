@@ -77,7 +77,7 @@ function Training.init(c)
    ctx.toast(plr,"Your completed lesson is still saving. Please wait before starting another.","info")
    return
   end
-  if ctx.DailyPractice then ctx.DailyPractice.cancel(plr) end
+  if ctx.DailyPractice and not ctx.DailyPractice.cancel(plr) then return end
   active[plr]={id=i,next=1,session=s}
   open[plr]=nil
   ctx.toast(plr,"Climb the practice walls in order. Take your time; the bell is your finish.","info")
