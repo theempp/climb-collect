@@ -125,3 +125,8 @@ Spawn → trail gate is 160 studs. Ring loops: Valley 10,713 (11.2 min), Forest 
 ## Edit policy
 
 Keep this document clear and concise but accurate. Add sections when real project context requires them. For important workflow rules, record source/rationale. Keep an immutable history or commit trail for major changes. Don't erase user's locked constraints or store passwords, tokens, private credentials or personally sensitive information in repository docs.
+
+
+## Fairground redesign local review — 2026-10-22
+
+All four implementation phases are saved in `Fairground.Finale.Review.rbxl` (identical working copy: `ClimbAndCollect.Fairground.Review.rbxl`). Final integration source: `ffb15a2`; phase commits: `be2f7aa`, `877be3f`, `92b2f4a`, `ff1f1d5`. Read [the implementation handoff](design/fairground-implementation-handoff-2026-10-22.md) before continuing. Reopened binary verification passed for 101 sources, exact terrain and protected assets. Independent code review findings are resolved. Genuine whole-ascent acceptance remains incomplete at a preserved Shepherd terrain overhang; real multiplayer, physical phone/controller and DataStore networking remain unverified. Do not treat injected summit eligibility or profile release/reload fixtures as these tests. No publishing or commerce activation occurred. Starting dirty/untracked work is recoverable in the local starting-source archive; Git alone is not the whole project.

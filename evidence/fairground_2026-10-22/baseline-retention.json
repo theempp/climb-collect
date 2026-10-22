@@ -1,0 +1,28 @@
+{
+  "inventoried": 1925,
+  "missing": [],
+  "changed": [
+    "src/runtime/CC_CheckpointService.server.luau",
+    "src/runtime/CC_CoreClient.client.luau",
+    "src/runtime/CC_CoreService.server.luau",
+    "src/core/client/CommerceUI.luau",
+    "src/core/server/Camps.luau",
+    "src/core/server/CommerceCosmetics.luau",
+    "src/core/server/CommerceDisplays.luau",
+    "src/core/server/DropPacks.luau",
+    "src/core/server/Home.luau",
+    "src/core/server/Profile.luau",
+    "src/core/server/Training.luau",
+    "src/core/server/Traversal.luau",
+    "src/core/shared/TraversalRules.luau",
+    "tools/sync_core.luau",
+    "tools/training_regression.py",
+    "design/commerce-handoff-2026-10-22.md",
+    "design/expedition-handoff-2026-10-22.md",
+    "design/fairground-resume-handoff-2026-10-22.md",
+    "design/lobby-portfolio-summit-design-2026-10-22.md",
+    "docs/superpowers/plans/2026-10-22-expedition-redesign.md",
+    "CLAUDE.md",
+    "master.md"
+  ]
+}

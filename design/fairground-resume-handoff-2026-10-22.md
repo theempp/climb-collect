@@ -47,6 +47,8 @@ Planning checkpoint commit: `b49d8fa` contains the design and five implementatio
 
 ## Saved artifacts and boundaries
 
+**Execution update:** this planning-era resume point has been superseded by [the implementation handoff](fairground-implementation-handoff-2026-10-22.md). All four phases now exist in `Fairground.Finale.Review.rbxl`, with integration source `ffb15a2` and saved/reopened verification. Consult that handoff for the incomplete genuine ascent and outstanding multiplayer/device checks; do not restart implementation from this older planning state.
+
 All original references are inside `references/duck-duck-tag-2026-10-22/`. The 109 MB recording is local project content, deliberately excluded from ordinary Git history; copying/cloning only Git history is insufficient to transport it. Both original media copies matched their source SHA-256 checksums. The original desktop files were left in place.
 
 No game code, Studio scenes, product listings, access permissions, or live purchases were changed by this planning/reference-save session. Documentation pointers in the already-modified `CLAUDE.md` and `master.md` were updated without staging their unrelated prior changes.

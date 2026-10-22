@@ -1,0 +1,14 @@
+{
+  "reviewer": "independent /root/final_review",
+  "sourceCommit": "ffb15a2",
+  "remainingActionableCodeFindings": [],
+  "resolved": [
+    "checkpoint allowance on reload",
+    "empty-cargo acknowledged lobby recovery",
+    "pending-save status and containment",
+    "mixed-route finish credit",
+    "accessibility row/tag sizing",
+    "opaque noncolliding tag occlusion"
+  ],
+  "finalConfirmation": "Bounded invisible-only raycast closes finding; camera position changes retain cleanup/fallback. Two-client occlusion, physical controllers and genuine ascent are not established by code review."
+}

@@ -1,0 +1,57 @@
+# Expedition player-feature handoff — 2026-10-22
+
+**Delivery status: saved and reconciled for review.** Open `C:\Users\HOME!\Desktop\climb&collect\ClimbAndCollect.Expedition.rbxl`. Saved 2026-10-22 at 01:47:13 local time, 18,264,410 bytes; SHA256 `7c96653bc1d0a077648f1739c7ec0817d2f7ac42c39a13c2e74840fe8264e0fd`. The working `ClimbAndCollect.rbxl` contains the same build. All 62 manifest sources match local source and saved embedded scripts. All serialized Terrain properties match the baseline byte-for-byte after decompression. World remains 4,379 descendants, protected creature folders 179/186, and two checkpoints. HTTP is off; the old competing traversal controller is disabled. Studio is stopped in Edit mode with its default viewport restored.
+
+Open **ClimbAndCollect.Expedition.rbxl** in Roblox Studio using **File → Open from File**, then **Play / F5**. Start at the Foothold and follow the tutorial. This unpublished place uses an in-memory store during Play; stopping Play resets that store. Scripted reconnect tests run within the same Play session.
+
+## Implemented connected experience
+
+- One server-owned authored-hold traversal controller: alternating hands, visible foothold choices, timing assistance, stable-hold benefit, harness catches for protected climb slips, hanging recovery, shared ropes and rescue. Walking off an edge remains a real fall. Ice equipment responds to icy surfaces; the headlamp responds to darkness. Stamina is the only survival resource; oxygen, canisters and obsolete commerce flows are retired.
+- Visible creature nooks, solo guardian distraction and net capture feed a persistent backpack. Full packs offer compare/swap/leave; released finds retain identity. Physical camp lockers, intentional-jump parachuting and the camp shuttle preserve cargo. The shuttle returns to the Foothold entrance; players still walk to the bank.
+- Banking confirms a durable transaction receipt before showing success. Retry, uncertain commit, deferred fall outcomes, reconnect and duplicate requests preserve exact ownership and discovery records. Collection and memories are available anywhere; viewpoint journal stamps are recorded.
+- Existing cabin portals serve the actual 30-player capacity through temporary personal courts. Two manually occupied Heartstone nests advance from newly credited expedition finds; hatching is deliberate. Timer migration preserves progress, ready stones, outcomes and overflow storage. Three earning spaces expand to six, with explicit assignment/Equip Best, one collect pad and eight-hour capped offline accrual. Favorites, petting and a cosmetic ground companion have no upkeep. Visitors cannot mutate their host's home.
+- Three finite purchasable practice sections teach real traversal, with one finite stamina cap and preserved prior upgrades. The Expedition interface includes Backpack, Collection, Routes and Settings, contextual input, a compact HUD, accessible rarity cues, text sizing, reduced motion and safe queued feedback. Home management remains physical.
+
+## Six-step manual whole-loop check
+
+1. **Join and inspect the interface.** Confirm loading clears, tutorial guidance and HUD are readable, all four Expedition tabs work, and text size/reduced motion/timing assistance persist through a scripted rejoin. Check landscape scrolling and reachable primary actions. Keyboard menu: **M**; interaction: **E**; climb hands: **Q/R**; deliberate release: **X**.
+2. **Complete the tutorial climb and find.** Claim the tutorial creature/Rare, clip at an authored anchor, alternate hands, wait, deliberately mistime once, choose a foothold, slip and recover. Distinguish a protected climb catch from a real walkoff. Inspect automatic ice/darkness equipment when encountered.
+3. **Carry finds through the expedition.** Use a guardian distraction and net, fill the pack, compare/swap and reclaim the returned original. Store a find at a camp, leave and confirm remote retrieval is unavailable. Try the intentional grounded-jump parachute practice and cargo shuttle; neither should bank anything.
+4. **Bank and check persistence.** Walk to the Foothold campfire, bank, inspect Collection/Memories and verify cargo moves only after confirmed saving. With the Studio test harness, exercise failed-save/retry and rejoin; confirm the same item identities and no repeated rewards. Retrieve the camp locker item physically on a later trip.
+5. **Manage a home.** Enter through a cabin door, manually place two banked stones, leave and bank fresh finds, then return and deliberately hatch. Try the outer-side nest prompts. Assign creatures, Equip Best, collect, upgrade, favorite, pet and choose a companion. With another player, verify visitor actions are read-only and owner departure safely returns guests.
+6. **Review progression and route/input limits.** Purchase and complete all three practice sections using actual inputs; repeating one must not grant another upgrade. Try Shepherd and Waterfall; Ledge and Spire remain Coming Soon. Switch keyboard/touch/gamepad, open a menu while climbing and lose focus during a hold; check cancellation and distinct release controls. Test shared rope/rescue behavior with another player.
+
+## Verification recorded so far
+
+| Check | Observed result |
+|---|---|
+| Latest root-verified Studio suites | **12/12 A1**, **15/15 Expedition**, **10/10 traversal rules/graph**; 57 authored sections |
+| Actual tutorial transitions | **10/10**, with nonempty cargo |
+| Practice | **3/3** sections completed with actual traversal input |
+| Live authored-section route checks | **57/57 passed** after fixing the reproduced Waterfall storm45 landing; its six-second follow-up stayed grounded with no fall. The other56 definitions were unchanged. These checks move to each real section entry, then use the actual controller; they are not whole-route walking tests. |
+| Closed-route access | Four actual grounded deep/side entries returned correctly; shared open ground stayed accessible. Fixed a repeated gate-return loop; final return stays grounded/unanchored, and immediate behind-gate reentry is still rejected. |
+| Connected live systems | Bank failure/retry, compare/swap, guardian reward, deliberate hatch/replay, home income/upgrade, locker, shuttle, cargo rejoin and valid flight landing exercised by root |
+| Local regressions | Persistence/home/Camps **8/8**; training **4/4**; Heartstone client visibility **9/9**; traversal rules **14/14**; route access **10/10** |
+| Compilation | **63 compiled, zero failures**, 62 manifest sources |
+| Final interface checks | All four tabs on Galaxy A06 safe viewport705×280 and iPhone13 safe viewport749×330, including largest text: zero small targets or text overflows. Simulated touch activated Largest and stored1.3. Climb controls fit; desktop Collection passed bounds. Screenshots inspected. |
+| Final live authority/outcomes | Teleport-before-heartbeat bank attempt rejected and rolled back. Save failure kept cargo and showed uncertain; retry/rejoin banked once. Unintentional airborne deploy rejected; ordinary fall moved one exact find into a pack and physical recovery restored the original identity. |
+| Desktop performance | Six actual samples: approximately **16.66–16.67 ms average**, **17.59–17.91 ms p95**, no sampled frames over 33 ms; streamed-world counts below the recorded location caps |
+
+Evidence: [final results](../evidence/expedition_2026-10-22/final-results.json), [all route batches and original landing failure](../evidence/expedition_2026-10-22/final-live-verification.json), [final automated suites](../evidence/expedition_2026-10-22/automated-suite.json), [earlier home/hatch/locker/flight checks](../evidence/expedition_2026-10-22/live-systems.json), [performance](../evidence/expedition_2026-10-22/performance.json), [saved file verification](../evidence/expedition_2026-10-22/saved-verification.json), [Studio reconciliation](../evidence/expedition_2026-10-22/studio-reconciliation.json), [phone screenshot](../evidence/expedition_2026-10-22/phone-settings.png). The route-batch file intentionally retains the initial storm45 failure; the repaired passing result and soak are in final-results. Desktop phone emulation and these performance samples do not establish real-phone performance or complete human route feel.
+
+## Limits, preserved boundary and finalization
+
+Real DataStore network behavior is **unverified/unavailable at PlaceId 0**. No public publishing, access changes or expanded permissions were authorized or performed. Actual gamepad operation, real-phone testing and real multi-client contention/rope/rescue/home visits remain **unverified**. Simulated service/world fixtures and scripted single-client checks are identified separately above.
+
+The completed terrain/art/Foothold and protected creature project were preserved. Five regions and four route identities remain; Shepherd and Waterfall are the launch choices. **Expansion beyond the V6P1 world slice still requires the user's human playtest approval. No such approval or human playtest is claimed.**
+
+Recoverable starting state: `ClimbAndCollect.PreExpedition.rbxl` and [starting-source.zip](../evidence/expedition_2026-10-22/starting-source.zip). Detailed implementation notes: [traversal](expedition-traversal-handoff.md), [persistence/home](expedition-persistence-home.md), [interface](expedition-ui.md).
+
+**Next steps:** run the six-step manual checklist above, then verify on actual gamepads/phones and with multiple local clients. Real DataStore validation requires a separately authorized published test destination. Preserve the V6P1 world boundary until the owner's explicit playtest approval. Existing fallback creature artwork remains unchanged; only fallback display names were made readable. No new audio assets were sourced; functional feedback is visual; added audio and haptic feedback remain a polish opportunity.
+
+Reproduce automated checks: `python tools/verify_expedition.py ClimbAndCollect.Expedition.rbxl`; `python tools/training_regression.py`; `python tools/cargo_visibility_regression.py`; `tools/.luau/luau.exe tools/traversal_rules_cli.luau`; `tools/.luau/luau.exe tools/traversal_access_cli.luau`. In Studio Server: `require(game.ServerScriptService.CC_CoreServer.Tests).runA1()`, `require(game.ServerScriptService.CC_CoreServer.ExpeditionTests).run()` and `require(game.ServerScriptService.CC_CoreServer.TraversalTests).run()`. Live traversal harnesses are under `ServerStorage.CC_DevTools`; use only in disposable Play sessions because they move the test character.
+
+
+## Fairground redesign local review — 2026-10-22
+
+All four implementation phases are saved in `Fairground.Finale.Review.rbxl` (identical working copy: `ClimbAndCollect.Fairground.Review.rbxl`). Final integration source: `ffb15a2`; phase commits: `be2f7aa`, `877be3f`, `92b2f4a`, `ff1f1d5`. Read [the implementation handoff](fairground-implementation-handoff-2026-10-22.md) before continuing. Reopened binary verification passed for 101 sources, exact terrain and protected assets. Independent code review findings are resolved. Genuine whole-ascent acceptance remains incomplete at a preserved Shepherd terrain overhang; real multiplayer, physical phone/controller and DataStore networking remain unverified. Do not treat injected summit eligibility or profile release/reload fixtures as these tests. No publishing or commerce activation occurred. Starting dirty/untracked work is recoverable in the local starting-source archive; Git alone is not the whole project.

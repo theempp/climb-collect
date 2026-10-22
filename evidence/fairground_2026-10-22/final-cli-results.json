@@ -1,0 +1,23 @@
+{
+  "training": {
+    "passed": 4,
+    "total": 4
+  },
+  "cargo": {
+    "passed": 9,
+    "total": 9
+  },
+  "traversalRules": {
+    "passed": 14,
+    "total": 14
+  },
+  "routeAccess": {
+    "passed": 10,
+    "total": 10
+  },
+  "summitRules": {
+    "passed": 8,
+    "total": 8
+  },
+  "kind": "real module or pure Luau tests with isolated doubles, rerun after final source fixes"
+}

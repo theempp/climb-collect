@@ -1,0 +1,20 @@
+{
+  "checked": "2026-10-22",
+  "method": "Studio MarketplaceService.GetProductInfo + client ContentProvider.PreloadAsync",
+  "assets": [
+    {
+      "id": 1836473422,
+      "name": "Victory Fanfare Sting",
+      "creator": "APMOfficial",
+      "loadedInLocalClient": true
+    },
+    {
+      "id": 126966962086051,
+      "name": "Helicopter Rotors",
+      "creator": "roblox_user_3823533951",
+      "loadedInLocalClient": true
+    }
+  ],
+  "purchaseOrPermissionChange": false,
+  "publishedDestinationPermission": "not tested; no published destination authorized"
+}

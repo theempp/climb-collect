@@ -1,0 +1,16 @@
+{
+  "unchanged": true,
+  "changedRoots": [],
+  "roots": [
+    "mountainTraversal",
+    "Workspace.World.Routes",
+    "ServerStorage.CC_Creatures",
+    "Workspace.World.Checkpoints",
+    "ReplicatedStorage.CC_Route",
+    "Workspace.CC_CreatureStage1",
+    "ReplicatedStorage.CC_Track"
+  ],
+  "properties": "geometry, appearance, asset IDs, attributes, tags, script/value/link properties; original mountain traversal definitions",
+  "checkedPlace": "C:\\Users\\HOME!\\Desktop\\climb&collect\\Fairground.Practice.Review.rbxl",
+  "checkedPlaceSha256": "094906c794d73336299d3371103c6bd62a3ee14fb7cc301a82d34e73f8cfaadf"
+}

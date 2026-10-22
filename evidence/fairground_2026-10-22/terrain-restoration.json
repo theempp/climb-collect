@@ -1,0 +1,8 @@
+{
+  "restoredProperty": "Terrain.SmoothGrid",
+  "otherTerrainPropertiesUnchanged": true,
+  "backup": "C:\\Users\\HOME!\\Desktop\\climb&collect\\evidence\\fairground_2026-10-22\\ClimbAndCollect.Review.BeforeTerrainRestore.rbxl",
+  "baselineSha256": "0a64394b7c34fcb59bba1fe1c773c6e58b3af9439ea42a24c317b5173846ef07",
+  "reviewSha256": "f43448b824929032460c72de3640a2838374c77b6357b14d8d03547d2dc08b45",
+  "note": "Exact original serialized terrain restored after Studio save; repeat verification after future Studio saves."
+}
