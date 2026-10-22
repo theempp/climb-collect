@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-22",
+  "reference_game": "DUCK DUCK (TAG)",
+  "files": [
+    {
+      "file": "gameplay.mov",
+      "original": "C:\\Users\\HOME!\\Desktop\\Video Oct 22 2026, 12 18 41 PM.mov",
+      "bytes": 109106383,
+      "sha256": "0b8b25fae255c6633355d280ba627ef8edfffc3eee840b214574997eaa53128e",
+      "matches_original": true
+    },
+    {
+      "file": "portfolio.png",
+      "original": "C:\\Users\\HOME!\\Desktop\\Photo Oct 22 2026, 12 19 45 PM.png",
+      "bytes": 1492568,
+      "sha256": "00b6b3f31dbf10a522543915b4b1ed795596bb821da44313dbd3cbdc01fdf745",
+      "matches_original": true
+    },
+    {
+      "file": "contact-sheet.jpg",
+      "original": "C:\\Users\\HOME!\\Desktop\\climb&collect\\scratchpad\\duck-review\\contact.jpg",
+      "bytes": 934101,
+      "sha256": "d5fe5aa8c678663860e1b94d91cd9388dbc6ed15948661f11601a97e309e10b6",
+      "matches_original": true
+    }
+  ],
+  "video_duration_seconds": 60.97,
+  "review_method": "Visual sampling every 3 seconds; no audio evaluation. Contact sheet timestamps are approximate sample-bin centers. Original video retains original audio."
+}

@@ -1,6 +1,6 @@
 # Expedition Fairground, Player Portfolio, and Summit Finale
 
-Date: 2026-10-22. Status: design direction approved by the owner in this chat; implementation has not started. Numerical reward balancing remains provisional. Implementation-plan review and execution-method selection are the next gate.
+Date: 2026-10-22. Status: design direction and detailed implementation plan approved by the owner in this chat; implementation has not started. Numerical reward balancing remains provisional. The saved new-chat continuation prompt specifies native implementation and a final independent review. Resume from [the handoff](fairground-resume-handoff-2026-10-22.md).
 
 ## 1. Purpose and decision status
 
@@ -12,7 +12,7 @@ Owner-selected delivery order: rebuild the lobby first, then deliver the portfol
 
 ## 2. Reference analysis and its limits
 
-Inputs: the supplied DUCK DUCK (TAG) screen recording, approximately 61 seconds, and portfolio screenshot. Visual review used frames sampled every three seconds; audio was not evaluated. Timestamps below are approximate.
+Inputs: the supplied DUCK DUCK (TAG) screen recording, approximately 61 seconds, and portfolio screenshot, now preserved in [the project-local reference package](../references/duck-duck-tag-2026-10-22/README.md). Visual review used frames sampled every three seconds; audio was not evaluated. Timestamps below are approximate.
 
 | Reference observation | Design implication |
 | --- | --- |
@@ -177,4 +177,4 @@ Acceptance evidence required:
 
 ## 13. Next review
 
-Owner review should confirm the proposed spatial arrangement, title/cosmetic ladder, reward economy, run-time definition, and cinematic storyboard. After design approval, produce the detailed implementation plan with separate work packages, dependencies, migration requirements, rollback boundaries, and evidence gates. No implementation completion or approval of these proposed details is claimed by this draft.
+The owner approved the design direction and subsequently approved the detailed implementation plans. Numerical reward balancing remains provisional. The next step is implementation preflight through the saved continuation prompt; do not repeat the completed design/plan approval cycle. No implementation completion is claimed. See the resume handoff for the final approval record and remaining content/price boundaries.

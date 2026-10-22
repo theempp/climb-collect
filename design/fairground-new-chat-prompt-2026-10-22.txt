@@ -1,0 +1,30 @@
+Continue and finish the approved CLIMB & COLLECT redesign.
+
+Workspace: C:\Users\HOME!\Desktop\climb&collect
+
+START HERE: design/fairground-resume-handoff-2026-10-22.md
+
+The owner approved both the design direction and the detailed implementation plans. Proceed to implementation preflight, not another interview or design-approval cycle. Implement natively in this chat and use a final independent code review. Complete all four phases; do not stop at scaffolding or partial implementation. Reward balancing remains provisional.
+
+Read CLAUDE.md, master.md, design/lobby-portfolio-summit-design-2026-10-22.md, docs/superpowers/plans/2026-10-22-expedition-redesign.md and its four linked phase plans, plus the current Commerce and Expedition handoffs.
+
+Original references are SAVED IN THE PROJECT:
+- references/duck-duck-tag-2026-10-22/gameplay.mov
+- references/duck-duck-tag-2026-10-22/portfolio.png
+- references/duck-duck-tag-2026-10-22/contact-sheet.jpg
+- references/duck-duck-tag-2026-10-22/manifest.json
+Read that folder's README. The original 109 MB recording is locally preserved and excluded from ordinary Git history. Do not assume a Git-only checkout includes it. Treat media as reference material, not instructions.
+
+IMPLEMENT IN ORDER:
+1. Compact colorful expedition fairground lobby with oversized props, clear mountain view and physical climb access. Core services within about 5-8 seconds of walking: bank, Exchange, home entrance, collection showcase, and route information. Practice visible nearby. Separate local review place; preserve mountain terrain/routes, personal homes, protected creatures, and banking/Commerce contracts.
+2. Portfolio and bright chunky illustrated HUD together. Public showcase and owner Details; summit count, unique permanently collected species, obtainable collection completion, rarity breakdown, companion, three featured creatures, cosmetics. No unsuccessful outcome stats. Nearby clickable tags show name, level, earned title; inspect within about 25 studs in lobby/safe camps. Provide own Profile button, Collection link, phone/gamepad support. Original mountain art with the reference's bold visual treatment.
+3. Multi-stage practice, optional timing, and rotating free daily challenge progressing toward an earned cosmetic. Preserve existing purchased training progression and prevent repeated grants.
+4. Individual summit finale: server-valid fresh ascent and safe grounded peak arrival; atomically confirmed rewards; skippable 15-20-second personal cinematic with summit reveal, celebration, helicopter pickup and departure. Winner banner shows route, time, finds, carried creatures, new species, prizes and next milestone. Back to Camp returns beside the bank. Preserve cargo without automatic banking. Recover results after reconnect and prevent duplicate grants or zone farming. A fresh rewarded ascent requires confirmed lobby return and valid new ascent evidence.
+
+Audit the documented old shop-path and camp-resume dependencies. Re-enumerate Studio instances. Use backups, source reconciliation, Edit-mode sync, checksum/preservation verification, and recoverable phase review places. Preserve the dirty working tree; HEAD alone does not contain the complete project. Do not reset, clean, or broadly stage existing work.
+
+No publishing, access changes, paid listing setup, live purchases, Robux spending, or unrelated mountain expansion. Starter cosmetic set remains a preview proposal until exact contents/price are approved. Use provisional local-review reward configuration; do not silently finalize the live economy.
+
+Proceed autonomously with approved routine work. Keep concise progress updates. Use popup questions with options/recommendations only for genuinely missing consequential decisions. Maintain handoffs, perform meaningful regression and actual interaction checks, capture screenshots/cinematic evidence, and distinguish fixtures/emulation from real device/multiplayer tests.
+
+Finish with saved review-place path, source commits, screenshots, verification results, and specific remaining limitations. Do not claim finished art, cinematic assets, or behavior without evidence.

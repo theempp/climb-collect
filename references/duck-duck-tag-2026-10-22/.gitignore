@@ -1,0 +1,3 @@
+# Full-resolution recording is preserved locally in this project.
+# Keep the 109 MB binary outside ordinary Git history.
+/gameplay.mov

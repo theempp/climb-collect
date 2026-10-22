@@ -1,6 +1,6 @@
 # Expedition Redesign Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. Execution method has not been selected; do not begin implementation or dispatch agents before the owner's review.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans for the saved native-execution continuation. Steps use checkbox (`- [ ]`) syntax for tracking. Owner design and plan review are complete; the continuation prompt specifies native implementation and a final independent review. Read the resume handoff before execution.
 
 **Goal:** Deliver the approved compact expedition fairground, player identity/HUD, daily practice, and individual summit finale in staged local review builds.
 
@@ -76,4 +76,4 @@ The first command verifies the old baseline; the new review file uses the new fa
 
 ## Review status
 
-Design direction approved; this implementation plan awaits owner review and execution-method selection. Numerical balancing stays provisional in local review, with no live economy rollout.
+Design direction and implementation plan approved by the owner in this chat. The owner requested a new-chat continuation prompt to continue and finish execution; that prompt specifies native implementation with a final independent review. Numerical balancing stays provisional in local review, with no live economy rollout. Start from [the resume handoff](../../../design/fairground-resume-handoff-2026-10-22.md), which records final approvals, project-local media references, and the exact resume point.
