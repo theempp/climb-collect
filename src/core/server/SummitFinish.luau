@@ -9,7 +9,7 @@ function S.completeData(d,a,c,now)
  if not st.active or st.active.seq~=a.seq or a.seq<=(st.retiredThrough or 0) or st.completedThrough>st.returnedThrough then return {ok=false,reason='sequence'} end
  local eligible=R.eligible(a,{grounded=true,at=now},c);if not eligible.ok then return {ok=false,reason=eligible.reason} end
  local total=0;for _,n in d.gear.summits do total+=n end
- local route=a.startRoute;local firstRoute=(d.gear.summits[route] or 0)==0
+ local route=table.find({'Shepherd','Waterfall'},a.currentRoute) and a.currentRoute or a.startRoute;local firstRoute=(d.gear.summits[route] or 0)==0
  local rewards={coins=c.coins+(total==0 and c.firstCoins or 0),points=c.points+(firstRoute and c.firstRoutePoints or 0),cosmetics={}}
  d.gear.summits[route]=(d.gear.summits[route] or 0)+1;d.coins+=rewards.coins;d.gear.points+=rewards.points
  d.expedition.earnedCosmetics=d.expedition.earnedCosmetics or {}
@@ -68,7 +68,7 @@ function S.returnToCamp(p,id)
  returning[p]=true
  local response=ctx.transaction(p,'summitReturn:'..p.UserId..':'..result.seq,function(d)
   local t=d.expedition.summit;if not t.pendingResult or t.pendingResult.id~=id then return {ok=false,reason='result'} end
-  t.returnedThrough=math.max(t.returnedThrough,result.seq);t.returnIntent=true;d.expedition.homeReturn=nil;return {ok=true}
+  t.returnedThrough=math.max(t.returnedThrough,result.seq);t.returnIntent=true;t.lobbyResume=true;d.expedition.homeReturn=nil;return {ok=true}
  end,function()
   if arrive(p,s,id) then
    task.delay(.6,function()
@@ -91,6 +91,18 @@ function S.acknowledge(p,id)
 end
 function S.init(c)
  ctx=c;ctx.SummitFinish=S
+ -- Pending storage cannot trap camera/input or expose cargo to a fall/reset.
+ -- After the short physics freeze, the player can move within the guarded summit deck.
+ task.spawn(function() while true do task.wait(.25);for p,s in ctx.sessions do
+  if S.isHolding(p) and not finishing[p] then
+   local ch=p.Character;local root=ch and ch:FindFirstChild('HumanoidRootPart');local h=ch and ch:FindFirstChildOfClass('Humanoid')
+   local stage=workspace.World:FindFirstChild('SummitStage');local arrival=stage and stage:FindFirstChild('Arrival')
+   if root and h and h.Health>0 and arrival then
+    local delta=root.Position-arrival.Position
+    if (delta*Vector3.new(1,0,1)).Magnitude>9 or delta.Y< -5 or delta.Y>10 then ctx.Traversal.travel(p,arrival.Position,'respawn') end
+   end
+  end
+ end end end)
  ctx.handlers.summitReturn=function(p,v) if type(v.resultId)=='string' then S.returnToCamp(p,v.resultId) end end
  ctx.handlers.summitAcknowledge=function(p,v) if type(v.resultId)=='string' then S.acknowledge(p,v.resultId) end end
  ctx.handlers.summitReplay=function(p,v) local s=ctx.sessions[p];local st=s and s.data.expedition.summit;if st and st.pendingResult and st.pendingResult.id==v.resultId then ctx.fx(p,{kind='summitReplay',id=v.resultId}) end end
@@ -113,6 +125,10 @@ function S.init(c)
   end
  end
 end
+function S.isHolding(p)
+ local s=ctx and ctx.sessions[p]
+ return s and not s.lost and s.pending and tostring(s.pending.id):match('^summit:')~=nil or false
+end
 function S.onLoaded(p,s)
  local st=s.data.expedition.summit
  if st and st.pendingResult then
@@ -122,11 +138,18 @@ function S.onLoaded(p,s)
    if st.returnedThrough>=st.pendingResult.seq then S.returnToCamp(p,st.pendingResult.id)
    else arrive(p,s,st.pendingResult.id);ctx.push(p) end
   end)
+ elseif st and st.lobbyResume and not st.active and not s.data.expedition.homeReturn then
+  task.delay(2,function()
+   if ctx.sessions[p]~=s or not st.lobbyResume or st.active then return end
+   game.ServerStorage.CC_CheckpointAPI.SetCheckpoint:Invoke(p,nil)
+   ctx.Traversal.travel(p,require(script.Parent.LobbyAnchors).resolve(workspace.World).Return.Position+Vector3.yAxis*3,'summitReturn')
+  end)
  end
 end
 function S.state(p,st)
  local s=ctx.sessions[p];local t=s and s.data.expedition.summit
- st.summit={status=finishing[p] and 'saving' or (t and t.pendingResult and 'confirmed' or 'idle'),result=t and copy(t.pendingResult)}
+ local pending=S.isHolding(p)
+ st.summit={status=(finishing[p] or pending) and 'saving' or (t and t.pendingResult and 'confirmed' or 'idle'),result=t and copy(t.pendingResult)}
 end
 function S.onLeave(p) unfreeze(p);returning[p]=nil end
 return S

@@ -15,6 +15,13 @@ function T.run()
  check(not R.credit(d,31,config).credited,'milestone replay');R.credit(d,32,config);check(d.dailyPractice.stamps==7,'stops at milestone')
  check(not d.gear.training.unlocked['2'] and not d.gear.training.completed['2'],'free daily never unlocks paid lesson')
  local old=P.sanitize(d);check(old.dailyPractice.stamps==7,'round trip durable')
+ local Store=require(script.Parent.Store);local store=Store.memory();local profile=P.new(store,{jobId='daily-private-fixture',loadTries=1,saveTries=1,backoff=.001});local s=assert(profile:load(994001))
+ store.failAll=true;local pending=profile:transact(s,'dailypractice:994001:50',function(data)return R.credit(data,50,config)end)
+ check(pending.pending and s.data.dailyPractice.stamps==0,'uncertain save does not expose stamp')
+ store.failAll=false;check(profile:recover(s).ok and s.data.dailyPractice.stamps==1,'recovery credits once')
+ check(profile:transact(s,'dailypractice:994001:50',function(data)return R.credit(data,50,config)end).dup and s.data.dailyPractice.stamps==1,'same receipt replay')
+ s.data.receipts={};check(not profile:transact(s,'dailypractice:994001:50-retry',function(data)return R.credit(data,50,config)end).credited and s.data.dailyPractice.stamps==1,'day marker survives trimmed receipts')
+ store.failAfterCommit=1;check(profile:transact(s,'dailypractice:994001:51',function(data)return R.credit(data,51,config)end).pending,'lost response fixture');check(profile:recover(s).ok and s.data.dailyPractice.stamps==2,'lost response recovered once')
  return {pass=n,fail=0,kind='pure rules/profile fixtures'}
 end
 return T

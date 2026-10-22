@@ -1,4 +1,18 @@
 local P={}
+function P.approaches()
+ local world=workspace.World;if world:FindFirstChild('OpenRouteApproaches') then return end
+ local root=Instance.new('Folder');root.Name='OpenRouteApproaches'
+ for _,path in require(game.ReplicatedStorage.CC_Core.LobbyApproaches) do
+  for i=2,#path.points do
+   local a,b=Vector3.new(table.unpack(path.points[i-1])),Vector3.new(table.unpack(path.points[i]))
+   local n=math.floor((a-b).Magnitude/9)
+   for j=1,n do
+    local at=a:Lerp(b,j/(n+1));local p=Instance.new('Part');p.Name=path.route..'Waymark';p.Anchored=true;p.CanCollide=false;p.CanTouch=false;p.Size=Vector3.new(3,.16,1.5);p.CFrame=CFrame.lookAt(at+Vector3.yAxis*.35,b+Vector3.yAxis*.35);p.Color=path.color;p.Material=Enum.Material.SmoothPlastic;p.Parent=root
+   end
+  end
+ end
+ root.Parent=world;return #root:GetChildren()
+end
 function P.build()
  local world=workspace.World;if world:FindFirstChild('ExpeditionPolish') then return end
  local root=Instance.new('Model');root.Name='ExpeditionPolish'

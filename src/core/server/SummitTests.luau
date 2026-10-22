@@ -38,6 +38,8 @@ function Tests.run()
   assert(#game.HttpService:JSONEncode(s.data)<20000)
  end)
  test('confirmed result survives sanitize and reconnect',function() local p,s=session(993014);assert(finish(p,s).ok);local d=P.sanitize(s.data);assert(d.expedition.summit.pendingResult.id=='ascent:1' and d.expedition.summit.completedThrough==1) end)
+ test('mixed ascent credits final validated open route',function() local p,s=session(993015);local a=run(1);a.currentRoute='Waterfall';a.mixedRoute=true;assert(finish(p,s,nil,a).ok);assert(s.data.gear.summits.Waterfall==1 and not s.data.gear.summits.Shepherd);assert(s.data.expedition.summit.pendingResult.route=='Waterfall') end)
+ test('lobby resume survives acknowledged result sanitation',function() local _,s=session(993016);local st=s.data.expedition.summit;st.active=nil;st.completedThrough=1;st.returnedThrough=1;st.acknowledgedSeq=1;st.lobbyResume=true;assert(P.sanitize(s.data).expedition.summit.lobbyResume==true) end)
  return {pass=passed,fail=failed,lines=lines}
 end
 return Tests

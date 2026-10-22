@@ -18,7 +18,8 @@ function P.snapshot(subject)
  local bank={} for _,b in d.bank do bank[b.creatureId]=b end
  local showcase={} for _,id in d.portfolio.showcase do if bank[id] then table.insert(showcase,creature(bank[id])) end end
  local title=unlocked[d.portfolio.titleId] and d.portfolio.titleId or ''
- return {userId=subject.UserId,displayName=subject.DisplayName,username=subject.Name,level=d.level,xp=d.xp,title=A.name(title),titleId=title,summits=A.total(d.gear.summits),summitsByRoute=ctx.Profile.deepCopy(d.gear.summits),collection=summary,companion=creature(bank[d.home.companion]),showcase=showcase,cosmetics=ctx.Profile.deepCopy(d.commerce.equipped),earnedCosmetic=d.expedition.earnedEquipped,frameId=d.portfolio.frameId}
+ local milestones={};for id,entry in Earned do if d.expedition.earnedCosmetics and d.expedition.earnedCosmetics[id] then table.insert(milestones,entry.name) end end;table.sort(milestones)
+ return {userId=subject.UserId,displayName=subject.DisplayName,username=subject.Name,level=d.level,xp=d.xp,title=A.name(title),titleId=title,summits=A.total(d.gear.summits),summitsByRoute=ctx.Profile.deepCopy(d.gear.summits),collection=summary,companion=creature(bank[d.home.companion]),showcase=showcase,cosmetics=ctx.Profile.deepCopy(d.commerce.equipped),gear=ctx.Profile.deepCopy(d.gear.equipped),milestones=milestones,earnedCosmetic=d.expedition.earnedEquipped,frameId=(Earned[d.portfolio.frameId] and d.expedition.earnedCosmetics and d.expedition.earnedCosmetics[d.portfolio.frameId]) and d.portfolio.frameId or ''}
 end
 function P.authorize(viewer,subject)
  if not subject or not ctx.sessions[subject] or not actor(subject) then return 'unavailable' end
@@ -28,6 +29,14 @@ function P.authorize(viewer,subject)
 end
 function P.init(c)
  ctx=c;roster=R.roster(ctx.Species)
+ -- Read-only clones of the existing creature visuals; never alter the protected library.
+ local models=Instance.new('Folder');models.Name='CC_PortfolioModels'
+ for _,e in roster.entries do if e.collectible and e.obtainable then
+  local model=ctx.Visuals.creature(e.id,Vector3.zero);model.Name=e.id
+  for _,v in model:GetDescendants() do if v:IsA('LuaSourceContainer') or v:IsA('LayerCollector') or v:IsA('ParticleEmitter') or v:IsA('Beam') or v:IsA('Sound') then v:Destroy() elseif v:IsA('BasePart') then v.Anchored=true;v.CanCollide=false;v.CanTouch=false;v.CanQuery=false end end
+  model.Parent=models
+ end end
+ models.Parent=game.ReplicatedStorage
  ctx.handlers.profileInspect=function(viewer,p)
   if type(p.subjectUserId)~='number' or p.subjectUserId%1~=0 or type(p.requestId)~='string' or #p.requestId>64 then return end
   local b=buckets[viewer] or {tokens=4,at=os.clock()};buckets[viewer]=b;local now=os.clock();b.tokens=math.min(4,b.tokens+now-b.at);b.at=now

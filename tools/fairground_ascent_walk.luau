@@ -2,21 +2,26 @@
 -- Run as a temporary server Script in Play. Poll its Status and Detail attributes.
 local RS=game.ReplicatedStorage;local H=game.HttpService;local p=game.Players:GetPlayers()[1];local ch=p.Character;local h=ch:WaitForChild('Humanoid');local root=ch.HumanoidRootPart
 local bridge=game.ServerStorage.CC_DevBridge;local started=os.clock();local fall0=p:GetAttribute('CC_Falls') or 0
+local resume=script:GetAttribute('ResumeSection');local resumeDistance=script:GetAttribute('ResumeDistance')
 local function req(action,payload) bridge:Invoke('request',{name=p.Name,action=action,payload=payload}) end
 local function flat(v) return v*Vector3.new(1,0,1) end
-local function walk(at,jump)
+local function walk(at,jump,precise)
  script:SetAttribute('Target',tostring(at));pcall(function()root:SetNetworkOwner(nil)end)
- local start=os.clock();local limit=(flat(root.Position-at).Magnitude/12)*2+5;local jumped=false
+ if jump then local landed=os.clock();h:MoveTo(root.Position);while h.FloorMaterial==Enum.Material.Air and os.clock()-landed<3 do task.wait(.05) end;task.wait(.1) end
+ local start=os.clock();local limit=(flat(root.Position-at).Magnitude/12)*2+15;local lastJump=0
  h:MoveTo(at);if jump then h.Jump=true end
- while flat(root.Position-at).Magnitude>2.2 do
+ while flat(root.Position-at).Magnitude>(precise and .7 or 2.2) do
   if os.clock()-start>limit then error('walk stalled '..tostring(at)..' at '..tostring(root.Position)) end
   if h.Health<=0 or (p:GetAttribute('CC_Falls') or 0)>fall0 then error('ordinary fall interrupted ascent') end
-  if os.clock()-start>2 and not jumped and flat(root.AssemblyLinearVelocity).Magnitude<1 then h.Jump=true;jumped=true end
+  if os.clock()-start>2 and os.clock()-lastJump>1.2 and h.FloorMaterial~=Enum.Material.Air and flat(root.AssemblyLinearVelocity).Magnitude<2 then h.Jump=true;lastJump=os.clock() end
   h:MoveTo(at);task.wait(.15)
  end
 end
 local function climb(sec)
- walk(Vector3.new(table.unpack(sec.entry)));req('traversal',{action='clip'});task.wait(.3)
+ if ch:GetAttribute('CC_SectionId')~=sec.id then
+  walk(Vector3.new(table.unpack(sec.entry)));task.wait(.8)
+  for _=1,5 do req('traversal',{action='clip'});task.wait(.4);if ch:GetAttribute('CC_SectionId')==sec.id then break end end
+ end
  assert(ch:GetAttribute('CC_SectionId')==sec.id,'wrong clip '..sec.id)
  for _=1,#sec.holds+20 do
   local mode=ch:GetAttribute('CC_TraversalState');if mode=='ground' then return end
@@ -35,25 +40,32 @@ local function route(name)
  local track=RS.CC_Track:FindFirstChild(name);track=track and H:JSONDecode(track.Value) or {}
  table.sort(track,function(a,b)return a.s0<b.s0 end)
  local cur=0
- local function portion(a,b) for _,point in points do if point.s>=a and point.s<b then walk(point.at);script:SetAttribute('Detail',name..' • '..math.floor(point.s)..' studs') end end end
+ local function portion(a,b) for _,point in points do if point.s>=math.max(a,resumeDistance or 0) and point.s<b then walk(point.at);script:SetAttribute('Detail',name..' • '..math.floor(point.s)..' studs') end end end
  for _,segment in track do
-  portion(cur,segment.s0)
+  if resumeDistance and segment.s1<resumeDistance then cur=segment.s1;continue end
+  local firstNode=1
+  if resume then
+   firstNode=nil;for i in segment.nodes do if name..':'..segment.id..':'..i==resume then firstNode=i;break end end
+   if not firstNode then cur=math.max(cur,segment.s1);continue end
+   resume=nil
+  else portion(cur,segment.s0) end
   for i,node in segment.nodes do
+   if i<firstNode then continue end
    script:SetAttribute('Detail',name..':'..segment.id..':'..i)
    local sv=RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..i)
    if sv then climb(H:JSONDecode(sv.Value))
-   elseif node.p then walk(Vector3.new(table.unpack(node.p))+Vector3.yAxis*2,node.k=='jump')
+   elseif node.p then walk(Vector3.new(table.unpack(node.p))+Vector3.yAxis*2,node.k=='jump' or (i>1 and RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..(i-1))~=nil),segment.nodes[i+1] and segment.nodes[i+1].k=='jump' and node.k=='walk')
    elseif node.k=='wait' then task.wait(2)
    elseif node.k=='descend' then error('unmapped descent requires manual input') end
   end
   cur=math.max(cur,segment.s1)
  end
- portion(cur,math.huge)
+ portion(cur,math.huge);resumeDistance=nil
 end
 script:SetAttribute('Status','running')
 local ok,err=pcall(function()
  h.WalkSpeed=12
- walk(Vector3.new(0,52,1900));walk(Vector3.new(-227.2,52,1812.2));task.wait(1)
+ if not resume and not resumeDistance then for _,point in require(RS.CC_Core.LobbyApproaches)[1].points do walk(Vector3.new(table.unpack(point))+Vector3.yAxis*3) end;walk(Vector3.new(-227.2,52,1812.2));task.wait(1) end
  route('Shepherd');route('SummitStair')
  walk(Vector3.new(0,3175,0));walk(Vector3.new(-30,3175,0))
  for flight=0,3 do for i=0,13 do walk(Vector3.new(-30+flight*12,3175+(flight*13+i)*1.5,flight%2==0 and -i*3.5 or -45.5+i*3.5)) end end

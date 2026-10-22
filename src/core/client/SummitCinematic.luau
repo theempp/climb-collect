@@ -46,8 +46,8 @@ function M.play(result,settings,deps)
    for _,v in char:GetDescendants() do if v:IsA('BasePart') then hidden[v]=v.LocalTransparencyModifier;v.LocalTransparencyModifier=1 end end
    local sounds={}
    for kind,id in {fanfare=C.fanfare,rotor=C.rotor} do local s=Instance.new('Sound');s.Name=kind;s.SoundId=id;s.Volume=kind=='rotor' and .22 or .35;s.Looped=kind=='rotor';s.Parent=folder;sounds[kind]=s end
-   local loaded=false;task.spawn(function() pcall(function() game.ContentProvider:PreloadAsync({sounds.fanfare,sounds.rotor}) end);loaded=true end)
-   local start=os.clock();while not loaded and os.clock()-start<5 and not dead do task.wait(.05) end
+   local loaded=false;local loadFailed=false;task.spawn(function() local ok=pcall(function() game.ContentProvider:PreloadAsync({sounds.fanfare,sounds.rotor}) end);loaded=ok and sounds.fanfare.IsLoaded and sounds.rotor.IsLoaded;loadFailed=not loaded end)
+   local start=os.clock();while not loaded and not loadFailed and os.clock()-start<5 and not dead do task.wait(.05) end
    if dead then return end
    if not loaded then self.skip();return end
    cam.CameraType=Enum.CameraType.Scriptable;cam.FieldOfView=55
@@ -75,8 +75,8 @@ function M.play(result,settings,deps)
      local a=helicopterPosition+Vector3.new(7,2,2);local b=characterPos+Vector3.new(0,2,0);cable.Size=Vector3.new(.12,.12,math.max(.1,(a-b).Magnitude));cable.CFrame=CFrame.lookAt((a+b)/2,b);cable.Transparency=t>=8 and t<13 and 0 or 1
      local eye,look
      if t<4 then eye=origin+Vector3.new(100-(reduced and 0 or t*7),48,110);look=origin+Vector3.new(0,-10,0);subtitle.Text='YOU REACHED THE TRUE PEAK'
-     elseif t<8 then eye=origin+Vector3.new(18,8,25);look=origin+Vector3.new(0,2,0);subtitle.Text='EXPEDITION COMPLETE\nYour prizes are saved'
-     elseif t<13 then eye=origin+Vector3.new(35,22,38);look=origin+Vector3.new(0,9,0);subtitle.Text='A RIDE WELL EARNED'
+     elseif t<8 then eye=origin+Vector3.new(-24,10,28);look=origin+Vector3.new(0,5,0);subtitle.Text='EXPEDITION COMPLETE\nYour prizes are saved'
+     elseif t<13 then eye=origin+Vector3.new(-35,22,38);look=origin+Vector3.new(0,9,0);subtitle.Text='A RIDE WELL EARNED'
      else eye=origin+Vector3.new(80,35,95);look=reduced and (origin+Vector3.new(-90,40,-90)) or helicopterPosition;subtitle.Text='THE NEXT ADVENTURE AWAITS' end
      cam.CFrame=CFrame.lookAt(eye,look)
     end)

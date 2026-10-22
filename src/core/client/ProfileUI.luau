@@ -20,6 +20,7 @@ function U.mount(deps)
   local f=T.panel(body,heading,color or Color3.fromRGB(255,231,167));f.Size=UDim2.new(1,-8,0,100)
   local a=T.text(f,heading,21);a.Position=UDim2.fromOffset(12,5);a.Size=UDim2.new(1,-24,0,34)
   local b=T.text(f,detail,17);b.Font=Enum.Font.GothamMedium;b.Position=UDim2.fromOffset(12,40);b.Size=UDim2.new(1,-24,0,54)
+  T.fitRow(f,a,b,100)
   return f
  end
  function self.draw()
@@ -29,23 +30,31 @@ function U.mount(deps)
   local hero=row(card.title or 'Explorer','@'..card.username..'  •  '..card.xp..' exploration XP',T.gold)
   for _,v in hero:GetChildren() do if v:IsA('TextLabel') then v.Position+=UDim2.fromOffset(84,0);v.Size-=UDim2.fromOffset(84,0) end end
   T.make('ImageLabel',hero,{BackgroundTransparency=1,Position=UDim2.fromOffset(8,8),Size=UDim2.fromOffset(80,80),Image='rbxthumb://type=AvatarHeadShot&id='..card.userId..'&w=150&h=150'})
-  local identity=T.make('Frame',body,{BackgroundTransparency=1,Size=UDim2.new(1,-8,0,108)})
+  for _,v in hero:GetChildren() do if v:IsA('TextLabel') then v.Size-=UDim2.fromOffset(110,0) end end
+  T.mountain(hero).Position=UDim2.new(1,-108,0,14)
+  local identity=T.make('Frame',body,{BackgroundTransparency=1,Size=UDim2.new(1,-8,0,144),LayoutOrder=3})
   for i,v in {{tostring(card.summits),'SUMMITS',T.gold},{tostring(card.collection.collected),'UNIQUE SPECIES',T.teal},{card.collection.percent..'%','COLLECTION',Color3.fromRGB(205,184,245)}} do
    local cardFrame=T.panel(identity,v[2],v[3]);cardFrame.Position=UDim2.new((i-1)/3,4,0,0);cardFrame.Size=UDim2.new(1/3,-8,1,0)
    local value=T.text(cardFrame,v[1],32);value.TextXAlignment=Enum.TextXAlignment.Center;value.Size=UDim2.new(1,-8,0,48);value.Position=UDim2.fromOffset(4,8)
-   local caption=T.text(cardFrame,v[2],17);caption.TextXAlignment=Enum.TextXAlignment.Center;caption.Size=UDim2.new(1,-8,0,40);caption.Position=UDim2.fromOffset(4,60)
+   local caption=T.text(cardFrame,v[2],17);caption.TextXAlignment=Enum.TextXAlignment.Center;caption.Size=UDim2.new(1,-8,0,76);caption.Position=UDim2.fromOffset(4,60)
   end
   local lines={};for _,r in {'Common','Uncommon','Rare','Epic','Legendary'} do local v=card.collection.byRarity[r];table.insert(lines,r..' '..v.collected..'/'..v.obtainable) end
   row('CURRENT OBTAINABLE ROSTER',table.concat(lines,'   •   '))
-  row('YOUR ADVENTURE COMPANION',card.companion and (card.companion.name..' • '..card.companion.rarity) or 'Choose a companion at your home.')
-  for i=1,3 do local b=card.showcase[i];row('SHOWCASE '..i,b and (b.name..' • '..b.rarity..(b.mutation~='' and (' • '..(b.mutation or '')) or '')) or 'An open place for your next favourite.') end
+  local function specimen(heading,b,empty)
+   local f=row(heading,b and (b.name..' • '..b.rarity..(b.mutation and b.mutation~='' and (' • '..b.mutation) or '')) or empty)
+   if b then local portrait=T.creature(f,b.species);if portrait then portrait.Position=UDim2.fromOffset(6,6);for _,label in f:GetChildren() do if label:IsA('TextLabel') then label.Position+=UDim2.fromOffset(90,0);label.Size-=UDim2.fromOffset(90,0) end end end end
+  end
+  specimen('YOUR ADVENTURE COMPANION',card.companion,'Choose a companion at your home.')
+  for i=1,3 do specimen('SHOWCASE '..i,card.showcase[i],'An open place for your next favourite.') end
   local cosmetics={} for id,yes in card.cosmetics or {} do if yes then table.insert(cosmetics,id) end end
   if card.earnedCosmetic then table.insert(cosmetics,card.earnedCosmetic) end
+  for _,id in card.gear or {} do if id~='' then table.insert(cosmetics,id) end end
   row('EXPEDITION STYLE',#cosmetics>0 and table.concat(cosmetics,' • ') or 'Classic expedition kit')
+  for route,n in card.summitsByRoute do row(route,n..' successful summits') end
+  row('EARNED MILESTONES',#(card.milestones or {})>0 and table.concat(card.milestones,' • ') or 'Your next expedition can start a new chapter.')
   if self.showDetails and self.details then
    local d=self.details
    row('YOUR PRIVATE FIELD NOTES',d.banked..' total banked • '..d.mutationCount..' species / mutation combinations. Only permanent finds count. New obtainable species can lower completion.')
-   for route,n in card.summitsByRoute do row(route,n..' successful summits') end
    row('DAILY FIELD PRACTICE',(d.dailyPractice.stamps or 0)..' / 7 saved stamps • No streak required')
    for id,cosmetic in require(script.Parent.Parent.EarnedCosmetics) do
     if d.earnedCosmetics[id] then

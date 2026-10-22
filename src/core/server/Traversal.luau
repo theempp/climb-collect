@@ -444,7 +444,10 @@ local function update(plr, s, dt, now)
 		for _, gate in ipairs(gates) do
 			local p = gate.cf:PointToObjectSpace(r.Position)
 			if closed==gate.route and Rules.closedGateApproach(p.X,p.Y,p.Z) then closed=nil end
-			local entrance=math.abs(p.X)<85 and p.Z<-2 and p.Z>-180 and p.Y>-30 and p.Y<150
+			-- The old 170x178 gate rectangle crossed the adjacent open Shepherd approach.
+			-- Guard the actual closed entrance; the route index still guards the closed trail beyond it.
+			local entrance=math.abs(p.X)<24 and p.Z<-2 and p.Z>-50 and p.Y>-6 and p.Y<32
+			if entrance and Rules.nearestRoute(openRouteIndex,{r.Position.X,r.Position.Y,r.Position.Z},24) then entrance=false end
 			if entrance or closed==gate.route then
 				T.travel(plr, gate.cf:PointToWorldSpace(Vector3.new(0,3,16)), "closedRoute")
 				ctx.toast(plr, gate.route .. " is Coming Soon. Choose Shepherd or Waterfall.")
@@ -521,6 +524,9 @@ function T.init(c)
 	local function append(route,points)
 		if #points>=2 then table.insert((route=="Ledge" or route=="Spire") and closedPaths or openPaths,{route=route,points=points}) end
 	end
+	-- Marked public approaches connect the compact court to the two existing open entrances.
+	-- Old closed-route spline tails overlap this shared flat ground; they are not entrances.
+	for _,path in require(RS.CC_Core.LobbyApproaches) do append('LobbyApproach',path.points) end
 	for _,sv in ipairs((RS:FindFirstChild("CC_Route") and RS.CC_Route:GetChildren()) or {}) do
 		if sv:IsA("StringValue") then
 			local points={}

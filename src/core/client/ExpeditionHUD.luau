@@ -6,7 +6,7 @@ function H.mount(deps)
  for _,v in ui.hud:GetDescendants() do if v:IsA('TextLabel') then v.TextColor3=T.ink;v.Font=Enum.Font.FredokaOne elseif v:IsA('UIStroke') then v.Color=T.cream;v.Thickness=3 end end
  ui.altitude.BackgroundColor3=T.gold;ui.altitudeText.TextColor3=T.ink
  ui.menuButton.BackgroundColor3=T.gold;ui.menuButton.TextColor3=T.ink;ui.menuButton.Font=Enum.Font.FredokaOne
- local b=T.button(deps.parent,'PROFILE',deps.profile.own,T.teal);b.Name='OpenProfile';b.AnchorPoint=Vector2.new(1,0);b.Position=UDim2.new(1,-10,0,122);b.Size=UDim2.fromOffset(116,50)
+ local b=T.button(deps.parent,'PROFILE',deps.profile.own,T.teal);b.Name='OpenProfile';b.AnchorPoint=Vector2.new(1,0);b.Position=UDim2.new(1,-10,0,68);b.Size=UDim2.fromOffset(134,50);b.ZIndex=65
  local art=T.mountain(ui.altitude);art.Size=UDim2.fromOffset(32,32);art.Position=UDim2.new(1,-36,0,2)
  local cf,phase={},0;local scanAt=-10
  local connection=game:GetService('RunService').RenderStepped:Connect(function(dt)

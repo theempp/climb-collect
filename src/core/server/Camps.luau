@@ -274,7 +274,7 @@ function Camps.init(c)
 end
 
 function Camps.onLoaded(plr, s)
- local summit=s.data.expedition.summit;if summit and (summit.active or summit.pendingResult) then return end
+ local summit=s.data.expedition.summit;if summit and (summit.active or summit.pendingResult or summit.lobbyResume) then return end
 	local idx = s.data.highestCamp
 	local name = C.RESUME_CAMPS[idx]
 	if not name or not campPads[name] or not api then

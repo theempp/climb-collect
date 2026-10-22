@@ -21,7 +21,7 @@ function E.begin(p,route)
   local st=data.expedition.summit or R.default();data.expedition.summit=st
   if st.active or st.completedThrough>st.returnedThrough or st.pendingResult then return {ok=false,reason='active'} end
   local a=R.begin(st.nextSeq,route,ctx.Clock.now());if not a then return {ok=false,reason='route'} end
-  st.nextSeq+=1;st.active=a;return {ok=true,seq=a.seq}
+  st.nextSeq+=1;st.active=a;st.lobbyResume=nil;return {ok=true,seq=a.seq}
  end,function()
   if ctx.sessions[p]~=s then return end
   live[p]=ctx.Profile.deepCopy(state(s).active);beginning[p]=nil
@@ -101,6 +101,7 @@ function E.init(c)
  api.AuthorizedTravel.Event:Connect(function(p,kind) if kind=='test' or kind=='resume' or kind=='shuttle' or kind=='summitReturn' then armed[p]=nil end;E.observe(p,{kind='travel',travel=kind}) end)
  api.CheckpointConfirmed.Event:Connect(function(p,name)
   local i=tonumber(name:match('^Camp(%d)$'));if i then E.observe(p,{kind='camp',index=i}) elseif name=='Merge' then E.observe(p,{kind='merge'}) end
+  local a=live[p];if a and not a.invalid then a.lastCheckpoint=name;sync(p) end
  end)
  ctx.on('traversalSection',function(p,id,route) E.observe(p,{kind='section',id=id,route=route}) end)
  for _,kind in {'claim','net','heartstone'} do ctx.on(kind,function(p,_,item) E.recordDiscovery(p,item) end) end
@@ -111,7 +112,13 @@ function E.onLoaded(p,s)
  task.delay(1.5,function()
   if ctx.sessions[p]~=s then return end
   local a=live[p]
-  if a and a.lastPos and not d.pendingResult and not s.data.expedition.homeReturn then ctx.Traversal.travel(p,Vector3.new(table.unpack(a.lastPos)),'reconnect') end
+  if a and not d.pendingResult then
+   -- Restore only previously earned allowance; SetCheckpoint does not emit progress evidence.
+   if a.lastMilestone>0 then api.SetCheckpoint:Invoke(p,'Camp'..a.lastMilestone) end
+   if a.lastCheckpoint then api.SetCheckpoint:Invoke(p,a.lastCheckpoint)
+   elseif a.merge then api.SetCheckpoint:Invoke(p,'Merge') end
+   if a.lastPos and not s.data.expedition.homeReturn then ctx.Traversal.travel(p,Vector3.new(table.unpack(a.lastPos)),'reconnect') end
+  end
   ready[p]=true
  end)
 end

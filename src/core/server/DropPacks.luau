@@ -96,6 +96,7 @@ function DP.processOutcomes(plr)
 end
 function DP.shake(plr,n,pos,reason)
  local s=ctx.sessions[plr]
+ if ctx.SummitFinish and ctx.SummitFinish.isHolding(plr) then return {} end
  local effective=s and (s.pending and s.pending.candidate or s.data)
  if not effective or effective.flags.firstBankAt==0 then
   if s and #s.data.cargo>0 then ctx.toast(plr,"Beginner protection kept your finds safe.","info") end return {}
@@ -116,7 +117,7 @@ end
 function DP.onLoaded(plr)
  DP.refresh(plr) local s=ctx.sessions[plr]
  if s then s.outcomePending=#(s.data.expedition.outcomes or {})>0; DP.processOutcomes(plr) end
- if s and not (s.data.expedition.summit and (s.data.expedition.summit.active or s.data.expedition.summit.pendingResult)) and not s.data.expedition.homeReturn and #s.data.cargo>0 and s.data.expedition.returnPos and ctx.Traversal then
+ if s and not (s.data.expedition.summit and (s.data.expedition.summit.active or s.data.expedition.summit.pendingResult or s.data.expedition.summit.lobbyResume)) and not s.data.expedition.homeReturn and #s.data.cargo>0 and s.data.expedition.returnPos and ctx.Traversal then
   local pos=vec(s.data.expedition.returnPos)
   task.delay(1,function() if ctx.sessions[plr]==s then ctx.Traversal.travel(plr,pos,"reconnect") end end)
  end

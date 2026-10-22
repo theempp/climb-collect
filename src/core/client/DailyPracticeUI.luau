@@ -7,6 +7,7 @@ function U.mount(deps)
  local body=T.make('ScrollingFrame',root,{Position=UDim2.fromOffset(14,68),Size=UDim2.new(1,-28,1,-82),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=5,AutomaticCanvasSize=Enum.AutomaticSize.Y,CanvasSize=UDim2.new()});T.make('UIListLayout',body,{Padding=UDim.new(0,12),SortOrder=Enum.SortOrder.LayoutOrder})
  local route=T.text(body,'',21);route.Size=UDim2.new(1,-6,0,78)
  local progress=T.text(body,'',18);progress.Size=UDim2.new(1,-6,0,78)
+ route.LayoutOrder=1;progress.LayoutOrder=2;T.fitText(route,78);T.fitText(progress,78)
  function self.close() root.Visible=false;deps.modal(false) end
  local close=T.button(root,'×',self.close);close.Position=UDim2.new(1,-60,0,7);close.Size=UDim2.fromOffset(52,50)
  T.button(body,'Start • take your time',function() deps.request('practiceDailyStart',{timed=false});self.close() end,T.teal)
@@ -18,7 +19,7 @@ function U.mount(deps)
  function self.isOpen() return root.Visible end
  function self.update(st)
   state=st.dailyPractice or {};local parts={};for _,s in state.sections or {} do table.insert(parts,s:gsub('Practice:','')) end
-  local left=math.max(0,(state.resetAt or 0)-(st.now or os.time()))
+  local left=math.max(0,(state.resetAt or 0)-(st.serverNow or os.time()))
   route.Text='TODAY: '..table.concat(parts,' → ')..string.format('\nNext circuit in %dh %dm • 00:00 UTC',math.floor(left/3600),math.floor(left%3600/60))
   progress.Text=(state.stamps or 0)..' / 7 stamps • Earn the Practice Pennant\n'..(state.status=='replay' and 'Today’s stamp is saved. Replay freely.' or 'No streak needed. One saved stamp each day.')
   hud.Visible=state.active==true and not root.Visible

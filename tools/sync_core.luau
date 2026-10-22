@@ -7,6 +7,7 @@ local HS = game:GetService("HttpService")
 local BASE = "http://127.0.0.1:8771/"
 local only = nil
 local MAN = {
+ { "src/core/shared/LobbyApproaches.luau", "ReplicatedStorage/CC_Core", "LobbyApproaches", "ModuleScript" },
  { "src/core/shared/EarnedArt.luau", "ReplicatedStorage/CC_Core", "EarnedArt", "ModuleScript" },
  { "src/world/ExpeditionPolish.luau", "ServerStorage/CC_Generators", "ExpeditionPolish", "ModuleScript" },
  { "src/core/shared/EarnedCosmetics.luau", "ReplicatedStorage/CC_Core", "EarnedCosmetics", "ModuleScript" },
