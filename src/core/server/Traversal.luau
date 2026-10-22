@@ -556,6 +556,19 @@ function T.init(c)
 		points[#points+1]={sec.exit.X,sec.exit.Y,sec.exit.Z}
 		append(sec.route,points)
 	end
+	-- Additive Shepherd maintenance decks are public walking corridors too.
+	-- Index only built deck geometry; source-only or absent repairs grant no access.
+	local world=workspace:FindFirstChild("World")
+	for _,name in ipairs({"ShepherdClearanceWalk","ShepherdUpperClearanceWalk","ShepherdShelfAccess","ShepherdRidgeClearanceWalk","ShepherdLowerAccess","ShepherdCliffClearanceWalk","ShepherdHighClearanceWalk"}) do
+		local deck=world and world:FindFirstChild(name)
+		if deck then for _,part in ipairs(deck:GetChildren()) do
+			if part:IsA("BasePart") and part.Name=="WalkingDeck" and part.CanCollide then
+				local a=part.CFrame:PointToWorldSpace(Vector3.new(0,0,-part.Size.Z/2))
+				local b=part.CFrame:PointToWorldSpace(Vector3.new(0,0,part.Size.Z/2))
+				append("Shepherd",{{a.X,a.Y,a.Z},{b.X,b.Y,b.Z}})
+			end
+		end end
+	end
 	closedRouteIndex,openRouteIndex=Rules.routeIndex(closedPaths,64),Rules.routeIndex(openPaths,64)
 	ctx.handlers.traversal=handle
 	ctx.on("hit",function(plr) slip(plr,"guardian") end)

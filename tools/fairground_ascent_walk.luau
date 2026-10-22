@@ -10,7 +10,9 @@ local function walk(at,jump,precise)
  if jump then local landed=os.clock();h:MoveTo(root.Position);while h.FloorMaterial==Enum.Material.Air and os.clock()-landed<3 do task.wait(.05) end;task.wait(.1) end
  local start=os.clock();local limit=(flat(root.Position-at).Magnitude/12)*2+15;local lastJump=0
  h:MoveTo(at);if jump then h.Jump=true end
- while flat(root.Position-at).Magnitude>(precise and .7 or 2.2) do
+ -- Humanoid.MoveTo considers targets reached within roughly one stud; do not
+ -- demand sub-stud convergence and mislabel a successful stop as blocked terrain.
+ while flat(root.Position-at).Magnitude>(precise and 1.6 or 2.2) do
   if os.clock()-start>limit then error('walk stalled '..tostring(at)..' at '..tostring(root.Position)) end
   if h.Health<=0 or (p:GetAttribute('CC_Falls') or 0)>fall0 then error('ordinary fall interrupted ascent') end
   if os.clock()-start>2 and os.clock()-lastJump>1.2 and h.FloorMaterial~=Enum.Material.Air and flat(root.AssemblyLinearVelocity).Magnitude<2 then h.Jump=true;lastJump=os.clock() end
@@ -19,7 +21,8 @@ local function walk(at,jump,precise)
 end
 local function climb(sec)
  if ch:GetAttribute('CC_SectionId')~=sec.id then
-  walk(Vector3.new(table.unpack(sec.entry)));task.wait(.8)
+  req('traversal',{action='clip'});task.wait(.2)
+  if ch:GetAttribute('CC_SectionId')~=sec.id then walk(Vector3.new(table.unpack(sec.entry)));task.wait(.8) end
   for _=1,5 do req('traversal',{action='clip'});task.wait(.4);if ch:GetAttribute('CC_SectionId')==sec.id then break end end
  end
  assert(ch:GetAttribute('CC_SectionId')==sec.id,'wrong clip '..sec.id)
@@ -40,7 +43,40 @@ local function route(name)
  local track=RS.CC_Track:FindFirstChild(name);track=track and H:JSONDecode(track.Value) or {}
  table.sort(track,function(a,b)return a.s0<b.s0 end)
  local cur=0
- local function portion(a,b) for _,point in points do if point.s>=math.max(a,resumeDistance or 0) and point.s<b then walk(point.at);script:SetAttribute('Detail',name..' • '..math.floor(point.s)..' studs') end end end
+ local crossedClearance=false;local crossedUpper=false;local crossedRidge=false;local crossedCliff=false;local crossedHigh=false
+ local function portion(a,b)
+  for _,point in points do
+   if point.s>=math.max(a,resumeDistance or 0) and point.s<b then
+    if name=='Shepherd' and point.s>=5801.9 and point.s<5892.9 then
+     if not crossedClearance then
+      for _,v in require(game.ServerStorage.CC_Generators.ShepherdClearanceWalk).points do walk(Vector3.new(table.unpack(v))+Vector3.yAxis*3) end
+      crossedClearance=true
+     end
+    elseif name=='Shepherd' and point.s>=5941.1 and point.s<6132.3 then
+     if not crossedUpper then
+      for _,v in require(game.ServerStorage.CC_Generators.ShepherdClearanceWalk).secondPoints do walk(Vector3.new(table.unpack(v))+Vector3.yAxis*3) end
+      crossedUpper=true
+     end
+    elseif name=='Shepherd' and point.s>=8616 and point.s<8756.9 then
+     if not crossedRidge then
+      for _,v in require(game.ServerStorage.CC_Generators.ShepherdClearanceWalk).thirdPoints do walk(Vector3.new(table.unpack(v))+Vector3.yAxis*3) end
+      crossedRidge=true
+     end
+    elseif name=='Shepherd' and point.s>=9268.3 and point.s<9345.6 then
+     if not crossedCliff then
+      for _,v in require(game.ServerStorage.CC_Generators.ShepherdClearanceWalk).fourthPoints do walk(Vector3.new(table.unpack(v))+Vector3.yAxis*3) end
+      crossedCliff=true
+     end
+    elseif name=='Shepherd' and point.s>=9369.3 and point.s<10203 then
+     if not crossedHigh then
+      for _,v in require(game.ServerStorage.CC_Generators.ShepherdClearanceWalk).fifthPoints do walk(Vector3.new(table.unpack(v))+Vector3.yAxis*3) end
+      crossedHigh=true
+     end
+    else walk(point.at) end
+    script:SetAttribute('Detail',name..' • '..math.floor(point.s)..' studs')
+   end
+  end
+ end
  for _,segment in track do
   if resumeDistance and segment.s1<resumeDistance then cur=segment.s1;continue end
   local firstNode=1
@@ -54,7 +90,11 @@ local function route(name)
    script:SetAttribute('Detail',name..':'..segment.id..':'..i)
    local sv=RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..i)
    if sv then climb(H:JSONDecode(sv.Value))
-   elseif node.p then walk(Vector3.new(table.unpack(node.p))+Vector3.yAxis*2,node.k=='jump' or (i>1 and RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..(i-1))~=nil),segment.nodes[i+1] and segment.nodes[i+1].k=='jump' and node.k=='walk')
+   elseif node.p then
+    local nextDef=RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..(i+1))
+    local inClipRange=nextDef and (root.Position-Vector3.new(table.unpack(H:JSONDecode(nextDef.Value).entry))).Magnitude<7
+    -- Humans can clip from the authored range without walking into the rock face.
+    if not inClipRange then walk(Vector3.new(table.unpack(node.p))+Vector3.yAxis*2,node.k=='jump' or (i>1 and RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..(i-1))~=nil),segment.nodes[i+1] and segment.nodes[i+1].k=='jump' and node.k=='walk') end
    elseif node.k=='wait' then task.wait(2)
    elseif node.k=='descend' then error('unmapped descent requires manual input') end
   end

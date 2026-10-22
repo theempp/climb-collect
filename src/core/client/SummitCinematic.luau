@@ -1,5 +1,6 @@
 local Run=game:GetService('RunService');local CAS=game:GetService('ContextActionService');local Players=game:GetService('Players')
 local T=require(script.Parent.Parent.ExpeditionUITheme);local Art=require(script.Parent.Parent.SummitArt);local C=require(script.Parent.Parent.SummitConfig)
+local Flight=require(script.Parent.Parent.SummitFlight)
 local M={};local current
 function M.play(result,settings,deps)
  if current then current.destroy() end
@@ -34,7 +35,7 @@ function M.play(result,settings,deps)
    local stage=workspace.World:FindFirstChild('SummitStage');local anchor=stage and stage:FindFirstChild('Celebration')
    if not anchor or not char then self.skip();return end
    local origin=anchor.Position
-   local heli=Art.helicopter(folder);local rotor=heli.Rotor;local tail=heli.TailRotor
+   local heli=Art.helicopter(folder);local rotor=heli.Rotor;local tail=heli.TailRotor;local door=heli.Door
    local was=char.Archivable;char.Archivable=true;local avatar=char:Clone();char.Archivable=was
    avatar.Name='YourSummitDouble'
    for _,v in avatar:GetDescendants() do
@@ -53,6 +54,7 @@ function M.play(result,settings,deps)
    cam.CameraType=Enum.CameraType.Scriptable;cam.FieldOfView=55
    if atmosphere then atmosphere.Density=.08;atmosphere.Haze=.3 end
    local cable=Instance.new('Part');cable.Name='WinchCable';cable.Anchored=true;cable.CanCollide=false;cable.CanQuery=false;cable.CanTouch=false;cable.Color=T.ink;cable.Size=Vector3.new(.12,1,.12);cable.Parent=folder
+   local hook=Instance.new('Part');hook.Name='RescueSling';hook.Shape=Enum.PartType.Ball;hook.Size=Vector3.new(.65,.8,.65);hook.Color=T.gold;hook.Anchored=true;hook.CanCollide=false;hook.CanQuery=false;hook.CanTouch=false;hook.Parent=folder
    local armJoints={};for _,v in avatar:GetDescendants() do if v:IsA('Motor6D') and v.Name:lower():find('shoulder') then table.insert(armJoints,{joint=v,cf=v.C0}) end end
    local started=false
    table.insert(connections,Run.RenderStepped:Connect(function(dt)
@@ -60,24 +62,39 @@ function M.play(result,settings,deps)
      elapsed+=dt;if elapsed>=C.duration then self.skip();return end
      local t=elapsed;local reduced=settings and settings.reducedMotion
      if t>=4 and not started then started=true;sounds.fanfare:Play();sounds.rotor:Play() end
-     local pickup=origin+Vector3.new(-7,17,-2);local helicopterPosition
-     if t<8 then helicopterPosition=(origin+Vector3.new(-180,65,110)):Lerp(pickup,math.clamp((t-4)/4,0,1))
-     elseif t<13 then helicopterPosition=pickup
-     else local a=(t-13)/5;helicopterPosition=pickup+Vector3.new(-210*a*a,75*a*a,-240*a*a) end
-     local hc=CFrame.new(helicopterPosition)*CFrame.Angles(0,t>13 and -.25 or 0,0);heli:PivotTo(hc)
-     rotor:PivotTo(hc*CFrame.new(0,6.3,0)*CFrame.Angles(0,t*38,0));tail:PivotTo(hc*CFrame.new(1.6,4,17)*CFrame.Angles(t*52,0,0))
-     local characterPos=origin
-     if t>=8 and t<13 then characterPos=origin:Lerp(pickup+Vector3.new(7,-2,2),math.clamp((t-8)/4.5,0,1))
-     elseif t>=13 then characterPos=helicopterPosition+Vector3.new(0,-.5,1)
-     elseif t>=4 and not reduced then characterPos+=Vector3.new(0,math.abs(math.sin((t-4)*math.pi*2))*.65,0) end
-     avatar:PivotTo(CFrame.new(characterPos)*CFrame.Angles(0,math.pi,0))
-     for i,v in armJoints do v.joint.C0=v.cf*CFrame.Angles(0,0,(i%2==0 and 1 or -1)*(t>=4 and t<8 and 1.8 or .15)) end
-     local a=helicopterPosition+Vector3.new(7,2,2);local b=characterPos+Vector3.new(0,2,0);cable.Size=Vector3.new(.12,.12,math.max(.1,(a-b).Magnitude));cable.CFrame=CFrame.lookAt((a+b)/2,b);cable.Transparency=t>=8 and t<13 and 0 or 1
+     local f=Flight.sample(t)
+     local helicopterPosition=origin+Vector3.new(f.x,f.y,f.z)
+     local hc=CFrame.new(helicopterPosition)*CFrame.Angles(f.pitch,f.yaw,f.roll);heli:PivotTo(hc)
+     rotor:PivotTo(hc*CFrame.new(0,6.3,0)*CFrame.Angles(0,t*38,0))
+     tail:PivotTo(hc*CFrame.new(1,4.4,18.2)*CFrame.Angles(t*52,0,0))
+     door:PivotTo(hc*CFrame.new(0,0,5*f.door))
+     local characterPos=origin+Vector3.new(f.riderX,f.riderY,f.riderZ)
+     local riderFrame=CFrame.new(characterPos)*CFrame.Angles(0,math.pi,0)
+     if t>=13 then riderFrame=hc*CFrame.new(1,-1,2)*CFrame.Angles(0,math.pi,0)
+     elseif t>=4 and t<7.5 and not reduced then riderFrame*=CFrame.Angles(0,math.sin((t-4)*2)*.12,0) end
+     avatar:PivotTo(riderFrame)
+     for i,v in armJoints do
+      local celebrate=t>=4 and t<7.5
+      local hang=t>=9 and t<11.8
+      local angle=celebrate and (1.8+math.sin(t*5)*.12) or (hang and 2.5 or .15)
+      v.joint.C0=v.cf*CFrame.Angles(0,0,(i%2==0 and 1 or -1)*angle)
+     end
+     local a=hc:PointToWorldSpace(Vector3.new(7,2,2))
+     local b=t<9 and a:Lerp(origin+Vector3.new(0,2,0),f.lower) or characterPos+Vector3.new(0,2,0)
+     cable.Size=Vector3.new(.1,.1,math.max(.05,(a-b).Magnitude));cable.CFrame=CFrame.lookAt((a+b)/2,b)
+     local cableVisible=t>=8 and t<12.7
+     cable.Transparency=cableVisible and 0 or 1;hook.Transparency=cable.Transparency;hook.CFrame=CFrame.new(b)
+     sounds.rotor.Volume=.04+.22*math.clamp((t-4)/4,0,1)*(1-f.depart*.8)
      local eye,look
-     if t<4 then eye=origin+Vector3.new(100-(reduced and 0 or t*7),48,110);look=origin+Vector3.new(0,-10,0);subtitle.Text='YOU REACHED THE TRUE PEAK'
-     elseif t<8 then eye=origin+Vector3.new(-24,10,28);look=origin+Vector3.new(0,5,0);subtitle.Text='EXPEDITION COMPLETE\nYour prizes are saved'
-     elseif t<13 then eye=origin+Vector3.new(-35,22,38);look=origin+Vector3.new(0,9,0);subtitle.Text='A RIDE WELL EARNED'
-     else eye=origin+Vector3.new(80,35,95);look=reduced and (origin+Vector3.new(-90,40,-90)) or helicopterPosition;subtitle.Text='THE NEXT ADVENTURE AWAITS' end
+     if t<4 then
+      eye=origin+Vector3.new(62-(reduced and 0 or t*4),30,66);look=origin+Vector3.new(-4,-7,0);subtitle.Text='YOU REACHED THE TRUE PEAK'
+     elseif t<8 then
+      eye=origin+Vector3.new(20,8,25);look=origin+Vector3.new(-3,5,0);subtitle.Text='EXPEDITION COMPLETE\nYour prizes are saved'
+     elseif t<13 then
+      eye=origin+Vector3.new(26,18,-30);look=origin+Vector3.new(-3,10,0);subtitle.Text='A RIDE WELL EARNED'
+     else
+      eye=origin+Vector3.new(48,27,54);look=reduced and (origin+Vector3.new(-80,42,-100)) or helicopterPosition;subtitle.Text='THE NEXT ADVENTURE AWAITS'
+     end
      cam.CFrame=CFrame.lookAt(eye,look)
     end)
     if not frameOK then self.skip() end

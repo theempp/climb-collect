@@ -38,14 +38,35 @@ function U.mount(deps)
    local value=T.text(cardFrame,v[1],32);value.TextXAlignment=Enum.TextXAlignment.Center;value.Size=UDim2.new(1,-8,0,48);value.Position=UDim2.fromOffset(4,8)
    local caption=T.text(cardFrame,v[2],17);caption.TextXAlignment=Enum.TextXAlignment.Center;caption.Size=UDim2.new(1,-8,0,76);caption.Position=UDim2.fromOffset(4,60)
   end
-  local lines={};for _,r in {'Common','Uncommon','Rare','Epic','Legendary'} do local v=card.collection.byRarity[r];table.insert(lines,r..' '..v.collected..'/'..v.obtainable) end
-  row('CURRENT OBTAINABLE ROSTER',table.concat(lines,'   •   '))
-  local function specimen(heading,b,empty)
-   local f=row(heading,b and (b.name..' • '..b.rarity..(b.mutation and b.mutation~='' and (' • '..b.mutation) or '')) or empty)
-   if b then local portrait=T.creature(f,b.species);if portrait then portrait.Position=UDim2.fromOffset(6,6);for _,label in f:GetChildren() do if label:IsA('TextLabel') then label.Position+=UDim2.fromOffset(90,0);label.Size-=UDim2.fromOffset(90,0) end end end end
+  local rarity=T.panel(body,'RarityFieldGuide',T.cream);rarity.Size=UDim2.new(1,-8,0,130)
+  local rarityColors={T.teal,Color3.fromRGB(111,187,105),Color3.fromRGB(91,160,225),T.purple,T.gold}
+  for i,name in {'Common','Uncommon','Rare','Epic','Legendary'} do
+   local count=card.collection.byRarity[name]
+   local cell=T.make('Frame',rarity,{BackgroundTransparency=1,Position=UDim2.new((i-1)/5,4,0,6),Size=UDim2.new(1/5,-8,1,-12)})
+   local icon=T.make('Frame',cell,{Size=UDim2.fromOffset(20,20),Position=UDim2.new(.5,-10,0,4),Rotation=45,BackgroundColor3=rarityColors[i],BorderSizePixel=0});T.make('UIStroke',icon,{Color=T.ink,Thickness=2})
+   local label=T.text(cell,name,14);label.TextXAlignment=Enum.TextXAlignment.Center;label.Position=UDim2.new(0,0,0,30);label.Size=UDim2.new(1,0,0,34)
+   local value=T.text(cell,count.collected..' / '..count.obtainable,17);value.TextXAlignment=Enum.TextXAlignment.Center;value.Position=UDim2.new(0,0,0,66);value.Size=UDim2.new(1,0,0,30)
+   local bar=T.make('Frame',cell,{Position=UDim2.new(0,5,1,-8),Size=UDim2.new(1,-10,0,6),BackgroundColor3=Color3.fromRGB(216,211,183),BorderSizePixel=0});T.make('UICorner',bar,{CornerRadius=UDim.new(1,0)})
+   local fill=T.make('Frame',bar,{Size=UDim2.fromScale(count.obtainable>0 and count.collected/count.obtainable or 0,1),BackgroundColor3=rarityColors[i],BorderSizePixel=0});T.make('UICorner',fill,{CornerRadius=UDim.new(1,0)})
   end
-  specimen('YOUR ADVENTURE COMPANION',card.companion,'Choose a companion at your home.')
-  for i=1,3 do specimen('SHOWCASE '..i,card.showcase[i],'An open place for your next favourite.') end
+  local companion=row('ADVENTURE COMPANION',card.companion and (card.companion.name..' • '..card.companion.rarity..(card.companion.mutation and card.companion.mutation~='Normal' and (' • '..card.companion.mutation) or '')) or 'Choose your travelling companion at home.',T.teal)
+  if card.companion then local portrait=T.creature(companion,card.companion.species);if portrait then portrait.Position=UDim2.fromOffset(6,6);for _,label in companion:GetChildren() do if label:IsA('TextLabel') then label.Position+=UDim2.fromOffset(90,0);label.Size-=UDim2.fromOffset(90,0) end end end end
+  local showcase=T.make('Frame',body,{Name='SpecimenShowcase',BackgroundTransparency=1,Size=UDim2.new(1,-8,0,230),LayoutOrder=#body:GetChildren()})
+  for i=1,3 do
+   local b=card.showcase[i];local cell=T.panel(showcase,'Specimen'..i,Color3.fromRGB(255,231,167));cell.Position=UDim2.new((i-1)/3,4,0,0);cell.Size=UDim2.new(1/3,-8,1,0)
+   local number=T.text(cell,'FIELD PICK 0'..i,13);number.Position=UDim2.fromOffset(8,6);number.Size=UDim2.new(1,-16,0,30);number.TextXAlignment=Enum.TextXAlignment.Center
+   if b then local art=T.creature(cell,b.species);if art then art.Position=UDim2.new(.5,-45,0,40) end
+   else local art=T.mountain(cell);art.Position=UDim2.new(.5,-50,0,50);art.ImageTransparency=.55 end
+   local name=T.text(cell,b and b.name or 'Your next favourite',17);name.TextXAlignment=Enum.TextXAlignment.Center;name.Position=UDim2.new(0,8,0,136);name.Size=UDim2.new(1,-16,0,54)
+   local note=T.text(cell,b and (b.rarity..(b.mutation and b.mutation~='Normal' and (' • '..b.mutation) or '')) or 'OPEN SHOWCASE',13);note.Font=Enum.Font.GothamBold;note.TextXAlignment=Enum.TextXAlignment.Center;note.Position=UDim2.new(0,8,0,192);note.Size=UDim2.new(1,-16,0,32)
+   T.fitText(name,54);T.fitText(note,32)
+   local function fitSpecimen()
+    note.Position=UDim2.fromOffset(8,136+name.Size.Y.Offset+2)
+    local needed=note.Position.Y.Offset+note.Size.Y.Offset+10
+    if showcase.Size.Y.Offset<needed then showcase.Size=UDim2.new(1,-8,0,needed) end
+   end
+   name:GetPropertyChangedSignal('Size'):Connect(fitSpecimen);note:GetPropertyChangedSignal('Size'):Connect(fitSpecimen);task.defer(fitSpecimen)
+  end
   local cosmetics={} for id,yes in card.cosmetics or {} do if yes then table.insert(cosmetics,id) end end
   if card.earnedCosmetic then table.insert(cosmetics,card.earnedCosmetic) end
   for _,id in card.gear or {} do if id~='' then table.insert(cosmetics,id) end end
