@@ -1,4 +1,4 @@
--- Additive maintenance decks around physically verified Shepherd terrain obstructions.
+-- Additive maintenance decks around physically verified open-route terrain obstructions.
 -- Original terrain, route samples, traversal definitions and checkpoints are untouched.
 local M={}
 M.points={{935,1173.4,-824.7},{947,1176,-837},{927,1183,-858},{907,1188,-877},{894,1193,-883},{880,1195,-881}}
@@ -8,6 +8,7 @@ M.thirdPoints={{-398.1,1897.6,-504.5},{-408,1902,-506},{-435,1907,-520},{-475,19
 M.lowerAccess={{-418.2,1870,-472},{-430,1880,-478},{-450,1885,-490},{-475,1900,-460},{-500,1912,-480},{-475,1912,-480}}
 M.fourthPoints={{-412.7,2100.2,-348.5},{-425,2104,-365},{-405,2115,-390},{-380,2125,-400},{-355,2133,-397},{-347.3,2131,-389.4}}
 M.fifthPoints={{-343.85,2146.4,-381.76},{-369.13,2147.8,-402.48},{-388.99,2153.4,-386.76},{-406.81,2159,-368.69},{-424.38,2164.6,-350.17},{-440.8,2170.1,-330.6},{-456.64,2175.7,-311.43},{-473.09,2181.3,-293.57},{-491.59,2187,-276.49},{-510.03,2192.7,-259.09},{-528.22,2198.3,-240.46},{-544.97,2203.9,-220.19},{-546.65,2205,-194.42},{-545.66,2207.27,-169.18},{-542.23,2218.65,-144.12},{-538.95,2230.14,-118.79},{-535.02,2241.51,-93.83},{-530.23,2248.06,-69.03},{-524.58,2259.06,-45.25},{-517.87,2270.47,-20.78},{-510.2,2281.9,3.41},{-501.66,2292.88,26.27},{-491.54,2304.15,49.19},{-480.15,2315.6,71.94},{-468.67,2327.04,94.63},{-460.69,2338.35,118.47},{-450.72,2349.95,142.23},{-434.46,2361.84,163.04},{-411.35,2374.41,178.75},{-390.28,2385.88,193.09},{-374.36,2395.77,208.26},{-357.97,2405.64,222.81},{-337.85,2408.76,227.26},{-312.38,2412,224.69},{-288.88,2415,210},{-267.22,2420,210},{-250,2420,210},{-239,2420,220},{-236.49,2420.2,230.22}}
+M.summitPoints={{-46,3148,-8},{-50,3150,-12},{-50,3152,-16},{-54,3154,-20},{-58,3158,-28},{-62,3160,-28},{-66,3162,-32},{-62,3164,-36},{-66,3167,-40},{-72,3171,-32},{-76,3172,-16},{-78,3172,8},{-85,3171,4}}
 local function build(name,points)
  local world=workspace.World
  if world:FindFirstChild(name) then return end
@@ -31,5 +32,5 @@ local function build(name,points)
  end
  root.Parent=world;return #root:GetDescendants()
 end
-function M.build() return {build('ShepherdClearanceWalk',M.points),build('ShepherdUpperClearanceWalk',M.secondPoints),build('ShepherdShelfAccess',M.shelfAccess),build('ShepherdRidgeClearanceWalk',M.thirdPoints),build('ShepherdLowerAccess',M.lowerAccess),build('ShepherdCliffClearanceWalk',M.fourthPoints),build('ShepherdHighClearanceWalk',M.fifthPoints)} end
+function M.build() return {build('ShepherdClearanceWalk',M.points),build('ShepherdUpperClearanceWalk',M.secondPoints),build('ShepherdShelfAccess',M.shelfAccess),build('ShepherdRidgeClearanceWalk',M.thirdPoints),build('ShepherdLowerAccess',M.lowerAccess),build('ShepherdCliffClearanceWalk',M.fourthPoints),build('ShepherdHighClearanceWalk',M.fifthPoints),build('SummitTerraceAccess',M.summitPoints)} end
 return M

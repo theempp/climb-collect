@@ -8,7 +8,7 @@ Ruling: retain this existing workspace and branch because the requested continua
 
 Ruling: develop the helicopter as an original faceted rescue aircraft with an open side cabin, framed windscreen, engine pod, mechanical winch, landing gear and marked rotor tips. The shot sequence keeps the 18-second contract, but uses eased approach, cable lowering, continuous lift/boarding and banked departure. Preserve cleanup and reward ownership. Art uses visual verification; behavior regressions use actual runtime checks.
 
-Acceptance ledger:
+Initial acceptance ledger (chronological; final outcome below):
 - Backup verified; target Studio re-enumerated in Edit; HTTP off.
 - Original reference contact sheet reviewed; latest handoff and four implementation plans read.
 - Shepherd read-only terrain scan confirms a sharp side step near s=5830; no geometry changed. Investigate existing navigable line before repair.
@@ -43,3 +43,18 @@ Latest checkpoint: `Fairground.Polished.Review.rbxl` and byte-identical `Fairgro
 Fifth boardwalk explicit start-position fixture completed with the real route guard active (`polish-high-deck-fixture.json`). Upper-path fixture then walked L4996/L5009 and exposed a driver overconstraint before L5022: ordinary clip succeeds within the authored7stud range, so the driver now clips before demanding a closer walking target. It then reached SummitStair beyond819studs. The fresh natural-spawn ascent passed firstcamp and two sections, recorded validband6 atdistance3405; driver was updated in place without position/evidence changes. Before final results could be exported, all connected Studio sessions closed and the proxy returned no instances. These interrupted tests are NOT full-ascent acceptance. Resume from a fresh natural spawn after reopening; do not convert upper-path fixture evidence into ascent completion.
 
 FinalCheck reopened by owner: all104saved sources compile/match, exact original Terrain, all protected asset roots unchanged, no temporary agents, HTTP disabled. A fresh natural-spawn ascent is restarting in this verified copy.
+
+
+## Final genuine ascent outcome
+
+COMPLETE: natural-spawn ascent1 reached the true peak after all4camps,16authored traversal sections, merge and required altitude bands. No character position or eligibility injection was used. The run included diagnostic pauses, physical backtracking, a dynamic clip-range driver correction, and final terrain collision repairs; recorded32m54s is NOT an uninterrupted speed/usability benchmark.
+
+The original summit terrace lip led under the new stage deck. Added a clearance-checked access path, then moved the newly authored four crown flights55studs west after physical testing exposed a preserved terrain projection through the old first flight. True-peak deck, arrival and celebration positions remain unchanged. The same character physically traversed the final access and all four relocated flights.
+
+Server confirmed one Shepherd summit,150coins,200points and First Light Pennant. Two repeated completion calls returned noDeparture; balance stayed150 and summit count1. Actual virtual mouse activated Back to Camp; character arrived at(34,51.98,2068), returnedThrough=1 and acknowledgedSeq=1, with no pending result. Client camera returned to Custom, personal scene was removed and skip/movement bindings cleared.
+
+Evidence: polish-verified-ascent-final.json retains all segments/stops/recoveries; polish-genuine-summit-confirmed.json, polish-genuine-summit-reentry.json and polish-genuine-return.json contain actual completion/reentry/return state. genuine-summit-complete.jpg shows the real result. Independent final source review found no actionable regressions. Final binary save/reopen verification follows this entry.
+
+### Final saved acceptance verified
+
+Reopened Fairground.Polished.Acceptance.rbxl in Studio. SHA256 `ea4b63e78c20f7b25ac8fcb90c1db1de248df339fd34d91fd35a50c02e5930bc`. All 104 manifest sources compile and match; every original Terrain property is exact and all seven protected groups remain unchanged. No temporary QA agents; HTTP disabled. Acceptance, Review and FinalCheck copies are identical. See the polish handoff and final status JSON for evidence and device/network limitations.

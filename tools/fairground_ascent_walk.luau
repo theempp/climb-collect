@@ -5,14 +5,14 @@ local bridge=game.ServerStorage.CC_DevBridge;local started=os.clock();local fall
 local resume=script:GetAttribute('ResumeSection');local resumeDistance=script:GetAttribute('ResumeDistance')
 local function req(action,payload) bridge:Invoke('request',{name=p.Name,action=action,payload=payload}) end
 local function flat(v) return v*Vector3.new(1,0,1) end
-local function walk(at,jump,precise)
+local function walk(at,jump,precise,clipEntry)
  script:SetAttribute('Target',tostring(at));pcall(function()root:SetNetworkOwner(nil)end)
  if jump then local landed=os.clock();h:MoveTo(root.Position);while h.FloorMaterial==Enum.Material.Air and os.clock()-landed<3 do task.wait(.05) end;task.wait(.1) end
  local start=os.clock();local limit=(flat(root.Position-at).Magnitude/12)*2+15;local lastJump=0
  h:MoveTo(at);if jump then h.Jump=true end
  -- Humanoid.MoveTo considers targets reached within roughly one stud; do not
  -- demand sub-stud convergence and mislabel a successful stop as blocked terrain.
- while flat(root.Position-at).Magnitude>(precise and 1.6 or 2.2) do
+ while flat(root.Position-at).Magnitude>(precise and 1.6 or 2.2) and not (clipEntry and (root.Position-clipEntry).Magnitude<7) do
   if os.clock()-start>limit then error('walk stalled '..tostring(at)..' at '..tostring(root.Position)) end
   if h.Health<=0 or (p:GetAttribute('CC_Falls') or 0)>fall0 then error('ordinary fall interrupted ascent') end
   if os.clock()-start>2 and os.clock()-lastJump>1.2 and h.FloorMaterial~=Enum.Material.Air and flat(root.AssemblyLinearVelocity).Magnitude<2 then h.Jump=true;lastJump=os.clock() end
@@ -43,7 +43,7 @@ local function route(name)
  local track=RS.CC_Track:FindFirstChild(name);track=track and H:JSONDecode(track.Value) or {}
  table.sort(track,function(a,b)return a.s0<b.s0 end)
  local cur=0
- local crossedClearance=false;local crossedUpper=false;local crossedRidge=false;local crossedCliff=false;local crossedHigh=false
+ local crossedClearance=false;local crossedUpper=false;local crossedRidge=false;local crossedCliff=false;local crossedHigh=false;local crossedTerrace=false
  local function portion(a,b)
   for _,point in points do
    if point.s>=math.max(a,resumeDistance or 0) and point.s<b then
@@ -72,6 +72,11 @@ local function route(name)
       for _,v in require(game.ServerStorage.CC_Generators.ShepherdClearanceWalk).fifthPoints do walk(Vector3.new(table.unpack(v))+Vector3.yAxis*3) end
       crossedHigh=true
      end
+    elseif name=='SummitStair' and point.s>=1016.8 then
+     if not crossedTerrace then
+      for _,v in require(game.ServerStorage.CC_Generators.ShepherdClearanceWalk).summitPoints do walk(Vector3.new(table.unpack(v))+Vector3.yAxis*3) end
+      crossedTerrace=true
+     end
     else walk(point.at) end
     script:SetAttribute('Detail',name..' • '..math.floor(point.s)..' studs')
    end
@@ -92,9 +97,10 @@ local function route(name)
    if sv then climb(H:JSONDecode(sv.Value))
    elseif node.p then
     local nextDef=RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..(i+1))
-    local inClipRange=nextDef and (root.Position-Vector3.new(table.unpack(H:JSONDecode(nextDef.Value).entry))).Magnitude<7
+    local clipEntry=nextDef and Vector3.new(table.unpack(H:JSONDecode(nextDef.Value).entry))
+    local inClipRange=clipEntry and (root.Position-clipEntry).Magnitude<7
     -- Humans can clip from the authored range without walking into the rock face.
-    if not inClipRange then walk(Vector3.new(table.unpack(node.p))+Vector3.yAxis*2,node.k=='jump' or (i>1 and RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..(i-1))~=nil),segment.nodes[i+1] and segment.nodes[i+1].k=='jump' and node.k=='walk') end
+    if not inClipRange then walk(Vector3.new(table.unpack(node.p))+Vector3.yAxis*2,node.k=='jump' or (i>1 and RS.CC_TraversalDefs:FindFirstChild(name..':'..segment.id..':'..(i-1))~=nil),segment.nodes[i+1] and segment.nodes[i+1].k=='jump' and node.k=='walk',clipEntry) end
    elseif node.k=='wait' then task.wait(2)
    elseif node.k=='descend' then error('unmapped descent requires manual input') end
   end
@@ -107,8 +113,8 @@ local ok,err=pcall(function()
  h.WalkSpeed=12
  if not resume and not resumeDistance then for _,point in require(RS.CC_Core.LobbyApproaches)[1].points do walk(Vector3.new(table.unpack(point))+Vector3.yAxis*3) end;walk(Vector3.new(-227.2,52,1812.2));task.wait(1) end
  route('Shepherd');route('SummitStair')
- walk(Vector3.new(0,3175,0));walk(Vector3.new(-30,3175,0))
- for flight=0,3 do for i=0,13 do walk(Vector3.new(-30+flight*12,3175+(flight*13+i)*1.5,flight%2==0 and -i*3.5 or -45.5+i*3.5)) end end
+ walk(Vector3.new(-85,3175,4));walk(Vector3.new(-85,3175,0))
+ for flight=0,3 do for i=0,13 do walk(Vector3.new(-85+flight*12,3175+(flight*13+i)*1.5,flight%2==0 and -i*3.5 or -45.5+i*3.5)) end end
  walk(Vector3.new(40,3255,12));task.wait(3)
  local st=H:JSONDecode(bridge:Invoke('snapshot',{})).result;assert(st.summit.result,'no confirmed summit; inspect eligibility')
 end)

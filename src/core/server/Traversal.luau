@@ -559,7 +559,7 @@ function T.init(c)
 	-- Additive Shepherd maintenance decks are public walking corridors too.
 	-- Index only built deck geometry; source-only or absent repairs grant no access.
 	local world=workspace:FindFirstChild("World")
-	for _,name in ipairs({"ShepherdClearanceWalk","ShepherdUpperClearanceWalk","ShepherdShelfAccess","ShepherdRidgeClearanceWalk","ShepherdLowerAccess","ShepherdCliffClearanceWalk","ShepherdHighClearanceWalk"}) do
+	for _,name in ipairs({"ShepherdClearanceWalk","ShepherdUpperClearanceWalk","ShepherdShelfAccess","ShepherdRidgeClearanceWalk","ShepherdLowerAccess","ShepherdCliffClearanceWalk","ShepherdHighClearanceWalk","SummitTerraceAccess"}) do
 		local deck=world and world:FindFirstChild(name)
 		if deck then for _,part in ipairs(deck:GetChildren()) do
 			if part:IsA("BasePart") and part.Name=="WalkingDeck" and part.CanCollide then

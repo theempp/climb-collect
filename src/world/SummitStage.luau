@@ -13,10 +13,10 @@ function S.build()
  local function deck(a,b,width)
   p('Boardwalk',Vector3.new(width,1,(b-a).Magnitude+1),CFrame.lookAt((a+b)/2,b),cream)
  end
- deck(Vector3.new(0,3171,0),Vector3.new(-30,3171,0),10)
+ deck(Vector3.new(-85,3171,4),Vector3.new(-85,3171,0),10)
  local last
  for flight=0,3 do
-  local x=-30+flight*12
+  local x=-85+flight*12
   for i=0,13 do
    local z=flight%2==0 and -i*3.5 or -45.5+i*3.5
    local y=3171+(flight*13+i)*1.5
@@ -30,7 +30,7 @@ function S.build()
   end
   if flight<3 then deck(last,last+Vector3.new(12,0,0),10);last=nil end
  end
- deck(Vector3.new(6,3249,0),Vector3.new(40,3250,12),10)
+ deck(Vector3.new(-49,3249,0),Vector3.new(40,3250,12),10)
  p('TruePeakDeck',Vector3.new(25,1.5,25),CFrame.new(40,3250,12),ink)
  for _,z in {-12,12} do rail(Vector3.new(28,3254,12+z),Vector3.new(52,3254,12+z)) end
  rail(Vector3.new(52,3254,0),Vector3.new(52,3254,24))
