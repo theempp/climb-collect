@@ -60,4 +60,4 @@ Evidence: owner's design interview messages in this chat on 2026-10-22. No game 
 
 - Owner approved lobby direction, expedition structure and delivery sequence for the written specification.
 - Additional lobby requirement: cobblestone walls and an author-selected complementary floor; detailed decorations, plants, trees and vines. Focus on a visually intriguing, aesthetically pleasing first arrival without repeated prompting for basic detail.
-- Written specification: `docs/superpowers/specs/2026-10-22-four-mountain-lobby-design.md`. Written review pending; game implementation has not started.
+- Written specification: `docs/superpowers/specs/2026-10-22-four-mountain-lobby-design.md`. Owner approved sections 1–4 and 5–10 in the widget and requested a new chat to carry out the build. Written review passed; scoped implementation planning is next. Game implementation has not started in this interview chat.

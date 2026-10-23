@@ -1,6 +1,6 @@
 # Four-mountain expedition hall and movement redesign
 
-Date: 2026-10-22. Status: owner approved the conversational design, with additional lobby art requirements; written specification awaiting owner review. No game implementation or publication is claimed.
+Date: 2026-10-22. Status: owner approved the written specification, sections 1–4 and 5–10, in the question widget and requested a new chat for the build. Implementation planning is next; no new game implementation or publication is claimed.
 
 ## 1. Purpose and authority
 
@@ -128,4 +128,4 @@ Preserve the existing review build, terrain starting evidence, protected creatur
 
 ## 10. Specification boundaries
 
-Ready for owner review: the experience, art direction, access model, progression lifecycle and phased acceptance above. Implementation planning starts after written-spec review. Exact geometry, new species rosters, tuning, milestone counts, paid product prices/IDs, final animation asset, device budgets and detailed mountain obstacle sequences are delegated work in the scoped plans with clearly labeled proposals and evidence. They are not claims of completed work or reasons to reopen already selected product decisions.
+Owner-approved for implementation planning: the experience, art direction, access model, progression lifecycle and phased acceptance above. Written-spec review passed; continue in the requested new build chat with scoped movement implementation planning first. Exact geometry, new species rosters, tuning, milestone counts, paid product prices/IDs, final animation asset, device budgets and detailed mountain obstacle sequences are delegated work in the scoped plans with clearly labeled proposals and evidence. They are not claims of completed work or reasons to reopen already selected product decisions.
