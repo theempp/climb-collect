@@ -1,6 +1,6 @@
 # Impossible Mountain first draft
 
-Open ../evidence/mountain_2026-10-24/ImpossibleMountain.VerifiedTraversal.rbxlx in Roblox Studio and press Play. The saved place contains baked terrain plus its generator and gameplay source. It is separate from Phase 1. The authoritative recovered worktree is C:/Users/HOME!/Desktop/climb-collect-mountain-continuation on codex/mountain-continuation. FirstDraft, Traversal and ContinuationFinal remain earlier checkpoints. See CONTINUATION.md for recovery history and current evidence.
+Open ../evidence/mountain_2026-10-24/ImpossibleMountain.ArtPassVerified.rbxlx in Roblox Studio and press Play. The saved place contains baked terrain plus its generator and gameplay source. It is separate from Phase 1. The authoritative recovered worktree is C:/Users/HOME!/Desktop/climb-collect-mountain-continuation on codex/mountain-continuation. FirstDraft, Traversal and ContinuationFinal remain earlier checkpoints. See CONTINUATION.md for recovery history and current evidence.
 
 ## Play
 

@@ -3,7 +3,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 import hashlib,json,sys,base64
 root=Path(__file__).resolve().parents[2]
-place=Path(sys.argv[1]) if len(sys.argv)>1 else root/'evidence/mountain_2026-10-24/ImpossibleMountain.VerifiedTraversal.rbxlx'
+place=Path(sys.argv[1]) if len(sys.argv)>1 else root/'evidence/mountain_2026-10-24/ImpossibleMountain.ArtPassVerified.rbxlx'
 doc=ET.parse(place).getroot()
 found={}
 counts={}
@@ -21,10 +21,11 @@ mapping={
  'ReplicatedStorage.MountainShared.TraversalRules':'shared/TraversalRules.luau',
  'ServerStorage.MountainWorld.TraversalArt':'world/TraversalArt.luau',
  'ServerScriptService.MountainServer.Traversal':'server/Traversal.luau',
- **{'ServerStorage.MountainWorld.'+n:'world/'+n+'.luau' for n in ('Art','Landmarks','World')},
+ **{'ServerStorage.MountainWorld.'+n:'world/'+n+'.luau' for n in ('Art','Landmarks','World','CreatureDetails','Polish')},
  **{'ServerScriptService.MountainServer.'+n:'server/'+n+'.luau' for n in ('Store','Profiles','Combat','Competition','StudioTests')},
  'ServerScriptService.MountainServer.Main':'server/Main.server.luau',
  'StarterPlayer.StarterPlayerScripts.MountainClient.HUD':'client/HUD.client.luau',
+ 'StarterPlayer.StarterPlayerScripts.MountainClient.CreatureMotion':'client/CreatureMotion.client.luau',
 }
 checks=[]
 for key,rel in mapping.items():

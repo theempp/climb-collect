@@ -4,7 +4,10 @@ function A.color(c) return Color3.fromRGB(c[1],c[2],c[3]) end
 function A.part(parent,name,size,cf,color,material,shape,collide)
  local p=Instance.new('Part');p.Name=name;p.Size=size;p.CFrame=cf;p.Color=color;p.Material=material or Enum.Material.SmoothPlastic
  p.Anchored=true;p.CanCollide=collide==true;p.CanTouch=false;p.CanQuery=collide==true;p.TopSurface=Enum.SurfaceType.Smooth;p.BottomSurface=Enum.SurfaceType.Smooth
- if shape then p.Shape=shape end;p.Parent=parent;return p
+ if shape==Enum.PartType.Ball then
+  -- Sphere SpecialMesh honors unequal axes (petals, fins and elongated bodies).
+  local mesh=Instance.new('SpecialMesh');mesh.MeshType=Enum.MeshType.Sphere;mesh.Parent=p
+ elseif shape then p.Shape=shape end;p.Parent=parent;return p
 end
 function A.link(parent,name,a,b,width,color,material,collide)
  return A.part(parent,name,Vector3.new(width,width,(b-a).Magnitude),CFrame.lookAt((a+b)/2,b),color,material,nil,collide)
@@ -63,6 +66,7 @@ function A.creature(parent,s,position,scale,stage)
  if (stage or 1)>=3 and s.rarity~='Legendary' then
   for _,sign in ipairs({-1,1}) do p('AscendedCrest',Vector3.new(.6,3.6,1),Vector3.new(sign*1.4,5,-.7),accent,Enum.PartType.Block,CFrame.Angles(0,0,sign*.5)) end
  end
+ require(script.Parent.CreatureDetails).decorate(A,m,s,position,S)
  m.Parent=parent;return m
 end
 function A.tree(parent,pos,k,rng)

@@ -38,7 +38,8 @@ local aboard=false;begin=os.clock();controls:Disable();h.Jump=true
 repeat
  local delta=mover.Position-rr.Position;h:Move(Vector3.new(delta.X,0,delta.Z).Unit);task.wait(.03)
  local hit=workspace:Raycast(rr.Position,Vector3.new(0,-4,0),rp)
- aboard=hit~=nil and hit.Instance==mover and h.FloorMaterial~=Enum.Material.Air
+ local planar=Vector3.new(delta.X,0,delta.Z).Magnitude
+ aboard=hit~=nil and hit.Instance==mover and h.FloorMaterial~=Enum.Material.Air and planar<2.5 and (mover.Position-origin).Magnitude>10
 until aboard or os.clock()-begin>8
 controls:Enable()
 if not record('board',aboard) then return end

@@ -3,6 +3,9 @@ assert(not game:GetService('RunService'):IsRunning(),'Stop Play before syncing')
 assert(game.ServerStorage:FindFirstChild('MountainWorld'),'Not the isolated mountain place')
 local Http=game:GetService('HttpService')
 local manifest={
+ {'ServerStorage.MountainWorld','CreatureDetails','ModuleScript','mountain/world/CreatureDetails.luau'},
+ {'ServerStorage.MountainWorld','Polish','ModuleScript','mountain/world/Polish.luau'},
+ {'StarterPlayer.StarterPlayerScripts.MountainClient','CreatureMotion','LocalScript','mountain/client/CreatureMotion.client.luau'},
  {'ReplicatedStorage.MountainShared','Catalog','ModuleScript','mountain/shared/Catalog.luau'},
  {'ReplicatedStorage.MountainShared','Rules','ModuleScript','mountain/shared/Rules.luau'},
  {'ReplicatedStorage.MountainShared','TraversalRules','ModuleScript','mountain/shared/TraversalRules.luau'},

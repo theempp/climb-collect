@@ -9,6 +9,7 @@ local Competition=require(script.Parent.Competition)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.World).build() end
 local world=workspace.ImpossibleMountain
+require(game.ServerStorage.MountainWorld.Polish).apply(world)
 require(game.ServerStorage.MountainWorld.TraversalArt).apply(world)
 require(script.Parent.Traversal).start(world)
 local remotes=Instance.new('Folder');remotes.Name='MountainRemotes';remotes.Parent=RS
@@ -34,7 +35,11 @@ local function rebuildTeam(player)
  local p=P.get(player);if not p then return end
  local f=Instance.new('Folder');f.Name='Team_'..player.UserId;f.Parent=world.Encounters;companions[player]=f
  for i,id in ipairs(p.team) do
-  local c=R.find(p.creatures,id);if c then local m=A.creature(f,C.byId[c.species],Vector3.new(0,-100,0),if C.byId[c.species].rarity=='Legendary' then 1.2 else .65,R.stage(c.level));m:SetAttribute('Slot',i) end
+  local c=R.find(p.creatures,id);if c then
+   local m=A.creature(nil,C.byId[c.species],Vector3.new(0,-100,0),if C.byId[c.species].rarity=='Legendary' then 1.2 else .65,R.stage(c.level))
+   -- Three companions per player: keep their anchored cosmetic parts available at upper camps.
+   m.ModelStreamingMode=Enum.ModelStreamingMode.Persistent;m:SetAttribute('Slot',i);m.Parent=f
+  end
  end
  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
  if h then local total=0;for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then total+=R.stats(c).health end end;h.MaxHealth=140+total*.15;h.Health=math.min(h.Health,h.MaxHealth) end
@@ -178,12 +183,11 @@ end)
 -- Server-only integration contract; no Phase 1 coordinate is guessed or written.
 local gateway=Instance.new('BindableFunction');gateway.Name='MountainGateway';gateway.Parent=game.ServerStorage
 gateway.OnInvoke=function(player) if P.get(player) then teleport(player,Vector3.new(0,21,550));return true end;return false end
-local moving={};local sceneryMotion={}
+local moving={}
 for _,part in ipairs(world.Dynamics:GetChildren()) do if part:GetAttribute('Kind')=='Moving' then
  local decorations={};for _,child in ipairs(part:GetChildren()) do if child:IsA('BasePart') then table.insert(decorations,{part=child,offset=part.CFrame:ToObjectSpace(child.CFrame)}) end end
  table.insert(moving,{part=part,origin=part.CFrame,decorations=decorations})
 end end
-for _,model in ipairs(world.Encounters:GetChildren()) do if model:IsA('Model') then table.insert(sceneryMotion,{model=model,origin=model:GetPivot()}) end end
 local combatTick,checkTick=0,0
 game:GetService('RunService').Heartbeat:Connect(function(dt)
  local now=os.clock()
@@ -206,11 +210,10 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
    m.part.CFrame=cf
    for _,d in ipairs(m.decorations) do d.part.CFrame=cf*d.offset end
  end
- for i,m in ipairs(sceneryMotion) do if m.model.Parent then m.model:PivotTo(m.origin*CFrame.new(0,math.sin(now*1.2+i)*.25,0)*CFrame.Angles(0,math.sin(now*.6+i)*.08,0)) end end
  for player,f in pairs(companions) do local rr=root(player)
   if rr then for _,m in ipairs(f:GetChildren()) do
    local i=m:GetAttribute('Slot');local target=rr.CFrame*CFrame.new((i-2)*4, -1.8+math.sin(now*2+i)*.2,5)
-   m:PivotTo(m:GetPivot():Lerp(target,.15))
+   m.PrimaryPart.CFrame=m.PrimaryPart.CFrame:Lerp(target,1-math.exp(-10*dt))
   end end
  end
  combatTick+=dt;checkTick+=dt

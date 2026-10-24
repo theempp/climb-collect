@@ -1,0 +1,7 @@
+2026-10-24: CURRENT for all intended original-checkout/vault inputs.
+Input drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0.
+Project 3155 nodes / 5643 edges; vault 151 / 204; merged 3306 / 5942.
+Verified backup: C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-24-133936.zip
+Export: C:/Users/HOME!/Documents/Obsidian Vault/Climb & Collect/graphify/exports/2026-10-24-133936
+One review candidate remains: historical overview heading dated 2026-10-22.
+The isolated mountain-continuation implementation code is outside these graph inputs.

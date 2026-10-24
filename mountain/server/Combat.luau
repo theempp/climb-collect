@@ -88,6 +88,8 @@ function B.special(player,slot,ability)
 end
 local function pattern(b)
  b.beat+=1;local phase=(b.beat-1)%4+1;local center=b.center;local tell=if b.trial then 1.6 else 2.2
+ local guardian=workspace.ImpossibleMountain.Encounters:FindFirstChild('Guardian_'..b.k)
+ if guardian then guardian:SetAttribute('TellUntil',workspace:GetServerTimeNow()+tell) end
  local effects={};local attackPos=center
  if b.k==5 and phase==3 then
   b.regen=true
