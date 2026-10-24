@@ -146,10 +146,10 @@ function B.tick()
  local now=os.clock()
  for player,w in pairs(B.wild) do
   local p=profiles.get(player);local rr=root(player)
-  if not p or not rr or not alive(player) or not w.part.Parent or (rr.Position-w.part.Position).Magnitude>35 then B.wild[player]=nil;send(player,'toast','Wild encounter ended.')
+  if not p or not rr or not alive(player) or not w.part.Parent or (rr.Position-w.part.Position).Magnitude>35 then B.wild[player]=nil;send(player,'battle',false);send(player,'toast','Wild encounter ended.')
   else
    w.hp-=power(p,C.byId[w.species].element)
-   send(player,'battle',{name=C.byId[w.species].name,hp=math.max(0,w.hp),max=C.byId[w.species].health*2,trial=false})
+   send(player,'battle',{name=C.byId[w.species].name,hp=math.max(0,w.hp),max=C.byId[w.species].health*2,trial=false,kingdom=C.byId[w.species].kingdom,resolved=0,objective=false,members={{userId=player.UserId,name=player.DisplayName}},captureOwned=false})
    if now>=w.nextAttack then w.nextAttack=now+4;if now>(B.dodgeUntil[player] or 0) then harm(player,8) end end
    if w.hp<=0 then
     local collected=R.collect(p,w.species,'wild:'..w.species,os.time());for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,50) end end
@@ -166,7 +166,9 @@ function B.tick()
     active+=1;local buff=B.buffs[player];local damage=power(p,C.kingdoms[k].element)*(if buff and now<buff.untilTime then buff.power else 1)*(if now<(b.breakUntil or 0) then 1.25 else 1)
     if now<(b.burnUntil or 0) then damage+=(b.burnPower or 0)/math.max(1,active) end
     b.hp-=damage;m.damage+=damage
-    send(player,'battle',{name=C.guardians[k].name,hp=math.max(0,b.hp),max=b.max,trial=b.trial,dodges=m.dodges,phase=b.beat})
+    local members={};for ally in pairs(b.members) do table.insert(members,{userId=ally.UserId,name=ally.DisplayName}) end
+    table.sort(members,function(a,c) return a.userId<c.userId end)
+    send(player,'battle',{name=C.guardians[k].name,hp=math.max(0,b.hp),max=b.max,trial=b.trial,dodges=m.dodges,phase=b.beat,kingdom=k,resolved=b.resolved,objective=m.objective==true,objectiveText=if k==5 then 'Interrupt the golden heart' elseif k==6 then 'Align all three constellation stones' elseif b.trial then 'Dodge three patterns and win' else 'Defeat the Guardian',members=members,captureOwned=p.captures[C.guardians[k].id]==true})
    end
   end
   if active==0 or now-b.started>300 then
@@ -192,5 +194,21 @@ function B.tick()
   elseif now>=b.nextAttack then b.nextAttack=now+5;pattern(b) end
  end
 end
-function B.remove(player) B.wild[player]=nil;B.dodgeUntil[player]=nil;B.buffs[player]=nil;for _,b in pairs(B.battles) do b.members[player]=nil end end
+function B.cooldowns(player,serverClock)
+ local now=os.clock();local result={};local prefix=tostring(player.UserId)..':'
+ for key,deadline in pairs(B.specialAt) do
+  if key:sub(1,#prefix)==prefix and deadline>now then result[key:sub(#prefix+1)]=serverClock+(deadline-now) end
+ end
+ local dodge=B.dodgeUntil[player]
+ return result,if dodge then serverClock+math.max(0,dodge+3-now) else 0
+end
+function B.remove(player,leaving)
+ B.wild[player]=nil;B.dodgeUntil[player]=nil;B.buffs[player]=nil
+ if leaving then
+  local prefix=tostring(player.UserId)..':'
+  for key in pairs(B.specialAt) do if key:sub(1,#prefix)==prefix then B.specialAt[key]=nil end end
+ end
+ for _,b in pairs(B.battles) do b.members[player]=nil end
+ send(player,'battle',false)
+end
 return B
