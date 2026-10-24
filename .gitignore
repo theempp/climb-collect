@@ -1,2 +1,5 @@
 *.rbxl.lock
 *.rbxl.bak
+
+*.rbxlx.lock
+*.rbxlx.bak

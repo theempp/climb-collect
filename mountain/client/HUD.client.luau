@@ -19,13 +19,14 @@ local function panel(parent,size,pos)
  local f=Instance.new('Frame');f.Size=size;f.Position=pos;f.BackgroundColor3=navy;f.BackgroundTransparency=.05;f.BorderSizePixel=0;f.Parent=parent;rounded(f);return f
 end
 local function button(parent,label,size,pos,fn,color)
- local b=Instance.new('TextButton');b.Size=size;b.Position=pos;b.Text=label;b.TextSize=14;b.Font=Enum.Font.GothamBold;b.TextColor3=navy;b.BackgroundColor3=color or teal;b.BorderSizePixel=0;b.AutoButtonColor=true;b.Parent=parent;rounded(b,8);b.Activated:Connect(fn);return b
+ local b=Instance.new('TextButton');b.Name=label:gsub('[^%w]','');b.Size=size;b.Position=pos;b.Text=label;b.TextSize=14;b.Font=Enum.Font.GothamBold;b.TextColor3=navy;b.BackgroundColor3=color or teal;b.BorderSizePixel=0;b.AutoButtonColor=true;b.Parent=parent;rounded(b,8);b.Activated:Connect(fn);return b
 end
 local header=panel(root,UDim2.fromOffset(360,87),UDim2.fromOffset(14,10))
 text(header,'IMPOSSIBLE MOUNTAIN',UDim2.new(1,-24,0,25),UDim2.fromOffset(12,7),Enum.Font.GothamBold).TextColor3=gold
 local location=text(header,'Blossom Gardens',UDim2.new(1,-24,0,23),UDim2.fromOffset(12,32))
 local summary=text(header,'Loading expedition…',UDim2.new(1,-24,0,22),UDim2.fromOffset(12,58));summary.TextSize=12
 local navigation=panel(root,UDim2.fromOffset(360,45),UDim2.fromOffset(14,103))
+navigation.Name='Navigation';local navigationButtons={}
 local toast=panel(root,UDim2.new(.7,0,0,66),UDim2.new(.15,0,.76,0));toast.Visible=false
 local toastText=text(toast,'',UDim2.new(1,-24,1,-12),UDim2.fromOffset(12,6));toastText.TextXAlignment=Enum.TextXAlignment.Center
 local notice=text(root,'LOCAL REVIEW • Studio memory resets on Stop',UDim2.new(1,-28,0,20),UDim2.new(0,14,1,-24));notice.TextSize=11;notice.TextTransparency=.2
@@ -43,7 +44,8 @@ local function notify(message)
  task.delay(5,function() if token==toastSerial then toast.Visible=false end end)
 end
 for i=1,3 do button(abilities,'['..i..'] Special',UDim2.fromOffset(90,37),UDim2.fromOffset(7+(i-1)*96,7),function() fire('Special',{slot=i,ability=activeAbility}) end) end
-button(abilities,'↻',UDim2.fromOffset(35,37),UDim2.fromOffset(297,7),function() activeAbility=activeAbility%4+1;notify('Guardian ability '..activeAbility..' selected. Regular companions use their role skill.') end,gold)
+local abilityButton
+abilityButton=button(abilities,'A1',UDim2.fromOffset(35,37),UDim2.fromOffset(297,7),function() activeAbility=activeAbility%4+1;abilityButton.Text='A'..activeAbility;notify('Guardian ability '..activeAbility..' selected. Regular companions use their role skill.') end,gold)
 button(root,'DODGE [Q]',UDim2.fromOffset(115,44),UDim2.new(1,-137,1,-151),function() fire('Dodge') end,gold)
 UIS.InputBegan:Connect(function(input,processed)
  if processed then return end
@@ -59,7 +61,7 @@ local function row(scroll,index,title,subtitle)
  local t=text(f,subtitle,UDim2.new(.67,-15,0,39),UDim2.fromOffset(12,39));t.TextSize=12;return f
 end
 local function open(tab) activeTab=tab;if data then selected=table.clone(data.team) end;render() end
-for i,tab in ipairs({'Collection','Eggs','Travel','Journal'}) do button(navigation,tab,UDim2.fromOffset(81,32),UDim2.fromOffset(7+(i-1)*89,6),function() open(tab) end,if i==1 then gold else teal) end
+for i,tab in ipairs({'Collection','Eggs','Travel','Journal'}) do navigationButtons[i]=button(navigation,tab,UDim2.fromOffset(81,32),UDim2.fromOffset(7+(i-1)*89,6),function() open(tab) end,if i==1 then gold else teal) end
 render=function()
  if modal then modal:Destroy();modal=nil end
  if not activeTab or not data then return end
@@ -109,7 +111,7 @@ render=function()
   end
  elseif activeTab=='Sanctuary' then
   add('SANCTUARY ECONOMY',data.coins..' coins • '..#data.creatures..' companions generate passive income. Offline income capped at 8 hours.')
-  local f=add('Collect income','All owned creatures contribute. This refuge is the future Phase 1 integration fixture.')
+  local f=add('Collect income','All owned creatures contribute. Rest here and prepare your next ascent.')
   button(f,'Collect',UDim2.fromOffset(110,35),UDim2.new(1,-122,0,28),function() fire('CollectIncome') end)
   local t=add('Train your collection','Develop levels, visible evolution at 15 / 35, and specialization at 25.')
   button(t,'Training',UDim2.fromOffset(110,35),UDim2.new(1,-122,0,28),function() open('Training') end)
@@ -123,7 +125,7 @@ render=function()
  else
   add('GRAND EXPEDITION','Explore → recover eggs → extract → hatch → strengthen your team → defeat each Guardian. Auto attacks run in battle; 1 / 2 / 3 activate specials, Q dodges.')
   for k,kingdom in ipairs(C.kingdoms) do add(kingdom.name,(if data.wins[tostring(k)] then 'Guardian defeated' elseif k<=data.unlocked then 'Explore and challenge '..C.guardians[k].name else 'Locked by previous Guardian')..'\n'..(data.resources[tostring(k)] or 0)..' '..kingdom.resource) end
-  add('Legendary Trials','Normal victories unlock the next kingdom. Trials require 3 clean dodges plus victory; capture is guaranteed once per Guardian.')
+  add('Legendary Trials','Normal victories unlock the next kingdom. Trials require 3 clean dodges and four resolved patterns. Interrupt Pyralune’s golden heart; align Caeloryn’s three stones. Capture is guaranteed once per Guardian.')
  end
 end
 event.OnClientEvent:Connect(function(kind,payload)
@@ -146,12 +148,19 @@ local elapsed=0
 Run.RenderStepped:Connect(function(dt)
  elapsed+=dt;if elapsed<1 then return end;elapsed=0
  local rr=player.Character and player.Character:FindFirstChild('HumanoidRootPart')
- if rr then local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=C.kingdoms[k].name..' • '..math.max(0,math.floor(rr.Position.Y-16))..'m ascent' end
- if data then data.serverNow+=1 end
+ if rr then
+  local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=C.kingdoms[k].name..' • '..math.max(0,math.floor(rr.Position.Y-16))..' studs'
+  for name,volume in pairs({['Mountain Birds 1 (SFX)']=if k==1 then .14 elseif k==2 then .05 else 0,WaterfallLoop=if k==2 then .12 else 0,AstralWind=if k>=3 then .08 else 0,LavaLoop=if k==5 then .1 else 0}) do
+   local sound=game:GetService('SoundService'):FindFirstChild(name);if sound then if not sound.IsPlaying then sound:Play() end;Tween:Create(sound,TweenInfo.new(.7),{Volume=volume}):Play() end
+  end
+ end
+ if data then data.serverNow+=1;if activeTab=='Eggs' or activeTab=='Incubator' then render() end end
 end)
 local function responsive()
- local view=workspace.CurrentCamera.ViewportSize;local compact=view.X<800
+ local view=workspace.CurrentCamera.ViewportSize;local compact=view.X<1150
  header.Size=UDim2.fromOffset(if compact then 280 else 360,87)
+ local navWidth=math.min(360,view.X-28);navigation.Size=UDim2.fromOffset(navWidth,45)
+ for i,b in ipairs(navigationButtons) do b.Size=UDim2.fromOffset((navWidth-14)/4-6,32);b.Position=UDim2.fromOffset(7+(i-1)*(navWidth-14)/4,6);b.TextSize=if view.X<400 then 12 else 14 end
  battle.Position=if compact then UDim2.new(.5,-160,0,155) else UDim2.new(.5,-180,0,14);battle.Size=UDim2.fromOffset(if compact then 320 else 360,80)
  if activeTab then render() end
 end

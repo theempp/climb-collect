@@ -3,9 +3,8 @@ local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local Store=require(script.Parent.Store)
 local Http=game:GetService('HttpService')
 local Run=game:GetService('RunService')
+local function create(store,owner)
 local P={sessions={},mode=if Run:IsStudio() then 'Studio memory • resets when Play stops' else 'Live DataStore'}
-local store=if Run:IsStudio() then Store.memory() else Store.datastore('MountainEmpire_FirstDraft_v1')
-local owner=game.JobId..Http:GenerateGUID(false)
 local function copy(t) return Http:JSONDecode(Http:JSONEncode(t)) end
 local function valid(p)
  if type(p)~='table' or p.schema~=1 then return false end
@@ -35,9 +34,11 @@ function P.save(player,release)
  if release then s.closing=true end
  local deadline=os.clock()+12
  while s.busy and os.clock()<deadline do task.wait(.1) end
- if s.busy then s.healthy=false;return false end
+ if s.busy then s.healthy=false;if release then s.releaseRequested=true end;return false end
  s.busy=true
- local snapshot=copy(s.p);local written=false
+ local copied,snapshot=pcall(copy,s.p)
+ if not copied then s.busy=false;s.healthy=false;return false end
+ local written=false
  for attempt=1,3 do
   local now=os.time();local accepted=false
   local ok=store:update('u'..player.UserId,function(old)
@@ -49,8 +50,15 @@ function P.save(player,release)
   if attempt<3 then task.wait(attempt) end
  end
  s.busy=false;s.healthy=written;s.lastSave=os.time()
- if release and written then P.sessions[player]=nil end
+ if release and written then P.sessions[player]=nil
+ elseif s.releaseRequested and not release then
+  s.releaseRequested=nil;task.defer(P.save,player,true)
+ end
  return written
 end
 P.valid=valid
 return P
+end
+local service=create(if Run:IsStudio() then Store.memory() else Store.datastore('MountainEmpire_FirstDraft_v1'),game.JobId..Http:GenerateGUID(false))
+if Run:IsStudio() then service.newForTests=create end
+return service

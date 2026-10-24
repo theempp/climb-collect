@@ -9,6 +9,13 @@ function R.newProfile(now)
 end
 function R.canEnter(p,k) return type(k)=='number' and k==math.floor(k) and k>=1 and k<=6 and k<=p.unlocked end
 function R.stage(level) return if level>=35 then 3 elseif level>=15 then 2 else 1 end
+function R.trialReady(k,resolvedPatterns,members)
+ if resolvedPatterns<4 then return false end
+ if k~=5 and k~=6 then return true end
+ for _,m in pairs(members) do if m.objective then return true end end
+ return false
+end
+function R.mastered(k,m) return m.dodges>=3 and ((k~=5 and k~=6) or m.objective==true) end
 function R.addXP(c,xp)
  c.xp+=math.max(0,math.floor(xp))
  while c.level<50 and c.xp>=c.level*40 do c.xp-=c.level*40;c.level+=1 end
@@ -51,8 +58,9 @@ function R.hatch(p,id,now)
 end
 function R.equip(p,ids)
  if type(ids)~='table' or #ids<1 or #ids>3 then return false end
+ for key in pairs(ids) do if type(key)~='number' or key%1~=0 or key<1 or key>#ids then return false end end
  local seen={};for _,id in ipairs(ids) do if type(id)~='string' or seen[id] or not find(p.creatures,id) then return false end;seen[id]=true end
- p.team=table.clone(ids);return true
+ p.team={};for _,id in ipairs(ids) do table.insert(p.team,id) end;return true
 end
 function R.specialize(p,id,choice)
  local c=find(p.creatures,id)
@@ -77,13 +85,14 @@ function R.damage(element,target,base)
 end
 function R.stats(c)
  local s=C.byId[c.species];local factor=1+(c.level-1)*.065
- return {attack=s.attack*factor*(if c.specialization=='Power' then 1.2 else 1),health=s.health*factor*(if c.specialization=='Vitality' then 1.25 else 1),element=s.element,role=s.role}
+ return {attack=s.attack*factor*(if c.specialization=='Power' then 1.2 else 1),health=s.health*factor*(if c.specialization=='Vitality' then 1.25 else 1),guard=if c.specialization=='Guard' then .15 else 0,element=s.element,role=s.role}
 end
 function R.settleIncome(p,now)
  local elapsed=math.clamp(now-p.lastIncome,0,8*3600)
  if elapsed<10 then return 0 end
  local rate=0;for _,c in ipairs(p.creatures) do rate+=({Common=6,Uncommon=12,Rare=24,Epic=48,Mythic=90,Legendary=150})[C.byId[c.species].rarity] end
- local amount=math.floor(elapsed*rate/3600);p.coins+=amount;p.lastIncome=now;return amount
+ local accrued=elapsed*rate/3600+(p.incomeCarry or 0)
+ local amount=math.floor(accrued+0.00000001);p.incomeCarry=math.max(0,accrued-amount);p.coins+=amount;p.lastIncome=now;return amount
 end
 R.find=find
 return R

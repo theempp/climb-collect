@@ -17,7 +17,7 @@ function A.creature(parent,s,position,scale,stage)
  local m=Instance.new('Model');m.Name=s.name
  local C=require(game.ReplicatedStorage.MountainShared.Catalog);local k=C.kingdoms[s.kingdom]
  local primary=A.color(k.color);local accent=A.color(k.accent);local dark=primary:Lerp(Color3.new(0,0,0),.35)
- local S=scale*(1+((stage or 1)-1)*.16);local shape=s.shape
+ local S=scale*(if s.rarity=='Legendary' then 1 else 1+((stage or 1)-1)*.16);local shape=s.shape
  local function p(n,sz,pos,col,kind,rot)
   return A.part(m,n,sz*S,CFrame.new(position+pos*S)*(rot or CFrame.identity),col,Enum.Material.SmoothPlastic,kind or Enum.PartType.Ball)
  end

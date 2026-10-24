@@ -3,9 +3,9 @@ C.kingdoms={
  {id='blossom',name='Blossom Gardens',element='Nature',resource='Bloom Essence',color={109,164,112},accent={243,170,205},rock={102,121,104},material='Grass',landmarks={"Sovereign’s Garden",'Blooming Colosseum','Rootsong Ruins'}},
  {id='azure',name='Azure Falls',element='Water',resource='Tidal Pearls',color={83,153,159},accent={100,222,233},rock={89,120,139},material='Slate',landmarks={'Heart of the Falls','Veiled Grotto','Hanging Fern Sanctuary'}},
  {id='sunstone',name='Sunstone Desert',element='Earth',resource='Sunstone Ore',color={215,171,100},accent={255,211,103},rock={179,131,80},material='Sandstone',landmarks={'Solar Throne','Oasis of Echoes','Arch of the Dawn'}},
- {id='violet',name='Violet Crystals',element='Crystal',resource='Prism Shards',color={131,108,169},accent={200,157,255},rock={101,91,128},material='Slate',landmarks={'Fractured Mirror Observatory','Amethyst Hollow','Bridge of Reflections'}},
+ {id='violet',name='Violet Crystals',element='Crystal',resource='Prism Shards',color={131,108,169},accent={200,157,255},rock={101,91,128},material='Rock',landmarks={'Fractured Mirror Observatory','Amethyst Hollow','Bridge of Reflections'}},
  {id='inferno',name='Inferno Heights',element='Fire',resource='Ember Cores',color={81,73,78},accent={255,151,69},rock={57,52,62},material='Basalt',landmarks={'Emberheart Crucible','Ashen Temple','Cinderfall Forge'}},
- {id='astral',name='Astral Crown',element='Cosmic',resource='Astral Fragments',color={194,210,225},accent={153,198,255},rock={123,141,171},material='Marble',landmarks={'Eternal Astral Sanctum','Star Garden','Constellation Gate'}},
+ {id='astral',name='Astral Crown',element='Cosmic',resource='Astral Fragments',color={194,210,225},accent={153,198,255},rock={123,141,171},material='Snow',landmarks={'Eternal Astral Sanctum','Star Garden','Constellation Gate'}},
 }
 local names={
  {'Mossbun','Petalyn','Fernox','Bloomlet','Thorncub','Floramoth'},
