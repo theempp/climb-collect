@@ -5,6 +5,9 @@ local Http=game:GetService('HttpService')
 local manifest={
  {'ReplicatedStorage.MountainShared','Catalog','ModuleScript','mountain/shared/Catalog.luau'},
  {'ReplicatedStorage.MountainShared','Rules','ModuleScript','mountain/shared/Rules.luau'},
+ {'ReplicatedStorage.MountainShared','TraversalRules','ModuleScript','mountain/shared/TraversalRules.luau'},
+ {'ServerStorage.MountainWorld','TraversalArt','ModuleScript','mountain/world/TraversalArt.luau'},
+ {'ServerScriptService.MountainServer','Traversal','ModuleScript','mountain/server/Traversal.luau'},
  {'ServerStorage.MountainWorld','Art','ModuleScript','mountain/world/Art.luau'},
  {'ServerStorage.MountainWorld','Landmarks','ModuleScript','mountain/world/Landmarks.luau'},
  {'ServerStorage.MountainWorld','World','ModuleScript','mountain/world/World.luau'},

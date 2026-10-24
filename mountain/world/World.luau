@@ -235,6 +235,7 @@ function W.build()
   if not sound then sound=Instance.new('Sound');sound.Name=name;sound.SoundId='rbxassetid://'..id;sound.Parent=game:GetService('SoundService') end
   sound.Volume=0;sound.Looped=true
  end
+ require(script.Parent.TraversalArt).apply(root)
  root:SetAttribute('Ready',true)
  return {kingdoms=6,species=36,guardians=6,checkpoints=#checkpoints:GetChildren(),instances=#root:GetDescendants()}
 end

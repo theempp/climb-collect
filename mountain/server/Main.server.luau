@@ -9,6 +9,8 @@ local Competition=require(script.Parent.Competition)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.World).build() end
 local world=workspace.ImpossibleMountain
+require(game.ServerStorage.MountainWorld.TraversalArt).apply(world)
+require(script.Parent.Traversal).start(world)
 local remotes=Instance.new('Folder');remotes.Name='MountainRemotes';remotes.Parent=RS
 local request=Instance.new('RemoteEvent');request.Name='Request';request.Parent=remotes
 local event=Instance.new('RemoteEvent');event.Name='Event';event.Parent=remotes
