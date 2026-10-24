@@ -1,0 +1,13 @@
+{
+ "name":"ImpossibleMountain.FirstDraft",
+ "tree":{
+  "$className":"DataModel",
+  "Workspace":{"$className":"Workspace","$properties":{"StreamingEnabled":true,"Gravity":196.2,"FallenPartsDestroyHeight":-200}},
+  "ReplicatedStorage":{"$className":"ReplicatedStorage","MountainShared":{"$path":"mountain/shared"}},
+  "ServerStorage":{"$className":"ServerStorage","MountainWorld":{"$path":"mountain/world"}},
+  "ServerScriptService":{"$className":"ServerScriptService","MountainServer":{"$path":"mountain/server"}},
+  "StarterPlayer":{"$className":"StarterPlayer","StarterPlayerScripts":{"$className":"StarterPlayerScripts","MountainClient":{"$path":"mountain/client"}}},
+  "Lighting":{"$className":"Lighting","$properties":{"ClockTime":13.5,"Brightness":2.5}},
+  "SoundService":{"$className":"SoundService","$properties":{"RespectFilteringEnabled":true}}
+ }
+}

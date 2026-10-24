@@ -1,0 +1,857 @@
+# CODEX — CLIMB & COLLECT: MOUNTAIN EMPIRE
+## COMPLETE MOUNTAIN BUILD — AUTONOMOUS OVERNIGHT IMPLEMENTATION
+
+**GitHub Repository:** https://github.com/theempp/climb-collect
+
+**Mission:** Build the complete, playable first draft of the new six-kingdom mountain for Climb & Collect: Mountain Empire.
+
+**Execution strategy:** Full-Mountain Milestone Pipeline.
+
+**Target:** 100% completion of the agreed first-draft scope, targeting approximately 75% overall production readiness.
+
+**Priority:** Complete, connected, visually impressive, functional mountain over a partially completed, excessively polished environment.
+
+---
+
+# 1. YOUR ROLE AND EXECUTION AUTHORITY
+
+Act as my senior Roblox engineer, technical director, environment artist, procedural world builder, gameplay systems architect, creature systems developer, QA engineer, and implementation lead.
+
+I am handing you one major implementation assignment intended to run with minimal supervision.
+
+I want to return to a Roblox Studio place containing:
+
+- All six completed mountain kingdoms.
+- Premium stylized fantasy environments.
+- Detailed terrain, foliage, cliffs, landmarks, caves, and environmental decoration.
+- Connected and functional climbing routes.
+- Checkpoints, shortcuts, and fast travel.
+- 36 original regular creature species.
+- Six Legendary Guardian encounters.
+- Egg discovery, extraction, incubation, and hatching.
+- Creature progression and three-creature combat.
+- Sanctuary economy integration.
+- Cooperative exploration and Guardian battles.
+- Functional first-draft asynchronous sanctuary competition.
+- Responsive mobile and PC interfaces.
+- Saved, verified, documented progress.
+
+Work autonomously on implementation details already covered by this specification.
+
+Do not repeatedly ask me minor questions about asset positioning, module names, decoration choices, code structure, or implementation sequencing.
+
+Make reasonable engineering decisions consistent with the approved design.
+
+However, do not bypass permissions, overwrite protected work, destroy project data, ignore critical failures, or invent successful test results.
+
+If a genuine blocker requires approval, preserve all completed work and document the blocker.
+
+Continue independent, safe work wherever possible.
+
+Unattended execution time, tool availability, and final completion cannot be guaranteed. Maximize verified progress within the available session.
+
+---
+
+# 2. FIRST ACTION — AUDIT THE REPOSITORY AND STUDIO
+
+Before changing anything, inspect:
+
+- `master.md`
+- `CLAUDE.md`
+- `design/phase1-multiplayer-environment.md`
+- Other relevant design documents.
+- Current repository tree.
+- Recent commits and branches.
+- Existing Roblox place files.
+- World-generation modules.
+- Server and client architecture.
+- Creature, combat, progression, economy, and persistence implementations.
+- Existing tests and automation.
+- Roblox Studio connectivity and available development tools.
+
+IMPORTANT:
+
+The older V2/V3 expedition mountain is not the approved mountain design.
+
+The new six-kingdom mountain described here supersedes obsolete mountain documentation.
+
+Do not blindly rebuild an older generator or restore an outdated layout.
+
+Inspect the actual implementation before deciding whether to reuse, replace, or isolate existing systems.
+
+Prefer reusing reliable existing code over unnecessarily rewriting working systems.
+
+Do not assume Rojo is installed. Existing documentation describes a generator-based Studio workflow with mirrored world modules; verify whether this is still current.
+
+## Phase 1 protection
+
+Phase 1 is being developed separately.
+
+Its approved design includes:
+
+- Eight horizontally arranged sanctuary plots.
+- Three monumental mountain gateways.
+- Premium Modern Alpine × Enchanted Fantasy architecture.
+- Bright alpine daylight.
+- Elevated terraced terrain.
+- Compact, mobile-optimized layout.
+
+Do not overwrite, regenerate, delete, or rearrange Phase 1.
+
+Determine whether the latest Phase 1 implementation is available and safely saved.
+
+If Phase 1 is incomplete or unavailable, build the mountain in an isolated place or development copy with a clearly defined gateway integration interface.
+
+Do not invent or overwrite the final Phase 1 gateway coordinates.
+
+---
+
+# 3. SOURCE CONTROL AND SAFETY
+
+Before implementation:
+
+1. Inspect Git status.
+2. Record the current branch and commit SHA.
+3. Identify uncommitted changes.
+4. Preserve all existing work.
+5. Create a dedicated mountain implementation branch from an appropriate verified baseline.
+6. Back up the working Roblox place where possible.
+7. Record the original state in an implementation log.
+
+Suggested branch:
+
+`feature/six-kingdom-mountain-first-draft`
+
+Do not force-push, destructively reset, overwrite unrelated files, or merge into the main branch without authorization.
+
+Keep generated world content isolated from protected Phase 1 content.
+
+Use versioned, deterministic generators where appropriate.
+
+Preserve original assets and existing player data.
+
+If multiple Codex sessions are modifying the same repository or place, do not overwrite their work. Use separate working copies and reconcile changes safely.
+
+Commit verified milestones with meaningful commit messages.
+
+A Git commit alone does not prove a Roblox place is playable. Verify Studio integration separately.
+
+---
+
+# 4. LOCKED WORLD DESIGN
+
+## Overall mountain
+
+Name: Impossible Mountain.
+
+Game: Climb & Collect: Mountain Empire.
+
+Scale: Compact Adventure Mountain.
+
+Approximate vertical height: 700–1,000 studs.
+
+Recommended initial target: approximately 850 studs, adjustable to accommodate terrain and gameplay.
+
+Six interconnected elevation kingdoms.
+
+One iconic central summit.
+
+The mountain should appear enormous through dramatic silhouettes, layered terrain, elevation changes, waterfalls, cliffs, atmospheric perspective, and landmarks—not excessive travel distance.
+
+Target experienced-player direct ascent: approximately 18–25 minutes once progression gates are unlocked, subject to playtesting.
+
+Do not create unnecessarily long climbing sections.
+
+The mountain should feel like one continuous natural structure, not six disconnected floating worlds.
+
+## Six kingdoms, ascending
+
+1. Blossom Gardens
+2. Azure Falls
+3. Sunstone Desert
+4. Violet Crystals
+5. Inferno Heights
+6. Astral Crown
+
+Each kingdom must have a distinct visual identity, terrain materials, foliage, landmarks, creatures, resources, climbing challenges, secrets, and Legendary Guardian.
+
+---
+
+# 5. LOCKED ART DIRECTION
+
+**Premium Stylized Fantasy.**
+
+This is the approved final style.
+
+Create a colorful, enchanted, highly polished environment with believable terrain shapes and expressive handcrafted details.
+
+Prioritize:
+
+- High-quality stylized trees.
+- Detailed grass, flowers, ferns, bushes, vines, roots, and moss.
+- Layered rock formations and believable erosion.
+- Handcrafted cliffs and terrain transitions.
+- Detailed pathways and stairways.
+- Bridges, caves, ruins, and landmarks.
+- Waterfalls, streams, ponds, and environmental mist.
+- Kingdom-specific vegetation and architecture.
+- Carefully controlled particle effects.
+- Environmental audio and subtle animation.
+- Strong distant silhouettes.
+- Detailed foreground environments.
+- Scenic viewpoints and visual storytelling.
+
+Avoid:
+
+- Generic block mountains.
+- Empty terrain.
+- Repeated identical decorations.
+- Untextured primitive-looking environments.
+- Unfinished or obviously temporary landmarks.
+- Excessive neon materials.
+- Overwhelming particle effects.
+- Visually disconnected biomes.
+
+Use reusable optimized assets, but vary their orientation, scale, placement, and composition.
+
+Prioritize handcrafted quality along main routes, entrances, Guardian arenas, caves, and scenic overlooks.
+
+If premium external meshes are unavailable, create the strongest possible stylized modular geometry and record which assets require later replacement. Do not falsely claim primitive stand-ins are final-quality art.
+
+---
+
+# 6. KINGDOM ENVIRONMENT REQUIREMENTS
+
+## Kingdom 1 — Blossom Gardens
+
+Theme: Enchanted alpine gardens.
+
+Environment:
+
+- Flowering trees.
+- Pink, white, and lavender blossoms.
+- Dense green foliage.
+- Moss-covered rocks.
+- Giant roots.
+- Flower fields.
+- Garden terraces.
+- Ancient stone ruins.
+- Natural streams.
+- Hidden groves.
+
+Traversal:
+
+- Root bridges.
+- Gentle climbing.
+- Moving flower platforms.
+- Garden ruins.
+- Secret elevated routes.
+
+Guardian landmark:
+
+The Sovereign's Garden and Blooming Colosseum.
+
+Resource:
+
+Bloom Essence.
+
+Guardian:
+
+Floravelle.
+
+## Kingdom 2 — Azure Falls
+
+Theme: Magical waterfall valley.
+
+Environment:
+
+- Massive turquoise waterfalls.
+- Cascading streams.
+- Wet stone cliffs.
+- Misty pools.
+- Hanging vines.
+- Moss-covered bridges.
+- Ferns.
+- Natural grottoes.
+- Water-carved caves.
+
+Traversal:
+
+- Waterfall ledges.
+- Ropes.
+- Narrow cliff paths.
+- Moving water platforms.
+- Hidden waterfall passages.
+
+Guardian landmark:
+
+Heart of the Falls.
+
+Resource:
+
+Tidal Pearls.
+
+Guardian:
+
+Aquarune.
+
+## Kingdom 3 — Sunstone Desert
+
+Theme: Golden mountain desert.
+
+Environment:
+
+- Golden sandstone.
+- Weathered cliffs.
+- Solar ruins.
+- Ancient arches.
+- Desert plants.
+- Sand-covered pathways.
+- Sunstone veins.
+- Hidden oasis areas.
+- Eroded rock formations.
+
+Traversal:
+
+- Crumbling paths.
+- Shifting sand.
+- Climbing ruins.
+- Dangerous exposed ledges.
+- Secret sandstone passages.
+
+Guardian landmark:
+
+The Solar Throne.
+
+Resource:
+
+Sunstone Ore.
+
+Guardian:
+
+Zenthari.
+
+## Kingdom 4 — Violet Crystals
+
+Theme: Enchanted crystalline mountain.
+
+Environment:
+
+- Amethyst caverns.
+- Giant violet crystal formations.
+- Reflective stone.
+- Glowing mineral veins.
+- Crystal bridges.
+- Floating architectural fragments.
+- Violet moss.
+- Ancient observatory ruins.
+
+Traversal:
+
+- Crystal lifts.
+- Rotating bridges.
+- Reflective platforms.
+- Precision jumps.
+- Hidden crystal tunnels.
+
+Guardian landmark:
+
+Fractured Mirror Observatory.
+
+Resource:
+
+Prism Shards.
+
+Guardian:
+
+Veylith.
+
+## Kingdom 5 — Inferno Heights
+
+Theme: Living volcanic kingdom.
+
+Environment:
+
+- Black basalt.
+- Obsidian cliffs.
+- Glowing magma fissures.
+- Lavafalls.
+- Ember particles.
+- Charred trees.
+- Volcanic vents.
+- Suspended stone platforms.
+- Ancient fire temples.
+
+Traversal:
+
+- Timed lava crossings.
+- Erupting vents.
+- Moving volcanic platforms.
+- Obsidian bridges.
+- Dangerous optional routes.
+
+Guardian landmark:
+
+Emberheart Crucible.
+
+Resource:
+
+Ember Cores.
+
+Guardian:
+
+Pyralune.
+
+## Kingdom 6 — Astral Crown
+
+Theme: Celestial mountain summit.
+
+Environment:
+
+- White and silver stone.
+- Celestial marble.
+- Luminous crystals.
+- Floating constellation rings.
+- Star gardens.
+- Cosmic architectural arches.
+- Magical observatory structures.
+- Suspended celestial platforms.
+- Atmospheric summit lighting.
+
+Traversal:
+
+- Gravity platforms.
+- Celestial bridges.
+- Precision climbing.
+- Constellation mechanisms.
+- Final summit ascent.
+
+Guardian landmark:
+
+Eternal Astral Sanctum.
+
+Resource:
+
+Astral Fragments.
+
+Guardian:
+
+Caeloryn.
+
+This must be the most iconic location on the mountain.
+
+Its silhouette should be recognizable from lower elevations.
+
+---
+
+# 7. MOUNTAIN LAYOUT AND TRAVERSAL
+
+Use the locked Grand Expedition Hybrid system.
+
+Each kingdom requires:
+
+- One readable primary ascent route.
+- Two optional exploration branches.
+- At least one discoverable shortcut.
+- An entrance checkpoint.
+- A pre-Guardian checkpoint.
+- Additional recovery checkpoints where needed.
+- One Guardian approach.
+- Hidden discoveries and rewards.
+- At least three major landmarks.
+
+Total minimum:
+
+- Six complete kingdoms.
+- Twelve optional exploration branches.
+- Eighteen memorable landmarks.
+- Six Guardian arenas.
+- Twelve primary checkpoints.
+
+Implement:
+
+- Climbing.
+- Jumping.
+- Ropes.
+- Ladders.
+- Moving platforms.
+- Environmental hazards.
+- Traversal puzzles.
+- Shortcuts.
+- Fast travel.
+- Checkpoint respawning.
+
+Adventure climbing should dominate.
+
+Every traversal mechanic must work on mobile and PC.
+
+Avoid relying on extremely precise jumps that are unreasonable on touchscreens.
+
+## Kingdom progression
+
+Players must explore each kingdom and defeat its normal Legendary Guardian encounter to unlock the next kingdom.
+
+Normal Guardian victory unlocks progression.
+
+Legendary Trials are separate optional mastery challenges.
+
+Fast travel unlocks through progression and cannot bypass undefeated Guardians.
+
+Store progression on the server.
+
+Validate teleports and unlocks.
+
+Do not trust client-reported progression.
+
+---
+
+# 8. REGULAR CREATURE ROSTER
+
+Implement 36 original regular species, six per kingdom.
+
+## Blossom Gardens
+
+- Mossbun
+- Petalyn
+- Fernox
+- Bloomlet
+- Thorncub
+- Floramoth
+
+## Azure Falls
+
+- Bubblit
+- Ripplet
+- Coralfen
+- Mistfin
+- Tidepup
+- Shellora
+
+## Sunstone Desert
+
+- Pebblin
+- Duneling
+- Sunscarab
+- Glimfox
+- Sandhorn
+- Solspike
+
+## Violet Crystals
+
+- Shardlet
+- Prismite
+- Glowmoth
+- Amethyn
+- Crystail
+- Violette
+
+## Inferno Heights
+
+- Emberkit
+- Ashling
+- Cindercub
+- Magmole
+- Flarewing
+- Obsidrax
+
+## Astral Crown
+
+- Starbit
+- Moonlet
+- Nebulyn
+- Cosmorin
+- Astralyn
+- Stellhorn
+
+Every species must have:
+
+- A unique species identifier.
+- Recognizable visual silhouette.
+- Kingdom association.
+- Elemental identity.
+- Rarity.
+- Base stats.
+- Combat role.
+- Spawn or encounter rules.
+- Egg association.
+- Progression data.
+- Evolution appearances.
+
+Do not create 36 identical creatures with different colors.
+
+Use shared animation rigs and modular components where technically appropriate, while retaining distinct creature identities.
+
+## Rarity
+
+Regular rarity categories:
+
+- Common
+- Uncommon
+- Rare
+- Epic
+- Mythic
+
+Use initial encounter weighting of approximately 40%, 28%, 18%, 10%, and 4% respectively, subject to balancing.
+
+Legendary Guardians are separate from ordinary rarity rolls.
+
+---
+
+# 9. EGG COLLECTION AND EXTRACTION
+
+Implement the locked Expedition + Evolution Hybrid.
+
+Players discover eggs through:
+
+- Hidden nests.
+- Creature encounters.
+- Environmental puzzles.
+- Dangerous optional routes.
+- Exploration rewards.
+- Rare discoveries.
+
+Players can carry three unsecured eggs.
+
+Eggs become secured at extraction checkpoints or when returning to the sanctuary.
+
+If a player falls or is defeated, unsecured eggs enter a recoverable state for a short period.
+
+Do not permanently destroy secured eggs.
+
+Implement clear feedback for:
+
+- Egg discovery.
+- Inventory capacity.
+- Extraction.
+- Recovery.
+- Secured inventory.
+- Incubation.
+- Hatching.
+
+## Incubation times
+
+Common: 30 seconds.
+
+Uncommon: 2 minutes.
+
+Rare: 5 minutes.
+
+Epic: 10 minutes.
+
+Mythic: 20 minutes.
+
+Hatching must be free.
+
+Persist incubation timestamps securely.
+
+Do not rely solely on client timers.
+
+---
+
+# 10. CREATURE LEVELING, EVOLUTION, AND TEAMS
+
+Regular creature level cap: 50.
+
+Evolution stages:
+
+- Level 15.
+- Level 35.
+
+Specialization selection:
+
+- Level 25.
+
+XP sources:
+
+- Battles.
+- Exploration milestones.
+- Training.
+- Sanctuary activities.
+
+Evolution should visibly change the creature through new features, proportions, materials, attachments, or effects.
+
+Each player equips a three-creature team.
+
+Combat uses:
+
+- Automatic basic attacks.
+- Manually activated special abilities.
+- Player movement and dodging.
+- Cooldowns.
+- Elemental interactions.
+- Team roles and synergies.
+
+Support different team compositions.
+
+Do not require a specific tank/damage/support arrangement.
+
+Use server-authoritative damage, cooldown, rewards, and ownership validation.
+
+Legendary Guardians can level and train but do not undergo ordinary evolution.
+
+---
+
+# 11. SIX LEGENDARY GUARDIANS
+
+Every Guardian has:
+
+- Enormous cinematic boss form.
+- Smaller but still oversized collectible form.
+- Original silhouette.
+- Distinct personality.
+- Four collectible abilities.
+- A normal progression battle.
+- A separate difficult Legendary Trial.
+- Individual player capture state.
+- One permanent capture maximum per Guardian per player.
+
+Legendary Trials must emphasize mastery rather than excessive health or random chance.
+
+Successful Trial completion guarantees a capture opportunity.
+
+Do not grant duplicate permanent Guardian captures.
+
+## Guardian 1 — Floravelle
+
+Kingdom: Blossom Gardens.
+
+Species: Six-legged floral creature with flowing petal mane.
+
+Personality: Regal.
+
+Arena: Sovereign's Garden + Blooming Colosseum.
+
+Combat: Guardian Mastery Hybrid.
+
+Role: Support + Control + Magical Damage.
+
+Abilities:
+
+1. Petal Volley.
+2. Sovereign Bloom.
+3. Garden's Grace.
+4. Royal Garden Awakening.
+
+Collectible title: Sovereign of Life.
+
+## Guardian 2 — Aquarune
+
+Kingdom: Azure Falls.
+
+Species: Chunky six-legged aquatic creature with translucent fins and sapphire crest.
+
+Arena: Heart of the Falls.
+
+Combat: Tidal Mastery Hybrid.
+
+Role: Burst Damage + Speed + Water Control.
+
+Abilities:
+
+1. Ripple Barrage.
+2. Tidal Break.
+3. Flow Momentum.
+4. Heart of the Ocean.
+
+Collectible title: Sovereign of the Tides.
+
+## Guardian 3 — Zenthari
+
+Kingdom: Sunstone Desert.
+
+Species: Stout upright golden creature with four floating crystal arms and radiant sunstone crown.
+
+Arena: Solar Throne.
+
+Combat: Solar Dominion Hybrid.
+
+Role: Heavy Damage + Tank + Armor Breaking.
+
+Abilities:
+
+1. Monarch's Fists.
+2. Sunstone Crusher.
+3. Monarch's Resolve.
+4. Solar Dominion.
+
+Collectible title: Solar Juggernaut.
+
+## Guardian 4 — Veylith
+
+Kingdom: Violet Crystals.
+
+Species: Floating teardrop-shaped crystal creature with six orbiting amethyst shards.
+
+Arena: Fractured Mirror Observatory.
+
+Combat: Prism Mastery Hybrid.
+
+Role: Precision Magic + Debuffs + Tactical Damage.
+
+Abilities:
+
+1. Shard Lance.
+2. Prism Fracture.
+3. Crystal Alignment.
+4. Shattered Star.
+
+Collectible title: Sovereign of Refraction.
+
+## Guardian 5 — Pyralune
+
+Kingdom: Inferno Heights.
+
+Species: Round floating fire-feathered creature with six short flame wings, radiant ember heart, and living-fire crown.
+
+Personality: Playful, proud, unpredictable.
+
+Arena: Emberheart Crucible.
+
+Combat: Ember Sovereignty Hybrid.
+
+Mechanics:
+
+- Aerial fire attacks.
+- Shifting safe zones.
+- Ember decoys.
+- Interruptible regeneration.
+- Expanding fire patterns.
+
+Role: Aerial Magic + Burn + Regeneration.
+
+Abilities:
+
+1. Ember Barrage.
+2. Blazing Spiral.
+3. Eternal Spark.
+4. Phoenix Ascension.
+
+Legendary Trial: Trial of the Eternal Flame.
+
+The Trial must test dodging, positioning, target identification, and regeneration interrupts.
+
+## Guardian 6 — Caeloryn
+
+Kingdom: Astral Crown.
+
+Species: Majestic six-legged cosmic creature with enormous crystalline antlers, suspended constellations, and flowing midnight-blue celestial mane.
+
+Personality: Calm, ancient, immensely powerful.
+
+Arena: Eternal Astral Sanctum.
+
+Combat: Celestial Dominion Hybrid.
+
+Mechanics:
+
+- Cosmic beams.
+- Gravity waves.
+- Constellation alignment.
+- Summoned star constructs.
+- Shifting safe zones.
+
+Role: Cosmic Damage + Battlefield Control + Team Empowerment.
+
+Abilities:
+
+1. Astral Lance.
