@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-24",
+  "items": [
+    {
+      "step": "Save Sculpt07",
+      "result": "First save attempt did not create file. Explicit window activation and Save button created Sculpt07 on retry; no prior checkpoint overwritten."
+    },
+    {
+      "step": "Image evidence transfer",
+      "result": "Rejected at 64000-byte request limit. Smaller data chunks saved six image evidence files."
+    },
+    {
+      "step": "Compile invocation",
+      "result": "Extra literal null argument was treated as file and failed. Correct invocation compiled 33 Luau files; 120 rules and 131 traversal checks passed."
+    },
+    {
+      "step": "QA injection from server",
+      "result": "PlayerScripts is client-only; WaitForChild yielded. Client-side task started test successfully; outstanding server task ends with Play session."
+    },
+    {
+      "step": "Protected terrain comparison",
+      "result": "Edit baseline and Play target had different protection bounds because moving platforms move. Inconclusive; repeat Edit-to-Edit.",
+      "evidence": [
+        {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"scope\":\"Expanded gameplay corridor voxels within sculpt tile envelope; occupancy quantized to 16 bits; non-cryptographic fingerprints\",\"cells\":1220586,\"hash2\":1336372210,\"occupied\":641341,\"hash1\":1730309435}"
+              }
+            ],
+            "isError": false
+          }
+        },
+        {
+          "status": "fulfilled",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"scope\":\"Expanded gameplay corridor voxels within sculpt tile envelope; occupancy quantized to 16 bits; non-cryptographic fingerprints\",\"cells\":1221610,\"hash2\":360684926,\"occupied\":641520,\"hash1\":1225890924}"
+              }
+            ],
+            "isError": false
+          }
+        }
+      ]
+    }
+  ]
+}

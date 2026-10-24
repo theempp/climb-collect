@@ -1,0 +1,15 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"sourceBytes\":11405,\"name\":\"ImpossibleMountain.Environment.Review10.rbxlx\",\"environment\":false,\"qa\":[],\"http\":false}"
+      }
+    ],
+    "isError": false
+  },
+  "note": "Actual art folder EnvironmentComposition; six-group audit and protected-voxel fingerprint passed after reopen. Initial Environment-name probe was incorrect.",
+  "compile": 36,
+  "rules": 120,
+  "traversal": 131
+}

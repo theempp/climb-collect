@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"scope\":\"Expanded gameplay corridor voxels within sculpt tile envelope; occupancy quantized to 16 bits; non-cryptographic fingerprints\",\"cells\":1220586,\"hash2\":1336372210,\"occupied\":641341,\"hash1\":1730309435}"
+    }
+  ],
+  "isError": false
+}

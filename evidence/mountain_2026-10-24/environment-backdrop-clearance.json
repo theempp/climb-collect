@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"clearance\":3,\"scope\":\"Conservative boxes of backdrop parts above arena plane; excludes route accents. Does not establish visual quality.\",\"results\":{\"1\":{\"kingdom\":\"blossom\",\"violations\":[],\"checked\":65,\"minimumRadius\":51.10550308227539},\"3\":{\"kingdom\":\"sunstone\",\"violations\":[],\"checked\":66,\"minimumRadius\":57.00873565673828},\"2\":{\"kingdom\":\"azure\",\"violations\":[],\"checked\":42,\"minimumRadius\":47.000030517578128},\"5\":{\"kingdom\":\"inferno\",\"violations\":[],\"checked\":34,\"minimumRadius\":51.40107727050781},\"4\":{\"kingdom\":\"violet\",\"violations\":[],\"checked\":70,\"minimumRadius\":51.79218292236328},\"6\":{\"kingdom\":\"astral\",\"violations\":[],\"checked\":70,\"minimumRadius\":46.62091827392578}},\"passed\":true,\"arenaRadius\":41}"
+    }
+  ],
+  "isError": false
+}

@@ -1,0 +1,20 @@
+{
+  "health": 218.10874938964844,
+  "position": "259.520263671875, 232.7754364013672, -274.740478515625",
+  "support": "Workspace.Terrain",
+  "passed": true,
+  "ropeEvents": [
+    {
+      "position": "-13.451326370239258, 206.18653869628906, -382.83746337890625",
+      "event": "rope-enter",
+      "rope": "-10.971345901489258, 211.25, -382.79345703125"
+    },
+    {
+      "startY": 206.18653869628906,
+      "ropeTop": 222.5,
+      "endY": 225.5836944580078,
+      "event": "rope-exit-grounded",
+      "support": "Workspace.ImpossibleMountain.Azure Falls.ClimbLadder"
+    }
+  ]
+}
