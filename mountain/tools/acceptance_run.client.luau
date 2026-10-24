@@ -27,10 +27,13 @@ local function walk(pos,label)
  return record(label,h.Health>0 and (rr.Position-pos).Magnitude<=5,os.clock()-start)
 end
 local function press(part)
+ local oldCameraType=workspace.CurrentCamera.CameraType
+ workspace.CurrentCamera.CameraType=Enum.CameraType.Scriptable
  workspace.CurrentCamera.CFrame=CFrame.lookAt(rr.Position+Vector3.new(0,7,13),part.Position)
  task.wait(.3)
  local prompt=part:FindFirstChildOfClass('ProximityPrompt')
  prompt:InputHoldBegin();task.wait(prompt.HoldDuration+.2);prompt:InputHoldEnd();task.wait(.4)
+ workspace.CurrentCamera.CameraType=oldCameraType
 end
 local function fight(k,trial)
  local altar=world.Interactions[C.guardians[k].name]
@@ -49,6 +52,7 @@ local function fight(k,trial)
   local pattern=(beat-1)%4+1
   if beat~=phase then
    phase=beat
+   if beat>0 and not ((k==5 or k==6) and pattern==3) then task.delay(.25,function() request('Dodge') end) end
    if beat==0 then h:MoveTo(center+Vector3.new(26,3,26))
    elseif pattern==1 then
     local delta=rr.Position-center
@@ -56,10 +60,15 @@ local function fight(k,trial)
    elseif pattern==2 then h:MoveTo(center+Vector3.new(26,3,26))
    elseif k==5 and pattern==3 then h:MoveTo(center+Vector3.new(0,3,-8))
    elseif k==6 and pattern==3 then
-    for _,p in ipairs(world.Dynamics:GetChildren()) do
-     if p.Name=='StarAlignment' and (p.Position-center).Magnitude<50 then
-      if not walk(p.Position,k..':constellation') then return false end
-      press(p)
+    local stones={}
+    for _,p in ipairs(world.Dynamics:GetChildren()) do if p.Name=='StarAlignment' and (p.Position-center).Magnitude<50 then table.insert(stones,p) end end
+    while #stones>0 do
+     table.sort(stones,function(a,b)return (a.Position-rr.Position).Magnitude<(b.Position-rr.Position).Magnitude end)
+     local stone=table.remove(stones,1);local begin=os.clock()
+     while stone.Parent and (rr.Position-stone.Position).Magnitude>8 and os.clock()-begin<3 do h:MoveTo(stone.Position);task.wait(.05) end
+     if stone.Parent then
+      workspace.CurrentCamera.CFrame=CFrame.lookAt(rr.Position+Vector3.new(0,7,13),stone.Position);task.wait(.1)
+      local prompt=stone:FindFirstChildOfClass('ProximityPrompt');prompt:InputHoldBegin();task.wait(.35);prompt:InputHoldEnd();task.wait(.1)
      end
     end
    else h:MoveTo(center+Vector3.new(0,3,0)) end

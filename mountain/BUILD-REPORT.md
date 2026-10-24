@@ -1,5 +1,19 @@
 # Impossible Mountain playable systems milestone — 2026-10-24
 
+## Continuation update (supersedes historical status below)
+
+Current review: C:/Users/HOME!/Desktop/climb-collect-mountain-continuation/evidence/mountain_2026-10-24/ImpossibleMountain.VerifiedTraversal.rbxlx, branch codex/mountain-continuation. SHA-256: 916729ae0b94d008fff9bd34fe7251cf65cb05aa76f58998f52fe8e5e0aa5188. Contains 15 matching runtime sources and exact baseline terrain payload; 22,530,892 bytes. Prior checkpoints remain preserved. See CONTINUATION.md for the external worktree-loss recovery and Claude's stopping point.
+
+The final platform regression exposed automatic carrying of avatars on adjacent stationary surfaces. Main now requires actual ground support from the moving platform before carrying. Fresh-spawn natural directional movement then passed boarding, riding, jump/landing on ChallengeRewardLedge, and the three-rune puzzle egg in 107.59 seconds. Follow-up ray confirmed the avatar remained on that stationary ledge. Evidence: verified-traversal-platform-puzzle.json; failed earlier run: mover-puzzle-carried-away-failure.json. This verifies Blossom's platform/puzzle, not every kingdom variant.
+
+Added functional native rope ladders, reversing sand surface velocity, and local low-gravity force on the Astral moving platform without changing global gravity. Fixed cave walls facing across the branch approach in all six kingdoms. Pure checks now total 120 rules plus 131 traversal checks; all Luau files compile. Live physics fixtures establish sand movement, gravity force cleanup, and rope climbing, with fixture limits recorded explicitly.
+
+The current continuation earned all six normal victories, all six Trial captures and the summit reward through avatar movement, prompts and legal actions, resuming earned state after failed attempts. No win, eligibility, health or position was granted for this run. Evidence ends in continuation-summit-success.json; earlier failed prompt/capture runs are retained. This closes the five remaining natural Trial-capture gap, but is automated testing, not human balance or timing certification. The ascent run used the reopened baseline geometry; added optional traversal and cave changes have separate checks.
+
+Full scope remains incomplete: premium art/animation and distinct encounter tuning, exhaustive optional routes/hazards, real multiplayer/eight-client behavior, physical devices, live persistence/audio, accepted Phase 1 integration, human 18–25 minute timing, and the truncated Caeloryn specification remain unresolved. No production-readiness percentage is asserted. The sections below preserve the earlier milestone's evidence and limitations as historical context.
+
+Additional final-file verification: fresh spawn through both Blossom branch discoveries and nests, shortcut attunement/use and two-egg extraction passed in 153.63 seconds (`continuation-final-branches.json`). This covers two of twelve branches. Graph refreshed with verified backup `vault-backup-graphify-2026-10-24-121613.zip`; status CURRENT, zero input drift, one historical overview-heading review candidate. It indexes original-checkout/vault records, not recovered-worktree mountain code. Evidence: `continuation-graph-status.txt`.
+
 ## Delivery and status
 
 Saved and reopened review: C:/Users/HOME!/.codex/worktrees/six-kingdom-mountain/climb&collect/evidence/mountain_2026-10-24/ImpossibleMountain.FirstDraft.rbxlx.

@@ -194,7 +194,14 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
   if k==4 then cf*=CFrame.Angles(0,math.sin(now*.5)*.25,0) end
   local delta=cf.Position-m.part.Position
   for _,player in ipairs(Players:GetPlayers()) do local rr=root(player)
-   if rr and math.abs(rr.Position.X-m.part.Position.X)<7 and math.abs(rr.Position.Z-m.part.Position.Z)<7 and rr.Position.Y-m.part.Position.Y>0 and rr.Position.Y-m.part.Position.Y<6 then player.Character:PivotTo(player.Character:GetPivot()+delta) end
+   if rr and math.abs(rr.Position.X-m.part.Position.X)<7 and math.abs(rr.Position.Z-m.part.Position.Z)<7 then
+    local humanoid=player.Character:FindFirstChildOfClass('Humanoid')
+    if humanoid and humanoid.Health>0 and humanoid.FloorMaterial~=Enum.Material.Air then
+     local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Exclude;params.FilterDescendantsInstances={player.Character};params.RespectCanCollide=true
+     local support=workspace:Raycast(rr.Position,Vector3.new(0,-(humanoid.HipHeight+rr.Size.Y/2+1),0),params)
+     if support and (support.Instance==m.part or support.Instance:IsDescendantOf(m.part)) then player.Character:PivotTo(player.Character:GetPivot()+delta) end
+    end
+   end
   end
    m.part.CFrame=cf
    for _,d in ipairs(m.decorations) do d.part.CFrame=cf*d.offset end

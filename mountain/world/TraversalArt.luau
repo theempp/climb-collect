@@ -2,8 +2,25 @@
 local A=require(script.Parent.Art)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local T={}
+function T.repairBranches(world)
+ if world:GetAttribute('BranchAccessRevision')==1 then return end
+ for k,kingdom in ipairs(C.kingdoms) do
+  local q=C.route(k,.29);local outward=Vector3.new(math.cos(q.angle),0,math.sin(q.angle))
+  local center=Vector3.new(q.x,q.y,q.z)+outward*48
+  local frame=CFrame.lookAt(center,center-outward)
+  local walls={}
+  for _,part in ipairs(world[kingdom.name]:GetChildren()) do
+   if part.Name=='CaveWall' and (part.Position-center).Magnitude<30 then table.insert(walls,part)
+   elseif part.Name=='CaveVault' and (part.Position-center).Magnitude<30 then part.CFrame=frame*CFrame.new(0,14,5) end
+  end
+  table.sort(walls,function(a,b)return a.Position.X<b.Position.X end)
+  for i,part in ipairs(walls) do part.CFrame=frame*CFrame.new(if i==1 then -14 else 14,7,5) end
+ end
+ world:SetAttribute('BranchAccessRevision',1)
+end
 function T.apply(world)
  assert(world.Name=='ImpossibleMountain' and not workspace:FindFirstChild('MountainEmpire_Phase1'),'Wrong world')
+ T.repairBranches(world)
  if world:GetAttribute('TraversalRevision')==1 then return end
  local azure=world:FindFirstChild('Azure Falls')
  local index=0

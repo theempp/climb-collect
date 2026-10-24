@@ -16,20 +16,27 @@ local function walk(pos,label)
  return record(label,(rr.Position-pos).Magnitude<=4 and h.Health>0)
 end
 local function press(part)
+ local camera=workspace.CurrentCamera;local previous=camera.CameraType;camera.CameraType=Enum.CameraType.Scriptable
  workspace.CurrentCamera.CFrame=CFrame.lookAt(rr.Position+Vector3.new(0,7,13),part.Position);task.wait(.3)
  local q=part:FindFirstChildOfClass('ProximityPrompt');q:InputHoldBegin();task.wait(q.HoldDuration+.2);q:InputHoldEnd();task.wait(.4)
+ camera.CameraType=previous
  remotes.Request:FireServer('State');task.wait(.2)
 end
 local function find(kind,id)
  for _,part in ipairs(w.Interactions:GetChildren()) do if part:GetAttribute('Kind')==kind and part:GetAttribute('Id')==id then return part end end
 end
-for i=0,32 do
+for i=script:GetAttribute('StartRoute') or 0,32 do
  local q=C.route(1,i/48);local pos=Vector3.new(q.x,q.y+3,q.z)
  if i>0 and i%12==0 then local b=C.route(1,(i+1)/48);pos+=Vector3.new(b.x-q.x,0,b.z-q.z).Unit*3 end
  if not walk(pos,'route:'..i) then return end
  if i==0 or i==24 then press(w.Checkpoints['1:'..(if i==0 then 'entrance' else 'recovery')]) end
  if i==14 or i==32 then
   local branch=if i==14 then 1 else 2
+  local junction=C.route(1,if branch==1 then .29 else .66)
+  local entry=Vector3.new(junction.x,junction.y+3,junction.z)
+  if not walk(entry,'branch-junction:'..branch) then return end
+  local terrace=entry+Vector3.new(math.cos(junction.angle),0,math.sin(junction.angle))*48
+  if not walk(terrace,'branch-terrace:'..branch) then return end
   local discovery=find('Discovery','1:branch'..branch)
   if not walk(discovery.Position+Vector3.new(0,3,0),'branch:'..branch) then return end
   press(discovery)

@@ -3,7 +3,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 import hashlib,json,sys,base64
 root=Path(__file__).resolve().parents[2]
-place=Path(sys.argv[1]) if len(sys.argv)>1 else root/'evidence/mountain_2026-10-24/ImpossibleMountain.Traversal.rbxlx'
+place=Path(sys.argv[1]) if len(sys.argv)>1 else root/'evidence/mountain_2026-10-24/ImpossibleMountain.VerifiedTraversal.rbxlx'
 doc=ET.parse(place).getroot()
 found={}
 counts={}
