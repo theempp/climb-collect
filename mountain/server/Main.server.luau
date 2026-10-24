@@ -163,16 +163,16 @@ local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Compe
   R.extract(p);teleport(player,cp.Position+Vector3.new(0,5,0));return true
  end,
 })
-local function handle(player,action,data)
+local function handle(player,action,data,correlated)
  local ok,message,result=dispatch(player,action,data)
  if action=='Settings' then send(player,'save',ok) end
  if action~='State' then
-  if action~='Special' and action~='Dodge' or not ok then send(player,'toast',message) end
+  if not correlated and (action~='Special' and action~='Dodge' or not ok) then send(player,'toast',message) end
   publish(player)
  end
  return ok,message,result
 end
-uiService=UIRequests.new({handle=handle,available=function(player) return P.get(player)~=nil end,
+uiService=UIRequests.new({handle=function(player,action,data) return handle(player,action,data,true) end,available=function(player) return P.get(player)~=nil end,
  busy=function(player) return busy[player]==true end,
  setBusy=function(player,value) busy[player]=if value then true else nil end,
  failed=function(err) warn('Mountain UI request failed: '..tostring(err)) end,
