@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"toast\":\"Guaranteed capture! Floravelle joins your collection.\",\"battle\":\"false\",\"state\":\"{\\\"captures\\\":{\\\"floravelle\\\":true},\\\"coins\\\":160,\\\"trophies\\\":0,\\\"competitionAt\\\":0,\\\"team\\\":[\\\"c1\\\",\\\"c2\\\",\\\"c3\\\"],\\\"resources\\\":[],\\\"eggs\\\":[],\\\"claims\\\":[],\\\"cargo\\\":[],\\\"wins\\\":{\\\"1\\\":true},\\\"unlocked\\\":2,\\\"discoveries\\\":{\\\"1:guardian\\\":true},\\\"serial\\\":4,\\\"serverNow\\\":1792818146,\\\"lastIncome\\\":1792817825,\\\"checkpoint\\\":\\\"1:guardian\\\",\\\"shortcuts\\\":[],\\\"creatures\\\":[{\\\"id\\\":\\\"c1\\\",\\\"species\\\":\\\"mossbun\\\",\\\"xp\\\":40,\\\"level\\\":5},{\\\"id\\\":\\\"c2\\\",\\\"species\\\":\\\"petalyn\\\",\\\"xp\\\":40,\\\"level\\\":5},{\\\"id\\\":\\\"c3\\\",\\\"species\\\":\\\"fernox\\\",\\\"xp\\\":40,\\\"level\\\":5},{\\\"id\\\":\\\"c4\\\",\\\"species\\\":\\\"floravelle\\\",\\\"xp\\\":0,\\\"level\\\":1}],\\\"schema\\\":1,\\\"saveMode\\\":\\\"Studio memory • resets when Play stops\\\"}\",\"trialDone\":true}"
+    }
+  ],
+  "isError": false
+}

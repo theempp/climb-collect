@@ -11,3 +11,5 @@ Free Creator Store audio discovered and inserted on 2026-10-24:
 No paid assets, copied creature IP, purchases, publication or changes to original creature folders.
 
 Art still requires an environment artist pass, authored mesh silhouettes, animations, detailed biome transitions, audio mixing, foreground composition and physical mobile performance review. Do not label this first draft production art.
+
+Final client load check: all four sounds IsLoaded=true. Evidence: ../evidence/mountain_2026-10-24/audio-load-check.json. Audio mixing and hosted permissions remain pending.

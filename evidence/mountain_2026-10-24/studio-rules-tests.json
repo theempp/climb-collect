@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"scope\":\"isolated memory profiles and snapshots; no live DataStore or actual player progression\",\"passed\":47,\"checks\":{\"43\":\"six permanent guardian captures\",\"41\":\"trial capture 6\",\"47\":\"guard has defensive stat\",\"37\":\"trial capture 5\",\"45\":\"offline snapshot challenge\",\"35\":\"gate 5\",\"39\":\"gate 6\",\"29\":\"trial capture 3\",\"1\":\"new schema loads\",\"3\":\"release save succeeds\",\"2\":\"contended session rejects\",\"5\":\"early hatch rejected\",\"4\":\"reconnect retains coins and incubation\",\"7\":\"recovery survives reconnect\",\"6\":\"offline hatch ready\",\"9\":\"save retry resumes\",\"8\":\"save failure freezes mutations\",\"27\":\"gate 3\",\"17\":\"unknown schema never overwritten\",\"13\":\"serialization failure clears busy\",\"21\":\"trial capture 1\",\"11\":\"no duplicate currency\",\"23\":\"gate 2\",\"42\":\"duplicate capture 6\",\"40\":\"normal win 6\",\"36\":\"normal win 5\",\"46\":\"challenge replay cooldown\",\"34\":\"duplicate capture 4\",\"44\":\"register defense snapshot\",\"28\":\"normal win 3\",\"38\":\"duplicate capture 5\",\"33\":\"trial capture 4\",\"32\":\"normal win 4\",\"31\":\"gate 4\",\"30\":\"duplicate capture 3\",\"15\":\"failed load does not default\",\"18\":\"unknown schema retained\",\"19\":\"gate 1\",\"25\":\"trial capture 2\",\"14\":\"serialization repair resumes save\",\"24\":\"normal win 2\",\"16\":\"failed load preserved durable state\",\"26\":\"duplicate capture 2\",\"20\":\"normal win 1\",\"12\":\"dictionary team rejected\",\"22\":\"duplicate capture 1\",\"10\":\"uncertain response retry safe\"}}"
+    }
+  ],
+  "isError": false
+}

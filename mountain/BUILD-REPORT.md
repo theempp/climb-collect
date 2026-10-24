@@ -1,26 +1,55 @@
-# Impossible Mountain build — 2026-10-24
+# Impossible Mountain playable systems milestone — 2026-10-24
 
-Latest authority: the owner's complete mountain request, preserved at mountain/REQUEST.txt on branch feature/six-kingdom-mountain-first-draft. It supersedes older mountain layouts. Phase 1 remains protected and awaits its separate review.
+## Delivery and status
 
-## Isolation and baseline
-Original checkout: C:/Users/HOME!/Desktop/climb&collect, branch codex/expedition-fairground, baseline e126557, substantial existing dirty/untracked work left intact. Implementation worktree: C:/Users/HOME!/.codex/worktrees/six-kingdom-mountain/climb&collect. No merge/push/publication.
-Phase 1 Step3 review backed up byte-for-byte in evidence/mountain_2026-10-24/Phase1.Preserved.rbxl. Thirty existing place hashes recorded in protected-before.json. No Phase 1 gateway coordinates assigned.
+Saved and reopened review: C:/Users/HOME!/.codex/worktrees/six-kingdom-mountain/climb&collect/evidence/mountain_2026-10-24/ImpossibleMountain.FirstDraft.rbxlx.
 
-## Current implementation
-New deterministic continuous mountain, six elevation kingdoms, twelve side branches, eighteen landmark identities, six arenas, eighteen checkpoints, 24 climbing ladders, moving optional platforms, timed hazards, shortcuts, server-validated fast travel. New roster has 36 regular species and six Guardians with modular original draft geometry. Separate profiles implement three unsecured egg slots, extraction, recovery, timestamp incubation/free hatch, three-creature teams, level cap 50, evolution15/35, specialization25, sanctuary income/training, normal/Trial separation and single permanent captures. Async defense snapshot competition runs without an online defender. Refuge is an integration fixture; final Phase1 sanctuary is untouched.
+The place is open in its own Studio instance, in Edit mode, ready for Play. It contains baked terrain and all gameplay source. Size: 21,935,982 bytes. SHA-256: b2472e49eda169af31775c23448147d6de42f710d254c57cef9a3e8c185a0907. The source-only Rojo package is separately named ImpossibleMountain.SourcePackage.rbxlx; it is not the baked review.
 
-## Verified milestone
-- Luau CLI: 120 rules checks pass (including malformed team payload rejection, income carry and Trial mastery gates).
-- Studio: 50 isolated memory-store/snapshot checks pass. Save failure, lock contention, offline timestamps, profile replay and delayed autosave/leave race checked. The new delayed-save regression failed before the fix and passed afterward. Not live DataStore networking.
-- Natural spawn to Blossom pre-Guardian approach: 43/43 walking/climbing targets, 163.342s, no position/progression injection. Evidence natural-blossom-ascent.json.
-- Natural arena approach and normal Floravelle victory: next kingdom unlocked and 80 coins awarded. Separate natural Legendary Trial: guaranteed Floravelle capture. Evidence natural-floravelle-victory.json and natural-floravelle-trial.json.
-- Runtime loads without console errors in this test. Full mountain traversal is still in progress; do not infer its completion.
+This is a playable six-kingdom systems milestone. It is **not certified as 100% first-draft scope or 75% production readiness**. Premium art, full traversal-mechanic variety, complete Trial playtesting and live multiplayer/persistence acceptance remain. The owner's request is preserved verbatim in mountain/REQUEST.txt; it truncates after Caeloryn ability 1.
 
-## Corrected assumptions and fixes
-Rojo executable is installed (7.6.1); the default shim has no project manifest, so the verified direct executable is used. Older notes saying no Rojo are historical. Main old world/profile/roster code is incompatible with new design; only the store adapter was reused in a separate namespace. Studio MCP require caches are VM-local, so live tests use actual game scripts/inputs or explicitly isolated test profiles.
-Initial smooth cone was rejected visually and replaced by irregular heightfield terrain. First walk found a buried access connector and blocked ladder headroom; repaired before successful natural ascent. Review found summit ceiling/carve bugs, trial early-kill issue, unvalidated team dictionary keys, fractional income loss, recovery reconstruction, Guard specialization and HUD overlap/timers; fixes implemented and applicable tests recorded.
+## Isolation
 
-## Remaining acceptance limits
-Procedural art is first draft, not premium final mesh/animation quality. Complete full-mountain ascent/side-branch verification, final save/reopen source and terrain audit, mobile/eight-client performance, live DataStore save/rejoin and user playtesting remain. Ascent target18–25min is not yet established. The request ends after Caeloryn ability1; other three names/effects are provisional. Final gateway integration awaits Phase1 acceptance and coordinates.
+Original checkout: C:/Users/HOME!/Desktop/climb&collect, branch codex/expedition-fairground, baseline e126557. Existing dirty/untracked work was retained. Implementation is on feature/six-kingdom-mountain-first-draft in the attached isolated worktree. Milestone commits include 1e1fb02 and 017e776, followed by the final artifact/evidence commit. No merge, push or publication.
 
-This record will be updated after the final save and checks.
+All 30 pre-existing place files match their recorded hashes. Phase 1 Step3 was also backed up byte-for-byte as Phase1.Preserved.rbxl. Its hash remains 4f0a0176c718aeb35ad8852927d6ff599ce2f1de78d701f3ec6bdfd888e088af. Phase 1, older creature folders and DRS Rush were not edited. The expedition refuge is an isolated integration fixture; no Phase 1 gateway coordinates were invented.
+
+## Implemented
+
+- Continuous terrain reaching the 840-stud summit platform, six ascending kingdoms, six primary ascent sections, twelve exploration branches, eighteen landmark identities/compositions, six arenas, eighteen checkpoints and 24 climbing ladders. Cliff ledges, decorative ropes, moving optional platforms, crumbling sandstone, timed hazards, rune puzzles, shortcuts and checkpoint travel are present.
+- 36 named regular species with distinct shape families/signature features, elements, rarities, roles, stats, encounters, eggs and visible evolution stages. Six large Guardian forms and smaller collectible forms; four collectible ability definitions each. Caeloryn abilities 2–4 are explicitly provisional.
+- Server-authoritative normal gates, cooperative encounter membership/contribution, separate mastery Trials and one permanent capture per Guardian. Pyralune has a golden-heart regeneration interrupt; Caeloryn has constellation alignment. Trial completion waits for resolved patterns.
+- Three unsecured eggs, extraction, recoverable loss, timestamp incubation/free hatch, three-companion equipment, XP/levels/evolution/specialization, training and passive income.
+- Separate session-locked profile namespace, failed-save mutation freeze, retry/release logic and delayed-autosave final-flush fix. Studio deliberately uses memory and resets on Stop.
+- Saved defense snapshots and asynchronous competition, including an explicitly labeled practice opponent. Responsive desktop/landscape-touch panels, specials and dodge controls. Four ambient sounds load in Studio.
+
+## Verified evidence
+
+| Check | Result and evidence |
+|---|---|
+| Pure rules | 120 checks pass; mountain/tests/rules.luau |
+| Luau sources | All .luau sources compile; final runtime sources audited against saved XML |
+| Studio persistence/snapshots | 50 checks pass; studio-final-tests.json. Includes contention, failed/uncertain saves, timestamps, replay and delayed autosave/leave. Slow-save regression failed before the fix, passed after; slow-save-regression.json |
+| Natural Blossom ascent | 43/43 targets from fresh spawn in 163.342s; natural-blossom-ascent.json |
+| Normal gates and summit | All six normal Guardian victories and summit reward earned through natural movement and authorized game inputs. Initial continuation failed at Violet entrance; its head-height overhang was repaired, then continuation passed. natural-ascent-boundary-failure.json and natural-upper-ascent-and-summit.json preserve both outcomes |
+| Legendary capture | Floravelle Trial/capture verified through real inputs; natural-floravelle-trial.json. Other five Trial captures are rule-tested, not claimed as natural playthroughs |
+| Final saved route geometry | 294/294 endpoint footing rays pass after reopening; reopened-route-geometry.json. Final outer ledge openings/art were added after the complete gate run; full human traversal of the exact final geometry remains open |
+| Final fresh-player egg loop | Wild Mossbun encounter → egg → extraction → earned refuge travel → 30-second incubation → free phone-UI hatch. Fourth companion added with coins unchanged; natural-egg-loop-and-phone-hatch.json |
+| Refuge UI | Passive income credited, defense registration acknowledged, practice challenge returned an 8-round defeat and 120-second cooldown; refuge-ui-and-phone-performance.json |
+| Layout/performance | Desktop 1250×408 sample: ~60 FPS. iPhone landscape emulation 750×381 sample: 601 frames/10.017s, ~60 FPS, worst 26.4ms, zero frames over 33ms. These are desktop Studio samples, not physical-phone measurements. Emulated touch hatch, collection, swipe and competition controls exercised |
+| Save/reopen | Saved XML matches 12 runtime sources, contains terrain, 42 encounter models and 18 checkpoints, and contains no temporary QA scripts. File closed, reopened and Play started with HUD, healthy fresh player and no runtime console errors; saved-artifact-audit.json and reopen-verification.json |
+| Protected work | 30/30 original place hashes unchanged; protected-before.json and protected-after.json |
+
+All evidence paths above are relative to evidence/mountain_2026-10-24 in the worktree.
+
+## Corrected assumptions
+
+Rojo 7.6.1 is installed; its direct executable works although the default shim lacks a project manifest. Studio MCP require caches are VM-local, so real-player tests used game scripts/inputs and persistence tests explicitly used isolated profiles. A successful source-only Rojo build does not prove a saved baked world. Ground-level raycasts missed a head-height overhang; full landing clearance fixed the failed ascent. Save success cannot be inferred from an early Ctrl+S return; the completed XML audit and reopen are the evidence.
+
+## Remaining acceptance work
+
+Premium stylized art is not met by the current modular geometry: authored meshes, expressive animation, stronger creature/Guardian silhouettes, detailed biome transitions and foreground compositions need an art pass. Rope models are decorative beside functional climbing ladders; shifting sand and true gravity-platform behavior are not fully implemented. Many combat patterns share the initial pattern framework and need further individual encounter design/balance. All optional branches/mechanics and the five remaining natural Trial captures need playtesting. Experienced direct-ascent 18–25 minute timing is not established.
+
+Real two/eight-client cooperation, physical phone/controller performance, published DataStore save/rejoin/lock behavior and hosted audio permission checks are pending. The final Phase 1 sanctuary/profile/gateway integration depends on its separate acceptance. No production-readiness percentage is asserted.
+
+The original project graph indexes the original checkout and vault records, not the isolated worktree source. The 2026-10-24 refresh and subsequent status check report CURRENT with zero input drift; final check output is evidence/mountain_2026-10-24/graph-final-status.txt in the worktree. The refresh made a verified vault backup and versioned export. One quality-review candidate remains: the C&C overview’s older 2026-10-22 status heading. Do not infer code-graph coverage of mountain/ from a CURRENT original-checkout status.

@@ -27,8 +27,8 @@ local location=text(header,'Blossom Gardens',UDim2.new(1,-24,0,23),UDim2.fromOff
 local summary=text(header,'Loading expedition…',UDim2.new(1,-24,0,22),UDim2.fromOffset(12,58));summary.TextSize=12
 local navigation=panel(root,UDim2.fromOffset(360,45),UDim2.fromOffset(14,103))
 navigation.Name='Navigation';local navigationButtons={}
-local toast=panel(root,UDim2.new(.7,0,0,66),UDim2.new(.15,0,.76,0));toast.Visible=false
-local toastText=text(toast,'',UDim2.new(1,-24,1,-12),UDim2.fromOffset(12,6));toastText.TextXAlignment=Enum.TextXAlignment.Center
+local toast=panel(root,UDim2.new(.6,0,0,54),UDim2.new(.2,0,1,-165));toast.Visible=false;toast.ZIndex=20
+local toastText=text(toast,'',UDim2.new(1,-24,1,-12),UDim2.fromOffset(12,6));toastText.TextXAlignment=Enum.TextXAlignment.Center;toastText.ZIndex=21
 local notice=text(root,'LOCAL REVIEW • Studio memory resets on Stop',UDim2.new(1,-28,0,20),UDim2.new(0,14,1,-24));notice.TextSize=11;notice.TextTransparency=.2
 local battle=panel(root,UDim2.fromOffset(360,80),UDim2.new(.5,-180,0,14));battle.Visible=false
 local bossName=text(battle,'',UDim2.new(1,-20,0,25),UDim2.fromOffset(10,6),Enum.Font.GothamBold)
@@ -46,7 +46,7 @@ end
 for i=1,3 do button(abilities,'['..i..'] Special',UDim2.fromOffset(90,37),UDim2.fromOffset(7+(i-1)*96,7),function() fire('Special',{slot=i,ability=activeAbility}) end) end
 local abilityButton
 abilityButton=button(abilities,'A1',UDim2.fromOffset(35,37),UDim2.fromOffset(297,7),function() activeAbility=activeAbility%4+1;abilityButton.Text='A'..activeAbility;notify('Guardian ability '..activeAbility..' selected. Regular companions use their role skill.') end,gold)
-button(root,'DODGE [Q]',UDim2.fromOffset(115,44),UDim2.new(1,-137,1,-151),function() fire('Dodge') end,gold)
+local dodgeButton=button(root,'DODGE [Q]',UDim2.fromOffset(115,44),UDim2.new(1,-137,1,-151),function() fire('Dodge') end,gold)
 UIS.InputBegan:Connect(function(input,processed)
  if processed then return end
  if input.KeyCode==Enum.KeyCode.Q then fire('Dodge')
@@ -55,10 +55,11 @@ UIS.InputBegan:Connect(function(input,processed)
  elseif input.KeyCode==Enum.KeyCode.Three then fire('Special',{slot=3,ability=activeAbility})
  elseif input.KeyCode==Enum.KeyCode.Tab then if modal then modal:Destroy();modal=nil;activeTab=nil else activeTab='Collection';render() end end
 end)
+local rowHeight=88
 local function row(scroll,index,title,subtitle)
- local f=panel(scroll,UDim2.new(1,-12,0,88),UDim2.fromOffset(3,(index-1)*95));f.BackgroundColor3=Color3.fromRGB(39,56,77)
- text(f,title,UDim2.new(.65,-15,0,28),UDim2.fromOffset(12,8),Enum.Font.GothamBold)
- local t=text(f,subtitle,UDim2.new(.67,-15,0,39),UDim2.fromOffset(12,39));t.TextSize=12;return f
+ local f=panel(scroll,UDim2.new(1,-12,0,rowHeight),UDim2.fromOffset(3,(index-1)*(rowHeight+7)));f.BackgroundColor3=Color3.fromRGB(39,56,77)
+ text(f,title,UDim2.new(1,-148,0,28),UDim2.fromOffset(12,8),Enum.Font.GothamBold)
+ local t=text(f,subtitle,UDim2.new(1,-148,0,rowHeight-45),UDim2.fromOffset(12,39));t.TextSize=12;return f
 end
 local function open(tab) activeTab=tab;if data then selected=table.clone(data.team) end;render() end
 for i,tab in ipairs({'Collection','Eggs','Travel','Journal'}) do navigationButtons[i]=button(navigation,tab,UDim2.fromOffset(81,32),UDim2.fromOffset(7+(i-1)*89,6),function() open(tab) end,if i==1 then gold else teal) end
@@ -66,13 +67,14 @@ render=function()
  if modal then modal:Destroy();modal=nil end
  if not activeTab or not data then return end
  local viewport=workspace.CurrentCamera.ViewportSize
+ rowHeight=if viewport.X<500 then 118 else 88
  local width=math.min(660,viewport.X-24);local height=math.min(510,viewport.Y-70)
- modal=panel(root,UDim2.fromOffset(width,height),UDim2.new(.5,-width/2,.5,-height/2))
+ modal=panel(root,UDim2.fromOffset(width,height),UDim2.new(.5,-width/2,.5,-height/2));modal.ZIndex=10;modal.BackgroundTransparency=0
  text(modal,activeTab:upper(),UDim2.new(1,-90,0,35),UDim2.fromOffset(18,10),Enum.Font.GothamBold).TextColor3=gold
  button(modal,'×',UDim2.fromOffset(38,34),UDim2.new(1,-50,0,10),function() modal:Destroy();modal=nil;activeTab=nil end,gold)
  local scroll=Instance.new('ScrollingFrame');scroll.Size=UDim2.new(1,-24,1,-68);scroll.Position=UDim2.fromOffset(12,57);scroll.BackgroundTransparency=1;scroll.BorderSizePixel=0;scroll.ScrollBarThickness=5;scroll.CanvasSize=UDim2.fromOffset(0,0);scroll.Parent=modal
  local index=0
- local function add(title,sub) index+=1;scroll.CanvasSize=UDim2.fromOffset(0,index*95);return row(scroll,index,title,sub) end
+ local function add(title,sub) index+=1;scroll.CanvasSize=UDim2.fromOffset(0,index*(rowHeight+7));return row(scroll,index,title,sub) end
  if activeTab=='Collection' or activeTab=='Training' then
   local f=add('YOUR THREE-CREATURE TEAM','Select up to three companions, then equip. Training at the refuge costs 15 coins for 80 XP.')
   button(f,'Equip '..#selected,UDim2.fromOffset(115,33),UDim2.new(1,-127,0,28),function() if #selected>0 then fire('Equip',selected);notify('Team selection submitted.') end end)
@@ -158,6 +160,12 @@ Run.RenderStepped:Connect(function(dt)
 end)
 local function responsive()
  local view=workspace.CurrentCamera.ViewportSize;local compact=view.X<1150
+ pcall(function() game:GetService('StarterGui'):SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList,not UIS.TouchEnabled) end)
+ local portrait=view.Y>view.X
+ abilities.Position=UDim2.new(.5,-170,1,if portrait then -155 else -87)
+ dodgeButton.Position=UDim2.new(1,-137,1,if portrait then -215 else -151)
+ toast.Position=if view.Y>600 then UDim2.new(0,14,0,240) else UDim2.new(.2,0,1,-165)
+ toast.Size=if view.Y>600 then UDim2.new(1,-28,0,54) else UDim2.new(.6,0,0,54)
  header.Size=UDim2.fromOffset(if compact then 280 else 360,87)
  local navWidth=math.min(360,view.X-28);navigation.Size=UDim2.fromOffset(navWidth,45)
  for i,b in ipairs(navigationButtons) do b.Size=UDim2.fromOffset((navWidth-14)/4-6,32);b.Position=UDim2.fromOffset(7+(i-1)*(navWidth-14)/4,6);b.TextSize=if view.X<400 then 12 else 14 end

@@ -1,0 +1,29 @@
+{
+  "edit": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"http\":false,\"trialResolved\":true,\"ready\":true,\"file\":\"ImpossibleMountain.FirstDraft.rbxlx\",\"encounters\":42,\"hudFinal\":true,\"checkpoints\":18,\"instances\":5837}"
+      }
+    ],
+    "isError": false
+  },
+  "play": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"hud\":true,\"health\":198.9499969482422,\"viewport\":\"1250, 408\",\"world\":true,\"spawn\":\"2.153660774230957, 20.5865535736084, 556.2630004882812\"}"
+      }
+    ],
+    "isError": false
+  },
+  "console": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Impossible Mountain ready • six kingdoms • isolated profile namespace"
+      }
+    ],
+    "isError": false
+  }
+}

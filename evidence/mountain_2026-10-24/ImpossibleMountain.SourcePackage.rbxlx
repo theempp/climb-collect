@@ -1,0 +1,1669 @@
+<roblox version="4">
+  <Item class="Lighting" referent="0">
+    <Properties>
+      <string name="Name">Lighting</string>
+      <float name="Brightness">2.5</float>
+      <float name="ClockTime">13.5</float>
+    </Properties>
+  </Item>
+  <Item class="ReplicatedStorage" referent="1">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="2">
+      <Properties>
+        <string name="Name">MountainShared</string>
+      </Properties>
+      <Item class="ModuleScript" referent="3">
+        <Properties>
+          <string name="Name">Catalog</string>
+          <string name="Source"><![CDATA[local C={version='ImpossibleMountain-1',seed=241026,incubation={Common=30,Uncommon=120,Rare=300,Epic=600,Mythic=1200}}
+C.kingdoms={
+ {id='blossom',name='Blossom Gardens',element='Nature',resource='Bloom Essence',color={109,164,112},accent={243,170,205},rock={102,121,104},material='Grass',landmarks={"Sovereign’s Garden",'Blooming Colosseum','Rootsong Ruins'}},
+ {id='azure',name='Azure Falls',element='Water',resource='Tidal Pearls',color={83,153,159},accent={100,222,233},rock={89,120,139},material='Slate',landmarks={'Heart of the Falls','Veiled Grotto','Hanging Fern Sanctuary'}},
+ {id='sunstone',name='Sunstone Desert',element='Earth',resource='Sunstone Ore',color={215,171,100},accent={255,211,103},rock={179,131,80},material='Sandstone',landmarks={'Solar Throne','Oasis of Echoes','Arch of the Dawn'}},
+ {id='violet',name='Violet Crystals',element='Crystal',resource='Prism Shards',color={131,108,169},accent={200,157,255},rock={101,91,128},material='Rock',landmarks={'Fractured Mirror Observatory','Amethyst Hollow','Bridge of Reflections'}},
+ {id='inferno',name='Inferno Heights',element='Fire',resource='Ember Cores',color={81,73,78},accent={255,151,69},rock={57,52,62},material='Basalt',landmarks={'Emberheart Crucible','Ashen Temple','Cinderfall Forge'}},
+ {id='astral',name='Astral Crown',element='Cosmic',resource='Astral Fragments',color={194,210,225},accent={153,198,255},rock={123,141,171},material='Snow',landmarks={'Eternal Astral Sanctum','Star Garden','Constellation Gate'}},
+}
+local names={
+ {'Mossbun','Petalyn','Fernox','Bloomlet','Thorncub','Floramoth'},
+ {'Bubblit','Ripplet','Coralfen','Mistfin','Tidepup','Shellora'},
+ {'Pebblin','Duneling','Sunscarab','Glimfox','Sandhorn','Solspike'},
+ {'Shardlet','Prismite','Glowmoth','Amethyn','Crystail','Violette'},
+ {'Emberkit','Ashling','Cindercub','Magmole','Flarewing','Obsidrax'},
+ {'Starbit','Moonlet','Nebulyn','Cosmorin','Astralyn','Stellhorn'},
+}
+local shapes={
+ {'rabbit','deer','fox','sprout','bear','moth'}, {'blob','otter','deer','fish','dog','turtle'},
+ {'rock','worm','beetle','fox','rhino','hedgehog'}, {'shard','orb','moth','serpent','cat','jelly'},
+ {'cat','ghost','bear','mole','bird','dragon'}, {'star','rabbit','cat','whale','deer','rhino'},
+}
+local features={
+ {'moss ears','petal antlers','fern tail','flower crown','thorn armor','six petal wings'},
+ {'bubble antennae','ripple tail','coral antlers','sail fins','sapphire ears','spiral shell'},
+ {'stone fists','sand frill','solar elytra','glass tail','split horns','sun spines'},
+ {'twin crystals','orbiting facets','glass wings','amethyst frill','prism tail','hanging gems'},
+ {'ember whiskers','ash wisps','cinder shoulders','drill snout','flame wings','obsidian horns'},
+ {'five rays','crescent ears','nebula tail','stellar fins','constellation antlers','comet horn'},
+}
+C.species={};C.byId={}
+for k,row in ipairs(names) do
+ for j,name in ipairs(row) do
+  local s={id=string.lower(name),name=name,kingdom=k,element=C.kingdoms[k].element,rarity=({'Common','Common','Uncommon','Rare','Epic','Mythic'})[j],
+   shape=shapes[k][j],feature=features[k][j],variant=j,health=90+j*16+k*9,attack=10+j*2+k*2,
+   role=({'Damage','Support','Tank','Speed','Control','Magic'})[j],weight=({20,20,28,18,10,4})[j],
+   encounter=({'HiddenNest','WildEncounter','Puzzle','Branch','DangerRoute','RareDiscovery'})[j],egg='egg_'..string.lower(name),levelCap=50,evolution={15,35},specialization=25}
+  table.insert(C.species,s);C.byId[s.id]=s
+ end
+end
+C.guardians={
+ {id='floravelle',name='Floravelle',title='Sovereign of Life',shape='deer',legs=6,personality='Regal',abilities={'Petal Volley','Sovereign Bloom',"Garden’s Grace",'Royal Garden Awakening'}},
+ {id='aquarune',name='Aquarune',title='Sovereign of the Tides',shape='otter',legs=6,personality='Playful',abilities={'Ripple Barrage','Tidal Break','Flow Momentum','Heart of the Ocean'}},
+ {id='zenthari',name='Zenthari',title='Solar Juggernaut',shape='golem',legs=2,personality='Resolute',abilities={"Monarch’s Fists",'Sunstone Crusher',"Monarch’s Resolve",'Solar Dominion'}},
+ {id='veylith',name='Veylith',title='Sovereign of Refraction',shape='shard',legs=0,personality='Watchful',abilities={'Shard Lance','Prism Fracture','Crystal Alignment','Shattered Star'}},
+ {id='pyralune',name='Pyralune',title='Sovereign of Embers',shape='bird',legs=0,personality='Playful and proud',abilities={'Ember Barrage','Blazing Spiral','Eternal Spark','Phoenix Ascension'}},
+ {id='caeloryn',name='Caeloryn',title='Sovereign of the Stars',shape='deer',legs=6,personality='Ancient',abilities={'Astral Lance','Gravity Choir','Constellation Accord','Celestial Dominion'}},
+}
+for i,g in ipairs(C.guardians) do
+ g.kingdom=i;g.element=C.kingdoms[i].element;g.rarity='Legendary';g.attack=28+i*5;g.health=260+i*35;g.role='Guardian';g.variant=i;g.feature='sovereign';C.byId[g.id]=g
+end
+function C.route(k,t)
+ local y=16+(k-1)*136+t*72+math.floor(t*4+0.000001)*16
+ local r=470-y*.40
+ local a=(k-1+t)*math.pi*2 + math.pi/2
+ return {x=math.cos(a)*r,y=y,z=math.sin(a)*r,angle=a,radius=r}
+end
+return C
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="4">
+        <Properties>
+          <string name="Name">Rules</string>
+          <string name="Source"><![CDATA[local C = if script then require(script.Parent.Catalog) else require('./Catalog')
+local R={}
+local function nextId(p,prefix) p.serial+=1;return prefix..p.serial end
+local function find(list,id) for i,v in ipairs(list) do if v.id==id then return v,i end end end
+function R.newProfile(now)
+ local p={schema=1,serial=3,unlocked=1,wins={},captures={},cargo={},eggs={},creatures={},team={},checkpoint='1:entrance',discoveries={},claims={},shortcuts={},resources={},coins=0,trophies=0,lastIncome=now,competitionAt=0}
+ for i,id in ipairs({'mossbun','petalyn','fernox'}) do local v={id='c'..i,species=id,level=1,xp=0};table.insert(p.creatures,v);table.insert(p.team,v.id) end
+ return p
+end
+function R.canEnter(p,k) return type(k)=='number' and k==math.floor(k) and k>=1 and k<=6 and k<=p.unlocked end
+function R.stage(level) return if level>=35 then 3 elseif level>=15 then 2 else 1 end
+function R.trialReady(k,resolvedPatterns,members)
+ if resolvedPatterns<4 then return false end
+ if k~=5 and k~=6 then return true end
+ for _,m in pairs(members) do if m.objective then return true end end
+ return false
+end
+function R.mastered(k,m) return m.dodges>=3 and ((k~=5 and k~=6) or m.objective==true) end
+function R.addXP(c,xp)
+ c.xp+=math.max(0,math.floor(xp))
+ while c.level<50 and c.xp>=c.level*40 do c.xp-=c.level*40;c.level+=1 end
+ if c.level>=50 then c.level=50;c.xp=0 end
+end
+function R.winGuardian(p,k,trial)
+ if not R.canEnter(p,k) then return false end
+ local g=C.guardians[k]
+ if trial then
+  if not p.wins[tostring(k)] or p.captures[g.id] then return false end
+  p.captures[g.id]=true
+  table.insert(p.creatures,{id=nextId(p,'c'),species=g.id,level=1,xp=0})
+ else
+  p.wins[tostring(k)]=true;p.unlocked=math.max(p.unlocked,math.min(6,k+1))
+ end
+ return true
+end
+function R.collect(p,species,source,now)
+ local s=C.byId[species]
+ if not s or s.rarity=='Legendary' or not R.canEnter(p,s.kingdom) or #p.cargo>=3 or (p.claims[source] or 0)>now then return false end
+ table.insert(p.cargo,{id=nextId(p,'e'),species=species});p.claims[source]=now+180
+ return true
+end
+function R.extract(p)
+ local n=#p.cargo
+ for _,e in ipairs(p.cargo) do table.insert(p.eggs,e) end
+ p.cargo={};return n
+end
+function R.incubate(p,id,now)
+ local e=find(p.eggs,id)
+ if not e or e.readyAt then return false end
+ local active=0;for _,v in ipairs(p.eggs) do if v.readyAt then active+=1 end end
+ if active>=3 then return false end
+ e.readyAt=now+C.incubation[C.byId[e.species].rarity];return true
+end
+function R.hatch(p,id,now)
+ local e,i=find(p.eggs,id)
+ if not e or not e.readyAt or now<e.readyAt then return false end
+ table.insert(p.creatures,{id=nextId(p,'c'),species=e.species,level=1,xp=0});table.remove(p.eggs,i);return true
+end
+function R.equip(p,ids)
+ if type(ids)~='table' or #ids<1 or #ids>3 then return false end
+ for key in pairs(ids) do if type(key)~='number' or key%1~=0 or key<1 or key>#ids then return false end end
+ local seen={};for _,id in ipairs(ids) do if type(id)~='string' or seen[id] or not find(p.creatures,id) then return false end;seen[id]=true end
+ p.team={};for _,id in ipairs(ids) do table.insert(p.team,id) end;return true
+end
+function R.specialize(p,id,choice)
+ local c=find(p.creatures,id)
+ if not c or c.level<25 or c.specialization or not table.find({'Power','Guard','Vitality'},choice) then return false end
+ c.specialization=choice;return true
+end
+function R.drop(p,now)
+ if #p.cargo==0 then return end
+ p.recovery={eggs=p.cargo,expires=now+180};p.cargo={}
+end
+function R.recover(p,now)
+ local r=p.recovery
+ if not r then return false end
+ if now>=r.expires then p.recovery=nil;return false end
+ if #r.eggs+#p.cargo>3 then return false end
+ for _,e in ipairs(r.eggs) do table.insert(p.cargo,e) end
+ p.recovery=nil;return true
+end
+function R.damage(element,target,base)
+ local strong={Water='Fire',Fire='Nature',Nature='Earth',Earth='Crystal',Crystal='Cosmic',Cosmic='Water'}
+ return math.max(1,math.floor(base*(if strong[element]==target then 1.3 elseif strong[target]==element then .8 else 1)))
+end
+function R.stats(c)
+ local s=C.byId[c.species];local factor=1+(c.level-1)*.065
+ return {attack=s.attack*factor*(if c.specialization=='Power' then 1.2 else 1),health=s.health*factor*(if c.specialization=='Vitality' then 1.25 else 1),guard=if c.specialization=='Guard' then .15 else 0,element=s.element,role=s.role}
+end
+function R.settleIncome(p,now)
+ local elapsed=math.clamp(now-p.lastIncome,0,8*3600)
+ if elapsed<10 then return 0 end
+ local rate=0;for _,c in ipairs(p.creatures) do rate+=({Common=6,Uncommon=12,Rare=24,Epic=48,Mythic=90,Legendary=150})[C.byId[c.species].rarity] end
+ local accrued=elapsed*rate/3600+(p.incomeCarry or 0)
+ local amount=math.floor(accrued+0.00000001);p.incomeCarry=math.max(0,accrued-amount);p.coins+=amount;p.lastIncome=now;return amount
+end
+R.find=find
+return R
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="5">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Folder" referent="6">
+      <Properties>
+        <string name="Name">MountainServer</string>
+      </Properties>
+      <Item class="ModuleScript" referent="7">
+        <Properties>
+          <string name="Name">Combat</string>
+          <string name="Source"><![CDATA[local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+local R=require(game.ReplicatedStorage.MountainShared.Rules)
+local A=require(game.ServerStorage.MountainWorld.Art)
+local B={battles={},wild={},dodgeUntil={},specialAt={},buffs={},nextId=0}
+local profiles,send,changed
+local function root(player) local c=player.Character;return c and c:FindFirstChild('HumanoidRootPart') end
+local function alive(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 and h end
+local function inArena(player,b) local r=root(player);return r and (r.Position-b.center).Magnitude<58 and alive(player) end
+local function power(p,targetElement)
+ local damage=0
+ for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then local st=R.stats(c);damage+=if targetElement then R.damage(st.element,targetElement,st.attack) else st.attack end end
+ return damage
+end
+local function harm(player,amount)
+ local p=profiles.get(player);local h=alive(player);if not p or not h then return end
+ local guard=0
+ for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then local st=R.stats(c);guard+=st.guard+(if st.role=='Tank' then .05 else 0) end end
+ local buff=B.buffs[player]
+ if buff and os.clock()<buff.untilTime and buff.shield then guard+=.25 end
+ h:TakeDamage(amount*(1-math.min(.65,guard)))
+end
+local guardianEffects={
+ {'burst','control','heal','empower'}, {'burst','break','haste','burst'},
+ {'burst','break','shield','empower'}, {'burst','control','haste','break'},
+ {'burn','burst','heal','empower'}, {'break','control','empower','burst'},
+}
+local function warnPart(b,name,pos,size,color)
+ local p=A.part(workspace.ImpossibleMountain.Dynamics,name,size,CFrame.new(pos),color,Enum.Material.Neon,nil,false);p.Transparency=.55;table.insert(b.effects,p);return p
+end
+function B.init(p,s,c) profiles=p;send=s;changed=c end
+function B.start(player,k,trial,center)
+ local p=profiles.get(player);if not p or not R.canEnter(p,k) or (trial and not p.wins[tostring(k)]) then return false,'Defeat the normal Guardian first.' end
+ if B.wild[player] then return false,'Finish your wild encounter first.' end
+ for _,other in pairs(B.battles) do if other.members[player] and other.k~=k then return false,'Already in another battle.' end end
+ local b=B.battles[k]
+ if b then
+  if b.trial~=trial then return false,'A different encounter is already active.' end
+  if b.members[player] then return false,'You are already in this encounter.' end
+  if b.hp<b.max*.75 then return false,'Battle underway; join the next encounter.' end
+  b.max+=350+k*80;b.hp+=350+k*80
+ else
+  b={k=k,trial=trial,center=center,hp=950+k*300,max=950+k*300,members={},nextAttack=os.clock()+4,beat=0,resolved=0,effects={},started=os.clock(),regen=false}
+  B.battles[k]=b
+ end
+ b.members[player]={damage=0,dodges=0,hits=0,joined=os.clock()};send(player,'toast',if trial then 'Legendary Trial • dodge 3 patterns and win for guaranteed capture.' else 'Guardian battle • allies can join at the altar.');return true
+end
+function B.startWild(player,species,part)
+ local p=profiles.get(player);local s=C.byId[species]
+ if not p or not s or s.rarity=='Legendary' or #p.cargo>=3 then return false,'Make room for an egg first.' end
+ if B.wild[player] then return false,'Already in a wild encounter.' end
+ for _,b in pairs(B.battles) do if b.members[player] then return false,'Finish the Guardian encounter first.' end end
+ if (p.claims['wild:'..species] or 0)>os.time() then return false,'This creature is resting.' end
+ B.wild[player]={species=species,part=part,hp=s.health*2,nextAttack=os.clock()+3};return true,'Wild encounter started • stay near the creature.'
+end
+function B.dodge(player)
+ local now=os.clock();if now<(B.dodgeUntil[player] or 0)+3 then return false end
+ B.dodgeUntil[player]=now+.65;return true
+end
+function B.special(player,slot,ability)
+ if type(slot)~='number' or slot%1~=0 or slot<1 or slot>3 then return false end
+ local p=profiles.get(player);local c=p and R.find(p.creatures,p.team[slot]);if not c then return false end
+ local s=C.byId[c.species];ability=if s.rarity=='Legendary' and type(ability)=='number' and ability%1==0 and ability>=1 and ability<=4 then ability else 1
+ local key=tostring(player.UserId)..':'..c.id..':'..ability;local now=os.clock()
+ if now<(B.specialAt[key] or 0) then return false end
+ local battle
+ for _,b in pairs(B.battles) do if b.members[player] and inArena(player,b) then battle=b;break end end
+ local wild=B.wild[player]
+ if not battle and not wild then return false end
+ B.specialAt[key]=now+12+(ability-1)*3
+ local damage=R.stats(c).attack*(if ability==4 then 6 else 3)
+ local effect=if s.rarity=='Legendary' then guardianEffects[s.kingdom][ability] else ({Support='heal',Tank='shield',Control='control',Speed='haste',Magic='burn',Damage='burst'})[s.role]
+ if effect=='heal' then
+  local h=alive(player);if h then h.Health=math.min(h.MaxHealth,h.Health+40) end
+  if battle then for ally in pairs(battle.members) do local ah=alive(ally);if ah and inArena(ally,battle) then ah.Health=math.min(ah.MaxHealth,ah.Health+24) end end end
+ elseif effect=='shield' or effect=='haste' or effect=='empower' then
+  local targets=if effect=='empower' and battle then battle.members else {[player]=true}
+  for ally in pairs(targets) do B.buffs[ally]={untilTime=now+8,shield=effect=='shield',power=if effect=='haste' then 1.35 elseif effect=='empower' then 1.5 else 1} end
+ end
+ if battle then
+  if effect=='control' then battle.weakenUntil=now+8 elseif effect=='break' then battle.breakUntil=now+8 elseif effect=='burn' then battle.burnUntil=now+6;battle.burnPower=damage*.2 end
+  if battle.regen then
+   local r=root(player)
+   if r and battle.core and (r.Position-battle.core.Position).Magnitude<16 then battle.regen=false;for _,m in pairs(battle.members) do m.objective=true end;send(player,'toast','Regeneration interrupted!');damage*=2 end
+  end
+  damage=R.damage(s.element,C.kingdoms[battle.k].element,damage);battle.hp-=damage;battle.members[player].damage+=damage
+ elseif wild and root(player) and (root(player).Position-wild.part.Position).Magnitude<30 then wild.hp-=damage end
+ return true
+end
+local function pattern(b)
+ b.beat+=1;local phase=(b.beat-1)%4+1;local center=b.center;local tell=if b.trial then 1.6 else 2.2
+ local effects={};local attackPos=center
+ if b.k==5 and phase==3 then
+  b.regen=true
+  for i=1,3 do
+   local p=warnPart(b,if i==2 then 'TrueEmberHeart' else 'EmberDecoy',center+Vector3.new((i-2)*20,4,-8),Vector3.new(4,6,4),if i==2 then Color3.fromRGB(255,220,110) else Color3.fromRGB(209,70,51))
+   if i==2 then b.core=p end;table.insert(effects,p)
+  end
+  for player in pairs(b.members) do send(player,'toast','Find the golden heart. Use a special nearby to interrupt healing!') end
+  tell=5
+ elseif b.k==6 and phase==3 then
+  b.aligned={};b.runeCount=0
+  for i=1,3 do
+   local p=warnPart(b,'StarAlignment',center+Vector3.new((i-2)*20,3,12),Vector3.new(5,5,5),Color3.fromRGB(150,195,255));table.insert(effects,p)
+   local q=Instance.new('ProximityPrompt');q.ActionText='Align constellation';q.HoldDuration=.25;q.MaxActivationDistance=10;q.RequiresLineOfSight=false;q.Parent=p
+   q.Triggered:Connect(function(player)
+    if not b.members[player] or not inArena(player,b) or not root(player) or (root(player).Position-p.Position).Magnitude>12 or b.aligned[i] then return end
+    b.aligned[i]=true;b.runeCount+=1;p.Color=Color3.fromRGB(133,255,175)
+    if b.runeCount==3 then for _,m in pairs(b.members) do m.objective=true end end
+   end)
+  end
+  tell=6
+  for player in pairs(b.members) do send(player,'toast','Align all three constellation stones before the gravity wave!') end
+ elseif phase==1 then
+  for player in pairs(b.members) do local r=root(player);if r then attackPos=Vector3.new(r.Position.X,center.Y+.4,r.Position.Z);break end end
+  table.insert(effects,warnPart(b,'DodgeCircle',attackPos,Vector3.new(22,.25,22),Color3.fromRGB(255,100,100)))
+ elseif phase==2 then
+  table.insert(effects,warnPart(b,'CrossBeam',center+Vector3.new(0,.3,0),Vector3.new(13,.3,80),Color3.fromRGB(255,176,91)))
+  if b.k==4 or b.k==6 then table.insert(effects,warnPart(b,'PrismCross',center+Vector3.new(0,.3,0),Vector3.new(80,.3,13),Color3.fromRGB(255,176,91))) end
+ else
+  for i=1,16 do local a=i*math.pi/8;table.insert(effects,warnPart(b,'ExpandingWave',center+Vector3.new(math.cos(a)*25,.3,math.sin(a)*25),Vector3.new(8,.25,8),Color3.fromRGB(235,112,162))) end
+ end
+ task.delay(tell,function()
+  if B.battles[b.k]~=b then for _,e in ipairs(effects) do e:Destroy() end;return end
+  for player,m in pairs(b.members) do
+   if inArena(player,b) then
+    local p=root(player).Position;local d=p-center;local hit
+    if b.k==5 and phase==3 then hit=b.regen
+    elseif b.k==6 and phase==3 then hit=b.runeCount<3
+    elseif phase==1 then hit=(p-attackPos).Magnitude<15
+    elseif phase==2 then hit=math.abs(d.X)<7 or ((b.k==4 or b.k==6) and math.abs(d.Z)<7)
+    else hit=d.Magnitude>17 and d.Magnitude<34 end
+    if hit and os.clock()>(B.dodgeUntil[player] or 0) then
+     harm(player,(if b.trial then 30 else 19)*(if os.clock()<(b.weakenUntil or 0) then .7 else 1));m.hits+=1
+    else m.dodges+=1 end
+   end
+  end
+  b.resolved+=1
+  if b.regen then b.hp=math.min(b.max,b.hp+b.max*.08) end
+  b.regen=false;b.core=nil
+  for _,e in ipairs(effects) do e:Destroy() end
+ end)
+end
+function B.tick()
+ local now=os.clock()
+ for player,w in pairs(B.wild) do
+  local p=profiles.get(player);local rr=root(player)
+  if not p or not rr or not alive(player) or not w.part.Parent or (rr.Position-w.part.Position).Magnitude>35 then B.wild[player]=nil;send(player,'toast','Wild encounter ended.')
+  else
+   w.hp-=power(p,C.byId[w.species].element)
+   send(player,'battle',{name=C.byId[w.species].name,hp=math.max(0,w.hp),max=C.byId[w.species].health*2,trial=false})
+   if now>=w.nextAttack then w.nextAttack=now+4;if now>(B.dodgeUntil[player] or 0) then harm(player,8) end end
+   if w.hp<=0 then
+    local collected=R.collect(p,w.species,'wild:'..w.species,os.time());for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,50) end end
+    B.wild[player]=nil;changed(player);send(player,'toast',if collected then 'Encounter won • egg collected. Extract at a checkpoint.' else 'Encounter won • cargo full. Extract eggs before trying again.');send(player,'battle',false)
+   end
+  end
+ end
+ for k,b in pairs(B.battles) do
+  local active=0
+  for player,m in pairs(b.members) do
+   local p=profiles.get(player)
+   if not p or not inArena(player,b) then b.members[player]=nil;send(player,'battle',false)
+   else
+    active+=1;local buff=B.buffs[player];local damage=power(p,C.kingdoms[k].element)*(if buff and now<buff.untilTime then buff.power else 1)*(if now<(b.breakUntil or 0) then 1.25 else 1)
+    if now<(b.burnUntil or 0) then damage+=(b.burnPower or 0)/math.max(1,active) end
+    b.hp-=damage;m.damage+=damage
+    send(player,'battle',{name=C.guardians[k].name,hp=math.max(0,b.hp),max=b.max,trial=b.trial,dodges=m.dodges,phase=b.beat})
+   end
+  end
+  if active==0 or now-b.started>300 then
+   for player in pairs(b.members) do send(player,'battle',false);send(player,'toast','Encounter ended • challenge again at the altar.') end
+   B.battles[k]=nil;for _,e in ipairs(b.effects) do e:Destroy() end
+  elseif b.hp<=0 and b.trial and not R.trialReady(k,b.resolved,b.members) then
+   b.hp=1
+   if now>=b.nextAttack then b.nextAttack=now+5;pattern(b) end
+  elseif b.hp<=0 then
+   for player,m in pairs(b.members) do
+    local p=profiles.get(player)
+    if p and m.damage>=b.max*.03 then
+     if not b.trial or R.mastered(k,m) then
+      local captured=R.winGuardian(p,k,b.trial);p.coins+=80*k
+      for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,200*k) end end
+      send(player,'toast',if b.trial then (if captured then 'Guaranteed capture! '..C.guardians[k].name..' joins your collection.' else 'Trial mastered • Guardian already owned.') else C.guardians[k].name..' defeated • next kingdom unlocked!')
+     else send(player,'toast','Victory, but mastery requires 3 clean dodges. Retry the Trial.') end
+     changed(player);task.spawn(profiles.save,player,false)
+    end
+    send(player,'battle',false)
+   end
+   B.battles[k]=nil;for _,e in ipairs(b.effects) do e:Destroy() end
+  elseif now>=b.nextAttack then b.nextAttack=now+5;pattern(b) end
+ end
+end
+function B.remove(player) B.wild[player]=nil;B.dodgeUntil[player]=nil;B.buffs[player]=nil;for _,b in pairs(B.battles) do b.members[player]=nil end end
+return B
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="8">
+        <Properties>
+          <string name="Name">Competition</string>
+          <string name="Source"><![CDATA[-- Async defense snapshots: no online defender or alteration of their inventory is required.
+local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+local R=require(game.ReplicatedStorage.MountainShared.Rules)
+local Store=require(script.Parent.Store)
+local S={}
+local db=if game:GetService('RunService'):IsStudio() then Store.memory() else Store.datastore('MountainEmpire_Defenses_v1')
+function S.snapshot(p,userId)
+ local team={}
+ for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then table.insert(team,{species=c.species,level=c.level,xp=0,specialization=c.specialization}) end end
+ return {userId=userId,team=team,timestamp=os.time(),version=1}
+end
+function S.register(p,userId)
+ local snap=S.snapshot(p,userId)
+ local ok=db:update('u'..userId,function() return snap end);return ok
+end
+local function score(team)
+ local hp,atk=0,0
+ for _,c in ipairs(team) do local stats=R.stats(c);hp+=stats.health;atk+=stats.attack end
+ return hp,atk
+end
+function S.challenge(p,userId,target)
+ local now=os.time()
+ if now<p.competitionAt then return false,'Defense challenge available in '..(p.competitionAt-now)..'s.' end
+ if type(target)~='number' or target%1~=0 or target<0 or target>9007199254740991 or target==userId then return false,'Enter another player’s numeric UserId, or 0 for practice.' end
+ local defense
+ if target==0 then
+  defense={team={{species='mossbun',level=3},{species='petalyn',level=3},{species='fernox',level=3}},userId=0}
+ else
+  local ok,snap=db:read('u'..target)
+  if not ok or not snap or snap.version~=1 or type(snap.team)~='table' or #snap.team<1 or #snap.team>3 then return false,'No saved defense available for that player.' end
+  for _,c in ipairs(snap.team) do if not C.byId[c.species] or type(c.level)~='number' or c.level<1 or c.level>50 then return false,'Defense snapshot is invalid.' end end
+  defense=snap
+ end
+ local attack=S.snapshot(p,userId)
+ local ah,aa=score(attack.team);local dh,da=score(defense.team)
+ local rounds=0
+ while ah>0 and dh>0 and rounds<100 do ah-=da;dh-=aa;rounds+=1 end
+ local won=dh<=0 and ah>0
+ p.competitionAt=now+120
+ if won then p.trophies+=10;p.coins+=35 end
+ return true,{won=won,rounds=rounds,trophies=if won then 10 else 0,opponent=target,practice=target==0}
+end
+return S
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Script" referent="9">
+        <Properties>
+          <string name="Name">Main</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[local Players=game:GetService('Players')
+Players.CharacterAutoLoads=false
+local RS=game:GetService('ReplicatedStorage')
+local C=require(RS.MountainShared.Catalog)
+local R=require(RS.MountainShared.Rules)
+local P=require(script.Parent.Profiles)
+local B=require(script.Parent.Combat)
+local Competition=require(script.Parent.Competition)
+local A=require(game.ServerStorage.MountainWorld.Art)
+if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.World).build() end
+local world=workspace.ImpossibleMountain
+local remotes=Instance.new('Folder');remotes.Name='MountainRemotes';remotes.Parent=RS
+local request=Instance.new('RemoteEvent');request.Name='Request';request.Parent=remotes
+local event=Instance.new('RemoteEvent');event.Name='Event';event.Parent=remotes
+local state={}
+local busy={};local limits={};local companions={};local motion={};local recovering={}
+local function send(player,kind,data) if player.Parent==Players then event:FireClient(player,kind,data) end end
+local function root(player) return player.Character and player.Character:FindFirstChild('HumanoidRootPart') end
+local function living(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 end
+local function nearby(player,p,range) local rr=root(player);return rr and living(player) and (rr.Position-p.Position).Magnitude<=range end
+local function safe(player) local s=motion[player];return s and os.clock()>s.blockedUntil and living(player) end
+local function teleport(player,pos)
+ local rr=root(player);if not rr then return end
+ player.Character:PivotTo(CFrame.new(pos));rr.AssemblyLinearVelocity=Vector3.zero
+ motion[player]={pos=pos,time=os.clock(),blockedUntil=os.clock()+.5,fallTop=pos.Y}
+end
+local function checkpoint(p)
+ return world.Checkpoints:FindFirstChild(p.checkpoint) or world.Checkpoints:FindFirstChild('1:entrance')
+end
+local function rebuildTeam(player)
+ if companions[player] then companions[player]:Destroy() end
+ local p=P.get(player);if not p then return end
+ local f=Instance.new('Folder');f.Name='Team_'..player.UserId;f.Parent=world.Encounters;companions[player]=f
+ for i,id in ipairs(p.team) do
+  local c=R.find(p.creatures,id);if c then local m=A.creature(f,C.byId[c.species],Vector3.new(0,-100,0),if C.byId[c.species].rarity=='Legendary' then 1.2 else .65,R.stage(c.level));m:SetAttribute('Slot',i) end
+ end
+ local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
+ if h then local total=0;for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then total+=R.stats(c).health end end;h.MaxHealth=140+total*.15;h.Health=math.min(h.Health,h.MaxHealth) end
+end
+local function publish(player,visual)
+ local p=P.get(player);if not p then return end
+ local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode;send(player,'state',s)
+ if visual then rebuildTeam(player) end
+end
+B.init(P,send,function(player) publish(player,true) end)
+local function restoreRecovery(player)
+ local p=P.get(player);if not p then return end
+ if p.recovery and p.recovery.expires<=os.time() then p.recovery=nil end
+ if p.recovery then
+  if recovering[player] then recovering[player]:Destroy() end
+  local spot=checkpoint(p).Position+Vector3.new(6,2,0)
+  local pack=A.part(world.Interactions,'Recoverable eggs • '..player.DisplayName,Vector3.new(3,3,3),CFrame.new(spot),Color3.fromRGB(249,192,117),Enum.Material.Wood)
+  pack:SetAttribute('Kind','Recovery');pack:SetAttribute('Owner',player.UserId)
+  local q=Instance.new('ProximityPrompt');q.ActionText='Recover eggs';q.MaxActivationDistance=10;q.HoldDuration=.4;q.Parent=pack
+  recovering[player]=pack;send(player,'toast','Unsecured eggs recoverable beside your checkpoint for 3 minutes.')
+ end
+end
+local function loseCargo(player)
+ local p=P.get(player);if not p then return end
+ R.drop(p,os.time());restoreRecovery(player);publish(player)
+end
+local function onCharacter(player,character)
+ local h=character:WaitForChild('Humanoid');local rr=character:WaitForChild('HumanoidRootPart');h.WalkSpeed=16;h.UseJumpPower=true;h.JumpPower=48;h.MaxHealth=140;h.Health=140
+ local p=P.get(player);if not p then return end
+ local pos=if p.checkpoint=='1:entrance' then Vector3.new(0,21,550) else checkpoint(p).Position+Vector3.new(0,5,0)
+ teleport(player,pos);rebuildTeam(player)
+ h.Died:Connect(function() loseCargo(player);B.remove(player);task.delay(3,function() if player.Parent==Players and P.get(player) then player:LoadCharacterAsync() end end) end)
+end
+local function join(player)
+ local p,err=P.load(player)
+ if not p then player:Kick('Safe load stopped: '..tostring(err)..' Please retry.');return end
+ if player.Parent~=Players then P.save(player,true);return end
+ R.settleIncome(p,os.time());player.CharacterAdded:Connect(function(c) onCharacter(player,c) end)
+ player:LoadCharacterAsync();restoreRecovery(player);publish(player)
+end
+Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
+for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
+Players.PlayerRemoving:Connect(function(player)
+ B.remove(player);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
+ P.save(player,true);state[player]=nil;busy[player]=nil;limits[player]=nil;motion[player]=nil;companions[player]=nil;recovering[player]=nil
+end)
+local rng=Random.new()
+local function roll(k)
+ local r=rng:NextNumber()*100;for i=1,6 do local s=C.species[(k-1)*6+i];r-=s.weight;if r<=0 then return s.id end end;return C.species[k*6].id
+end
+local function interact(player,part)
+ local p=P.get(player);if not p or not safe(player) or not nearby(player,part,15) then return end
+ local kind=part:GetAttribute('Kind');local k=part:GetAttribute('Kingdom') or 1;local id=part:GetAttribute('Id')
+ if not R.canEnter(p,k) then send(player,'toast','Defeat the previous Guardian first.');return end
+ if kind=='Checkpoint' then
+  p.checkpoint=id;local n=R.extract(p);local first=not p.discoveries[id]
+  p.discoveries[id]=true
+  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');if h then h.Health=h.MaxHealth end
+  if first then for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,40*k) end end end
+  send(player,'toast','Checkpoint saved • '..n..' eggs secured.');task.spawn(P.save,player,false)
+ elseif kind=='Nest' then
+  send(player,'toast',if R.collect(p,roll(k),id,os.time()) then 'Egg found • carry it to an extraction checkpoint.' else 'Nest resting or your three egg slots are full.')
+ elseif kind=='Discovery' then
+  if not p.discoveries[id] then p.discoveries[id]=true;p.resources[tostring(k)]=(p.resources[tostring(k)] or 0)+10;p.coins+=20
+   for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,60*k) end end
+   send(player,'toast','Landmark discovered • +10 '..C.kingdoms[k].resource)
+  else send(player,'toast','Landmark recorded in your expedition journal.') end
+ elseif kind=='Shortcut' then
+  if p.shortcuts[id] then teleport(player,world.Checkpoints[k..':guardian'].Position+Vector3.new(0,5,0));send(player,'toast','Shortcut to the Guardian approach.')
+  else p.shortcuts[id]=true;send(player,'toast','Shortcut attuned • use again to reach the Guardian approach.') end
+ elseif kind=='Wild' then local _,msg=B.startWild(player,id,part);send(player,'toast',msg)
+ elseif kind=='Guardian' or kind=='Trial' then
+  local altar=world.Interactions:FindFirstChild(C.guardians[k].name);local center=Vector3.new(altar:GetAttribute('ArenaX'),altar:GetAttribute('ArenaY'),altar:GetAttribute('ArenaZ'))
+  local ok,msg=B.start(player,k,kind=='Trial',center);if not ok then send(player,'toast',msg) end
+ elseif kind=='Puzzle' then
+  state[player]=state[player] or {};local s=state[player];s.puzzle=s.puzzle or {};s.puzzle[id]=(s.puzzle[id] or 0)+1
+  local rune=math.floor(workspace:GetServerTimeNow()/2)%3+1
+  if rune~=s.puzzle[id] then s.puzzle[id]=0;send(player,'toast','Align runes in order: I → II → III. Wait for the matching rune.');return end
+  if s.puzzle[id]>=3 then s.puzzle[id]=0;send(player,'toast',if R.collect(p,roll(k),id,os.time()) then 'Three runes aligned • egg discovered!' else 'Puzzle resting or cargo full.') else send(player,'toast','Rune '..s.puzzle[id]..' / 3 aligned. Rotate again.') end
+ elseif kind=='Recovery' then
+  if part:GetAttribute('Owner')==player.UserId and R.recover(p,os.time()) then part:Destroy();recovering[player]=nil;send(player,'toast','Eggs recovered • extract them now.') end
+ elseif kind=='Summit' then
+  if not p.wins['6'] then send(player,'toast','Caeloryn guards the final summit.');return end
+  if not p.discoveries.summit then p.discoveries.summit=true;p.coins+=1000;p.trophies+=100 end
+  send(player,'toast','IMPOSSIBLE MOUNTAIN CONQUERED • Sovereign Explorer!')
+ elseif table.find({'Incubator','Sanctuary','Training','Competition'},kind) then
+  R.extract(p);R.settleIncome(p,os.time());send(player,'open',kind)
+ end
+ publish(player,true)
+end
+game:GetService('ProximityPromptService').PromptTriggered:Connect(function(prompt,player)
+ local part=prompt.Parent
+ if not part or not part:IsA('BasePart') or not part:IsDescendantOf(world) or not part:GetAttribute('Kind') then return end
+ local now=os.clock();if now<(limits[player] or 0) or busy[player] then return end
+ limits[player]=now+.35;interact(player,part)
+end)
+local function atRefuge(player) local rr=root(player);return rr and (rr.Position-Vector3.new(0,17,560)).Magnitude<95 end
+local function handle(player,action,data)
+ local p=P.get(player);if not p then return end
+ if action=='State' then publish(player);return end
+ if not safe(player) then return end
+ if action=='Special' then if type(data)=='table' then B.special(player,data.slot,data.ability) end
+ elseif action=='Dodge' then if B.dodge(player) then send(player,'dodge',true) end
+ elseif action=='Equip' then if R.equip(p,data) then rebuildTeam(player) end
+ elseif action=='Incubate' or action=='Hatch' then
+  if not atRefuge(player) or type(data)~='string' then send(player,'toast','Use the expedition refuge incubator.');return end
+  local ok=if action=='Incubate' then R.incubate(p,data,os.time()) else R.hatch(p,data,os.time())
+  send(player,'toast',if ok then (if action=='Hatch' then 'A new companion hatched!' else 'Incubation started • hatching is free.') else 'Not ready or all three incubators are occupied.');if ok then task.spawn(P.save,player,false) end
+ elseif action=='Specialize' then if type(data)=='table' and R.specialize(p,data.id,data.choice) then send(player,'toast','Specialization selected.');rebuildTeam(player) end
+ elseif action=='Train' then
+  if not atRefuge(player) or type(data)~='string' then return end
+  local c=R.find(p.creatures,data)
+  if c and c.level<50 and p.coins>=15 then p.coins-=15;R.addXP(c,80);send(player,'toast','Training complete • +80 XP');rebuildTeam(player) end
+ elseif action=='Travel' then
+  if type(data)~='string' then return end
+  local near=false
+  for _,cp in ipairs(world.Checkpoints:GetChildren()) do if nearby(player,cp,20) then near=true;break end end
+  if p.discoveries.summit and nearby(player,world.Interactions['Impossible Summit'],25) then near=true end
+  if not near and not atRefuge(player) then send(player,'toast','Fast travel begins at a checkpoint or refuge.');return end
+  if data=='refuge' then R.extract(p);teleport(player,Vector3.new(0,21,550))
+  else local cp=world.Checkpoints:FindFirstChild(data)
+   if cp and p.discoveries[data] and R.canEnter(p,cp:GetAttribute('Kingdom')) then R.extract(p);teleport(player,cp.Position+Vector3.new(0,5,0)) end
+  end
+ elseif action=='CollectIncome' then if atRefuge(player) then local n=R.settleIncome(p,os.time());send(player,'toast','Collected '..n..' sanctuary coins.') end
+ elseif action=='RegisterDefense' then
+  if not atRefuge(player) then return end
+  send(player,'toast',if Competition.register(p,player.UserId) then 'Defense snapshot saved • others can challenge your UserId while you are offline.' else 'Defense save unavailable. Try again later.')
+ elseif action=='ChallengeDefense' then
+  if not atRefuge(player) then return end
+  local ok,result=Competition.challenge(p,player.UserId,data)
+  if ok then send(player,'competition',result);task.spawn(P.save,player,false) else send(player,'toast',result) end
+ end
+ publish(player)
+end
+request.OnServerEvent:Connect(function(player,action,data)
+ if type(action)~='string' or #action>32 or busy[player] then return end
+ local now=os.clock();if now<(limits[player] or 0) then return end;limits[player]=now+.12;busy[player]=true
+ local ok,err=pcall(handle,player,action,data);busy[player]=nil
+ if not ok then warn('Mountain request failed: '..tostring(err));send(player,'toast','Action unavailable. Your saved data is preserved.') end
+end)
+-- Server-only integration contract; no Phase 1 coordinate is guessed or written.
+local gateway=Instance.new('BindableFunction');gateway.Name='MountainGateway';gateway.Parent=game.ServerStorage
+gateway.OnInvoke=function(player) if P.get(player) then teleport(player,Vector3.new(0,21,550));return true end;return false end
+local moving={};local sceneryMotion={}
+for _,part in ipairs(world.Dynamics:GetChildren()) do if part:GetAttribute('Kind')=='Moving' then
+ local decorations={};for _,child in ipairs(part:GetChildren()) do if child:IsA('BasePart') then table.insert(decorations,{part=child,offset=part.CFrame:ToObjectSpace(child.CFrame)}) end end
+ table.insert(moving,{part=part,origin=part.CFrame,decorations=decorations})
+end end
+for _,model in ipairs(world.Encounters:GetChildren()) do if model:IsA('Model') then table.insert(sceneryMotion,{model=model,origin=model:GetPivot()}) end end
+local combatTick,checkTick=0,0
+game:GetService('RunService').Heartbeat:Connect(function(dt)
+ local now=os.clock()
+ for _,m in ipairs(moving) do
+  local offset=(math.sin(now*.5)+1)*17
+  local k=m.part:GetAttribute('Kingdom')
+  local cf=m.origin+Vector3.new(m.part:GetAttribute('AxisX')*offset,if k==4 or k==6 then math.sin(now*.5)*5 else 0,m.part:GetAttribute('AxisZ')*offset)
+  if k==4 then cf*=CFrame.Angles(0,math.sin(now*.5)*.25,0) end
+  local delta=cf.Position-m.part.Position
+  for _,player in ipairs(Players:GetPlayers()) do local rr=root(player)
+   if rr and math.abs(rr.Position.X-m.part.Position.X)<7 and math.abs(rr.Position.Z-m.part.Position.Z)<7 and rr.Position.Y-m.part.Position.Y>0 and rr.Position.Y-m.part.Position.Y<6 then player.Character:PivotTo(player.Character:GetPivot()+delta) end
+  end
+   m.part.CFrame=cf
+   for _,d in ipairs(m.decorations) do d.part.CFrame=cf*d.offset end
+ end
+ for i,m in ipairs(sceneryMotion) do if m.model.Parent then m.model:PivotTo(m.origin*CFrame.new(0,math.sin(now*1.2+i)*.25,0)*CFrame.Angles(0,math.sin(now*.6+i)*.08,0)) end end
+ for player,f in pairs(companions) do local rr=root(player)
+  if rr then for _,m in ipairs(f:GetChildren()) do
+   local i=m:GetAttribute('Slot');local target=rr.CFrame*CFrame.new((i-2)*4, -1.8+math.sin(now*2+i)*.2,5)
+   m:PivotTo(m:GetPivot():Lerp(target,.15))
+  end end
+ end
+ combatTick+=dt;checkTick+=dt
+ if combatTick>=1 then combatTick=0;B.tick() end
+ if checkTick<.2 then return end;checkTick=0
+ for _,player in ipairs(Players:GetPlayers()) do
+  local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
+  if p and rr and h and h.Health>0 then
+   local m=motion[player]
+   if m then
+    local elapsed=now-m.time;local distance=(rr.Position-m.pos).Magnitude
+    if distance>math.max(22,elapsed*75) and now>m.blockedUntil then teleport(player,m.pos);send(player,'toast','Movement corrected.');m=motion[player] end
+    local ceiling=if p.wins['6'] then 885 else 16+p.unlocked*136+6
+    if rr.Position.Y>ceiling then teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));send(player,'toast','Defeat the previous Guardian to enter this kingdom.');m=motion[player] end
+    if h.FloorMaterial==Enum.Material.Air then m.fallTop=math.max(m.fallTop,rr.Position.Y)
+    else
+     if m.fallTop-rr.Position.Y>38 then loseCargo(player);teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+     m.fallTop=rr.Position.Y
+    end
+    if rr.Position.Y < -25 then loseCargo(player);teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+    m.pos=rr.Position;m.time=now
+   end
+   if p.recovery and os.time()>=p.recovery.expires then p.recovery=nil;if recovering[player] then recovering[player]:Destroy();recovering[player]=nil end;publish(player) end
+   for _,hazard in ipairs(world.Dynamics:GetChildren()) do
+    if hazard:GetAttribute('Kind')=='Hazard' then
+     local active=math.floor(now/3)%2==0;hazard.Transparency=if active then .2 else .85
+     if active and (rr.Position-hazard.Position).Magnitude<10 and now>(B.dodgeUntil[player] or 0) then h:TakeDamage(3) end
+    elseif hazard:GetAttribute('Kind')=='Crumbling' then
+     local crumbled=math.floor(now/4)%3==0;hazard.CanCollide=not crumbled;hazard.Transparency=if crumbled then .9 else 0
+    end
+   end
+  end
+ end
+ for _,puzzle in ipairs(world.Interactions:GetChildren()) do if puzzle:GetAttribute('Kind')=='Puzzle' then
+  local rune=math.floor(workspace:GetServerTimeNow()/2)%3+1;local prompt=puzzle:FindFirstChildOfClass('ProximityPrompt');prompt.ObjectText='Rune '..({'I','II','III'})[rune]..' • align in order';puzzle.Color=({Color3.fromRGB(145,230,191),Color3.fromRGB(247,203,117),Color3.fromRGB(195,169,249)})[rune]
+ end end
+end)
+task.spawn(function()
+ while task.wait(45) do
+  for player,s in pairs(P.sessions) do
+   if s.closing then task.spawn(P.save,player,true)
+   else task.spawn(function() local ok=P.save(player,false);send(player,'save',ok);if not ok then send(player,'toast','Saving paused. Progress actions are locked to protect your profile.') end end) end
+  end
+ end
+end)
+game:BindToClose(function()
+ local remaining=0
+ for player in pairs(P.sessions) do remaining+=1;task.spawn(function() P.save(player,true);remaining-=1 end) end
+ local untilTime=os.clock()+25;while remaining>0 and os.clock()<untilTime do task.wait(.1) end
+end)
+print('Impossible Mountain ready • six kingdoms • isolated profile namespace')
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="10">
+        <Properties>
+          <string name="Name">Profiles</string>
+          <string name="Source"><![CDATA[local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+local R=require(game.ReplicatedStorage.MountainShared.Rules)
+local Store=require(script.Parent.Store)
+local Http=game:GetService('HttpService')
+local Run=game:GetService('RunService')
+local function create(store,owner)
+local P={sessions={},mode=if Run:IsStudio() then 'Studio memory • resets when Play stops' else 'Live DataStore'}
+local function copy(t) return Http:JSONDecode(Http:JSONEncode(t)) end
+local function valid(p)
+ if type(p)~='table' or p.schema~=1 then return false end
+ for _,key in ipairs({'creatures','team','cargo','eggs','wins','captures','discoveries','claims','shortcuts','resources'}) do if type(p[key])~='table' then return false end end
+ for _,key in ipairs({'serial','unlocked','coins','trophies','lastIncome','competitionAt'}) do if type(p[key])~='number' or p[key]~=p[key] or math.abs(p[key])==math.huge then return false end end
+ if p.unlocked<1 or p.unlocked>6 then return false end
+ for _,c in ipairs(p.creatures) do if not C.byId[c.species] or type(c.id)~='string' or type(c.level)~='number' or c.level<1 or c.level>50 or type(c.xp)~='number' then return false end end
+ for _,list in ipairs({p.eggs,p.cargo}) do for _,e in ipairs(list) do if not C.byId[e.species] or C.byId[e.species].rarity=='Legendary' or type(e.id)~='string' or (e.readyAt and type(e.readyAt)~='number') then return false end end end
+ return true
+end
+function P.load(player)
+ local now=os.time();local accepted=false
+ local ok,data,err=store:update('u'..player.UserId,function(old)
+  accepted=false
+  if old and (type(old)~='table' or not valid(old.profile)) then return nil end
+  if old and old.lock and old.lock.owner~=owner and old.lock.expires>now then return nil end
+  local p=if old then old.profile else R.newProfile(now)
+  accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}
+ end)
+ if not ok or not accepted or not data or not valid(data.profile) then return nil,err or 'Profile unavailable or in use; no data overwritten.' end
+ local s={p=data.profile,busy=false,healthy=true,closing=false,lastSave=now}
+ P.sessions[player]=s;return s.p
+end
+function P.get(player) local s=P.sessions[player];return s and s.healthy and not s.closing and s.p end
+function P.save(player,release)
+ local s=P.sessions[player];if not s then return false end
+ if release then s.closing=true end
+ local deadline=os.clock()+12
+ while s.busy and os.clock()<deadline do task.wait(.1) end
+ if s.busy then s.healthy=false;if release then s.releaseRequested=true end;return false end
+ s.busy=true
+ local copied,snapshot=pcall(copy,s.p)
+ if not copied then s.busy=false;s.healthy=false;return false end
+ local written=false
+ for attempt=1,3 do
+  local now=os.time();local accepted=false
+  local ok=store:update('u'..player.UserId,function(old)
+   accepted=false
+   if not old or not old.lock or old.lock.owner~=owner then return nil end
+   accepted=true;return {profile=snapshot,lock=if release then nil else {owner=owner,expires=now+180}}
+  end)
+  if ok and accepted then written=true;break end
+  if attempt<3 then task.wait(attempt) end
+ end
+ s.busy=false;s.healthy=written;s.lastSave=os.time()
+ if release and written then P.sessions[player]=nil
+ elseif s.releaseRequested and not release then
+  s.releaseRequested=nil;task.defer(P.save,player,true)
+ end
+ return written
+end
+P.valid=valid
+return P
+end
+local service=create(if Run:IsStudio() then Store.memory() else Store.datastore('MountainEmpire_FirstDraft_v1'),game.JobId..Http:GenerateGUID(false))
+if Run:IsStudio() then service.newForTests=create end
+return service
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="11">
+        <Properties>
+          <string name="Name">Store</string>
+          <string name="Source"><![CDATA[-- Store (ServerScriptService.CC_CoreServer): persistence adapter. Profile code only sees this interface:
+--   store:read(key)        -> ok, value|nil, err
+--   store:update(key, fn)  -> ok, value|nil, err   fn(old) returns the new value, or nil to cancel the write
+--                            (UpdateAsync semantics: fn may run more than once; keep it free of side effects
+--                            other than setting locals the caller resets before each call).
+-- Two implementations:
+--   Store.datastore(name)  real DataStoreService (UNVERIFIED: the place is unpublished, PlaceId = 0)
+--   Store.memory(opts)     in-memory mock for Studio + tests. Values round-trip through JSON like a DataStore,
+--                          so non-serializable data fails here too. Failure injection: failNext (n calls),
+--                          failAll (bool), latency (s), conflicts (n: run fn twice to mimic a retried write).
+local HttpService = game:GetService("HttpService")
+
+local Store = {}
+
+---------------------------------------------------------------- memory mock
+local Memory = {}
+Memory.__index = Memory
+
+function Store.memory(opts)
+	opts = opts or {}
+	return setmetatable({
+		kind = "memory",
+		backend = opts.backend or {}, -- share one backend between two "servers" in tests
+		failNext = 0,
+		failAll = false,
+		latency = opts.latency or 0,
+		conflicts = 0,
+		failAfterCommit = 0, -- response lost AFTER durable write; exercises uncertain outcome replay
+		calls = { read = 0, update = 0, failed = 0 },
+	}, Memory)
+end
+
+function Memory:_gate(kind)
+	self.calls[kind] += 1
+	if self.latency > 0 then
+		task.wait(self.latency)
+	end
+	if self.failAll then
+		self.calls.failed += 1
+		return false, "mock: store unavailable (failAll)"
+	end
+	if self.failNext > 0 then
+		self.failNext -= 1
+		self.calls.failed += 1
+		return false, "mock: store request failed (failNext)"
+	end
+	return true
+end
+
+function Memory:read(key)
+	local ok, err = self:_gate("read")
+	if not ok then
+		return false, nil, err
+	end
+	local raw = self.backend[key]
+	return true, raw and HttpService:JSONDecode(raw) or nil, nil
+end
+
+function Memory:update(key, fn)
+	local ok, err = self:_gate("update")
+	if not ok then
+		return false, nil, err
+	end
+	local runs = 1 + math.max(0, self.conflicts)
+	self.conflicts = 0
+	local new
+	for _ = 1, runs do
+		local raw = self.backend[key]
+		local old = raw and HttpService:JSONDecode(raw) or nil
+		local okFn, res = pcall(fn, old)
+		if not okFn then
+			return false, nil, "transform error: " .. tostring(res)
+		end
+		new = res
+	end
+	if new == nil then
+		local raw = self.backend[key]
+		return true, raw and HttpService:JSONDecode(raw) or nil, "cancelled"
+	end
+	local okEnc, enc = pcall(HttpService.JSONEncode, HttpService, new)
+	if not okEnc then
+		return false, nil, "serialize: " .. tostring(enc)
+	end
+	self.backend[key] = enc
+	if self.failAfterCommit > 0 then
+		self.failAfterCommit -= 1
+		return false, nil, "mock: response lost after commit"
+	end
+	return true, HttpService:JSONDecode(enc), nil
+end
+
+---------------------------------------------------------------- real DataStore (UNVERIFIED in Studio)
+local DS = {}
+DS.__index = DS
+
+function Store.datastore(name)
+	local DataStoreService = game:GetService("DataStoreService")
+	local ok, ds = pcall(DataStoreService.GetDataStore, DataStoreService, name)
+	return setmetatable({ kind = "datastore", ds = ok and ds or nil, initErr = (not ok) and tostring(ds) or nil, service = DataStoreService }, DS)
+end
+
+function DS:_budget(reqType)
+	-- wait (bounded) for request budget instead of letting the request throttle
+	for _ = 1, 20 do
+		local okB, b = pcall(self.service.GetRequestBudgetForRequestType, self.service, reqType)
+		if not okB or b > 0 then
+			return
+		end
+		task.wait(0.5)
+	end
+end
+
+function DS:read(key)
+	if not self.ds then
+		return false, nil, self.initErr
+	end
+	self:_budget(Enum.DataStoreRequestType.GetAsync)
+	local ok, res = pcall(self.ds.GetAsync, self.ds, key)
+	if not ok then
+		return false, nil, tostring(res)
+	end
+	return true, res, nil
+end
+
+function DS:update(key, fn)
+	if not self.ds then
+		return false, nil, self.initErr
+	end
+	self:_budget(Enum.DataStoreRequestType.UpdateAsync)
+	local cancelled = false
+	local ok, res = pcall(self.ds.UpdateAsync, self.ds, key, function(old)
+		local new = fn(old)
+		cancelled = new == nil
+		return new
+	end)
+	if not ok then
+		return false, nil, tostring(res)
+	end
+	return true, res, cancelled and "cancelled" or nil
+end
+
+---------------------------------------------------------------- choice
+-- Real DataStore only in a published place; Studio with PlaceId 0 cannot reach DataStores at all.
+function Store.default(name)
+	if game.PlaceId ~= 0 then
+		return Store.datastore(name)
+	end
+	return Store.memory()
+end
+
+return Store
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="12">
+        <Properties>
+          <string name="Name">StudioTests</string>
+          <string name="Source"><![CDATA[-- Explicit Studio-only test suite, never runs automatically or alters a real player.
+local T={}
+function T.run()
+ assert(game:GetService('RunService'):IsStudio(),'Studio only')
+ local P=require(script.Parent.Profiles);local Store=require(script.Parent.Store)
+ local R=require(game.ReplicatedStorage.MountainShared.Rules);local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+ local checks={};local function check(name,value) assert(value,name);table.insert(checks,name) end
+ local backend=Store.memory();local a=P.newForTests(backend,'test-a');local b=P.newForTests(backend,'test-b');local player={UserId=92833001}
+ local p=a.load(player);check('new schema loads',p and p.schema==1)
+ check('contended session rejects',not b.load(player))
+ p.coins=97;R.collect(p,'mossbun','fixture',100);R.extract(p);R.incubate(p,p.eggs[1].id,100)
+ check('release save succeeds',a.save(player,true))
+ local q=b.load(player);check('reconnect retains coins and incubation',q and q.coins==97 and q.eggs[1].readyAt==130)
+ check('early hatch rejected',not R.hatch(q,q.eggs[1].id,129));check('offline hatch ready',R.hatch(q,q.eggs[1].id,130))
+ R.collect(q,'mossbun','recover-fixture',200);R.drop(q,200);b.save(player,true)
+ q=a.load(player);check('recovery survives reconnect',q.recovery and #q.recovery.eggs==1 and q.recovery.expires==380)
+ backend.failAll=true;check('save failure freezes mutations',not a.save(player,false) and not a.get(player))
+ backend.failAll=false;check('save retry resumes',a.save(player,false) and a.get(player)==q)
+ q.coins=121;backend.failAfterCommit=1;check('uncertain response retry safe',a.save(player,false));check('no duplicate currency',a.get(player).coins==121)
+ local payload={q.team[1]};payload.extra='unsafe';check('dictionary team rejected',not R.equip(q,payload))
+ q.unsupported={};q.unsupported.self=q.unsupported;check('serialization failure clears busy',not a.save(player,false) and not a.sessions[player].busy);q.unsupported=nil
+ check('serialization repair resumes save',a.save(player,true))
+ backend.failAll=true;check('failed load does not default',not b.load(player));backend.failAll=false
+ check('failed load preserved durable state',b.load(player).coins==121);b.save(player,true)
+ backend:update('u92833002',function() return {profile={schema=99},lock=nil} end)
+ check('unknown schema never overwritten',not a.load({UserId=92833002}))
+ local _,saved=backend:read('u92833002');check('unknown schema retained',saved.profile.schema==99)
+ local slowBackend=Store.memory();local slowOnce=false
+ local delayed={}
+ function delayed:update(key,transform)
+  if slowOnce then slowOnce=false;task.wait(13) end
+  return slowBackend:update(key,transform)
+ end
+ local slow=P.newForTests(delayed,'slow-owner');local leaving={UserId=92833005}
+ local last=slow.load(leaving);last.coins=10;slowOnce=true
+ local autosaveDone=false
+ task.spawn(function() slow.save(leaving,false);autosaveDone=true end)
+ task.wait(.1);last.coins=42
+ check('slow autosave release yields safely',not slow.save(leaving,true))
+ local finish=os.clock()+8
+ while slow.sessions[leaving] and os.clock()<finish do task.wait(.1) end
+ local _,durable=slowBackend:read('u92833005')
+ check('slow autosave completes',autosaveDone)
+ check('final leave snapshot flushed',durable.profile.coins==42 and durable.lock==nil and slow.sessions[leaving]==nil)
+ local profile=R.newProfile(100)
+ for k=1,6 do
+  check('gate '..k,R.canEnter(profile,k));check('normal win '..k,R.winGuardian(profile,k,false));check('trial capture '..k,R.winGuardian(profile,k,true));check('duplicate capture '..k,not R.winGuardian(profile,k,true))
+ end
+ check('six permanent guardian captures',#profile.creatures==9)
+ local defense=require(script.Parent.Competition)
+ check('register defense snapshot',defense.register(profile,92833003))
+ local challenger=R.newProfile(os.time());local ok,result=defense.challenge(challenger,92833004,92833003)
+ check('offline snapshot challenge',ok and type(result.rounds)=='number')
+ check('challenge replay cooldown',not defense.challenge(challenger,92833004,92833003))
+ local guard=profile.creatures[1];guard.level=25;R.specialize(profile,guard.id,'Guard');check('guard has defensive stat',R.stats(guard).guard==.15)
+ return {passed=#checks,checks=checks,scope='isolated memory profiles and snapshots; no live DataStore or actual player progression'}
+end
+return T
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerStorage" referent="13">
+    <Properties>
+      <string name="Name">ServerStorage</string>
+    </Properties>
+    <Item class="Folder" referent="14">
+      <Properties>
+        <string name="Name">MountainWorld</string>
+      </Properties>
+      <Item class="ModuleScript" referent="15">
+        <Properties>
+          <string name="Name">Art</string>
+          <string name="Source"><![CDATA[-- Procedural draft models. All scenery is anchored and decorative details do not collide.
+local A={}
+function A.color(c) return Color3.fromRGB(c[1],c[2],c[3]) end
+function A.part(parent,name,size,cf,color,material,shape,collide)
+ local p=Instance.new('Part');p.Name=name;p.Size=size;p.CFrame=cf;p.Color=color;p.Material=material or Enum.Material.SmoothPlastic
+ p.Anchored=true;p.CanCollide=collide==true;p.CanTouch=false;p.CanQuery=collide==true;p.TopSurface=Enum.SurfaceType.Smooth;p.BottomSurface=Enum.SurfaceType.Smooth
+ if shape then p.Shape=shape end;p.Parent=parent;return p
+end
+function A.link(parent,name,a,b,width,color,material,collide)
+ return A.part(parent,name,Vector3.new(width,width,(b-a).Magnitude),CFrame.lookAt((a+b)/2,b),color,material,nil,collide)
+end
+function A.label(p,text,offset)
+ local b=Instance.new('BillboardGui');b.Name='Label';b.Size=UDim2.fromOffset(230,54);b.StudsOffset=Vector3.new(0,offset or 5,0);b.MaxDistance=115;b.AlwaysOnTop=false;b.Parent=p
+ local l=Instance.new('TextLabel');l.Size=UDim2.fromScale(1,1);l.BackgroundTransparency=1;l.Text=text;l.TextColor3=Color3.fromRGB(255,246,220);l.TextStrokeTransparency=.45;l.Font=Enum.Font.GothamBold;l.TextSize=17;l.TextWrapped=true;l.Parent=b
+end
+function A.creature(parent,s,position,scale,stage)
+ local m=Instance.new('Model');m.Name=s.name
+ local C=require(game.ReplicatedStorage.MountainShared.Catalog);local k=C.kingdoms[s.kingdom]
+ local primary=A.color(k.color);local accent=A.color(k.accent);local dark=primary:Lerp(Color3.new(0,0,0),.35)
+ local S=scale*(if s.rarity=='Legendary' then 1 else 1+((stage or 1)-1)*.16);local shape=s.shape
+ local function p(n,sz,pos,col,kind,rot)
+  return A.part(m,n,sz*S,CFrame.new(position+pos*S)*(rot or CFrame.identity),col,Enum.Material.SmoothPlastic,kind or Enum.PartType.Ball)
+ end
+ local long=table.find({'fox','otter','dog','cat','deer','rhino','dragon','turtle','whale','serpent','worm'},shape)~=nil
+ local floating=table.find({'moth','fish','shard','orb','jelly','ghost','bird','star'},shape)~=nil
+ local body=p('Body',Vector3.new(3.2,if floating then 3.2 else 2.5,if long then 4.6 else 3),Vector3.new(0,2.6,0),primary)
+ m.PrimaryPart=body
+ local head=p('Face',Vector3.new(2.5,2.2,2.5),Vector3.new(0,3.3,if long then -2.1 else -1.3),primary:Lerp(accent,.3))
+ for _,sign in ipairs({-1,1}) do
+  p('Eye',Vector3.new(.4,.48,.25),Vector3.new(sign*.68,3.6,if long then -3.23 else -2.43),Color3.fromRGB(22,33,52))
+  p('EyeLight',Vector3.new(.11,.13,.1),Vector3.new(sign*.68-.06,3.69,if long then -3.36 else -2.56),Color3.new(1,1,1))
+ end
+ local legs=s.legs or (if floating then 0 elseif shape=='beetle' then 6 elseif shape=='golem' or shape=='sprout' then 2 else 4)
+ for i=1,legs do
+  local side=if i%2==0 then 1 else -1;local z=(math.ceil(i/2)-(legs/2+1)/2)*1.6
+  p('Foot',Vector3.new(.85,1.6,1.25),Vector3.new(side*1.2,1.1,z),dark)
+ end
+ if shape=='rabbit' or shape=='cat' or shape=='fox' or shape=='dog' or shape=='bear' then
+  for _,sign in ipairs({-1,1}) do p('Ear',Vector3.new(.8,if shape=='rabbit' then 2.7 else 1.3,1),Vector3.new(sign*.9,4.7,-1.5),accent,nil,CFrame.Angles(0,0,sign*.18)) end
+ end
+ if shape=='moth' or shape=='bird' or shape=='dragon' or shape=='fish' or shape=='whale' then
+  for _,sign in ipairs({-1,1}) do for wing=1,(if s.id=='pyralune' then 3 else 2) do
+   p('Wing',Vector3.new(3,.35,2.3),Vector3.new(sign*2.5,2.8+wing*.35,wing*1.3-2),accent,nil,CFrame.Angles(0,sign*.4,sign*.3))
+  end end
+ end
+ if long then p('Tail',Vector3.new(1.1,1.1,3.8),Vector3.new(0,2.7,3),accent,nil,CFrame.Angles(.35,0,.1)) end
+ if shape=='deer' or shape=='rhino' or shape=='hedgehog' or shape=='dragon' or s.rarity=='Legendary' then
+  for _,sign in ipairs({-1,1}) do for j=1,3 do
+   p('Crest',Vector3.new(.45,1.8+j*.3,.55),Vector3.new(sign*(.4+j*.35),4.2+j*.5,-1.3),accent,Enum.PartType.Block,CFrame.Angles(.2,0,sign*.45))
+  end end
+ end
+ if shape=='turtle' or shape=='beetle' or shape=='rock' then p('Armor',Vector3.new(3.7,1.8,3.8),Vector3.new(0,3.8,.5),accent) end
+ if shape=='shard' or shape=='orb' or shape=='jelly' or shape=='star' or shape=='golem' then
+  for j=1,(if s.id=='zenthari' then 4 else 6) do local a=j*math.pi/3
+   p('Orbit',Vector3.new(.7,1.7,.7),Vector3.new(math.cos(a)*3,3.3+math.sin(a)*2,0),accent,Enum.PartType.Block,CFrame.Angles(0,0,a))
+  end
+ end
+ -- Each species has a different silhouette signature, beyond its biome palette.
+ for j=1,(s.variant or 1) do
+  local a=j*2.399;p('Signature',Vector3.new(.4,.7+(s.variant or 1)*.12,.4),Vector3.new(math.cos(a)*1.25,4.2,math.sin(a)*1.1),accent,Enum.PartType.Block,CFrame.Angles(0,a,.35))
+ end
+ if (stage or 1)>=2 and s.rarity~='Legendary' then p('EvolvedMane',Vector3.new(3.2,1.6,2),Vector3.new(0,3.3,-.9),accent) end
+ if (stage or 1)>=3 and s.rarity~='Legendary' then
+  for _,sign in ipairs({-1,1}) do p('AscendedCrest',Vector3.new(.6,3.6,1),Vector3.new(sign*1.4,5,-.7),accent,Enum.PartType.Block,CFrame.Angles(0,0,sign*.5)) end
+ end
+ m.Parent=parent;return m
+end
+function A.tree(parent,pos,k,rng)
+ local m=Instance.new('Model');m.Name='Grown_'..k.id
+ local h=rng:NextNumber(13,23);local brown=Color3.fromRGB(91,72,63)
+ local trunk=A.link(m,'Trunk',pos,pos+Vector3.new(1,h,0),2.1,brown,Enum.Material.Wood)
+ for j=1,5 do
+  local a=j*2.4;local endP=pos+Vector3.new(math.cos(a)*h*.35,h*(.6+j*.065),math.sin(a)*h*.35)
+  A.link(m,'Branch',pos+Vector3.new(0,h*.5,0),endP,1,brown,Enum.Material.Wood)
+  local leaf=A.part(m,'Canopy',Vector3.new(9,5,8)*rng:NextNumber(.8,1.3),CFrame.new(endP),A.color(if k.id=='blossom' then k.accent else k.color):Lerp(Color3.new(1,1,1),rng:NextNumber(0,.12)),Enum.Material.Grass,Enum.PartType.Ball)
+  if k.id=='inferno' then leaf.Transparency=.75;leaf.Size=Vector3.new(2,2,2) end
+ end
+ m.Parent=parent;return trunk
+end
+function A.crystal(parent,pos,k,size)
+ local m=Instance.new('Model');m.Name='MineralCluster'
+ for i=1,4 do
+  local p=A.part(m,'Facet',Vector3.new(size*.3,size*(.6+i*.2),size*.35),CFrame.new(pos+Vector3.new((i-2.5)*size*.25,size*.5,0))*CFrame.Angles(0,i,.15*(i-2)),A.color(k.accent),Enum.Material.Glass,nil,false)
+  p.Reflectance=.12;p.Transparency=.12
+ end
+ m.Parent=parent
+end
+return A
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="16">
+        <Properties>
+          <string name="Name">Landmarks</string>
+          <string name="Source"><![CDATA[local A=require(script.Parent.Art)
+local L={}
+function L.build(parent,k,index,center)
+ local m=Instance.new('Model');m.Name=k.landmarks[1]..'_Signature'
+ local stone=A.color(k.rock);local light=A.color(k.accent)
+ local function p(name,size,offset,color,material,shape,rot)
+  return A.part(m,name,size,CFrame.new(center+offset)*(rot or CFrame.identity),color or stone,material or Enum.Material.Rock,shape,false)
+ end
+ if index==1 then
+  for j=1,16 do
+   local a=j*math.pi/8;local pos=Vector3.new(math.cos(a)*35,0,math.sin(a)*35)
+   p('GardenTerrace',Vector3.new(9,2,8),pos+Vector3.new(0,1,0),Color3.fromRGB(127,168,104),Enum.Material.Grass)
+   for n=1,3 do p('ColosseumBlossom',Vector3.new(2,.8,2),pos+Vector3.new(math.cos(n*2)*2,2.4,math.sin(n*2)*2),light,Enum.Material.Grass,Enum.PartType.Ball) end
+  end
+  for _,sign in ipairs({-1,1}) do
+   local base=center+Vector3.new(sign*28,0,-20)
+   for n=1,5 do local next=base+Vector3.new(-sign*3,7,math.sin(n)*2);A.link(m,'AncientRoot',base,next,3.5,Color3.fromRGB(105,87,66),Enum.Material.Wood);base=next end
+  end
+ elseif index==2 then
+  for j=1,5 do
+   local offset=Vector3.new((j-3)*12,0,-36)
+   p('WatercarvedCrest',Vector3.new(9,40+j%2*12,10),offset+Vector3.new(0,18,0),stone,Enum.Material.Slate)
+   local water=p('HeartCascade',Vector3.new(7,36+j%2*12,1),offset+Vector3.new(0,19,6),light,Enum.Material.Glass);water.Transparency=.3
+   p('TurquoisePool',Vector3.new(14,.6,12),offset+Vector3.new(0,.5,9),light,Enum.Material.Glass,Enum.PartType.Ball)
+  end
+ elseif index==3 then
+  for tier=1,4 do p('SolarThroneStep',Vector3.new(37-tier*6,3,25-tier*3),Vector3.new(0,tier*3-1.5,-23),Color3.fromRGB(220-tier*8,175-tier*5,109),Enum.Material.Sandstone) end
+  p('RoyalBackrest',Vector3.new(15,20,4),Vector3.new(0,19,-30),light,Enum.Material.Sandstone)
+  for j=1,16 do local a=j*math.pi/8
+   p('SolarCrownRay',Vector3.new(1.2,9,1.2),Vector3.new(math.cos(a)*13,32+math.sin(a)*13,-33),light,Enum.Material.Metal,nil,CFrame.Angles(0,0,a-math.pi/2))
+  end
+ elseif index==4 then
+  for j=1,6 do local a=j*math.pi/3
+   A.crystal(m,center+Vector3.new(math.cos(a)*32,0,math.sin(a)*32),k,13+j%2*5)
+  end
+  for j=1,20 do local a=j*math.pi/10
+   p('ObservatoryOrbit',Vector3.new(1.2,1.2,11),Vector3.new(math.cos(a)*32,28+math.sin(a)*8,math.sin(a)*32),light,Enum.Material.Metal,nil,CFrame.Angles(.25,-a,0))
+  end
+  p('Mirror',Vector3.new(18,22,1),Vector3.new(0,15,-36),Color3.fromRGB(157,166,214),Enum.Material.Glass);m.Mirror.Reflectance=.5
+ elseif index==5 then
+  for j=1,8 do local a=j*math.pi/4
+   p('VolcanicHorn',Vector3.new(5,28,5),Vector3.new(math.cos(a)*32,12,math.sin(a)*32),stone,Enum.Material.Basalt,nil,CFrame.Angles(math.sin(a)*.3,0,math.cos(a)*-.3))
+   p('MagmaFissure',Vector3.new(1.2,18,1.2),Vector3.new(math.cos(a)*31,9,math.sin(a)*31),light,Enum.Material.Neon)
+  end
+  for j=1,20 do local a=j*math.pi/10;p('CrucibleRim',Vector3.new(7,2,3),Vector3.new(math.cos(a)*19,1,math.sin(a)*19),Color3.fromRGB(138,76,55),Enum.Material.Basalt,nil,CFrame.Angles(0,-a,0)) end
+ else
+  for j=1,8 do local a=j*math.pi/4
+   p('AstralSpire',Vector3.new(3,29+j%2*10,3),Vector3.new(math.cos(a)*34,15,math.sin(a)*34),Color3.fromRGB(216,229,244),Enum.Material.Marble)
+   A.crystal(m,center+Vector3.new(math.cos(a)*34,32,math.sin(a)*34),k,6)
+  end
+  for ring=1,2 do for j=1,24 do local a=j*math.pi/12
+   p('CelestialOrbit',Vector3.new(.8,.8,9),Vector3.new(math.cos(a)*(25+ring*6),39+math.sin(a)*ring*5,math.sin(a)*(25+ring*6)),light,Enum.Material.Metal,nil,CFrame.Angles(0,-a,0))
+  end end
+ end
+ m.Parent=parent
+end
+
+function L.branch(parent,k,index,branch,center)
+ local m=Instance.new('Model');m.Name=k.landmarks[branch+1]..'_Composition'
+ local stone=A.color(k.rock);local light=A.color(k.accent)
+ local function p(name,size,offset,color,material,shape,rot)
+  return A.part(m,name,size,CFrame.new(center+offset)*(rot or CFrame.identity),color or stone,material or Enum.Material.Rock,shape,false)
+ end
+ if index==1 then
+  for j=1,8 do local a=j*math.pi/4
+   p('MossTerrace',Vector3.new(5,1,4),Vector3.new(math.cos(a)*11,.4,math.sin(a)*11),Color3.fromRGB(115,161,94),Enum.Material.Grass)
+   p('GardenBloom',Vector3.new(2,.7,2),Vector3.new(math.cos(a)*11,1.3,math.sin(a)*11),light,Enum.Material.Grass,Enum.PartType.Ball)
+  end
+  if branch==2 then for j=1,4 do p('FallenRuins',Vector3.new(3,5+j,3),Vector3.new(-11+j*5,3,-11),stone,Enum.Material.Marble,nil,CFrame.Angles(0,0,(j-2)*.12)) end end
+ elseif index==2 then
+  local water=p('HiddenWaterCurtain',Vector3.new(21,13,.5),Vector3.new(0,6,-5),light,Enum.Material.Glass);water.Transparency=.62
+  for j=1,9 do
+   A.link(m,'HangingVine',center+Vector3.new(j*3-15,14,-3),center+Vector3.new(j*3-15,4+j%3,-3),.25,Color3.fromRGB(61,125,89),Enum.Material.Grass)
+   p('FernBed',Vector3.new(4,2,3),Vector3.new(j*3-15,1,12),Color3.fromRGB(69,141,102),Enum.Material.Grass,Enum.PartType.Ball)
+  end
+ elseif index==3 then
+  if branch==1 then
+   local pool=p('OasisWater',Vector3.new(14,.3,13),Vector3.new(0,.2,5),Color3.fromRGB(75,177,179),Enum.Material.Glass,Enum.PartType.Ball);pool.Transparency=.25
+   for _,s in ipairs({-1,1}) do
+    A.link(m,'PalmTrunk',center+Vector3.new(s*11,0,-7),center+Vector3.new(s*9,16,-7),.8,Color3.fromRGB(121,92,58),Enum.Material.Wood)
+    for leaf=1,6 do p('PalmLeaf',Vector3.new(1,1,10),Vector3.new(s*9,16,-7),Color3.fromRGB(86,143,94),Enum.Material.Grass,Enum.PartType.Ball,CFrame.Angles(.3,leaf*math.pi/3,0)) end
+   end
+  else for j=1,5 do p('DawnObelisk',Vector3.new(2,5+j*2,2),Vector3.new(j*5-15,2.5+j,-10),light,Enum.Material.Sandstone) end end
+ elseif index==4 then
+  for j=1,7 do A.crystal(m,center+Vector3.new(math.cos(j)*12,0,math.sin(j)*12),k,7+j%3*3) end
+  if branch==2 then for j=1,6 do local mirror=p('ReflectionSlab',Vector3.new(4,.3,8),Vector3.new(j*4-14,.3,3),light,Enum.Material.Glass);mirror.Reflectance=.45 end end
+ elseif index==5 then
+  for _,s in ipairs({-1,1}) do p('TemplePillar',Vector3.new(3,17,3),Vector3.new(s*11,8,-9),stone,Enum.Material.Basalt) end
+  p('TempleLintel',Vector3.new(27,3,5),Vector3.new(0,17,-9),stone,Enum.Material.Basalt)
+  local basin=p('EmberBasin',Vector3.new(8,.3,8),Vector3.new(0,.3,9),light,Enum.Material.Neon,Enum.PartType.Ball)
+  local at=Instance.new('Attachment');at.Parent=basin;local ember=Instance.new('ParticleEmitter');ember.Rate=3;ember.Lifetime=NumberRange.new(1.2,2);ember.Speed=NumberRange.new(2,4);ember.Size=NumberSequence.new(.12);ember.Color=ColorSequence.new(light);ember.LightEmission=.5;ember.Parent=at
+ else
+  for j=1,12 do local a=j*math.pi/6
+   p('StarGardenStone',Vector3.new(2,.8,2),Vector3.new(math.cos(a)*12,.5,math.sin(a)*12),Color3.fromRGB(224,231,242),Enum.Material.Marble)
+   A.crystal(m,center+Vector3.new(math.cos(a)*12,1,math.sin(a)*12),k,2.5)
+  end
+  if branch==2 then for j=1,12 do local a=j*math.pi/6;p('GateConstellation',Vector3.new(2,2,2),Vector3.new(math.cos(a)*12,14+math.sin(a)*12,-6),light,Enum.Material.Glass,Enum.PartType.Ball) end end
+ end
+ m.Parent=parent
+end
+return L
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="17">
+        <Properties>
+          <string name="Name">World</string>
+          <string name="Source"><![CDATA[local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+local A=require(script.Parent.Art)
+local Landmarks=require(script.Parent.Landmarks)
+local W={}
+local function v(p) return Vector3.new(p.x,p.y,p.z) end
+local function folder(parent,name) local f=Instance.new('Folder');f.Name=name;f.Parent=parent;return f end
+local function attrs(p,t) for k,x in pairs(t) do p:SetAttribute(k,x) end end
+local function prompt(p,action,kind,k,id)
+ attrs(p,{Kind=kind,Kingdom=k,Id=id or p.Name})
+ local q=Instance.new('ProximityPrompt');q.ActionText=action;q.ObjectText=p.Name;q.HoldDuration=.4;q.MaxActivationDistance=12;q.RequiresLineOfSight=false;q.Parent=p;return p
+end
+local function deck(parent,name,pos,size,color,material)
+ return A.part(parent,name,size,CFrame.new(pos-Vector3.new(0,size.Y/2,0)),color,material,nil,true)
+end
+local function walkway(parent,name,a,b,width,k)
+ local delta=b-a;local len=delta.Magnitude
+ workspace.Terrain:FillBlock(CFrame.lookAt((a+b)/2+Vector3.new(0,10,0),b+Vector3.new(0,10,0)),Vector3.new(width+6,20,len+4),Enum.Material.Air)
+ return A.part(parent,name,Vector3.new(width,1.2,len+1),CFrame.lookAt((a+b)/2,b),A.color(k.color):Lerp(Color3.fromRGB(211,201,173),.5),Enum.Material.Cobblestone,nil,true)
+end
+local function arch(parent,pos,k,radius)
+ local col=A.color(k.rock):Lerp(Color3.new(1,1,1),.3)
+ for i=0,10 do local a=math.pi*i/10
+  A.part(parent,'ArchVoussoir',Vector3.new(4,5,6),CFrame.new(pos+Vector3.new(math.cos(a)*radius,7+math.sin(a)*radius,0))*CFrame.Angles(0,0,a-math.pi/2),col,Enum.Material.Marble,nil,true)
+ end
+ for _,s in ipairs({-1,1}) do A.part(parent,'Pillar',Vector3.new(4,9,6),CFrame.new(pos+Vector3.new(s*radius,4.5,0)),col,Enum.Material.Marble,nil,true) end
+end
+function W.build()
+ assert(not workspace:FindFirstChild('MountainEmpire_Phase1'),'Never build in Phase 1')
+ assert(not workspace:FindFirstChild('ImpossibleMountain'),'Mountain already built; use a new review place')
+ local root=folder(workspace,'ImpossibleMountain');root:SetAttribute('GeneratorVersion',C.version)
+ local checkpoints=folder(root,'Checkpoints');local interactions=folder(root,'Interactions');local dynamics=folder(root,'Dynamics');local encounters=folder(root,'Encounters')
+ local terrain=workspace.Terrain
+ for name,rgb in pairs({Grass={109,161,100},Slate={82,127,147},Sandstone={214,167,96},Rock={127,103,156},Basalt={59,54,63},Snow={213,224,237}}) do
+  terrain:SetMaterialColor(Enum.Material[name],Color3.fromRGB(rgb[1],rgb[2],rgb[3]))
+ end
+ -- Continuous solid mass, bounded to a new place. No Terrain:Clear call.
+ -- Irregular ridged heightfield, smooth voxel occupancy and asymmetric buttresses.
+ -- Write in 64-stud tiles so the editor remains responsive.
+ for bx=-544,480,64 do for bz=-544,480,64 do
+  local heights={};local maxH=-32
+  for x=1,16 do heights[x]={};for z=1,16 do
+   local wx=bx+(x-.5)*4;local wz=bz+(z-.5)*4;local radius=math.sqrt(wx*wx+wz*wz);local a=math.atan2(wz,wx)
+   local ridge=math.sin(a*5+.4)*17+math.sin(a*9-1)*10+math.noise(wx/130,wz/130,24)*22
+   local h=math.min(846, (489+ridge-radius)/.4)+math.noise(wx/55,wz/55,3)*9
+   if radius<100 then h=846+12*(1-radius/100) end
+   h=math.max(-32,h);heights[x][z]=h;maxH=math.max(maxH,h)
+  end end
+  if maxH>-28 then
+   local ny=math.ceil((maxH+36)/4);local materials,occupancy={},{}
+   for x=1,16 do materials[x]={};occupancy[x]={};for y=1,ny do
+    materials[x][y]={};occupancy[x][y]={};local wy=-32+(y-.5)*4
+    local k=C.kingdoms[math.clamp(math.floor((wy-16)/136)+1,1,6)]
+    for z=1,16 do materials[x][y][z]=Enum.Material[k.material];occupancy[x][y][z]=math.clamp((heights[x][z]-(wy-2))/4,0,1) end
+   end end
+   terrain:WriteVoxels(Region3.new(Vector3.new(bx,-32,bz),Vector3.new(bx+64,-32+ny*4,bz+64)),4,materials,occupancy)
+  end
+  task.wait()
+ end end
+ local rng=Random.new(C.seed);local allLadderClearances={};local routeOpenings={}
+ for ki,k in ipairs(C.kingdoms) do
+  local region=folder(root,k.name);region:SetAttribute('Kingdom',ki)
+  -- Larger naturally broken rock silhouettes behind routes; path is carved afterward.
+  for j=1,28 do
+   local t=(j-.5)/28;local q=C.route(ki,t);local a=q.angle+.2
+   local pos=Vector3.new(math.cos(a)*(q.radius-33),q.y-6,math.sin(a)*(q.radius-33))
+   terrain:FillBall(pos,rng:NextNumber(16,24),Enum.Material[k.material])
+  end
+  local last=v(C.route(ki,0));local ladderClearances={}
+  for i=1,48 do
+   local q=C.route(ki,i/48);local p=v(q)
+   local delta=p-last
+   -- Stable natural ledge support at the trail's outer rim.
+   local carveEnd=if i%12==0 then Vector3.new(p.X,last.Y,p.Z) else p
+   local carveDelta=carveEnd-last
+   table.insert(routeOpenings,{a=last,b=carveEnd})
+   terrain:FillBlock(CFrame.lookAt((carveEnd+last)/2-Vector3.new(0,48,0),carveEnd-Vector3.new(0,48,0)),Vector3.new(25,94,carveDelta.Magnitude+4),Enum.Material[k.material])
+   terrain:FillBlock(CFrame.lookAt((carveEnd+last)/2+Vector3.new(0,10,0),carveEnd+Vector3.new(0,10,0)),Vector3.new(27,22,carveDelta.Magnitude+4),Enum.Material.Air)
+   if i%12==0 then terrain:FillBlock(CFrame.new((p+carveEnd)/2+Vector3.new(0,4,0)),Vector3.new(18,p.Y-carveEnd.Y+12,18),Enum.Material.Air) end
+   if i%12==0 then
+    local foot=Vector3.new(p.X,last.Y,p.Z)
+    walkway(region,'CliffApproach',last,foot,14,k)
+    local approach=(foot-last).Unit;local ladderPosition=p-approach*11
+    local truss=Instance.new('TrussPart');truss.Name='ClimbLadder';truss.Anchored=true;truss.Size=Vector3.new(2,p.Y-last.Y+5,2);truss.CFrame=CFrame.new(ladderPosition-Vector3.new(0,(p.Y-last.Y)/2,0));truss.Color=A.color(k.accent);truss.Parent=region
+    table.insert(ladderClearances,{pos=ladderPosition,low=last.Y})
+    table.insert(allLadderClearances,{pos=ladderPosition,low=last.Y,top=p})
+    deck(region,'ClimbLanding',p+Vector3.new(0,-.4,0),Vector3.new(18,1,18),A.color(k.rock),Enum.Material[k.material])
+    for _,sign in ipairs({-1,1}) do A.link(region,'ClimbingRope',foot+Vector3.new(sign*2,0,0),p+Vector3.new(sign*2,2,0),.22,Color3.fromRGB(201,175,126),Enum.Material.Fabric) end
+   else walkway(region,'PrimaryAscent',last,p,16,k) end
+   if i%3==0 then
+    local side=Vector3.new(math.cos(q.angle),0,math.sin(q.angle));local pos=p+side*13
+    local post=A.part(region,'Wayfinder',Vector3.new(.6,4,.6),CFrame.new(pos+Vector3.new(0,2,0)),A.color(k.rock),Enum.Material.Wood)
+    A.part(region,'RouteFlag',Vector3.new(2.5,1.5,.2),post.CFrame*CFrame.new(1,1,0),A.color(k.accent),Enum.Material.Fabric)
+    if i%3==0 then
+     local point=p-side*18
+     if ki==3 or ki==4 or ki==6 then A.crystal(region,point,k,8) else A.tree(region,point,k,rng) end
+     for plant=1,3 do
+      local plantPos=p-side*(14+plant*3)+Vector3.new(math.cos(plant*2)*7,0,math.sin(plant*2)*7)
+      if ki==1 or ki==2 then
+       for leaf=1,4 do A.part(region,'FernFrond',Vector3.new(.5,3.6,1.2),CFrame.new(plantPos+Vector3.new(0,1,0))*CFrame.Angles(.8,leaf*math.pi/2,0),A.color(k.color):Lerp(Color3.fromRGB(57,111,74),.5),Enum.Material.Grass,Enum.PartType.Ball) end
+      elseif ki==3 then
+       A.part(region,'DesertSucculent',Vector3.new(1.5,5+plant,1.5),CFrame.new(plantPos+Vector3.new(0,2.5,0)),Color3.fromRGB(103,144,102),Enum.Material.Grass,Enum.PartType.Ball)
+      else A.crystal(region,plantPos,k,3+plant) end
+     end
+     for n=1,6 do
+      local pt=p+side*(10+n*.8)+Vector3.new(math.cos(n*2)*5,0,math.sin(n*2)*5)
+      A.part(region,'Wildflower',Vector3.new(1.1,.5,1.1),CFrame.new(pt+Vector3.new(0,.6,0)),A.color(k.accent),Enum.Material.Grass,Enum.PartType.Ball)
+     end
+    end
+   end
+   last=p
+   if i%12==0 then task.wait() end
+  end
+  for _,climb in ipairs(ladderClearances) do
+   terrain:FillBlock(CFrame.new(climb.pos.X,(climb.pos.Y+climb.low)/2+4,climb.pos.Z),Vector3.new(9,climb.pos.Y-climb.low+13,9),Enum.Material.Air)
+  end
+  -- Checkpoints at the entrance, mid-route recovery and Guardian approach.
+  for _,spec in ipairs({{'entrance',0},{'recovery',.50},{'guardian',.875}}) do
+   local pos=v(C.route(ki,spec[2]));local p=deck(checkpoints,ki..':'..spec[1],pos+Vector3.new(0,.3,0),Vector3.new(18,1,18),A.color(k.accent),Enum.Material.Slate)
+   prompt(p,'Rest • extract eggs','Checkpoint',ki,p.Name);A.label(p,k.name..'\n'..spec[1],5)
+  end
+  -- Two optional discoveries, with readable branches and varied environmental compositions.
+  for branch,t in ipairs({.29,.66}) do
+   local q=C.route(ki,t);local base=v(q);local outward=Vector3.new(math.cos(q.angle),0,math.sin(q.angle));local pos=base+outward*48
+   walkway(region,'ExplorationBranch_'..branch,base,pos,10,k)
+   terrain:FillBall(pos-Vector3.new(0,28,0),32,Enum.Material[k.material])
+   for n=1,4 do terrain:FillBall(pos-outward*n*10-Vector3.new(0,28+n*12,0),26,Enum.Material[k.material]) end
+   terrain:FillBlock(CFrame.new(pos+Vector3.new(0,12,0)),Vector3.new(36,24,34),Enum.Material.Air)
+   deck(region,'BranchTerrace',pos,Vector3.new(34,5,32),A.color(k.rock),Enum.Material[k.material])
+   arch(region,pos+Vector3.new(0,0,-7),k,10)
+   Landmarks.branch(region,k,ki,branch,pos)
+   local marker=A.part(interactions,k.landmarks[branch+1],Vector3.new(3,3,3),CFrame.new(pos+Vector3.new(-8,2,0)),A.color(k.accent),Enum.Material.Marble,Enum.PartType.Ball)
+   prompt(marker,'Discover • gather','Discovery',ki,ki..':branch'..branch);A.label(marker,k.landmarks[branch+1],7)
+   local nest=A.part(interactions,'Hidden nest',Vector3.new(3,4,3),CFrame.new(pos+Vector3.new(7,2,0)),A.color(k.accent),Enum.Material.SmoothPlastic,Enum.PartType.Ball)
+   prompt(nest,'Collect egg','Nest',ki,ki..':nest'..branch)
+   if branch==2 then
+    local short=A.part(interactions,'Ancient shortcut',Vector3.new(3,5,3),CFrame.new(pos+Vector3.new(0,2,8)),A.color(k.accent),Enum.Material.Marble)
+    prompt(short,'Attune shortcut','Shortcut',ki,tostring(ki))
+   end
+   -- Roofed side cavern entrance; the main mountain remains solid.
+   if branch==1 then
+    for _,side in ipairs({-1,1}) do A.part(region,'CaveWall',Vector3.new(5,14,18),CFrame.new(pos+Vector3.new(side*14,7,5)),A.color(k.rock),Enum.Material[k.material],nil,true) end
+    A.part(region,'CaveVault',Vector3.new(32,5,18),CFrame.new(pos+Vector3.new(0,14,5)),A.color(k.rock),Enum.Material[k.material],nil,true)
+   end
+  end
+  -- Habitat encounter for every regular species, six distinct silhouettes per kingdom.
+  for j=1,6 do
+   local s=C.species[(ki-1)*6+j];local q=C.route(ki,.08+j*.115);local pos=v(q)+Vector3.new(math.cos(q.angle)*19,1,math.sin(q.angle)*19)
+   deck(region,'EncounterLedge',pos-Vector3.new(0,1,0),Vector3.new(16,2,16),A.color(k.rock),Enum.Material[k.material])
+   local pet=A.creature(encounters,s,pos,1.3,1);local trigger=pet.PrimaryPart
+   prompt(trigger,'Wild encounter','Wild',ki,s.id);A.label(trigger,s.name..' • '..s.rarity,5)
+  end
+  local q=C.route(ki,.875);local entry=v(q);local outward=Vector3.new(math.cos(q.angle),0,math.sin(q.angle));local arena=entry+outward*66
+  walkway(region,'GuardianApproach',entry,arena,18,k)
+  terrain:FillBall(arena-Vector3.new(0,42,0),48,Enum.Material[k.material])
+  for n=1,5 do terrain:FillBall(arena-outward*n*12-Vector3.new(0,42+n*12,0),36,Enum.Material[k.material]) end
+  terrain:FillBlock(CFrame.new(arena+Vector3.new(0,18,0)),Vector3.new(86,36,86),Enum.Material.Air)
+  local floor=A.part(region,'ArenaFloor',Vector3.new(5,82,82),CFrame.new(arena-Vector3.new(0,2.5,0))*CFrame.Angles(0,0,math.pi/2),A.color(k.rock),Enum.Material[k.material],Enum.PartType.Cylinder,true)
+  floor:SetAttribute('Arena',ki)
+  Landmarks.build(region,k,ki,arena)
+  for j=1,12 do
+   local angle=j*math.pi/6;local pos=arena+Vector3.new(math.cos(angle)*38,0,math.sin(angle)*38)
+   A.part(region,'ArenaColumn',Vector3.new(3,12+(j%3)*3,3),CFrame.new(pos+Vector3.new(0,6,0)),A.color(k.rock):Lerp(Color3.new(1,1,1),.25),Enum.Material.Marble,nil,true)
+   A.crystal(region,pos+Vector3.new(0,12,0),k,3)
+  end
+  local boss=A.creature(encounters,C.guardians[ki],arena+Vector3.new(0,1,-10),4.5,1);boss.Name='Guardian_'..ki
+  local altar=A.part(interactions,C.guardians[ki].name,Vector3.new(4,3,4),CFrame.new(arena+Vector3.new(0,2,25)),A.color(k.accent),Enum.Material.Marble)
+  attrs(altar,{ArenaX=arena.X,ArenaY=arena.Y,ArenaZ=arena.Z});prompt(altar,'Challenge Guardian','Guardian',ki,tostring(ki));A.label(altar,k.landmarks[1],8)
+  local trial=A.part(interactions,'Legendary Trial',Vector3.new(3,4,3),CFrame.new(arena+Vector3.new(11,2,24)),A.color(k.accent),Enum.Material.Glass)
+  prompt(trial,'Begin mastery trial','Trial',ki,tostring(ki))
+  -- Biome signature: falls, oasis, crystals, lava and celestial rings.
+  if ki==2 or ki==5 then
+   for j=1,3 do
+    local qp=C.route(ki,.15+j*.16);local pos=v(qp)-Vector3.new(math.cos(qp.angle)*32,0,math.sin(qp.angle)*32)
+    local fall=A.part(region,if ki==2 then 'TurquoiseCascade' else 'Lavafall',Vector3.new(9,65,2),CFrame.new(pos-Vector3.new(0,22,0))*CFrame.Angles(0,-qp.angle,0),A.color(k.accent),if ki==2 then Enum.Material.Glass else Enum.Material.Neon)
+    fall.Transparency=if ki==2 then .3 else .12
+    A.part(region,'MistPool',Vector3.new(26,1,22),CFrame.new(pos-Vector3.new(0,54,0)),A.color(k.accent),Enum.Material.Glass,Enum.PartType.Ball)
+   end
+  end
+  if ki==6 then
+   for ring=1,3 do for j=1,24 do local a=j*math.pi/12;local r=25+ring*10
+    A.part(region,'ConstellationRing',Vector3.new(1,1,10),CFrame.new(Vector3.new(math.cos(a)*r,850+ring*8,math.sin(a)*r))*CFrame.Angles(0,-a,0),A.color(k.accent),Enum.Material.Metal)
+   end end
+   arch(region,Vector3.new(0,837,0),k,25)
+   local summitStart=v(C.route(6,1));local summitEnd=Vector3.new(0,840,0)
+   terrain:FillBlock(CFrame.lookAt((summitStart+summitEnd)/2+Vector3.new(0,10,0),summitEnd+Vector3.new(0,10,0)),Vector3.new(24,22,(summitEnd-summitStart).Magnitude+4),Enum.Material.Air)
+   walkway(region,'FinalSummitAscent',summitStart,summitEnd,16,k)
+   local summit=deck(interactions,'Impossible Summit',Vector3.new(0,840,0),Vector3.new(55,3,55),A.color(k.color),Enum.Material.Marble)
+   terrain:FillBlock(CFrame.new(0,853,0),Vector3.new(70,24,70),Enum.Material.Air)
+   prompt(summit,'Celebrate summit','Summit',6,'summit');A.label(summit,'IMPOSSIBLE MOUNTAIN\nEternal Astral Sanctum',14)
+  end
+  -- Moving bonus platform and a timed hazard sit on an optional challenge ledge.
+  local dp=v(C.route(ki,.42));local radial=Vector3.new(math.cos(C.route(ki,.42).angle),0,math.sin(C.route(ki,.42).angle))
+  local start=dp+radial*22;walkway(region,'ChallengeAccess',dp,start,10,k)
+  local mover=deck(dynamics,'KingdomLift_'..ki,start,Vector3.new(12,1,12),A.color(k.accent),Enum.Material[k.material]);attrs(mover,{Kind='Moving',Kingdom=ki,AxisX=radial.X,AxisZ=radial.Z})
+  if ki==1 then for j=1,6 do local a=j*math.pi/3;A.part(mover,'FlowerPetal',Vector3.new(5,.6,3),CFrame.new(start+Vector3.new(math.cos(a)*5,0,math.sin(a)*5))*CFrame.Angles(0,-a,0),A.color(k.accent),Enum.Material.Grass,Enum.PartType.Ball) end end
+  local endP=dp+radial*57;deck(region,'ChallengeRewardLedge',endP,Vector3.new(18,2,18),A.color(k.rock),Enum.Material[k.material])
+  local puzzle=A.part(interactions,'Constellation mechanism',Vector3.new(3,4,3),CFrame.new(endP+Vector3.new(0,2,0)),A.color(k.accent),Enum.Material.Marble)
+  prompt(puzzle,'Align three runes','Puzzle',ki,ki..':puzzle')
+  if ki==3 then
+   local crumble=walkway(dynamics,'CrumblingSandstone',endP,endP+Vector3.new(18,0,0),8,k);attrs(crumble,{Kind='Crumbling',Kingdom=ki})
+  end
+  local hazard=deck(dynamics,'TimedHazard_'..ki,dp+radial*42+Vector3.new(0,-2,0),Vector3.new(14,.5,14),A.color(k.accent),Enum.Material.Neon);attrs(hazard,{Kind='Hazard',Kingdom=ki});hazard.CanCollide=false
+  task.wait()
+ end
+ -- Open the outer side of each trail to the sky, preserving its supported floor.
+ for _,opening in ipairs(routeOpenings) do
+  local a,b=opening.a,opening.b;local mid=(a+b)/2
+  local outward=Vector3.new(mid.X,0,mid.Z).Unit*45
+  terrain:FillBlock(CFrame.lookAt(mid+outward+Vector3.new(0,16,0),b+outward+Vector3.new(0,16,0)),Vector3.new(115,32,(b-a).Magnitude+5),Enum.Material.Air)
+ end
+ for _,climb in ipairs(allLadderClearances) do
+  terrain:FillBlock(CFrame.new(climb.pos.X,(climb.pos.Y+climb.low)/2+5,climb.pos.Z),Vector3.new(11,climb.pos.Y-climb.low+16,11),Enum.Material.Air)
+  local a=climb.pos+Vector3.new(0,8,0);local b=climb.top+Vector3.new(0,8,0)
+  terrain:FillBlock(CFrame.lookAt((a+b)/2,b),Vector3.new(22,16,(b-a).Magnitude+20),Enum.Material.Air)
+ end
+ local refuge=folder(root,'ExpeditionRefuge_IntegrationFixture')
+ deck(refuge,'RefugeIsland',Vector3.new(0,16,560),Vector3.new(130,14,110),Color3.fromRGB(121,150,125),Enum.Material.Grass)
+ walkway(refuge,'GatewayInterface',Vector3.new(0,16,515),v(C.route(1,0)),20,C.kingdoms[1])
+ terrain:FillBlock(CFrame.new(0,66,502),Vector3.new(30,100,62),Enum.Material.Air)
+ arch(refuge,Vector3.new(0,16,515),C.kingdoms[1],14)
+ local spawn=Instance.new('SpawnLocation');spawn.Name='MountainArrival';spawn.Anchored=true;spawn.Size=Vector3.new(8,1,8);spawn.CFrame=CFrame.new(0,17,555);spawn.Transparency=1;spawn.Neutral=true;spawn.Duration=0;spawn.Parent=refuge
+ for i,name in ipairs({'Incubator','Sanctuary','Training','Competition'}) do
+  local pos=Vector3.new(-45+(i-1)*30,16,585)
+  deck(refuge,name..'Dais',pos,Vector3.new(21,2,18),Color3.fromRGB(194,183,159),Enum.Material.Cobblestone)
+  local p=A.part(interactions,name,Vector3.new(5,4,5),CFrame.new(pos+Vector3.new(0,2,0)),Color3.fromRGB(171,218,203),Enum.Material.Marble)
+  prompt(p,'Open '..name,name,1,name);A.label(p,name,6)
+ end
+ local gateway=Instance.new('Attachment');gateway.Name='MountainGatewayEntry';gateway.CFrame=CFrame.new(0,20,545);gateway.Parent=workspace.Terrain
+ for j=1,12 do A.tree(refuge,Vector3.new(if j%2==0 then 54 else -54,16,510+j*7),C.kingdoms[1],rng) end
+ local L=game:GetService('Lighting');L.ClockTime=13.5;L.Brightness=2.5;L.Ambient=Color3.fromRGB(119,133,151);L.OutdoorAmbient=Color3.fromRGB(149,165,181)
+ local atmosphere=Instance.new('Atmosphere');atmosphere.Density=.23;atmosphere.Offset=.12;atmosphere.Color=Color3.fromRGB(203,226,241);atmosphere.Decay=Color3.fromRGB(132,153,179);atmosphere.Parent=L
+ local bloom=Instance.new('BloomEffect');bloom.Intensity=.18;bloom.Size=20;bloom.Threshold=1.4;bloom.Parent=L
+ for name,id in pairs({['Mountain Birds 1 (SFX)']='9112832288',WaterfallLoop='137800539959141',AstralWind='9125742262',LavaLoop='318794788'}) do
+  local sound=game:GetService('SoundService'):FindFirstChild(name)
+  if not sound then sound=Instance.new('Sound');sound.Name=name;sound.SoundId='rbxassetid://'..id;sound.Parent=game:GetService('SoundService') end
+  sound.Volume=0;sound.Looped=true
+ end
+ root:SetAttribute('Ready',true)
+ return {kingdoms=6,species=36,guardians=6,checkpoints=#checkpoints:GetChildren(),instances=#root:GetDescendants()}
+end
+return W
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="SoundService" referent="18">
+    <Properties>
+      <string name="Name">SoundService</string>
+      <bool name="RespectFilteringEnabled">true</bool>
+    </Properties>
+  </Item>
+  <Item class="StarterPlayer" referent="19">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="20">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="Folder" referent="21">
+        <Properties>
+          <string name="Name">MountainClient</string>
+        </Properties>
+        <Item class="LocalScript" referent="22">
+          <Properties>
+            <string name="Name">HUD</string>
+            <string name="Source"><![CDATA[local Players=game:GetService('Players')
+local RS=game:GetService('ReplicatedStorage')
+local UIS=game:GetService('UserInputService')
+local Run=game:GetService('RunService')
+local Tween=game:GetService('TweenService')
+local player=Players.LocalPlayer
+local C=require(RS:WaitForChild('MountainShared'):WaitForChild('Catalog'))
+local remotes=RS:WaitForChild('MountainRemotes',120)
+if not remotes then warn('Mountain is still loading.');return end
+local req=remotes.Request;local event=remotes.Event
+local navy=Color3.fromRGB(24,37,57);local cream=Color3.fromRGB(249,240,219);local teal=Color3.fromRGB(96,203,185);local gold=Color3.fromRGB(245,193,99)
+local gui=Instance.new('ScreenGui');gui.Name='MountainHUD';gui.ResetOnSpawn=false;gui.ZIndexBehavior=Enum.ZIndexBehavior.Sibling;gui.Parent=player:WaitForChild('PlayerGui')
+local root=Instance.new('Frame');root.Size=UDim2.fromScale(1,1);root.BackgroundTransparency=1;root.Parent=gui
+local function rounded(o,r) local c=Instance.new('UICorner');c.CornerRadius=UDim.new(0,r or 12);c.Parent=o end
+local function text(parent,content,size,pos,font)
+ local t=Instance.new('TextLabel');t.Size=size;t.Position=pos;t.BackgroundTransparency=1;t.Text=content;t.Font=font or Enum.Font.GothamMedium;t.TextSize=15;t.TextColor3=cream;t.TextXAlignment=Enum.TextXAlignment.Left;t.TextWrapped=true;t.Parent=parent;return t
+end
+local function panel(parent,size,pos)
+ local f=Instance.new('Frame');f.Size=size;f.Position=pos;f.BackgroundColor3=navy;f.BackgroundTransparency=.05;f.BorderSizePixel=0;f.Parent=parent;rounded(f);return f
+end
+local function button(parent,label,size,pos,fn,color)
+ local b=Instance.new('TextButton');b.Name=label:gsub('[^%w]','');b.Size=size;b.Position=pos;b.Text=label;b.TextSize=14;b.Font=Enum.Font.GothamBold;b.TextColor3=navy;b.BackgroundColor3=color or teal;b.BorderSizePixel=0;b.AutoButtonColor=true;b.Parent=parent;rounded(b,8);b.Activated:Connect(fn);return b
+end
+local header=panel(root,UDim2.fromOffset(360,87),UDim2.fromOffset(14,10))
+text(header,'IMPOSSIBLE MOUNTAIN',UDim2.new(1,-24,0,25),UDim2.fromOffset(12,7),Enum.Font.GothamBold).TextColor3=gold
+local location=text(header,'Blossom Gardens',UDim2.new(1,-24,0,23),UDim2.fromOffset(12,32))
+local summary=text(header,'Loading expedition…',UDim2.new(1,-24,0,22),UDim2.fromOffset(12,58));summary.TextSize=12
+local navigation=panel(root,UDim2.fromOffset(360,45),UDim2.fromOffset(14,103))
+navigation.Name='Navigation';local navigationButtons={}
+local toast=panel(root,UDim2.new(.6,0,0,54),UDim2.new(.2,0,1,-165));toast.Visible=false;toast.ZIndex=20
+local toastText=text(toast,'',UDim2.new(1,-24,1,-12),UDim2.fromOffset(12,6));toastText.TextXAlignment=Enum.TextXAlignment.Center;toastText.ZIndex=21
+local notice=text(root,'LOCAL REVIEW • Studio memory resets on Stop',UDim2.new(1,-28,0,20),UDim2.new(0,14,1,-24));notice.TextSize=11;notice.TextTransparency=.2
+local battle=panel(root,UDim2.fromOffset(360,80),UDim2.new(.5,-180,0,14));battle.Visible=false
+local bossName=text(battle,'',UDim2.new(1,-20,0,25),UDim2.fromOffset(10,6),Enum.Font.GothamBold)
+local bar=panel(battle,UDim2.new(1,-20,0,9),UDim2.fromOffset(10,36));bar.BackgroundColor3=Color3.fromRGB(66,76,91)
+local fill=Instance.new('Frame');fill.Size=UDim2.fromScale(1,1);fill.BackgroundColor3=gold;fill.BorderSizePixel=0;fill.Parent=bar;rounded(fill,5)
+local battleInfo=text(battle,'',UDim2.new(1,-20,0,22),UDim2.fromOffset(10,48));battleInfo.TextSize=12
+local abilities=panel(root,UDim2.fromOffset(340,51),UDim2.new(.5,-170,1,-87))
+local data=nil;local activeTab=nil;local selected={};local activeAbility=1;local modal=nil;local render
+local function fire(action,payload) req:FireServer(action,payload) end
+local toastSerial=0
+local function notify(message)
+ toastSerial+=1;local token=toastSerial;toast.Visible=true;toastText.Text=tostring(message)
+ task.delay(5,function() if token==toastSerial then toast.Visible=false end end)
+end
+for i=1,3 do button(abilities,'['..i..'] Special',UDim2.fromOffset(90,37),UDim2.fromOffset(7+(i-1)*96,7),function() fire('Special',{slot=i,ability=activeAbility}) end) end
+local abilityButton
+abilityButton=button(abilities,'A1',UDim2.fromOffset(35,37),UDim2.fromOffset(297,7),function() activeAbility=activeAbility%4+1;abilityButton.Text='A'..activeAbility;notify('Guardian ability '..activeAbility..' selected. Regular companions use their role skill.') end,gold)
+local dodgeButton=button(root,'DODGE [Q]',UDim2.fromOffset(115,44),UDim2.new(1,-137,1,-151),function() fire('Dodge') end,gold)
+UIS.InputBegan:Connect(function(input,processed)
+ if processed then return end
+ if input.KeyCode==Enum.KeyCode.Q then fire('Dodge')
+ elseif input.KeyCode==Enum.KeyCode.One then fire('Special',{slot=1,ability=activeAbility})
+ elseif input.KeyCode==Enum.KeyCode.Two then fire('Special',{slot=2,ability=activeAbility})
+ elseif input.KeyCode==Enum.KeyCode.Three then fire('Special',{slot=3,ability=activeAbility})
+ elseif input.KeyCode==Enum.KeyCode.Tab then if modal then modal:Destroy();modal=nil;activeTab=nil else activeTab='Collection';render() end end
+end)
+local rowHeight=88
+local function row(scroll,index,title,subtitle)
+ local f=panel(scroll,UDim2.new(1,-12,0,rowHeight),UDim2.fromOffset(3,(index-1)*(rowHeight+7)));f.BackgroundColor3=Color3.fromRGB(39,56,77)
+ text(f,title,UDim2.new(1,-148,0,28),UDim2.fromOffset(12,8),Enum.Font.GothamBold)
+ local t=text(f,subtitle,UDim2.new(1,-148,0,rowHeight-45),UDim2.fromOffset(12,39));t.TextSize=12;return f
+end
+local function open(tab) activeTab=tab;if data then selected=table.clone(data.team) end;render() end
+for i,tab in ipairs({'Collection','Eggs','Travel','Journal'}) do navigationButtons[i]=button(navigation,tab,UDim2.fromOffset(81,32),UDim2.fromOffset(7+(i-1)*89,6),function() open(tab) end,if i==1 then gold else teal) end
+render=function()
+ if modal then modal:Destroy();modal=nil end
+ if not activeTab or not data then return end
+ local viewport=workspace.CurrentCamera.ViewportSize
+ rowHeight=if viewport.X<500 then 118 else 88
+ local width=math.min(660,viewport.X-24);local height=math.min(510,viewport.Y-70)
+ modal=panel(root,UDim2.fromOffset(width,height),UDim2.new(.5,-width/2,.5,-height/2));modal.ZIndex=10;modal.BackgroundTransparency=0
+ text(modal,activeTab:upper(),UDim2.new(1,-90,0,35),UDim2.fromOffset(18,10),Enum.Font.GothamBold).TextColor3=gold
+ button(modal,'×',UDim2.fromOffset(38,34),UDim2.new(1,-50,0,10),function() modal:Destroy();modal=nil;activeTab=nil end,gold)
+ local scroll=Instance.new('ScrollingFrame');scroll.Size=UDim2.new(1,-24,1,-68);scroll.Position=UDim2.fromOffset(12,57);scroll.BackgroundTransparency=1;scroll.BorderSizePixel=0;scroll.ScrollBarThickness=5;scroll.CanvasSize=UDim2.fromOffset(0,0);scroll.Parent=modal
+ local index=0
+ local function add(title,sub) index+=1;scroll.CanvasSize=UDim2.fromOffset(0,index*(rowHeight+7));return row(scroll,index,title,sub) end
+ if activeTab=='Collection' or activeTab=='Training' then
+  local f=add('YOUR THREE-CREATURE TEAM','Select up to three companions, then equip. Training at the refuge costs 15 coins for 80 XP.')
+  button(f,'Equip '..#selected,UDim2.fromOffset(115,33),UDim2.new(1,-127,0,28),function() if #selected>0 then fire('Equip',selected);notify('Team selection submitted.') end end)
+  for _,c in ipairs(data.creatures) do
+   local s=C.byId[c.species];local stage=if s.rarity=='Legendary' then 'Sovereign' elseif c.level>=35 then 'Stage III' elseif c.level>=15 then 'Stage II' else 'Stage I'
+   local f=add(s.name..' • Lv '..c.level,s.rarity..' · '..s.role..' · '..stage..'\n'..(c.specialization or 'Specialization unlocks at Lv 25'))
+   local selectedIndex=table.find(selected,c.id)
+   button(f,if selectedIndex then 'Selected '..selectedIndex else 'Select',UDim2.fromOffset(112,30),UDim2.new(1,-124,0,8),function()
+    local n=table.find(selected,c.id);if n then table.remove(selected,n) elseif #selected<3 then table.insert(selected,c.id) else notify('Select at most three companions.') end;render()
+   end,if selectedIndex then gold else teal)
+   button(f,'Train • 15',UDim2.fromOffset(112,30),UDim2.new(1,-124,0,46),function() fire('Train',c.id) end)
+   if c.level>=25 and not c.specialization then
+    local spec=add(s.name..' specialization','Choose a permanent focus: Power, Guard or Vitality.')
+    for j,choice in ipairs({'Power','Guard','Vitality'}) do button(spec,choice,UDim2.fromOffset(72,27),UDim2.new(1,-240+(j-1)*78,0,54),function() fire('Specialize',{id=c.id,choice=choice}) end) end
+   end
+  end
+ elseif activeTab=='Eggs' or activeTab=='Incubator' then
+  add('EXPEDITION EGGS',#data.cargo..'/3 unsecured • '..#data.eggs..' secured. Extract at a checkpoint. Incubate and hatch free at the refuge.')
+  for _,e in ipairs(data.cargo) do add(C.byId[e.species].name..' egg','UNSECURED • a fall leaves a recoverable pack for 3 minutes.') end
+  for _,e in ipairs(data.eggs) do
+   local s=C.byId[e.species];local remain=if e.readyAt then math.max(0,e.readyAt-data.serverNow) else nil
+   local f=add(s.name..' egg',s.rarity..' · '..(if remain then (if remain==0 then 'Ready to hatch' else math.ceil(remain)..'s remaining') else 'Secured • '..C.incubation[s.rarity]..'s incubation'))
+   button(f,if remain==0 then 'Hatch free' elseif remain then 'Incubating' else 'Incubate',UDim2.fromOffset(112,35),UDim2.new(1,-124,0,28),function() fire(if e.readyAt then 'Hatch' else 'Incubate',e.id) end,if remain==0 then gold else teal)
+  end
+ elseif activeTab=='Travel' then
+  local f=add('Expedition Refuge','Fast travel starts at a checkpoint or the refuge. Secures your carried eggs.')
+  button(f,'Return',UDim2.fromOffset(100,35),UDim2.new(1,-112,0,28),function() fire('Travel','refuge') end)
+  for k,kingdom in ipairs(C.kingdoms) do
+   for _,point in ipairs({'entrance','recovery','guardian'}) do
+    local id=k..':'..point
+    if data.discoveries[id] then
+     local f=add(kingdom.name,point..' checkpoint')
+     button(f,'Travel',UDim2.fromOffset(100,35),UDim2.new(1,-112,0,28),function() fire('Travel',id) end)
+    end
+   end
+  end
+ elseif activeTab=='Sanctuary' then
+  add('SANCTUARY ECONOMY',data.coins..' coins • '..#data.creatures..' companions generate passive income. Offline income capped at 8 hours.')
+  local f=add('Collect income','All owned creatures contribute. Rest here and prepare your next ascent.')
+  button(f,'Collect',UDim2.fromOffset(110,35),UDim2.new(1,-122,0,28),function() fire('CollectIncome') end)
+  local t=add('Train your collection','Develop levels, visible evolution at 15 / 35, and specialization at 25.')
+  button(t,'Training',UDim2.fromOffset(110,35),UDim2.new(1,-122,0,28),function() open('Training') end)
+ elseif activeTab=='Competition' then
+  add('ASYNC SANCTUARY CHALLENGE',data.trophies..' trophies • challenge a saved defense even when its owner is offline. No creatures or eggs are stolen.')
+  local f=add('Register your defense','Your equipped team becomes the defense snapshot. Your UserId: '..player.UserId)
+  button(f,'Register',UDim2.fromOffset(112,35),UDim2.new(1,-124,0,28),function() fire('RegisterDefense') end)
+  local target=add('Choose an opponent','Enter a registered player’s UserId. Use 0 for a clearly labeled practice defense.')
+  local box=Instance.new('TextBox');box.Size=UDim2.fromOffset(110,30);box.Position=UDim2.new(1,-122,0,7);box.Text='0';box.PlaceholderText='UserId';box.Font=Enum.Font.Gotham;box.TextSize=14;box.TextColor3=navy;box.BackgroundColor3=cream;box.ClearTextOnFocus=true;box.Parent=target;rounded(box,5)
+  button(target,'Challenge',UDim2.fromOffset(110,30),UDim2.new(1,-122,0,46),function() fire('ChallengeDefense',tonumber(box.Text));end)
+ else
+  add('GRAND EXPEDITION','Explore → recover eggs → extract → hatch → strengthen your team → defeat each Guardian. Auto attacks run in battle; 1 / 2 / 3 activate specials, Q dodges.')
+  for k,kingdom in ipairs(C.kingdoms) do add(kingdom.name,(if data.wins[tostring(k)] then 'Guardian defeated' elseif k<=data.unlocked then 'Explore and challenge '..C.guardians[k].name else 'Locked by previous Guardian')..'\n'..(data.resources[tostring(k)] or 0)..' '..kingdom.resource) end
+  add('Legendary Trials','Normal victories unlock the next kingdom. Trials require 3 clean dodges and four resolved patterns. Interrupt Pyralune’s golden heart; align Caeloryn’s three stones. Capture is guaranteed once per Guardian.')
+ end
+end
+event.OnClientEvent:Connect(function(kind,payload)
+ if kind=='state' then
+  data=payload;summary.Text=payload.coins..' coins  •  Eggs '..#payload.cargo..'/3  •  Kingdom '..payload.unlocked..'/6';notice.Text=payload.saveMode
+  if #selected==0 then selected=table.clone(payload.team) end
+  if activeTab then render() end
+ elseif kind=='toast' then notify(payload)
+ elseif kind=='open' then open(payload)
+ elseif kind=='battle' then
+  battle.Visible=payload~=false
+  if payload then bossName.Text=payload.name..(if payload.trial then ' • LEGENDARY TRIAL' else '');fill.Size=UDim2.fromScale(math.clamp(payload.hp/payload.max,0,1),1);battleInfo.Text=math.ceil(payload.hp)..' HP  •  Auto attacks active'..(if payload.trial then '  •  Dodges '..(payload.dodges or 0)..'/3' else '') end
+ elseif kind=='competition' then notify((if payload.practice then 'Practice: ' else 'Defense challenge: ')..(if payload.won then 'Victory! +'..payload.trophies..' trophies' else 'Defeat • train or adjust your team')..' • '..payload.rounds..' rounds')
+ elseif kind=='save' then notice.Text=if payload then data.saveMode..' • checkpoint saved' else 'SAVING PAUSED • progression locked'
+ elseif kind=='dodge' then
+  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');if h then h.CameraOffset=Vector3.new(0,-.8,0);Tween:Create(h,TweenInfo.new(.6),{CameraOffset=Vector3.zero}):Play() end
+ end
+end)
+local elapsed=0
+Run.RenderStepped:Connect(function(dt)
+ elapsed+=dt;if elapsed<1 then return end;elapsed=0
+ local rr=player.Character and player.Character:FindFirstChild('HumanoidRootPart')
+ if rr then
+  local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=C.kingdoms[k].name..' • '..math.max(0,math.floor(rr.Position.Y-16))..' studs'
+  for name,volume in pairs({['Mountain Birds 1 (SFX)']=if k==1 then .14 elseif k==2 then .05 else 0,WaterfallLoop=if k==2 then .12 else 0,AstralWind=if k>=3 then .08 else 0,LavaLoop=if k==5 then .1 else 0}) do
+   local sound=game:GetService('SoundService'):FindFirstChild(name);if sound then if not sound.IsPlaying then sound:Play() end;Tween:Create(sound,TweenInfo.new(.7),{Volume=volume}):Play() end
+  end
+ end
+ if data then data.serverNow+=1;if activeTab=='Eggs' or activeTab=='Incubator' then render() end end
+end)
+local function responsive()
+ local view=workspace.CurrentCamera.ViewportSize;local compact=view.X<1150
+ pcall(function() game:GetService('StarterGui'):SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList,not UIS.TouchEnabled) end)
+ local portrait=view.Y>view.X
+ abilities.Position=UDim2.new(.5,-170,1,if portrait then -155 else -87)
+ dodgeButton.Position=UDim2.new(1,-137,1,if portrait then -215 else -151)
+ toast.Position=if view.Y>600 then UDim2.new(0,14,0,240) else UDim2.new(.2,0,1,-165)
+ toast.Size=if view.Y>600 then UDim2.new(1,-28,0,54) else UDim2.new(.6,0,0,54)
+ header.Size=UDim2.fromOffset(if compact then 280 else 360,87)
+ local navWidth=math.min(360,view.X-28);navigation.Size=UDim2.fromOffset(navWidth,45)
+ for i,b in ipairs(navigationButtons) do b.Size=UDim2.fromOffset((navWidth-14)/4-6,32);b.Position=UDim2.fromOffset(7+(i-1)*(navWidth-14)/4,6);b.TextSize=if view.X<400 then 12 else 14 end
+ battle.Position=if compact then UDim2.new(.5,-160,0,155) else UDim2.new(.5,-180,0,14);battle.Size=UDim2.fromOffset(if compact then 320 else 360,80)
+ if activeTab then render() end
+end
+workspace.CurrentCamera:GetPropertyChangedSignal('ViewportSize'):Connect(responsive);responsive()
+fire('State');notify('Welcome to Impossible Mountain. Follow the flags, discover eggs and rest at checkpoints. Open Journal for controls.')
+]]></string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="Workspace" referent="23">
+    <Properties>
+      <string name="Name">Workspace</string>
+      <float name="FallenPartsDestroyHeight">-200</float>
+      <float name="Gravity">196.2</float>
+      <bool name="NeedsPivotMigration">false</bool>
+      <bool name="StreamingEnabled">true</bool>
+    </Properties>
+  </Item>
+</roblox>

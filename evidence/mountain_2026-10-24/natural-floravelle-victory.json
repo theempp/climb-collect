@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"state\":\"{\\\"captures\\\":[],\\\"coins\\\":80,\\\"trophies\\\":0,\\\"competitionAt\\\":0,\\\"team\\\":[\\\"c1\\\",\\\"c2\\\",\\\"c3\\\"],\\\"resources\\\":[],\\\"eggs\\\":[],\\\"claims\\\":[],\\\"cargo\\\":[],\\\"wins\\\":{\\\"1\\\":true},\\\"unlocked\\\":2,\\\"discoveries\\\":{\\\"1:guardian\\\":true},\\\"serial\\\":3,\\\"serverNow\\\":1792818069,\\\"lastIncome\\\":1792817825,\\\"checkpoint\\\":\\\"1:guardian\\\",\\\"shortcuts\\\":[],\\\"creatures\\\":[{\\\"id\\\":\\\"c1\\\",\\\"species\\\":\\\"mossbun\\\",\\\"xp\\\":0,\\\"level\\\":4},{\\\"id\\\":\\\"c2\\\",\\\"species\\\":\\\"petalyn\\\",\\\"xp\\\":0,\\\"level\\\":4},{\\\"id\\\":\\\"c3\\\",\\\"species\\\":\\\"fernox\\\",\\\"xp\\\":0,\\\"level\\\":4}],\\\"schema\\\":1,\\\"saveMode\\\":\\\"Studio memory • resets when Play stops\\\"}\",\"approach\":true,\"health\":210.44525146484376,\"toast\":\"Floravelle defeated • next kingdom unlocked!\",\"battle\":\"false\"}"
+    }
+  ],
+  "isError": false
+}

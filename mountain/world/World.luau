@@ -56,7 +56,7 @@ function W.build()
   end
   task.wait()
  end end
- local rng=Random.new(C.seed);local allLadderClearances={}
+ local rng=Random.new(C.seed);local allLadderClearances={};local routeOpenings={}
  for ki,k in ipairs(C.kingdoms) do
   local region=folder(root,k.name);region:SetAttribute('Kingdom',ki)
   -- Larger naturally broken rock silhouettes behind routes; path is carved afterward.
@@ -72,6 +72,7 @@ function W.build()
    -- Stable natural ledge support at the trail's outer rim.
    local carveEnd=if i%12==0 then Vector3.new(p.X,last.Y,p.Z) else p
    local carveDelta=carveEnd-last
+   table.insert(routeOpenings,{a=last,b=carveEnd})
    terrain:FillBlock(CFrame.lookAt((carveEnd+last)/2-Vector3.new(0,48,0),carveEnd-Vector3.new(0,48,0)),Vector3.new(25,94,carveDelta.Magnitude+4),Enum.Material[k.material])
    terrain:FillBlock(CFrame.lookAt((carveEnd+last)/2+Vector3.new(0,10,0),carveEnd+Vector3.new(0,10,0)),Vector3.new(27,22,carveDelta.Magnitude+4),Enum.Material.Air)
    if i%12==0 then terrain:FillBlock(CFrame.new((p+carveEnd)/2+Vector3.new(0,4,0)),Vector3.new(18,p.Y-carveEnd.Y+12,18),Enum.Material.Air) end
@@ -200,6 +201,12 @@ function W.build()
   end
   local hazard=deck(dynamics,'TimedHazard_'..ki,dp+radial*42+Vector3.new(0,-2,0),Vector3.new(14,.5,14),A.color(k.accent),Enum.Material.Neon);attrs(hazard,{Kind='Hazard',Kingdom=ki});hazard.CanCollide=false
   task.wait()
+ end
+ -- Open the outer side of each trail to the sky, preserving its supported floor.
+ for _,opening in ipairs(routeOpenings) do
+  local a,b=opening.a,opening.b;local mid=(a+b)/2
+  local outward=Vector3.new(mid.X,0,mid.Z).Unit*45
+  terrain:FillBlock(CFrame.lookAt(mid+outward+Vector3.new(0,16,0),b+outward+Vector3.new(0,16,0)),Vector3.new(115,32,(b-a).Magnitude+5),Enum.Material.Air)
  end
  for _,climb in ipairs(allLadderClearances) do
   terrain:FillBlock(CFrame.new(climb.pos.X,(climb.pos.Y+climb.low)/2+5,climb.pos.Z),Vector3.new(11,climb.pos.Y-climb.low+16,11),Enum.Material.Air)

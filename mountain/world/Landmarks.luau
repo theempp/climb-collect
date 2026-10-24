@@ -14,7 +14,7 @@ function L.build(parent,k,index,center)
   end
   for _,sign in ipairs({-1,1}) do
    local base=center+Vector3.new(sign*28,0,-20)
-   for n=1,5 do local next=base+Vector3.new(-sign*n*3,n*7,math.sin(n)*2);A.link(m,'AncientRoot',base,next,3.5,Color3.fromRGB(105,87,66),Enum.Material.Wood);base=next end
+   for n=1,5 do local next=base+Vector3.new(-sign*3,7,math.sin(n)*2);A.link(m,'AncientRoot',base,next,3.5,Color3.fromRGB(105,87,66),Enum.Material.Wood);base=next end
   end
  elseif index==2 then
   for j=1,5 do
