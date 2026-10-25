@@ -75,7 +75,7 @@ function P.capabilities()
   training={status='connected',reason='Train at the expedition refuge with server-validated coins and XP.'},
   evolution={status='connected',reason='Level stages at 15 and 35; permanent specialization at 25.'},
   eggs={status='connected',reason='Carried and secured eggs, three incubators, timed free hatching.'},
-  income={status='connected',reason='Creature collection income at the expedition refuge.'},
+  income={status='connected',reason='Collect habitat production eggs and bank them for coins on your own plot.'},
   travel={status='connected',reason='Discovered checkpoints and refuge travel validated by the server.'},
   combat={status='connected',reason='Automatic attacks, manual specials, dodge and Guardian Trials.'},
   coop={status='connected',reason='Join a nearby Guardian encounter at its altar.'},
@@ -84,7 +84,7 @@ function P.capabilities()
   quests={status='read-only',reason='Objectives reflect existing discoveries and Guardian wins; no claimable quest reward service.'},
   settings={status='connected',reason='Validated UI preferences stored with the existing profile.'},
   sanctuary={status='connected',reason='Assigned plots, three Blossom gates and return travel share the mountain profile; incubation and training use existing services.'},
-  habitats={status='unavailable',reason='No habitat purchase, build upgrade or creature placement backend.'},
+  habitats={status='connected',reason='Own-plot assign, swap, collect, bank, upgrade, attune and cosmetic actions.'},
   partyInvites={status='unavailable',reason='No party finder, invitation or readiness backend.'},
   dailyRewards={status='unavailable',reason='No daily reward or quest reward backend.'},
   rankings={status='unavailable',reason='No server ranking service.'},
@@ -92,6 +92,9 @@ function P.capabilities()
   titles={status='unavailable',reason='No title ownership or equip service.'},
   shop={status='unavailable',reason='No approved product catalog, receipt or entitlement backend.'},
  }
+end
+function P.combatVisible(battle,ready,hubOpen)
+ return ready==true and type(battle)=='table' and not hubOpen
 end
 function P.layout(width,height,largeText)
  local w=if finite(width) then math.max(1,width) else 667

@@ -21,7 +21,9 @@ function W.button(parent,name,label,size,pos,fn,variant,enabled)
  local isEnabled=enabled~=false
  local color=if variant=='gold' then T.gold elseif variant=='quiet' then T.card elseif variant=='danger' then T.coral else T.blue
  local b=W.round(W.new('TextButton',parent,{Name=name,Size=size or UDim2.new(1,0,0,44),Position=pos or UDim2.new(),BackgroundColor3=if isEnabled then color else T.panel,BorderSizePixel=0,Text=label,TextColor3=if not isEnabled then T.muted elseif variant=='gold' then T.navy else T.ink,TextSize=T.size(14),Font=T.bold,TextWrapped=true,AutoButtonColor=isEnabled,Active=isEnabled,Selectable=isEnabled}),10)
- W.stroke(b,if isEnabled then color else T.line)
+ W.stroke(b,if isEnabled then color:Lerp(T.ink,.2) else T.line)
+ W.new('UIGradient',b,{Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(208,220,244)),Rotation=90})
+ b:SetAttribute('ButtonColor',color);b:SetAttribute('ButtonInk',if variant=='gold' then T.navy else T.ink)
  b:SetAttribute('QAControl',true);b:SetAttribute('Enabled',isEnabled)
  b:SetAttribute('BaseTextSize',14)
  b.Activated:Connect(function() if b:GetAttribute('Enabled') and fn then fn() end end)
@@ -29,7 +31,9 @@ function W.button(parent,name,label,size,pos,fn,variant,enabled)
 end
 function W.enable(b,on,label)
  b:SetAttribute('Enabled',on);b.Active=on;b.Selectable=on;b.AutoButtonColor=on
- b.TextTransparency=if on then 0 else .35;if label then b.Text=label end
+ b.BackgroundColor3=if on then b:GetAttribute('ButtonColor') or T.blue else T.panel
+ b.TextColor3=if on then b:GetAttribute('ButtonInk') or T.ink else T.muted
+ b.TextTransparency=0;if label then b.Text=label end
 end
 function W.padding(o,n) return W.new('UIPadding',o,{PaddingTop=UDim.new(0,n),PaddingBottom=UDim.new(0,n),PaddingLeft=UDim.new(0,n),PaddingRight=UDim.new(0,n)}) end
 function W.list(parent,gap,horizontal)

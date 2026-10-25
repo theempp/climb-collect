@@ -1,0 +1,7 @@
+{
+  "commit": "913a0cc8db4ac908afda20ca437b972aee2b18f6",
+  "branch": "codex/hud-completion",
+  "baseline_sha256": "280e55bc8fd355ec20354a4a88f5ed432e886bddde5d80e199ddcf6a09d9b971",
+  "cli_checks": 1310,
+  "graph": "Original intended inputs CURRENT; isolated implementation excluded"
+}

@@ -40,7 +40,9 @@ check(P.quest(p).title:lower():find('summit') ~= nil, 'all wins direct to summit
 p.discoveries.summit = true
 check(P.quest(p).progress == P.quest(p).total, 'summit completion uses actual discovery flag')
 local caps = P.capabilities()
-check(caps.habitats.status == 'unavailable' and #caps.habitats.reason > 0, 'missing habitat backend disclosed')
+check(caps.habitats.status == 'connected', 'implemented habitat actions are connected')
+check(caps.income.reason:find('production') and caps.income.reason:find('bank'), 'income describes production collection and banking')
+check(caps.habitats.reason:find('assign') and caps.habitats.reason:find('upgrade'), 'habitat contract describes available actions')
 check(caps.partyInvites.status == 'unavailable' and caps.shop.status == 'unavailable', 'no invented party or purchase backend')
 check(caps.training.status == 'connected' and caps.defenses.status == 'connected', 'existing validated gameplay marked connected')
 for _, size in ipairs({{667,339},{812,339},{1024,700},{1920,1040},{375,700}}) do
@@ -51,4 +53,8 @@ for _, size in ipairs({{667,339},{812,339},{1024,700},{1920,1040},{375,700}}) do
 end
 local short = P.layout(667,339,false)
 check(short.compact and short.phone and short.teamWidth <= 307, 'short landscape reserves native touch corners')
+check(not P.combatVisible(false,true,false), 'no dodge or specials in sanctuary')
+check(P.combatVisible({hp=10},true,false), 'battle shows combat controls')
+check(not P.combatVisible({hp=10},true,true), 'hub hides combat controls')
+check(not P.combatVisible({hp=10},false,false), 'loading hides combat controls')
 print('PASS '..count..' UI presentation checks')

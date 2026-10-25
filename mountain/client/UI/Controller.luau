@@ -46,7 +46,7 @@ local heightFill=W.progress(progress,0,UDim2.new(1,-20,0,7),UDim2.fromOffset(10,
 local quest=W.panel(root,'QuestTracker',UDim2.fromOffset(292,76),UDim2.new(1,-304,0,96))
 local questTitle=W.text(quest,'Explore the mountain',UDim2.new(1,-20,0,29),UDim2.fromOffset(10,5),T.bold,13,T.gold)
 local questDetail=W.text(quest,'',UDim2.new(1,-20,0,34),UDim2.fromOffset(10,34),nil,12,T.muted)
-local menu=W.button(root,'Menu','MENU',UDim2.fromOffset(78,46),UDim2.fromOffset(12,66),function() expanded=not expanded;sound() end,'gold')
+local menu=W.button(root,'Menu','MENU',UDim2.fromOffset(88,46),UDim2.fromOffset(12,66),function() expanded=not expanded;sound() end,'gold')
 local sidebar=W.panel(root,'Navigation',UDim2.fromOffset(172,350),UDim2.fromOffset(12,120));sidebar.Visible=false
 local nav=W.scroll(sidebar,'Items',UDim2.new(1,-12,1,-12),UDim2.fromOffset(6,6))
 local hubNames={'Creatures','Discovery','Sanctuary','Mountain','Social','Profile','Shop','Settings'}
@@ -56,11 +56,15 @@ local function selectedAbility(slot)
  local p=store.profile;local c=p and R.find(p.creatures,p.team[slot])
  return if c and C.byId[c.species].rarity=='Legendary' then activeAbility else 1
 end
-local slots={}
+local slots={};local slotNames={};local slotStates={};local slotPortraits={};local slotSpecies={}
 for i=1,3 do
  local index=i
  slots[i]=W.button(team,'Slot'..i,'['..i..'] Empty slot',UDim2.new(1/3,-6,1,0),UDim2.new((i-1)/3,3,0,0),function() if store.battle then store:request('Special',{slot=index,ability=selectedAbility(index)}) else open('Creatures') end end,'quiet')
- slots[i].TextSize=13;slots[i]:SetAttribute('BaseTextSize',13)
+ slots[i].Text=''
+ slotNames[i]=W.text(slots[i],'Empty slot',UDim2.new(1,-8,0,25),UDim2.fromOffset(4,29),T.bold,12)
+ slotNames[i].TextXAlignment=Enum.TextXAlignment.Center
+ slotStates[i]=W.text(slots[i],tostring(i),UDim2.new(1,-38,0,24),UDim2.fromOffset(34,4),T.bold,11,T.gold)
+ slotStates[i].TextXAlignment=Enum.TextXAlignment.Center
  slots[i]:SetAttribute('Tooltip','Open your collection, or activate this companion’s special during combat.')
 end
 local actionbar=W.panel(root,'Actions',UDim2.fromOffset(342,48),UDim2.new(.5,-171,1,-128))
@@ -116,8 +120,8 @@ local function layout()
   end end
   tw=math.min(366,math.max(216,right-left));center=(left+right)/2
  end
- team.Size=UDim2.fromOffset(tw,if short then 48 else 58);team.Position=UDim2.new(0,center-tw/2,1,if short then -76 else -80)
- actionbar.Size=UDim2.fromOffset(tw,56);actionbar.Position=UDim2.new(0,center-tw/2,1,if short then -136 else -144)
+ team.Size=UDim2.fromOffset(tw,58);team.Position=UDim2.new(0,center-tw/2,1,-86)
+ actionbar.Size=UDim2.fromOffset(tw,56);actionbar.Position=UDim2.new(0,center-tw/2,1,-146)
  top.Size=UDim2.fromOffset(if compact then 225 else 320,48)
  progress.Size=UDim2.fromOffset(if compact then 238 else 292,if short then 58 else 80);progress.Position=UDim2.new(1,-progress.Size.X.Offset-12,0,8)
  heightFill.Parent.Position=UDim2.new(0,10,1,-12);heightLabel.Size=UDim2.new(1,-20,0,18);heightLabel.Position=UDim2.fromOffset(10,29)
@@ -152,7 +156,7 @@ local function layout()
 end
 local function updateProfile()
  local data=store.profile;if not data then return end
- coins.Text=tostring(data.coins)..' coins';local q=P.quest(data);questTitle.Text=q.title;questDetail.Text=if root.AbsoluteSize.Y<390 then q.progress..' / '..q.total..' objectives · Map for details' else q.detail
+ coins.Text=tostring(data.coins)..' coins';local q=P.quest(data);questTitle.Text=q.title;questDetail.Text=if root.AbsoluteSize.Y<390 then q.progress..' / '..q.total..' objectives' else q.detail
  local prefs=data.ui and data.ui.settings or {};local stamp=game:GetService('HttpService'):JSONEncode(prefs)
  if stamp~=settingsStamp then settingsStamp=stamp;applyPreferences(prefs) end
  save.Text=if saveFailed then 'SAVING PAUSED · Progress actions unavailable' elseif tostring(data.saveMode):find('Studio') then 'STUDIO REVIEW · Progress resets on Stop' else 'Profile synchronized'
@@ -196,7 +200,7 @@ connect(UIS.InputBegan,function(input,processed)
  elseif key==Enum.KeyCode.Escape or key==Enum.KeyCode.ButtonB then if not feedback:close() then screens:back() end
  elseif not screens.hub and not feedback.modal and ready then
   if key==Enum.KeyCode.One or key==Enum.KeyCode.Two or key==Enum.KeyCode.Three then local slot=({[Enum.KeyCode.One]=1,[Enum.KeyCode.Two]=2,[Enum.KeyCode.Three]=3})[key];store:request('Special',{slot=slot,ability=selectedAbility(slot)})
-  elseif key==Enum.KeyCode.Q or key==Enum.KeyCode.ButtonY then store:request('Dodge') end
+  elseif (key==Enum.KeyCode.Q or key==Enum.KeyCode.ButtonY) and store.battle then store:request('Dodge') end
  end
 end)
 connect(root:GetPropertyChangedSignal('AbsoluteSize'),layout)
@@ -211,22 +215,29 @@ connect(Run.Heartbeat,function(dt)
  sidebar.Visible=expanded and ready and not screens.hub and not store.battle;if store.battle then expanded=false end
  top.Visible=ready and not store.battle;progress.Visible=ready and not store.battle and not (expanded and root.AbsoluteSize.Y<390);quest.Visible=ready and not store.battle and not expanded
  menu.Visible=ready and not screens.hub;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle
- dodge.Visible=ready and not screens.hub;ability.Visible=dodge.Visible and store.battle~=nil and store.battle~=false;battle.Visible=ability.Visible
+ dodge.Visible=P.combatVisible(store.battle,ready,screens.hub~=nil);ability.Visible=dodge.Visible;battle.Visible=dodge.Visible
  if data then
   local clock=store:clock();local ui=data.ui or {};local cooldowns=ui.cooldowns or {}
   for i,b in ipairs(slots) do
    local c=R.find(data.creatures,data.team[i]);local remain=c and P.remaining(cooldowns[c.id..':'..selectedAbility(i)] or 0,clock) or 0
-   b.Text=if c then C.byId[c.species].name..'\n'..(if store.battle then (if remain>0 then remain..'s' else 'Special ['..i..']') else 'Lv '..c.level) else 'Empty slot\nChoose companion'
+   if slotSpecies[i]~=(c and c.species) then
+    if slotPortraits[i] then slotPortraits[i]:Destroy();slotPortraits[i]=nil end
+    slotSpecies[i]=c and c.species
+    if c then slotPortraits[i]=W.portrait(b,C.byId[c.species],UDim2.fromOffset(26,26),UDim2.fromOffset(5,3)) end
+   end
+   slotNames[i].Text=if c then C.byId[c.species].name else 'Empty slot'
+   slotStates[i].Text=if not c then tostring(i) elseif store.battle then (if remain>0 then remain..'s' else 'READY') else 'Lv '..c.level
+   slotStates[i].TextColor3=if remain>0 then T.muted else T.gold
    W.enable(b,not store.battle or (c~=nil and remain==0))
   end
   local dr=P.remaining(ui.dodgeReadyAt or 0,clock);W.enable(dodge,dr==0,if dr>0 then 'Dodge · '..dr..'s' else 'Dodge [Q]');ability.Text='Ability '..activeAbility
-  context.Text=if ui.atRefuge then 'Sanctuary' elseif ui.nearCheckpoint then 'Checkpoint travel' else 'Mountain map'
+  context.Text=if ui.atRefuge then 'Manage plot' elseif ui.nearCheckpoint then 'Checkpoint travel' else 'Mountain map'
   hint.Visible=ready and not dismissHint and T.prefs.hints~=false and age<24 and not screens.hub and not store.battle and root.AbsoluteSize.Y>=390
   hintText.Text=if ui.inSanctuary then 'Prepare your team. Any of the three gates enters Blossom.' elseif #data.cargo>0 then 'Eggs on board! Reach a checkpoint to secure them.' else 'Follow the flags. Discover eggs and rest at checkpoints.'
  end
  if math.floor(age)~=lastSecond then
   lastSecond=math.floor(age);timer.Text=P.formatTime(age);screens:tick();screens:pending()
-  if data then local q=P.quest(data);questDetail.Text=if root.AbsoluteSize.Y<390 then (if T.prefs.hints~=false and age<24 then 'Follow flags · secure eggs' else q.progress..' / '..q.total..' objectives · Map for details') else q.detail end
+  if data then local q=P.quest(data);questDetail.Text=if root.AbsoluteSize.Y<390 then (if T.prefs.hints~=false and age<24 then 'Follow flags · secure eggs' else q.progress..' / '..q.total..' objectives') else q.detail end
   if rr then
    local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=if data and data.ui and data.ui.inSanctuary then 'Sanctuary · Plot '..tostring(data.ui.plot or '—') else C.kingdoms[k].name
    heightLabel.Text=math.max(0,math.floor(rr.Position.Y-16))..' studs · '..(if data then data.unlocked else 1)..'/6 unlocked';heightFill.Size=UDim2.fromScale(math.clamp((rr.Position.Y-16)/824,0,1),1)
@@ -238,7 +249,7 @@ connect(Run.Heartbeat,function(dt)
 end)
 layout()
 connect(gui.Destroying,function()
- disconnect();store:destroy();feedback:destroy();screens:close();for _,c in ipairs(connections) do c:Disconnect() end
+ disconnect();store:destroy();feedback:destroy();screens:destroy();for _,c in ipairs(connections) do c:Disconnect() end
  for o,value in pairs(defaultEffects) do if o.Parent then o.Enabled=value end end;for s,value in pairs(soundBases) do if s.Parent then s.Volume=value end end;GuiService.SelectedObject=nil
 end)
 if Run:IsStudio() then

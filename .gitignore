@@ -3,3 +3,6 @@
 
 *.rbxlx.lock
 *.rbxlx.bak
+
+# Durable local playable reviews are checkpointed separately, not Git objects.
+outputs/*.rbxlx

@@ -5,7 +5,10 @@ local Hub={}
 function Hub.render(screen,data)
  local t=data.tycoon;if not t then screen:note('Sanctuary loading','Waiting for your production profile.');return end
  local s=T.snapshot(data);local at=data.ui and data.ui.atHome==true
- local function action(card,name,label,payload,enabled) return screen:action(card,name,label,'Tycoon',payload,at and enabled~=false) end
+ local function action(card,name,label,payload,enabled)
+  if not at then label='Return to your plot' end
+  return screen:action(card,name,label,'Tycoon',payload,at and enabled~=false)
+ end
  local function upgrade(path,slot)
   local q=T.quote(data,path,slot);local def=T.config.paths[path]
   local detail=if q then 'Level '..q.level..' → '..q.next..' · '..q.cost..' coins\n'..T.upgradeEffect(data,path)..(if q.requirement~='' then '\n'..q.requirement else '') else 'Maximum level reached. No resets required.'
@@ -40,10 +43,10 @@ function Hub.render(screen,data)
     action(card,'Unassign_'..i,'Unassign',{op='assign',slot=i},c~=nil).Position=UDim2.new(.5,7,1,-56)
     card['Unassign_'..i].Size=UDim2.new(.5,-21,0,44)
     local collect=screen:note('Habitat '..i..' storage','Stored eggs stay here when you change creatures.',145)
-    action(collect,'Collect_'..i,'Collect batch',{op='collect',slot=i},h.eggs>0 and s.bag.eggs<s.bagCapacity)
+    action(collect,'Collect_'..i,if h.eggs==0 then 'Producing eggs...' elseif s.bag.eggs>=s.bagCapacity then 'Bag full · bank eggs' else 'Collect batch',{op='collect',slot=i},h.eggs>0 and s.bag.eggs<s.bagCapacity)
     upgrade('habitat',i)
     local attune=screen:note('Habitat '..i..' kingdom',C.kingdoms[h.kingdom].name..' · cycle through your unlocked kingdoms',150)
-    action(attune,'Attune_'..i,'Attune next kingdom',{op='attune',slot=i,kingdom=h.kingdom%data.unlocked+1},data.unlocked>1)
+    action(attune,'Attune_'..i,if data.unlocked<=1 then 'Unlock another kingdom' else 'Attune next kingdom',{op='attune',slot=i,kingdom=h.kingdom%data.unlocked+1},data.unlocked>1)
    else screen:note('Habitat '..i..' · locked','Expand habitat modules in Upgrades. Your existing creatures and progress are never reset.',100) end
   end
  elseif screen.tab=='Upgrades' then
@@ -63,9 +66,9 @@ function Hub.render(screen,data)
  else
   screen:note('Your production sanctuary',string.format('%d / 8 habitats · %.1f eggs / hour\n%d stored eggs · %d coins',s.slots,s.rate,s.eggs,data.coins),130)
   local collect=screen:note('Batch collection','Bag '..s.bag.eggs..' / '..s.bagCapacity..' · production eggs cannot hatch. Collect from all active habitats.',165)
-  action(collect,'CollectProduction','Collect all production eggs',{op='collect',slot=0},s.eggs>0 and s.bag.eggs<s.bagCapacity)
+  action(collect,'CollectProduction',if s.eggs==0 then 'No eggs ready yet' elseif s.bag.eggs>=s.bagCapacity then 'Bag full · bank eggs' else 'Collect all production eggs',{op='collect',slot=0},s.eggs>0 and s.bag.eggs<s.bagCapacity)
   local bank=screen:note('Bank production eggs','Bag base value: '..s.bag.value..' coins · banking bonus '..(t.levels.banking*2.5)..'%\nBank manually until advanced automation.',165)
-  action(bank,'BankProduction','Bank eggs for coins',{op='bank'},s.bag.eggs>0)
+  action(bank,'BankProduction',if s.bag.eggs==0 then 'Collect eggs first' else 'Bank eggs for coins',{op='bank'},s.bag.eggs>0)
   screen:note('How production works','Assign both starter habitats. Every tenth egg has bonus value. Full storage pauses production; collect and bank to make room. Upgrade storage for longer expeditions.',140)
  end
 end

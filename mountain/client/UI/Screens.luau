@@ -12,10 +12,14 @@ local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'E
 local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain',Competition='Social'}
 local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests',Competition='Challenges'}
 function S.new(root,store,feedback,onClose)
- return setmetatable({root=root,store=store,feedback=feedback,onClose=onClose,selected={},query='',rarity='All',sort='Name',page=1,tickers={},actionButtons={}},S)
+ local self=setmetatable({root=root,store=store,feedback=feedback,onClose=onClose,selected={},query='',rarity='All',sort='Name',page=1,tickers={},actionButtons={},touches={}},S)
+ self.touchBegin=UIS.TouchStarted:Connect(function(input) self.touches[input]=true end)
+ self.touchEnd=UIS.TouchEnded:Connect(function(input) self.touches[input]=nil end)
+ return self
 end
 function S:open(name)
  if not tabs[aliases[name] or name] then return end
+ self.tycoonRoster=nil;self.tycoonPage=1
  self.hub=aliases[name] or name;self.tab=aliasTabs[name] or tabs[self.hub][1];self.detail=nil;self.page=1
  if self.store.profile then self.selected=table.clone(self.store.profile.team) end
  self:render(false)
@@ -24,6 +28,9 @@ function S:close()
  if self.shade then self.shade:Destroy();self.shade=nil end
  self.hub=nil;self.detail=nil;self.tickers={};self.actionButtons={};GuiService.SelectedObject=nil
  if self.onClose then self.onClose() end
+end
+function S:destroy()
+ self:close();self.touchBegin:Disconnect();self.touchEnd:Disconnect();table.clear(self.touches)
 end
 function S:back() if self.detail then self.detail=nil;self:render(false) else self:close() end end
 function S:send(action,payload)
@@ -46,7 +53,7 @@ function S:pending()
  for _,v in ipairs(self.actionButtons) do
   local busy=false
   for _,p in pairs(self.store.pending) do if p.action==v.action then busy=true;break end end
-  W.enable(v.button,v.enabled and not busy,if busy then 'Waiting…' else v.label)
+  W.enable(v.button,v.enabled and not busy and not self.deferredRender,if busy then 'Waiting…' else v.label)
  end
  if self.status then
   local message='Changes are confirmed by the server.';local retryId=nil
@@ -55,21 +62,29 @@ function S:pending()
    else message='Waiting for '..p.action..'…' end
   end
   if not next(self.store.pending) and self.store.lastResult then message=self.store.lastResult.message or message end
+  if self.deferredRender then message='Release your touch or finish editing to refresh actions.' end
   self.status.Text=message;self.retry.Visible=retryId~=nil;self.retryId=retryId
  end
 end
 function S:tick()
+ if self.deferredRender then self:render(true) end
  for _,fn in ipairs(self.tickers) do fn() end
+end
+function S:focusTarget(path,name)
+ local target=self.shade
+ for _,part in ipairs(path) do target=target and target:FindFirstChild(part) end
+ return target or (name and self.shade:FindFirstChild(name,true))
 end
 function S:render(preserve)
  if not self.hub or not self.store.profile then return end
  local focused=UIS:GetFocusedTextBox()
- if preserve and focused and self.shade and focused:IsDescendantOf(self.shade) then self.deferredRender=true;return end
+ if preserve and self.shade and ((focused and focused:IsDescendantOf(self.shade)) or UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or next(self.touches)~=nil) then self.deferredRender=true;self:pending();return end
  self.deferredRender=false
  local selected=GuiService.SelectedObject;local selectedName=if selected then selected.Name else nil;local selectedPath={}
  if preserve and selected and self.shade and selected:IsDescendantOf(self.shade) then
   local cursor=selected;while cursor and cursor~=self.shade do table.insert(selectedPath,1,cursor.Name);cursor=cursor.Parent end
  end
+ local tabScrollPosition=if preserve and self.shade then self.shade.Hub.Tabs.CanvasPosition else Vector2.zero
  local scroll=if preserve and self.body then self.body.CanvasPosition else Vector2.zero
  if self.shade then self.shade:Destroy() end
  self.tickers={};self.actionButtons={}
@@ -96,9 +111,10 @@ function S:render(preserve)
  elseif self.hub=='Profile' then self:profile(data)
  elseif self.hub=='Shop' then self:shop()
  elseif self.hub=='Settings' then self:settings(data) end
- self.body.CanvasPosition=scroll;self:pending();self:tick()
+ self.body.CanvasPosition=scroll;tabScroll.CanvasPosition=tabScrollPosition;self:pending();self:tick()
  if UIS.GamepadEnabled and UIS:GetLastInputType()==Enum.UserInputType.Gamepad1 then
-  local target=if selectedName and preserve then self.shade:FindFirstChild(selectedName,true) else nil
+  local target=nil
+  if preserve and #selectedPath>0 then target=self:focusTarget(selectedPath,selectedName) end
   GuiService.SelectedObject=if target and target:IsA('GuiButton') and target.Selectable then target else f.Back
  end
 end
@@ -238,7 +254,7 @@ function S:social(data)
   local f=self:note('Your equipped team is your defense','Register a snapshot for asynchronous challenges. Your creatures and eggs cannot be stolen. UserId: '..Players.LocalPlayer.UserId,164)
   self:action(f,'RegisterDefense','Register defense','RegisterDefense',nil,data.ui and data.ui.atRefuge)
   for i,id in ipairs(data.team) do local c=R.find(data.creatures,id);if c then self:note('Slot '..i..' · '..C.byId[c.species].name,'Level '..c.level..' · '..(c.specialization or 'No specialization'),82) end end
-  self:blocked('Sanctuary defense layout','Defense placement and raid buildings need the sanctuary gameplay service. Your team snapshot challenge is available above.')
+  self:blocked('Sanctuary defense layout','Raid defense buildings are not available yet. Production habitats are managed in Sanctuary; team defense registration is available above.')
  else
   self:note('Sanctuary challenges',data.trophies..' trophies · challenge a saved defense\nA registered opponent can be offline. Practice is clearly separate from another player.',116)
   local f=self:note('Challenge a defense','Enter another player’s numeric UserId. Use 0 for the existing practice defense.',222)
@@ -266,6 +282,8 @@ function S:profile(data)
 end
 function S:shop()
  if self.tab=='Cosmetics' then
+  local free=self:note('Sanctuary palettes','Your unlocked kingdom palettes are free. Personalize habitat trim and machines at your plot.',156)
+  W.button(free,'FreePalettes','Open free palettes',UDim2.new(1,-28,0,44),UDim2.new(0,14,1,-56),function() self:open('Sanctuary');self.tab='Cosmetics';self:render(false) end,'gold')
   self:note('Make the mountain yours','Cosmetics and personal style belong here: appearances, decorations and visual effects. Your combat strength comes from play.',118)
   self:blocked('Cosmetic collection','No approved product catalog or entitlement service is connected to this review. Items and prices will appear when available.','Checkout unavailable')
  else
