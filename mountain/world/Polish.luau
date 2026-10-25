@@ -37,7 +37,7 @@ function P.apply(world)
   for name,value in pairs(old.PrimaryPart:GetAttributes()) do fresh.PrimaryPart:SetAttribute(name,value) end
   for _,child in ipairs(old.PrimaryPart:GetChildren()) do if not child:IsA('DataModelMesh') then child:Clone().Parent=fresh.PrimaryPart end end
   local label=fresh.PrimaryPart:FindFirstChild('Label')
-  if label then local text=label:FindFirstChildOfClass('TextLabel');if text then text.Text=species.name..' • '..species.rarity end end
+  if label then local text=label:FindFirstChildOfClass('TextLabel');if text then text.Text=species.name..' / '..species.rarity end end
   fresh.Parent=world.Encounters;old:Destroy()
  end
  local dress=Instance.new('Folder');dress.Name='ArtPassScenery';dress.Parent=world

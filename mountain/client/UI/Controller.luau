@@ -222,13 +222,13 @@ connect(Run.Heartbeat,function(dt)
   local dr=P.remaining(ui.dodgeReadyAt or 0,clock);W.enable(dodge,dr==0,if dr>0 then 'Dodge · '..dr..'s' else 'Dodge [Q]');ability.Text='Ability '..activeAbility
   context.Text=if ui.atRefuge then 'Sanctuary' elseif ui.nearCheckpoint then 'Checkpoint travel' else 'Mountain map'
   hint.Visible=ready and not dismissHint and T.prefs.hints~=false and age<24 and not screens.hub and not store.battle and root.AbsoluteSize.Y>=390
-  hintText.Text=if #data.cargo>0 then 'Eggs on board! Reach a checkpoint to secure them.' else 'Follow the flags. Discover eggs and rest at checkpoints.'
+  hintText.Text=if ui.inSanctuary then 'Prepare your team. Any of the three gates enters Blossom.' elseif #data.cargo>0 then 'Eggs on board! Reach a checkpoint to secure them.' else 'Follow the flags. Discover eggs and rest at checkpoints.'
  end
  if math.floor(age)~=lastSecond then
   lastSecond=math.floor(age);timer.Text=P.formatTime(age);screens:tick();screens:pending()
   if data then local q=P.quest(data);questDetail.Text=if root.AbsoluteSize.Y<390 then (if T.prefs.hints~=false and age<24 then 'Follow flags · secure eggs' else q.progress..' / '..q.total..' objectives · Map for details') else q.detail end
   if rr then
-   local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=C.kingdoms[k].name
+   local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=if data and data.ui and data.ui.inSanctuary then 'Sanctuary · Plot '..tostring(data.ui.plot or '—') else C.kingdoms[k].name
    heightLabel.Text=math.max(0,math.floor(rr.Position.Y-16))..' studs · '..(if data then data.unlocked else 1)..'/6 unlocked';heightFill.Size=UDim2.fromScale(math.clamp((rr.Position.Y-16)/824,0,1),1)
    for name,volume in pairs({['Mountain Birds 1 (SFX)']=if k==1 then .14 elseif k==2 then .05 else 0,WaterfallLoop=if k==2 then .12 else 0,AstralWind=if k>=3 then .08 else 0,LavaLoop=if k==5 then .1 else 0}) do
     local s=game:GetService('SoundService'):FindFirstChild(name);if s then if soundBases[s]==nil then soundBases[s]=s.Volume end;s.Volume=volume*(T.prefs.musicVolume or .7);if not s.IsPlaying then s:Play() end end

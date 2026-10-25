@@ -114,7 +114,7 @@ function S:creatures(data,width)
   local evo=self:note('Evolution journey','Stage I: Lv 1   →   Stage II: Lv 15   →   Stage III: Lv 35\nEvolution happens automatically when your creature reaches the level.',122)
   W.progress(evo,math.min(c.level/35,1),UDim2.new(1,-28,0,8),UDim2.new(0,14,1,-17),T.purple)
   local at=data.ui and data.ui.atRefuge
-  local train=self:note('Training session','15 coins grants 80 XP. '..(if at then 'Your creature is at the training refuge.' else 'Visit the training station at the refuge.'),150)
+  local train=self:note('Training session','15 coins grants 80 XP. '..(if at then 'Your creature is at the training area.' else 'Visit the training station on your plot or at the refuge.'),150)
   self:action(train,'Train','Train · 15 coins','Train',c.id,at and data.coins>=15 and c.level<50)
   if c.specialization then self:note('Specialization',c.specialization..' is your permanent focus.',88)
   elseif c.level>=25 then
@@ -131,7 +131,7 @@ function S:creatures(data,width)
   local team=self:note('Three companions. One expedition.','Select up to three creatures below, then save your team. '..#self.selected..' / 3 selected.',152)
   self:action(team,'Equip','Save team ('..#self.selected..'/3)','Equip',function() return table.clone(self.selected) end,#self.selected>0)
  elseif self.tab=='Training' then
-  self:note('Grow your team','Train at the refuge for 15 coins / 80 XP. Open a creature to see its statistics and train.',110)
+  self:note('Grow your team','Train on your plot or at the refuge for 15 coins / 80 XP. Open a creature to see its statistics and train.',110)
  elseif self.tab=='Evolution' then
   self:note('A journey, not a second purchase','Your creatures evolve automatically at levels 15 and 35. Specialization opens at 25. Select a creature for its timeline.',112)
  end
@@ -183,7 +183,7 @@ function S:discovery(data)
   end;return
  end
  local active=0;for _,e in ipairs(data.eggs) do if e.readyAt then active+=1 end end
- self:note('Carry. Secure. Hatch.','#'..#data.cargo..' / 3 carried eggs  ·  '..#data.eggs..' secured  ·  '..active..' / 3 incubators\nExtract at a checkpoint. Incubation and hatching are free at the refuge.',116)
+ self:note('Carry. Secure. Hatch.','#'..#data.cargo..' / 3 carried eggs  ·  '..#data.eggs..' secured  ·  '..active..' / 3 incubators\nExtract at a checkpoint. Incubation and hatching are free on your plot or at the refuge.',116)
  if #data.cargo+#data.eggs==0 then self:note('Your next companion is out there','Follow the Blossom Gardens flags. Find a nest or win a wild encounter, then secure the egg at a checkpoint.',120) end
  for _,e in ipairs(data.cargo) do self:note(C.byId[e.species].name..' egg · unsecured','Carry to a checkpoint. A fall leaves your eggs in a recoverable pack for three minutes.',106) end
  for _,e in ipairs(data.eggs) do
@@ -194,7 +194,7 @@ function S:discovery(data)
   table.insert(self.tickers,function()
    local remain=if e.readyAt then P.remaining(e.readyAt,self.store:now()) else nil
    timer.Text=if remain then (if remain==0 then 'Ready to hatch' else P.formatTime(remain)..' remaining') else P.formatTime(C.incubation[species.rarity])..' incubation'
-   if not at then timer.Text..=' · visit refuge' end
+   if not at then timer.Text..=' · visit your plot' end
    for _,v in ipairs(self.actionButtons) do if v.button==b then v.enabled=at and (if remain then remain==0 else active<3) end end
   end)
  end
@@ -202,19 +202,19 @@ end
 function S:sanctuary(data)
  if self.tab=='Habitats' then
   self:blocked('Creature habitats','Habitat construction and creature placement are not connected to this mountain review. Your owned creatures already contribute to its income.','Habitat placement unavailable')
-  self:blocked('Building upgrades','The sanctuary environment exists separately. Building levels, costs and plot ownership need its gameplay service.','Building upgrades unavailable')
+  self:blocked('Building upgrades','Your plot is assigned. Building levels, costs and placement still need their gameplay services.','Building upgrades unavailable')
  elseif self.tab=='Facilities' then
-  local row=self:note('Training refuge','Open your collection to train, inspect evolution stages and select a specialization.',150)
+  local row=self:note('Training','Open your collection to train, inspect evolution stages and select a specialization.',150)
   W.button(row,'OpenTraining','Open training',UDim2.new(1,-28,0,44),UDim2.new(0,14,1,-56),function() self:open('Training') end,'gold')
-  local egg=self:note('Incubation','Three incubators. Free incubation. Secured eggs only. Visit the refuge to start or hatch.',150)
+  local egg=self:note('Incubation','Three incubators. Free incubation. Secured eggs only. Visit your plot to start or hatch.',150)
   W.button(egg,'OpenEggs','Open hatchery',UDim2.new(1,-28,0,44),UDim2.new(0,14,1,-56),function() self:open('Eggs') end)
   self:blocked('Facility upgrades','Facility expansion has no purchase service in this review. Existing training and incubation remain available.')
  else
-  self:note('Your sanctuary collection',#data.creatures..' companions · '..data.coins..' coins\nThis review uses the expedition refuge. Personal sanctuary arrival is awaiting the sanctuary connection.',120)
+  self:note('Your sanctuary collection',#data.creatures..' companions · '..data.coins..' coins\nPlot '..tostring(data.ui and data.ui.plot or '—')..' is yours this session. All three gates lead to Blossom Gardens.',120)
   local income=self:note('Collect creature income','All owned creatures contribute. Offline accrual is capped at eight hours. Collection settles the current server balance.',160)
   self:action(income,'CollectIncome','Collect income','CollectIncome',nil,data.ui and data.ui.atRefuge)
   local at=data.ui and data.ui.atRefuge
-  self:note(if at then 'At the refuge' else 'Return to the refuge',if at then 'Use the nearby training, incubation and challenge stations, or manage your collection here.' else 'Fast travel from a discovered checkpoint. The mountain menu shows available destinations.',104)
+  self:note(if at then 'Home services available' else 'Return to sanctuary',if at then 'Use the nearby training, incubation and challenge stations, or manage your collection here.' else 'Fast travel from a discovered checkpoint. The mountain menu shows available destinations.',104)
  end
 end
 function S:mountain(data)
@@ -230,7 +230,7 @@ function S:mountain(data)
   end
  else
   local f=self:note('Six kingdoms. One summit.','Travel from a checkpoint or refuge. Only discovered checkpoints are available. Travelling secures carried eggs.',146)
-  self:action(f,'ReturnRefuge','Return to refuge','Travel','refuge',data.ui and (data.ui.atRefuge or data.ui.nearCheckpoint))
+  self:action(f,'ReturnRefuge','Return to sanctuary','Travel','refuge',data.ui and (data.ui.atRefuge or data.ui.nearCheckpoint))
   for k,kingdom in ipairs(C.kingdoms) do
    local unlocked=R.canEnter(data,k);local color=Color3.fromRGB(table.unpack(kingdom.accent))
    local f=self:note(kingdom.name,(if data.wins[tostring(k)] then 'Guardian defeated' elseif unlocked then 'Explore and challenge '..C.guardians[k].name else 'Locked · defeat '..C.guardians[k-1].name)..'\n'..(data.resources[tostring(k)] or 0)..' '..kingdom.resource,174)

@@ -1,0 +1,266 @@
+[
+  {
+    "path": "mountain\\client\\CreatureMotion.client.luau",
+    "sha256": "EBA908ECB33BFEEC99AF3CF6618E0BE40467EF5644BADEEA113CC44E307E3DB6"
+  },
+  {
+    "path": "mountain\\client\\HUD.client.luau",
+    "sha256": "E65144710EF2A4F11528825D50F509C333CB6982DF37C695756610BF2F478615"
+  },
+  {
+    "path": "mountain\\client\\UI\\ClientState.luau",
+    "sha256": "D6B06983DBBDD04F4FAA96C2B468D71D3D8BDFDF23B2FA49FC45CEB2A4C3FA8A"
+  },
+  {
+    "path": "mountain\\client\\UI\\Controller.luau",
+    "sha256": "BBC1C2B21ED976E689FF7DD86DC3A6DF6647B49812CC7D112DE698856D88E31C"
+  },
+  {
+    "path": "mountain\\client\\UI\\Feedback.luau",
+    "sha256": "5F648F9CF0BB23E28514B206AA1995D8494C696834591AF7B2973BD6A4DAB219"
+  },
+  {
+    "path": "mountain\\client\\UI\\Screens.luau",
+    "sha256": "061646FEA9959EE005ED8CC12555E68BC73485ADF98B780A5BC5E31CEAEDF48A"
+  },
+  {
+    "path": "mountain\\client\\UI\\Theme.luau",
+    "sha256": "4217BC6C10F46051D3A1E6D0DD755C12A80CA324B01363576C1B6996D379FA73"
+  },
+  {
+    "path": "mountain\\client\\UI\\Widgets.luau",
+    "sha256": "632B53D057CE91099B28C972EA485545A7627AA45D94754B40A6063C7D5851F3"
+  },
+  {
+    "path": "mountain\\server\\Combat.luau",
+    "sha256": "A0401F28019BFBB9A3287CE131E1597EA638296076DEB351ACF984ACB6DE6DA3"
+  },
+  {
+    "path": "mountain\\server\\Competition.luau",
+    "sha256": "9A76A0B7C535F952F90135CD6A617732178B1726A13CD5CBEE3432B9C6F0F7A1"
+  },
+  {
+    "path": "mountain\\server\\Journey.luau",
+    "sha256": "1543C3CA0719E9549585B9FE7A3D85616F90D48383DC08EEBACBCA6AC95C1769"
+  },
+  {
+    "path": "mountain\\server\\Main.server.luau",
+    "sha256": "A6D92B6A25895B6DFA32AFB0E69A9FC93A25DA4502582C4824823D33FDAAD753"
+  },
+  {
+    "path": "mountain\\server\\Profiles.luau",
+    "sha256": "AF6C818748DE388C3B83544317835678A9548854266AAC932817C9943EE53A6F"
+  },
+  {
+    "path": "mountain\\server\\Sanctuary.luau",
+    "sha256": "35C7B912E08264DB288D2E0CADADB2F585BE69A7AE2CC7343077B98C2ADB06E6"
+  },
+  {
+    "path": "mountain\\server\\SanctuarySessions.luau",
+    "sha256": "5DF7BA067F4E656821AAE66D12946BE582E032457DCA3B410C6A9C98A7C1099D"
+  },
+  {
+    "path": "mountain\\server\\Store.luau",
+    "sha256": "BE85DC0C3243ADEECDE9EC69BEA9159BDAAA50459222AE7BA21AC84C0126D6A9"
+  },
+  {
+    "path": "mountain\\server\\StudioTests.luau",
+    "sha256": "B5C55238DE7CE0951DDDACF3257CA86FFA0F96D7D6029F1DC1E0691E8E4431F5"
+  },
+  {
+    "path": "mountain\\server\\Traversal.luau",
+    "sha256": "417268C3E60F8A4F0972A44A8BE54AC39984B7DE5EBC9164EB11760073170F7F"
+  },
+  {
+    "path": "mountain\\server\\UIRequests.luau",
+    "sha256": "35B1A6358F543E40CF57A5EDBA7B289790EFD1394B69DDBDADEBABCC43154CAB"
+  },
+  {
+    "path": "mountain\\shared\\Catalog.luau",
+    "sha256": "59462ECD2478FC801A8B29A9242850A957921BC1E9951F5F97697014E5297016"
+  },
+  {
+    "path": "mountain\\shared\\Rules.luau",
+    "sha256": "F48026A3D8D6B5C6C4ED43345BEE60CE3C13DC71AA7D00932999DCCA6A564A55"
+  },
+  {
+    "path": "mountain\\shared\\TerrainProfile.luau",
+    "sha256": "5EC63CCDCEBF58D3647896871381875473B701DFA7A1A61514FAAAA58B4C3312"
+  },
+  {
+    "path": "mountain\\shared\\TraversalRules.luau",
+    "sha256": "6E0BB4C690332CA90FEEC7882D81B2CABB8C70BB97DECBF21D698C24FB71CCF3"
+  },
+  {
+    "path": "mountain\\shared\\UIPresentation.luau",
+    "sha256": "CD922303638C212167FBE7D39EB14DD637071B4A6AA471A8AFF55DD4321CF610"
+  },
+  {
+    "path": "mountain\\shared\\UIProtocol.luau",
+    "sha256": "2E03B4553113E1F1562FF3911E5F17FFD3687DD4EF37ADBF89A514906224B97E"
+  },
+  {
+    "path": "mountain\\world\\ArenaBoundary.luau",
+    "sha256": "39A0440A9ED005BA58184F47B96A2723E5E735287CC8251AEAF7ED3AE00C1DC3"
+  },
+  {
+    "path": "mountain\\world\\Art.luau",
+    "sha256": "523323B9550759585DD98FD55BA544B8B3B9ECBDB1402883999C5ED4F7522163"
+  },
+  {
+    "path": "mountain\\world\\ArtClearance.luau",
+    "sha256": "77341F4A2FCFE6507150C2A47D6BD57D26411EC7997D9C1D2F9DEB67325BE383"
+  },
+  {
+    "path": "mountain\\world\\BlossomCanopies.luau",
+    "sha256": "136DAEADB585ECC5BE28A4BE7D79A609EAE38BCA6912229B54F08EDA79EAC4B1"
+  },
+  {
+    "path": "mountain\\world\\CliffComposition.luau",
+    "sha256": "D321B3C39B7C50D5F92D2668097125D19EB26D08BB908C58B5DD96557E1D0AC9"
+  },
+  {
+    "path": "mountain\\world\\CreatureDetails.luau",
+    "sha256": "3321218B178CE048E1FF6F7775BDDA76EDCD8F0B7B21B1F209719ABF85EDA848"
+  },
+  {
+    "path": "mountain\\world\\CrystalFinish.luau",
+    "sha256": "9D56B002A86A39150C17D7DBCFEBEC4CCFFF76770736AA5D6B124CA8F034933A"
+  },
+  {
+    "path": "mountain\\world\\Environment.luau",
+    "sha256": "7067A821A3427DB6F9978FC51732851F26B895D6AA756F3CAA4A6FC641170A4E"
+  },
+  {
+    "path": "mountain\\world\\EnvironmentFinish.luau",
+    "sha256": "1E35F6CD58FC08B6071F92AEF0DC0228B0A0AF1C2CB8F945216D4406AA0DC010"
+  },
+  {
+    "path": "mountain\\world\\FoliageFinish.luau",
+    "sha256": "2AC040938EE4C8DAD3B2658AA30A6BE151ABC2595F3D72B71E4B44E2CE4D5157"
+  },
+  {
+    "path": "mountain\\world\\FrontShoulder.luau",
+    "sha256": "5E7D8F9E958A1FC34F4B865261F96B58BBCAFAD31F51BDE3E6BE92EAAAB7343F"
+  },
+  {
+    "path": "mountain\\world\\GardenGround.luau",
+    "sha256": "2146827B847044ED71C2EC9AC9784A6470F58E371E2EC2382928EA101DA1A2D7"
+  },
+  {
+    "path": "mountain\\world\\HeroFalls.luau",
+    "sha256": "2FC40E52B830746B01FEBA856B5958943F019F2548BB335C0AE96722F6B94E76"
+  },
+  {
+    "path": "mountain\\world\\HeroGarden.luau",
+    "sha256": "01CEDCEA019EB782B09588A57D838B0B6A2E58373FA098D9EEE88C4D857C5EF9"
+  },
+  {
+    "path": "mountain\\world\\Landmarks.luau",
+    "sha256": "46880C7A390EE3E64FC742B0B5269F8F8E38245905C8A48BF9AC370AC3DA188E"
+  },
+  {
+    "path": "mountain\\world\\Massifs.luau",
+    "sha256": "953C8FCB31D982649E01E4D5375141DE09DAA2818DEABC6822B87DAE7EE02993"
+  },
+  {
+    "path": "mountain\\world\\MeasuredFinish.luau",
+    "sha256": "F7D3D3FECAE14A1CCABA148A42405AC25FED7761B8D5D4BD5D69640D63CA62B3"
+  },
+  {
+    "path": "mountain\\world\\NaturalRidges.luau",
+    "sha256": "213BFAC268C1A079B1378507177B88A9BFFBD87E6D00051E00D998CDF322559D"
+  },
+  {
+    "path": "mountain\\world\\NaturalSurface.luau",
+    "sha256": "0BFED21C3A3F1E92FFDFD5AD79B8F08CC8960CCBB849EC1BB7B5D6489DE51559"
+  },
+  {
+    "path": "mountain\\world\\Polish.luau",
+    "sha256": "401EAF0715C990817C58DF5F685AC378117CC36CE268AB964B569BAFC28964EA"
+  },
+  {
+    "path": "mountain\\world\\Relief.luau",
+    "sha256": "B1856FCF4F50BD796D496410FA9C2788019DFC43DB6FA79B90CA7D889C73B68A"
+  },
+  {
+    "path": "mountain\\world\\RidgeCrown.luau",
+    "sha256": "483320061B1FAC3027BCCF0E2DC3CD92C96D0755251142C2B0E46D8CB9A90B06"
+  },
+  {
+    "path": "mountain\\world\\RidgeGroves.luau",
+    "sha256": "315C273B4E3F9B247C38200983D2638AB4960D9CEEA962AE2C158D3C8210339E"
+  },
+  {
+    "path": "mountain\\world\\RidgeRockwork.luau",
+    "sha256": "807C15E31F9D713718AEC0AE702AF0D4D837A3913CBA14F5BD086F7311B7C78E"
+  },
+  {
+    "path": "mountain\\world\\Sculpt.luau",
+    "sha256": "A487C99D3648789A0E1E634DCD04CBFF1B710CF915AA789F01BDB012C13890CF"
+  },
+  {
+    "path": "mountain\\world\\ShelfGardens.luau",
+    "sha256": "94A16F477D89E4929443EE4EF99CA564CFA4E0A9AFE95BD15BF6C8D1940E12B2"
+  },
+  {
+    "path": "mountain\\world\\SlopeGroves.luau",
+    "sha256": "843ABEC429A76C1F19083F5CA01B3A3E3CCD2E549860B711AE08C0E3D28E529D"
+  },
+  {
+    "path": "mountain\\world\\Strata.luau",
+    "sha256": "3543E05A0D22FBA66978150097F707A5DA5849EACE51DAC3F4282776F04418E4"
+  },
+  {
+    "path": "mountain\\world\\TraversalArt.luau",
+    "sha256": "FD7108C79284E142B7EA79DD89C887ECB7B800FC6BBDA5DB5DEB217DF6B49D35"
+  },
+  {
+    "path": "mountain\\world\\WallGrowth.luau",
+    "sha256": "ED964E9F1798A94BC983BE08A4A4A6D11BF3CF6C520A6B5A22FCCA20C8A118A5"
+  },
+  {
+    "path": "mountain\\world\\World.luau",
+    "sha256": "9C195C1F8ABE25AD4145C6AEE5FB26BA59613DA9063447AF32858243423ACB87"
+  },
+  {
+    "path": "mountain\\tests\\journey.luau",
+    "sha256": "612E0AFBEC3226BFCE993F104092E0DB629C306F0EC3AC7C1D79A92F11E63C02"
+  },
+  {
+    "path": "mountain\\tests\\route_geometry.luau",
+    "sha256": "78FBD482646574253B41ABFF49EFB0237C54B0F6134362913B87F399524E0E95"
+  },
+  {
+    "path": "mountain\\tests\\rules.luau",
+    "sha256": "91BFE093941F319012FE71E17F3C9BB5187E776F57DC12229D3B673061D401B7"
+  },
+  {
+    "path": "mountain\\tests\\run_ui_server.py",
+    "sha256": "3BCE0262673CF504FDD30379B84E27A926B03EE4E580BBA71F5328B028FCFFE2"
+  },
+  {
+    "path": "mountain\\tests\\sanctuary_sessions.luau",
+    "sha256": "3AB61C5BB7CAAF3F9BC60E0DD65FC201EEEA0FBA5626085B1FA5CDC296AD55D7"
+  },
+  {
+    "path": "mountain\\tests\\traversal.luau",
+    "sha256": "A12C7BDC9F82E976EC5D33AB1EA94EB56254A9C69A80FB4A88925696B73DA6FC"
+  },
+  {
+    "path": "mountain\\tests\\ui_client_state.luau",
+    "sha256": "06A7C320C4B37F1C885773F218916FD70EA84D64F2FA86209BAC70488840F693"
+  },
+  {
+    "path": "mountain\\tests\\ui_presentation.luau",
+    "sha256": "8BB71DA2B25A92D38B1F85F22F2DAB973AA48D2D100C57E8DFA6A10CAA5FF1D2"
+  },
+  {
+    "path": "mountain\\tests\\ui_protocol.luau",
+    "sha256": "555408362A81CBAFCF1C3239017FD19C53EDEADFFFCE37EC3D6CF2C875ACF208"
+  },
+  {
+    "path": "mountain\\tests\\ui_server.luau",
+    "sha256": "87C983E5F4A1B966F18393FEC947CD4A6CC33E9EF042984D187DEFEF400F2FD6"
+  }
+]

@@ -11,6 +11,9 @@ local UIProtocol=require(RS.MountainShared.UIProtocol)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.World).build() end
 local world=workspace.ImpossibleMountain
+local home=require(script.Parent.Sanctuary).new(workspace:FindFirstChild('Sanctuary'))
+local areas={}
+local Journey=require(script.Parent.Journey)
 require(game.ServerStorage.MountainWorld.Polish).apply(world)
 require(game.ServerStorage.MountainWorld.TraversalArt).apply(world)
 require(script.Parent.Traversal).start(world)
@@ -29,9 +32,12 @@ local function living(player) local h=player.Character and player.Character:Find
 local function nearby(player,p,range) local rr=root(player);return rr and living(player) and (rr.Position-p.Position).Magnitude<=range end
 local function safe(player) local s=motion[player];return s and os.clock()>s.blockedUntil and living(player) end
 local function teleport(player,pos)
- local rr=root(player);if not rr then return end
- player.Character:PivotTo(CFrame.new(pos));rr.AssemblyLinearVelocity=Vector3.zero
+ local rr=root(player);if not rr or not living(player) then return false end
+ local cf=if typeof(pos)=='CFrame' then pos else CFrame.new(pos)
+ player.Character:PivotTo(cf);rr.AssemblyLinearVelocity=Vector3.zero;rr.AssemblyAngularVelocity=Vector3.zero
+ pos=cf.Position
  motion[player]={pos=pos,time=os.clock(),blockedUntil=os.clock()+.5,fallTop=pos.Y}
+ return true
 end
 local function checkpoint(p)
  return world.Checkpoints:FindFirstChild(p.checkpoint) or world.Checkpoints:FindFirstChild('1:entrance')
@@ -50,17 +56,23 @@ local function rebuildTeam(player)
  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
  if h then local total=0;for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then total+=R.stats(c).health end end;h.MaxHealth=140+total*.15;h.Health=math.min(h.Health,h.MaxHealth) end
 end
-local function atRefuge(player) local rr=root(player);return rr~=nil and (rr.Position-Vector3.new(0,17,560)).Magnitude<95 end
+local function atRefuge(player) local rr=root(player);return rr~=nil and (home.ownsPosition(player,rr.Position) or (rr.Position-Vector3.new(0,17,560)).Magnitude<95) end
+local function inBattle(player)
+ if B.wild[player] then return true end
+ for _,battle in pairs(B.battles) do if battle.members[player] then return true end end
+ return false
+end
 local function nearCheckpoint(player)
- for _,cp in ipairs(world.Checkpoints:GetChildren()) do if nearby(player,cp,20) then return true end end
- local p=P.get(player);local summit=world.Interactions:FindFirstChild('Impossible Summit')
+ local p=P.get(player);if not p then return false end
+ for _,cp in ipairs(world.Checkpoints:GetChildren()) do if p.discoveries[cp.Name] and R.canEnter(p,cp:GetAttribute('Kingdom')) and nearby(player,cp,20) then return true end end
+ local summit=world.Interactions:FindFirstChild('Impossible Summit')
  return p~=nil and p.discoveries.summit==true and summit~=nil and nearby(player,summit,25) or false
 end
 local function publish(player,visual)
  local p=P.get(player);if not p then return end
  local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode
  local serverClock=workspace:GetServerTimeNow();local cooldowns,dodgeReadyAt=B.cooldowns(player,serverClock)
- s.ui={atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
+ s.ui={sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
  send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
@@ -81,23 +93,33 @@ local function loseCargo(player)
  local p=P.get(player);if not p then return end
  R.drop(p,os.time());restoreRecovery(player);publish(player)
 end
+local loadCharacter
 local function onCharacter(player,character)
  local h=character:WaitForChild('Humanoid');local rr=character:WaitForChild('HumanoidRootPart');h.WalkSpeed=16;h.UseJumpPower=true;h.JumpPower=48;h.MaxHealth=140;h.Health=140
  local p=P.get(player);if not p then return end
- local pos=if p.checkpoint=='1:entrance' then Vector3.new(0,21,550) else checkpoint(p).Position+Vector3.new(0,5,0)
+ local pos=if areas[player]=='sanctuary' then home.spawn(player) elseif p.checkpoint=='1:entrance' then Vector3.new(0,21,550) else checkpoint(p).Position+Vector3.new(0,5,0)
+ if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
  teleport(player,pos);rebuildTeam(player)
- h.Died:Connect(function() loseCargo(player);B.remove(player);task.delay(3,function() if player.Parent==Players and P.get(player) then player:LoadCharacterAsync() end end) end)
+ h.Died:Connect(function() loseCargo(player);B.remove(player);task.delay(3,function() if player.Parent==Players and P.get(player) then loadCharacter(player) end end) end)
+end
+loadCharacter=function(player)
+ player:LoadCharacterAsync()
+ -- CharacterAdded fires before Roblox finishes placing the character at its engine spawn.
+ if player.Parent==Players and player.Character and P.get(player) then onCharacter(player,player.Character) end
 end
 local function join(player)
+ if not home.reserve(player) then player:Kick('All eight sanctuary plots are occupied. Please join another server.');return end
+ areas[player]='sanctuary'
  local p,err=P.load(player)
- if not p then player:Kick('Safe load stopped: '..tostring(err)..' Please retry.');return end
- if player.Parent~=Players then P.save(player,true);return end
- R.settleIncome(p,os.time());player.CharacterAdded:Connect(function(c) onCharacter(player,c) end)
- player:LoadCharacterAsync();restoreRecovery(player);publish(player)
+ if not p then home.release(player);areas[player]=nil;player:Kick('Safe load stopped: '..tostring(err)..' Please retry.');return end
+ if player.Parent~=Players then home.release(player);areas[player]=nil;P.save(player,true);return end
+ R.settleIncome(p,os.time())
+ loadCharacter(player);restoreRecovery(player);publish(player)
 end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
+ home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
  contextSnapshots[player]=nil;if uiService then uiService.remove(player) end
  P.save(player,true);state[player]=nil;busy[player]=nil;limits[player]=nil;motion[player]=nil;companions[player]=nil;recovering[player]=nil
@@ -152,16 +174,37 @@ game:GetService('ProximityPromptService').PromptTriggered:Connect(function(promp
  local now=os.clock();if now<(limits[player] or 0) or busy[player] then return end
  limits[player]=now+.35;interact(player,part)
 end)
+local journey=Journey.new({profile=P.get,ready=function(player) return safe(player) and not inBattle(player) end,
+ origin=function(player,destination)
+  local rr=root(player)
+  if destination=='blossom' then return rr~=nil and home.nearGate(rr.Position) end
+  return atRefuge(player) or nearCheckpoint(player)
+ end,
+ resolve=function(player,destination)
+  if destination=='refuge' then local cf=home.spawn(player);return cf and {cf=cf,area='sanctuary'} end
+  if destination=='blossom' then return {cf=CFrame.new(0,21,550),area='mountain'} end
+  local p=P.get(player);local cp=world.Checkpoints:FindFirstChild(destination)
+  if not p or not cp or not p.discoveries[destination] or not R.canEnter(p,cp:GetAttribute('Kingdom')) then return nil end
+  return {cf=cp.CFrame+Vector3.new(0,5,0),area='mountain'}
+ end,
+ move=function(player,target) return teleport(player,target.cf) end,extract=R.extract,
+ arrived=function(player,target) areas[player]=target.area end,
+})
+game:GetService('ProximityPromptService').PromptTriggered:Connect(function(prompt,player)
+ local rr=root(player);local p=P.get(player)
+ if not rr or not p or not safe(player) or busy[player] then return end
+ local part=prompt.Parent;if not part or not part:IsA('BasePart') then return end
+ local kind=home.prompt(part,player,rr.Position);if not kind then return end
+ local now=os.clock();if now<(limits[player] or 0) then return end;limits[player]=now+.35
+ if kind=='Gate' then
+  local ok=journey.go(player,'blossom');send(player,'toast',if ok then 'Welcome to Blossom Gardens.' else 'Travel unavailable. Finish your encounter and try again.')
+ else send(player,'open',kind) end
+ publish(player)
+end)
 local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Competition,clock=os.time,
  safe=safe,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
  save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
- travel=function(player,destination)
-  local p=P.get(player);if not p or not root(player) then return false end
-  if destination=='refuge' then R.extract(p);teleport(player,Vector3.new(0,21,550));return true end
-  local cp=world.Checkpoints:FindFirstChild(destination)
-  if not cp or not p.discoveries[destination] or not R.canEnter(p,cp:GetAttribute('Kingdom')) then return false end
-  R.extract(p);teleport(player,cp.Position+Vector3.new(0,5,0));return true
- end,
+ travel=journey.go,
 })
 local function handle(player,action,data,correlated)
  local ok,message,result=dispatch(player,action,data)
@@ -190,7 +233,7 @@ request.OnServerEvent:Connect(function(player,action,data)
 end)
 -- Server-only integration contract; no Phase 1 coordinate is guessed or written.
 local gateway=Instance.new('BindableFunction');gateway.Name='MountainGateway';gateway.Parent=game.ServerStorage
-gateway.OnInvoke=function(player) if P.get(player) then teleport(player,Vector3.new(0,21,550));return true end;return false end
+gateway.OnInvoke=function(player) return journey.go(player,'blossom') end
 local moving={}
 for _,part in ipairs(world.Dynamics:GetChildren()) do if part:GetAttribute('Kind')=='Moving' then
  local decorations={};for _,child in ipairs(part:GetChildren()) do if child:IsA('BasePart') then table.insert(decorations,{part=child,offset=part.CFrame:ToObjectSpace(child.CFrame)}) end end
@@ -204,18 +247,12 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
   local k=m.part:GetAttribute('Kingdom')
   local cf=m.origin+Vector3.new(m.part:GetAttribute('AxisX')*offset,if k==4 or k==6 then math.sin(now*.5)*5 else 0,m.part:GetAttribute('AxisZ')*offset)
   if k==4 then cf*=CFrame.Angles(0,math.sin(now*.5)*.25,0) end
-  local delta=cf.Position-m.part.Position
-  for _,player in ipairs(Players:GetPlayers()) do local rr=root(player)
-   if rr and math.abs(rr.Position.X-m.part.Position.X)<7 and math.abs(rr.Position.Z-m.part.Position.Z)<7 then
-    local humanoid=player.Character:FindFirstChildOfClass('Humanoid')
-    if humanoid and humanoid.Health>0 and humanoid.FloorMaterial~=Enum.Material.Air then
-     local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Exclude;params.FilterDescendantsInstances={player.Character};params.RespectCanCollide=true
-     local support=workspace:Raycast(rr.Position,Vector3.new(0,-(humanoid.HipHeight+rr.Size.Y/2+1),0),params)
-     if support and (support.Instance==m.part or support.Instance:IsDescendantOf(m.part)) then player.Character:PivotTo(player.Character:GetPivot()+delta) end
-    end
-   end
-  end
-   m.part.CFrame=cf
+  -- Let character physics carry riders while preserving client-owned walking/jumping.
+  -- Velocity is the derivative of the anchored platform's sinusoidal trajectory.
+  m.part.CFrame=cf
+  local speed=8.5*math.cos(now*.5)
+  m.part.AssemblyLinearVelocity=Vector3.new(m.part:GetAttribute('AxisX')*speed,if k==4 or k==6 then 2.5*math.cos(now*.5) else 0,m.part:GetAttribute('AxisZ')*speed)
+  m.part.AssemblyAngularVelocity=if k==4 then Vector3.new(0,.125*math.cos(now*.5),0) else Vector3.zero
    for _,d in ipairs(m.decorations) do d.part.CFrame=cf*d.offset end
  end
  for player,f in pairs(companions) do local rr=root(player)
@@ -232,8 +269,8 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
   local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
   if p and contextDue then
    local refuge,near=atRefuge(player),nearCheckpoint(player);local previous=contextSnapshots[player]
-   if not previous or previous.atRefuge~=refuge or previous.nearCheckpoint~=near then
-    local context={atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
+   if not previous or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) then
+    local context={sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
    end
   end
   if p and rr and h and h.Health>0 then
@@ -245,10 +282,10 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
     if rr.Position.Y>ceiling then teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));send(player,'toast','Defeat the previous Guardian to enter this kingdom.');m=motion[player] end
     if h.FloorMaterial==Enum.Material.Air then m.fallTop=math.max(m.fallTop,rr.Position.Y)
     else
-     if m.fallTop-rr.Position.Y>38 then loseCargo(player);teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+     if m.fallTop-rr.Position.Y>38 then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
      m.fallTop=rr.Position.Y
     end
-    if rr.Position.Y < -25 then loseCargo(player);teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+    if rr.Position.Y < -25 then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
     m.pos=rr.Position;m.time=now
    end
    if p.recovery and os.time()>=p.recovery.expires then p.recovery=nil;if recovering[player] then recovering[player]:Destroy();recovering[player]=nil end;publish(player) end

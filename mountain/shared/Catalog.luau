@@ -49,10 +49,28 @@ C.guardians={
 for i,g in ipairs(C.guardians) do
  g.kingdom=i;g.element=C.kingdoms[i].element;g.rarity='Legendary';g.attack=28+i*5;g.health=260+i*35;g.role='Guardian';g.variant=i;g.feature='sovereign';C.byId[g.id]=g
 end
+local TerrainProfile=if script then require(script.Parent.TerrainProfile) else require('./TerrainProfile')
+local routeSweeps={2.9,2.65,2.9,2.6,2.7,2.4}
 function C.route(k,t)
  local y=16+(k-1)*136+t*72+math.floor(t*4+0.000001)*16
- local r=470-y*.40
- local a=(k-1+t)*math.pi*2 + math.pi/2
+ local a=math.pi/2
+ for i=1,k-1 do a+=routeSweeps[i] end
+ a+=t*routeSweeps[k]
+ local r=TerrainProfile.radius(a,y+8)
  return {x=math.cos(a)*r,y=y,z=math.sin(a)*r,angle=a,radius=r}
+end
+function C.guardianColumnAngles(k)
+ local angles={}
+ local entrance=C.route(k,.875).angle+math.pi
+ for j=1,12 do
+  local a=j*math.pi/6
+  if math.cos(a-entrance)<=0 or 38*math.abs(math.sin(a-entrance))>14 then table.insert(angles,a) end
+ end
+ return angles
+end
+function C.ladderSetback(k,i)
+ local a,b=C.route(k,(i-1)/48),C.route(k,i/48)
+ local distance=math.sqrt((b.x-a.x)^2+(b.z-a.z)^2)
+ return math.min(11,distance*.6)
 end
 return C

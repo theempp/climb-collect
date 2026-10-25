@@ -3,6 +3,7 @@ local A=require(script.Parent.Art)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local T={}
 function T.repairBranches(world)
+ T.repairLabels(world)
  if world:GetAttribute('BranchAccessRevision')==1 then return end
  for k,kingdom in ipairs(C.kingdoms) do
   local q=C.route(k,.29);local outward=Vector3.new(math.cos(q.angle),0,math.sin(q.angle))
@@ -18,9 +19,32 @@ function T.repairBranches(world)
  end
  world:SetAttribute('BranchAccessRevision',1)
 end
+function T.repairLabels(world)
+ -- Earlier baked checkpoints contain repeatedly mis-decoded UTF-8 separators.
+ -- Rebuild known display labels from catalog data; leave prompt contracts intact.
+ local count=0
+ for _,model in ipairs(world.Encounters:GetChildren()) do
+  local species=C.byId[string.lower(model.Name)]
+  if species and model.PrimaryPart then
+   local gui=model.PrimaryPart:FindFirstChild('Label')
+   local label=gui and gui:FindFirstChildOfClass('TextLabel')
+   if label then label.Text=species.name..' / '..species.rarity;count+=1 end
+  end
+ end
+ for _,v in ipairs(world:GetDescendants()) do
+  if v:IsA('TextLabel') and v.Parent.Name=='Label' then
+   local part=v.Parent.Parent
+   if part.Name=='ClimbLadder' and part:GetAttribute('RopeLadder') then v.Text='Rope ascent / move toward rope';count+=1
+   elseif part.Name=='ShiftingSand' then v.Text='Shifting sand / walk against the flow';count+=1
+   elseif part.Name=='KingdomLift_6' then v.Text='Gravity platform / jump lightly';count+=1 end
+  end
+ end
+ return count
+end
 function T.apply(world)
  assert(world.Name=='ImpossibleMountain' and not workspace:FindFirstChild('MountainEmpire_Phase1'),'Wrong world')
  T.repairBranches(world)
+ T.repairLabels(world)
  if world:GetAttribute('TraversalRevision')==1 then return end
  local azure=world:FindFirstChild('Azure Falls')
  local index=0
@@ -37,7 +61,7 @@ function T.apply(world)
     for y=-half,half,1.5 do
      A.part(f,'RopeRung',Vector3.new(2.7,.3,.4),CFrame.new(ladder.Position+Vector3.new(0,y,0)),Color3.fromRGB(142,107,67),Enum.Material.Wood)
     end
-    A.label(ladder,'Rope ascent • move toward rope',half+2)
+    A.label(ladder,'Rope ascent / move toward rope',half+2)
    end
   end
  end
@@ -45,11 +69,11 @@ function T.apply(world)
  assert(sand and sand:IsA('BasePart'),'Missing sand challenge approach')
  sand.Name='ShiftingSand';sand.Material=Enum.Material.Sand;sand.Color=Color3.fromRGB(225,184,111)
  sand:SetAttribute('Kind','ShiftingSand');sand:SetAttribute('Kingdom',3);sand.Parent=world.Dynamics
- A.label(sand,'Shifting sand • walk against the flow',5)
+ A.label(sand,'Shifting sand / walk against the flow',5)
  local lift=world.Dynamics:FindFirstChild('KingdomLift_6')
  assert(lift,'Missing Astral platform')
  lift:SetAttribute('GravityField',true)
- A.label(lift,'Gravity platform • jump lightly',5)
+ A.label(lift,'Gravity platform / jump lightly',5)
  for i=1,12 do
   local angle=i*math.pi/6
   A.part(lift,'GravityInlay',Vector3.new(.25,.12,1.5),lift.CFrame*CFrame.new(math.cos(angle)*4.8,.57,math.sin(angle)*4.8)*CFrame.Angles(0,-angle,0),Color3.fromRGB(147,196,233),Enum.Material.Metal)

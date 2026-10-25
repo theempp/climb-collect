@@ -2,9 +2,10 @@
 from pathlib import Path
 import subprocess
 import tempfile
+import os
 
 ROOT = Path(__file__).resolve().parents[2]
-CLI = Path.home() / 'Desktop/climb&collect/tools/.luau/luau.exe'
+CLI = Path(os.environ.get('LUAU_CLI', str(Path.home() / 'Desktop/climb&collect/tools/.luau/luau.exe')))
 
 def module(path, bindings=''):
     return '(function()\n' + bindings + '\n' + (ROOT / path).read_text(encoding='utf-8') + '\nend)()'

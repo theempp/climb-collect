@@ -1,4 +1,5 @@
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+local TerrainProfile=require(game.ReplicatedStorage.MountainShared.TerrainProfile)
 local A=require(script.Parent.Art)
 local Landmarks=require(script.Parent.Landmarks)
 local W={}
@@ -17,12 +18,13 @@ local function walkway(parent,name,a,b,width,k)
  workspace.Terrain:FillBlock(CFrame.lookAt((a+b)/2+Vector3.new(0,10,0),b+Vector3.new(0,10,0)),Vector3.new(width+6,20,len+4),Enum.Material.Air)
  return A.part(parent,name,Vector3.new(width,1.2,len+1),CFrame.lookAt((a+b)/2,b),A.color(k.color):Lerp(Color3.fromRGB(211,201,173),.5),Enum.Material.Cobblestone,nil,true)
 end
-local function arch(parent,pos,k,radius)
+local function arch(parent,pos,k,radius,frame)
+ frame=frame or CFrame.new(pos)
  local col=A.color(k.rock):Lerp(Color3.new(1,1,1),.3)
  for i=0,10 do local a=math.pi*i/10
-  A.part(parent,'ArchVoussoir',Vector3.new(4,5,6),CFrame.new(pos+Vector3.new(math.cos(a)*radius,7+math.sin(a)*radius,0))*CFrame.Angles(0,0,a-math.pi/2),col,Enum.Material.Marble,nil,true)
+  A.part(parent,'ArchVoussoir',Vector3.new(4,5,6),frame*CFrame.new(math.cos(a)*radius,7+math.sin(a)*radius,0)*CFrame.Angles(0,0,a-math.pi/2),col,Enum.Material.Marble,nil,true)
  end
- for _,s in ipairs({-1,1}) do A.part(parent,'Pillar',Vector3.new(4,9,6),CFrame.new(pos+Vector3.new(s*radius,4.5,0)),col,Enum.Material.Marble,nil,true) end
+ for _,s in ipairs({-1,1}) do A.part(parent,'Pillar',Vector3.new(4,9,6),frame*CFrame.new(s*radius,4.5,0),col,Enum.Material.Marble,nil,true) end
 end
 function W.build()
  assert(not workspace:FindFirstChild('MountainEmpire_Phase1'),'Never build in Phase 1')
@@ -30,27 +32,33 @@ function W.build()
  local root=folder(workspace,'ImpossibleMountain');root:SetAttribute('GeneratorVersion',C.version)
  local checkpoints=folder(root,'Checkpoints');local interactions=folder(root,'Interactions');local dynamics=folder(root,'Dynamics');local encounters=folder(root,'Encounters')
  local terrain=workspace.Terrain
- for name,rgb in pairs({Grass={109,161,100},Slate={82,127,147},Sandstone={214,167,96},Rock={127,103,156},Basalt={59,54,63},Snow={213,224,237}}) do
+ for name,rgb in pairs({Grass={104,139,98},Slate={105,116,117},Sandstone={179,161,128},Rock={116,123,120},Basalt={70,68,73},Snow={219,225,226}}) do
   terrain:SetMaterialColor(Enum.Material[name],Color3.fromRGB(rgb[1],rgb[2],rgb[3]))
  end
  -- Continuous solid mass, bounded to a new place. No Terrain:Clear call.
  -- Irregular ridged heightfield, smooth voxel occupancy and asymmetric buttresses.
  -- Write in 64-stud tiles so the editor remains responsive.
- for bx=-544,480,64 do for bz=-544,480,64 do
-  local heights={};local maxH=-32
-  for x=1,16 do heights[x]={};for z=1,16 do
-   local wx=bx+(x-.5)*4;local wz=bz+(z-.5)*4;local radius=math.sqrt(wx*wx+wz*wz);local a=math.atan2(wz,wx)
-   local ridge=math.sin(a*5+.4)*17+math.sin(a*9-1)*10+math.noise(wx/130,wz/130,24)*22
-   local h=math.min(846, (489+ridge-radius)/.4)+math.noise(wx/55,wz/55,3)*9
-   if radius<100 then h=846+12*(1-radius/100) end
+ for bx=-704,640,64 do for bz=-704,640,64 do
+  local heights,topMaterials={},{};local maxH=-32
+  for x=1,16 do heights[x]={};topMaterials[x]={};for z=1,16 do
+   local wx=bx+(x-.5)*4;local wz=bz+(z-.5)*4
+   local h=TerrainProfile.height(wx,wz)
    h=math.max(-32,h);heights[x][z]=h;maxH=math.max(maxH,h)
+   local slope=math.sqrt((TerrainProfile.height(wx+4,wz)-TerrainProfile.height(wx-4,wz))^2+(TerrainProfile.height(wx,wz+4)-TerrainProfile.height(wx,wz-4))^2)/8
+   local material=Enum.Material.Rock
+   if h<330 and slope<1.9 then material=Enum.Material.Grass
+   elseif h>740 and slope<1.65 then material=Enum.Material.Snow
+   elseif math.sin(wx/110+wz/170)>.4 then material=Enum.Material.Slate end
+   topMaterials[x][z]=material
   end end
   if maxH>-28 then
    local ny=math.ceil((maxH+36)/4);local materials,occupancy={},{}
    for x=1,16 do materials[x]={};occupancy[x]={};for y=1,ny do
     materials[x][y]={};occupancy[x][y]={};local wy=-32+(y-.5)*4
-    local k=C.kingdoms[math.clamp(math.floor((wy-16)/136)+1,1,6)]
-    for z=1,16 do materials[x][y][z]=Enum.Material[k.material];occupancy[x][y][z]=math.clamp((heights[x][z]-(wy-2))/4,0,1) end
+    for z=1,16 do
+     local h=heights[x][z]
+     materials[x][y][z]=topMaterials[x][z];occupancy[x][y][z]=math.clamp((h-(wy-2))/4,0,1)
+    end
    end end
    terrain:WriteVoxels(Region3.new(Vector3.new(bx,-32,bz),Vector3.new(bx+64,-32+ny*4,bz+64)),4,materials,occupancy)
   end
@@ -73,17 +81,20 @@ function W.build()
    local carveEnd=if i%12==0 then Vector3.new(p.X,last.Y,p.Z) else p
    local carveDelta=carveEnd-last
    table.insert(routeOpenings,{a=last,b=carveEnd})
-   terrain:FillBlock(CFrame.lookAt((carveEnd+last)/2-Vector3.new(0,48,0),carveEnd-Vector3.new(0,48,0)),Vector3.new(25,94,carveDelta.Magnitude+4),Enum.Material[k.material])
+   terrain:FillBlock(CFrame.lookAt((carveEnd+last)/2-Vector3.new(0,7,0),carveEnd-Vector3.new(0,7,0)),Vector3.new(23,12,carveDelta.Magnitude+4),Enum.Material.Rock)
    terrain:FillBlock(CFrame.lookAt((carveEnd+last)/2+Vector3.new(0,10,0),carveEnd+Vector3.new(0,10,0)),Vector3.new(27,22,carveDelta.Magnitude+4),Enum.Material.Air)
    if i%12==0 then terrain:FillBlock(CFrame.new((p+carveEnd)/2+Vector3.new(0,4,0)),Vector3.new(18,p.Y-carveEnd.Y+12,18),Enum.Material.Air) end
    if i%12==0 then
     local foot=Vector3.new(p.X,last.Y,p.Z)
     walkway(region,'CliffApproach',last,foot,14,k)
-    local approach=(foot-last).Unit;local ladderPosition=p-approach*11
+    local approach=(foot-last).Unit;local ladderPosition=p-approach*C.ladderSetback(ki,i)
     local truss=Instance.new('TrussPart');truss.Name='ClimbLadder';truss.Anchored=true;truss.Size=Vector3.new(2,p.Y-last.Y+5,2);truss.CFrame=CFrame.new(ladderPosition-Vector3.new(0,(p.Y-last.Y)/2,0));truss.Color=A.color(k.accent);truss.Parent=region
     table.insert(ladderClearances,{pos=ladderPosition,low=last.Y})
     table.insert(allLadderClearances,{pos=ladderPosition,low=last.Y,top=p})
-    deck(region,'ClimbLanding',p+Vector3.new(0,-.4,0),Vector3.new(18,1,18),A.color(k.rock),Enum.Material[k.material])
+    local setback=C.ladderSetback(ki,i)
+    local landingCenter=p+approach*((9.5-setback)/2)+Vector3.new(0,-.4,0)
+    local landing=deck(region,'ClimbLanding',landingCenter,Vector3.new(18,1,setback+2.5),A.color(k.rock),Enum.Material[k.material])
+    landing.CFrame=CFrame.lookAt(landing.Position,landing.Position+approach)
     for _,sign in ipairs({-1,1}) do A.link(region,'ClimbingRope',foot+Vector3.new(sign*2,0,0),p+Vector3.new(sign*2,2,0),.22,Color3.fromRGB(201,175,126),Enum.Material.Fabric) end
    else walkway(region,'PrimaryAscent',last,p,16,k) end
    if i%3==0 then
@@ -116,7 +127,15 @@ function W.build()
   -- Checkpoints at the entrance, mid-route recovery and Guardian approach.
   for _,spec in ipairs({{'entrance',0},{'recovery',.50},{'guardian',.875}}) do
    local pos=v(C.route(ki,spec[2]));local p=deck(checkpoints,ki..':'..spec[1],pos+Vector3.new(0,.3,0),Vector3.new(18,1,18),A.color(k.accent),Enum.Material.Slate)
-   prompt(p,'Rest • extract eggs','Checkpoint',ki,p.Name);A.label(p,k.name..'\n'..spec[1],5)
+   local ladderKingdom,ladderStep=ki,24
+   if spec[1]=='entrance' then ladderKingdom,ladderStep=ki-1,48 end
+   if spec[1]=='recovery' or (spec[1]=='entrance' and ki>1) then
+    local before=v(C.route(ladderKingdom,(ladderStep-1)/48))
+    local direction=Vector3.new(pos.X-before.X,0,pos.Z-before.Z).Unit
+    local center=p.Position+direction*math.max(0,12.5-C.ladderSetback(ladderKingdom,ladderStep))
+    p.CFrame=CFrame.lookAt(center,center+direction)
+   end
+   prompt(p,'Rest / extract eggs','Checkpoint',ki,p.Name);A.label(p,k.name..'\n'..spec[1],5)
   end
   -- Two optional discoveries, with readable branches and varied environmental compositions.
   for branch,t in ipairs({.29,.66}) do
@@ -126,10 +145,11 @@ function W.build()
    for n=1,4 do terrain:FillBall(pos-outward*n*10-Vector3.new(0,28+n*12,0),26,Enum.Material[k.material]) end
    terrain:FillBlock(CFrame.new(pos+Vector3.new(0,12,0)),Vector3.new(36,24,34),Enum.Material.Air)
    deck(region,'BranchTerrace',pos,Vector3.new(34,5,32),A.color(k.rock),Enum.Material[k.material])
-   arch(region,pos+Vector3.new(0,0,-7),k,10)
+   local archPos=pos-outward*7
+   arch(region,archPos,k,10,CFrame.lookAt(archPos,archPos-outward))
    Landmarks.branch(region,k,ki,branch,pos)
    local marker=A.part(interactions,k.landmarks[branch+1],Vector3.new(3,3,3),CFrame.new(pos+Vector3.new(-8,2,0)),A.color(k.accent),Enum.Material.Marble,Enum.PartType.Ball)
-   prompt(marker,'Discover • gather','Discovery',ki,ki..':branch'..branch);A.label(marker,k.landmarks[branch+1],7)
+   prompt(marker,'Discover / gather','Discovery',ki,ki..':branch'..branch);A.label(marker,k.landmarks[branch+1],7)
    local nest=A.part(interactions,'Hidden nest',Vector3.new(3,4,3),CFrame.new(pos+Vector3.new(7,2,0)),A.color(k.accent),Enum.Material.SmoothPlastic,Enum.PartType.Ball)
    prompt(nest,'Collect egg','Nest',ki,ki..':nest'..branch)
    if branch==2 then
@@ -147,7 +167,7 @@ function W.build()
    local s=C.species[(ki-1)*6+j];local q=C.route(ki,.08+j*.115);local pos=v(q)+Vector3.new(math.cos(q.angle)*19,1,math.sin(q.angle)*19)
    deck(region,'EncounterLedge',pos-Vector3.new(0,1,0),Vector3.new(16,2,16),A.color(k.rock),Enum.Material[k.material])
    local pet=A.creature(encounters,s,pos,1.3,1);local trigger=pet.PrimaryPart
-   prompt(trigger,'Wild encounter','Wild',ki,s.id);A.label(trigger,s.name..' • '..s.rarity,5)
+   prompt(trigger,'Wild encounter','Wild',ki,s.id);A.label(trigger,s.name..' / '..s.rarity,5)
   end
   local q=C.route(ki,.875);local entry=v(q);local outward=Vector3.new(math.cos(q.angle),0,math.sin(q.angle));local arena=entry+outward*66
   walkway(region,'GuardianApproach',entry,arena,18,k)
@@ -157,8 +177,9 @@ function W.build()
   local floor=A.part(region,'ArenaFloor',Vector3.new(5,82,82),CFrame.new(arena-Vector3.new(0,2.5,0))*CFrame.Angles(0,0,math.pi/2),A.color(k.rock),Enum.Material[k.material],Enum.PartType.Cylinder,true)
   floor:SetAttribute('Arena',ki)
   Landmarks.build(region,k,ki,arena)
-  for j=1,12 do
-   local angle=j*math.pi/6;local pos=arena+Vector3.new(math.cos(angle)*38,0,math.sin(angle)*38)
+  for _,angle in ipairs(C.guardianColumnAngles(ki)) do
+   local j=math.floor(angle/(math.pi/6)+.5)
+   local pos=arena+Vector3.new(math.cos(angle)*38,0,math.sin(angle)*38)
    A.part(region,'ArenaColumn',Vector3.new(3,12+(j%3)*3,3),CFrame.new(pos+Vector3.new(0,6,0)),A.color(k.rock):Lerp(Color3.new(1,1,1),.25),Enum.Material.Marble,nil,true)
    A.crystal(region,pos+Vector3.new(0,12,0),k,3)
   end
@@ -205,8 +226,8 @@ function W.build()
  -- Open the outer side of each trail to the sky, preserving its supported floor.
  for _,opening in ipairs(routeOpenings) do
   local a,b=opening.a,opening.b;local mid=(a+b)/2
-  local outward=Vector3.new(mid.X,0,mid.Z).Unit*45
-  terrain:FillBlock(CFrame.lookAt(mid+outward+Vector3.new(0,16,0),b+outward+Vector3.new(0,16,0)),Vector3.new(115,32,(b-a).Magnitude+5),Enum.Material.Air)
+  local outward=Vector3.new(mid.X,0,mid.Z).Unit*22
+  terrain:FillBlock(CFrame.lookAt(mid+outward+Vector3.new(0,12,0),b+outward+Vector3.new(0,12,0)),Vector3.new(55,24,(b-a).Magnitude+5),Enum.Material.Air)
  end
  for _,climb in ipairs(allLadderClearances) do
   terrain:FillBlock(CFrame.new(climb.pos.X,(climb.pos.Y+climb.low)/2+5,climb.pos.Z),Vector3.new(11,climb.pos.Y-climb.low+16,11),Enum.Material.Air)

@@ -83,7 +83,7 @@ function P.capabilities()
   profile={status='read-only',reason='Collection, discoveries, Guardian wins, captures and trophies.'},
   quests={status='read-only',reason='Objectives reflect existing discoveries and Guardian wins; no claimable quest reward service.'},
   settings={status='connected',reason='Validated UI preferences stored with the existing profile.'},
-  sanctuary={status='unavailable',reason='Phase 1 sanctuary profile and gateway integration is absent; current services use the expedition refuge.'},
+  sanctuary={status='connected',reason='Assigned plots, three Blossom gates and return travel share the mountain profile; incubation and training use existing services.'},
   habitats={status='unavailable',reason='No habitat purchase, build upgrade or creature placement backend.'},
   partyInvites={status='unavailable',reason='No party finder, invitation or readiness backend.'},
   dailyRewards={status='unavailable',reason='No daily reward or quest reward backend.'},
