@@ -65,3 +65,10 @@ Refresh repairs retain horizontal tabs, body scroll, draft team selection and te
 
 ## Decisions and unresolved acceptance
 Ruling: independent clone instead of transient worktree preserves recovery and concurrency; cost is a later explicit integration operation. Ruling: UI battle fixtures/simulators are labeled separately from live combat/hardware; those acceptance tasks remain open. No deferred minor code-review findings. Two P2 review findings repaired with regression evidence. Numeric tycoon economy remains the inherited approved implementation contract, with its balancing provisional.
+
+## Final saved/reopened result
+Review02 SHA256 `b712e1654653519e1d060c05f5e976c2b6ca8737e3d5604ce7f88b5c802cf62b`. Fresh Studio session verified all 30 runtime sources against local byte hashes, both world roots, direct spawn, one three-slot HUD, all 26 tabs, and all refresh regression assertions. Console contains only the ready message. Evidence: `reopened-final.json`, `final-phone7.jpg`, `final-phone-navigation.jpg`. Simulator restored to default; final file left open in Edit mode. Temporary HUD.Baseline/Review01 processes created for this work were closed; all pre-existing sessions preserved.
+
+Implementation commit: `583158293d94885197916c527ba5c7b00689452c`. External verified source bundle and identical Review02 copy: `C:/Users/HOME!/Documents/ClimbCollect-HUD-Recovery-2026-10-25`; checkpoint manifest records hashes. Original project/vault pointers and graph freshness are recorded in the final evidence update. No native save after packaging was needed; the audited disk XML is the reopened artifact, retaining exact baked terrain.
+
+Final graph check: CURRENT for intended inputs, zero input drift; isolated HUD source excluded. Existing historical overview-heading candidate remains (no broken graph edges). Graph refresh made a verified vault backup and versioned export.

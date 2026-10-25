@@ -1,0 +1,8 @@
+Project: 3241 nodes / 5717 edges
+Vault: 187 nodes / 240 edges
+Merged: 3428 nodes / 6067 edges / 110 cross links
+Global: 3428 nodes / 5925 edges
+Input drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0
+Status: CURRENT for all intended inputs
+
+Scope excludes the isolated HUD source. Existing historical status-heading quality candidate remains.

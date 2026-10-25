@@ -1,0 +1,5 @@
+Open outputs/ClimbCollect.HUD.Complete.Review02.rbxlx in Roblox Studio.
+Morning walkthrough: design/hud-completion-report-2026-10-25.md
+Source branch: codex/hud-completion
+Source implementation: 583158293d94885197916c527ba5c7b00689452c
+Review SHA256: b712e1654653519e1d060c05f5e976c2b6ca8737e3d5604ce7f88b5c802cf62b
