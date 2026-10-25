@@ -1,5 +1,6 @@
 local C = if script then require(script.Parent.Catalog) else require('./Catalog')
 local R={}
+R.tycoon=if script then require(script.Parent.Tycoon) else require('./Tycoon')
 local function nextId(p,prefix) p.serial+=1;return prefix..p.serial end
 local function find(list,id) for i,v in ipairs(list) do if v.id==id then return v,i end end end
 function R.newProfile(now)
@@ -88,6 +89,7 @@ function R.stats(c)
  return {attack=s.attack*factor*(if c.specialization=='Power' then 1.2 else 1),health=s.health*factor*(if c.specialization=='Vitality' then 1.25 else 1),guard=if c.specialization=='Guard' then .15 else 0,element=s.element,role=s.role}
 end
 function R.settleIncome(p,now)
+ if p.tycoon then R.tycoon.settle(p,now,false);return 0 end
  local elapsed=math.clamp(now-p.lastIncome,0,8*3600)
  if elapsed<10 then return 0 end
  local rate=0;for _,c in ipairs(p.creatures) do rate+=({Common=6,Uncommon=12,Rare=24,Epic=48,Mythic=90,Legendary=150})[C.byId[c.species].rarity] end

@@ -164,7 +164,7 @@ local function updateProfile()
  if screens.hub then screens:render(true) end
 end
 local disconnect=store:subscribe(function(kind,payload)
- if kind=='state' or kind=='context' then updateProfile()
+ if kind=='state' or kind=='context' or kind=='production' then updateProfile()
  elseif kind=='battle' then
   local active=payload~=nil and payload~=false;if active~=wasInBattle then wasInBattle=active;layout() end
   if payload then

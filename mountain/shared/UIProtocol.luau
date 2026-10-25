@@ -1,6 +1,6 @@
 -- Shared wire validation only; all ownership, proximity and costs remain server rules.
 local U={}
-local actions={State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true}
+local actions={Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true}
 local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true}
 local function finite(value) return type(value)=='number' and value==value and math.abs(value)<math.huge end
 local function text(value) return type(value)=='string' and #value>0 and #value<=80 end
@@ -38,7 +38,18 @@ function U.validate(id,action,payload)
  if not U.parseId(id) then return false,'Invalid request id.' end
  if type(action)~='string' or not actions[action] then return false,'Unknown action.' end
  local valid=false
- if action=='State' or action=='Dodge' or action=='CollectIncome' or action=='RegisterDefense' then valid=payload==nil
+ if action=='Tycoon' then
+  local function slot(v,zero) return finite(v) and v%1==0 and v>=(if zero then 0 else 1) and v<=8 end
+  if type(payload)=='table' then
+   if payload.op=='bank' then valid=fields(payload,{op=true})
+   elseif payload.op=='collect' then valid=fields(payload,{op=true,slot=true}) and slot(payload.slot,true)
+   elseif payload.op=='assign' then valid=fields(payload,{op=true,slot=true,id=true}) and slot(payload.slot,false) and (payload.id==nil or text(payload.id))
+   elseif payload.op=='swap' then valid=fields(payload,{op=true,slot=true,other=true}) and slot(payload.slot,false) and slot(payload.other,false) and payload.slot~=payload.other
+   elseif payload.op=='attune' then valid=fields(payload,{op=true,slot=true,kingdom=true}) and slot(payload.slot,false) and finite(payload.kingdom) and payload.kingdom%1==0 and payload.kingdom>=1 and payload.kingdom<=6
+   elseif payload.op=='cosmetic' then valid=fields(payload,{op=true,id=true}) and text(payload.id)
+   elseif payload.op=='upgrade' then valid=fields(payload,{op=true,path=true,slot=true}) and table.find({'habitats','habitat','production','storage','bag','banking','automation'},payload.path)~=nil and (if payload.path=='habitat' then slot(payload.slot,false) else payload.slot==nil) end
+  end
+ elseif action=='State' or action=='Dodge' or action=='CollectIncome' or action=='RegisterDefense' then valid=payload==nil
  elseif action=='Train' or action=='Incubate' or action=='Hatch' or action=='Travel' then valid=text(payload)
  elseif action=='ChallengeDefense' then valid=finite(payload) and payload%1==0 and payload>=0 and payload<=9007199254740991
  elseif action=='Settings' then valid=payload~=nil and U.settings(payload)~=nil

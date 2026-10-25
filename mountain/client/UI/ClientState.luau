@@ -3,7 +3,7 @@
 local ClientState = {}
 local Store = {}
 Store.__index = Store
-local actions = {State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,
+local actions = {Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,
  Travel=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true}
 local function finite(value)
  return type(value)=='number' and value==value and math.abs(value)<math.huge
@@ -48,6 +48,10 @@ function Store:_receive(kind,payload)
   if finite(payload.serverNow) then self._epochOffset=payload.serverNow-mono end
   if type(payload.ui)=='table' and finite(payload.ui.serverClock) then self._clockOffset=payload.ui.serverClock-mono end
   self.status=if self:_available() then 'ready' else 'error'
+ elseif kind=='production' then
+  if not self.profile or type(payload)~='table' or type(payload.tycoon)~='table' or not finite(payload.coins) then return end
+  self.profile=table.clone(self.profile);self.profile.tycoon=payload.tycoon;self.profile.coins=payload.coins
+  if finite(payload.serverNow) then self._epochOffset=payload.serverNow-self._runtime.monotonic() end
  elseif kind=='battle' then
   if payload~=false and type(payload)~='table' then return end
   self.battle=payload

@@ -19,6 +19,7 @@ function S.new(model)
   marker.Parent=gate;gates[marker]=true
  end
  local service={}
+ function service.model(index) return plots[index] and plots[index].model end
  local function slot(player) return allocator.plot(player.UserId,player) end
  function service.plot(player) return slot(player) end
  function service.spawn(player)

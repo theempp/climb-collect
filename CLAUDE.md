@@ -140,3 +140,7 @@ Supersedes earlier incomplete-ascent status: a genuine natural-spawn ascent comp
 ## Mountain HUD/UI isolated implementation — 2026-10-24
 
 VERIFIED in `codex/mountain-hud-ui`: approved 28-question blueprint recovered from `23ee172`; eight hubs/23 tabs, authoritative intents, settings and responsive HUD committed at `5e67fc2`. Read [the implementation report](design/hud-ui-implementation-report.md) for the baked review, 419 CLI/service checks, 50 isolated Studio checks and four device-emulator presets. Original expedition/profile rules are preserved. Direct sanctuary bridge, habitat/build/placement, party lifecycle, rankings and commerce remain blocked by missing services; physical device/live persistence/eight-client acceptance is unverified. Concurrent mountain art revisions are not automatically included. The original graph excludes this worktree source.
+
+## Tycoon implementation — October 24–25, 2026
+
+Feature branch codex/tycoon-redesign preserves the local Review06 source in baseline commit 089c6a3. User Q1–Q11 is implemented through additive Tycoon modules and the existing profile/coins. See design/tycoon-implementation-report.md for exact source changes, assumptions, tests and unverified hosted/device acceptance. Original Studio places and local integration checkout were not edited. Verified tools: Windows PowerShell, Python 3.13, Luau CLI in Desktop/climb&collect/tools/.luau, Rojo 7.6.1 via its actual tool-storage executable. Source-only build requires baked Sanctuary geometry.

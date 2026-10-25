@@ -12,6 +12,7 @@ local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.World).build() end
 local world=workspace.ImpossibleMountain
 local home=require(script.Parent.Sanctuary).new(workspace:FindFirstChild('Sanctuary'))
+local tycoonWorld=require(script.Parent.TycoonWorld).new(home)
 local areas={}
 local Journey=require(script.Parent.Journey)
 require(game.ServerStorage.MountainWorld.Polish).apply(world)
@@ -56,6 +57,7 @@ local function rebuildTeam(player)
  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
  if h then local total=0;for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then total+=R.stats(c).health end end;h.MaxHealth=140+total*.15;h.Health=math.min(h.Health,h.MaxHealth) end
 end
+local function atHome(player) local rr=root(player);return rr~=nil and home.ownsPosition(player,rr.Position) end
 local function atRefuge(player) local rr=root(player);return rr~=nil and (home.ownsPosition(player,rr.Position) or (rr.Position-Vector3.new(0,17,560)).Magnitude<95) end
 local function inBattle(player)
  if B.wild[player] then return true end
@@ -72,7 +74,8 @@ local function publish(player,visual)
  local p=P.get(player);if not p then return end
  local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode
  local serverClock=workspace:GetServerTimeNow();local cooldowns,dodgeReadyAt=B.cooldowns(player,serverClock)
- s.ui={sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
+ tycoonWorld.update(player,p)
+ s.ui={atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
  send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
@@ -119,7 +122,7 @@ end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
- home.release(player);areas[player]=nil
+ tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
  contextSnapshots[player]=nil;if uiService then uiService.remove(player) end
  P.save(player,true);state[player]=nil;busy[player]=nil;limits[player]=nil;motion[player]=nil;companions[player]=nil;recovering[player]=nil
@@ -202,7 +205,7 @@ game:GetService('ProximityPromptService').PromptTriggered:Connect(function(promp
  publish(player)
 end)
 local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Competition,clock=os.time,
- safe=safe,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
+ safe=safe,atHome=atHome,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
  save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
  travel=journey.go,
 })
@@ -269,8 +272,8 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
   local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
   if p and contextDue then
    local refuge,near=atRefuge(player),nearCheckpoint(player);local previous=contextSnapshots[player]
-   if not previous or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) then
-    local context={sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
+   if not previous or previous.atHome~=atHome(player) or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) then
+    local context={atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
    end
   end
   if p and rr and h and h.Health>0 then
@@ -302,6 +305,21 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
  for _,puzzle in ipairs(world.Interactions:GetChildren()) do if puzzle:GetAttribute('Kind')=='Puzzle' then
   local rune=math.floor(workspace:GetServerTimeNow()/2)%3+1;local prompt=puzzle:FindFirstChildOfClass('ProximityPrompt');prompt.ObjectText='Rune '..({'I','II','III'})[rune]..' • align in order';puzzle.Color=({Color3.fromRGB(145,230,191),Color3.fromRGB(247,203,117),Color3.fromRGB(195,169,249)})[rune]
  end end
+end)
+task.spawn(function()
+ while task.wait(2) do
+  for player in pairs(P.sessions) do
+   local p=P.get(player)
+   if p then
+    local coins,bag=p.coins,p.tycoon.bag.eggs
+    local made=R.tycoon.settle(p,os.time(),false)
+    if made>0 or coins~=p.coins or bag~=p.tycoon.bag.eggs then
+     tycoonWorld.update(player,p)
+     send(player,'production',{tycoon=p.tycoon,coins=p.coins,serverNow=os.time()})
+    end
+   end
+  end
+ end
 end)
 task.spawn(function()
  while task.wait(45) do

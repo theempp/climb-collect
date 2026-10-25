@@ -1,0 +1,13 @@
+PASS 8 journey checks
+Route geometry checks passed: 657
+PASS 120 mountain rules checks
+PASS 18 sanctuary reservation checks
+Traversal checks passed: 131
+PASS 11 tycoon request checks
+PASS 58 tycoon checks
+PASS 50 UI client state checks
+PASS 39 UI presentation checks
+PASS 39 UI protocol/request checks
+PASS 25 server action checks
+PASS 25 profile/combat adapter checks (service fixtures, no live DataStore)
+Compiled 88 Luau files; failures=0

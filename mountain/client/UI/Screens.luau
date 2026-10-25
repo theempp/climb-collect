@@ -6,8 +6,9 @@ local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
+local TycoonHub=require(script.Parent.TycoonHub)
 local S={};S.__index=S
-local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Cosmetics','Convenience'},Settings={'Accessibility','Audio','Quick'}}
+local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Cosmetics','Convenience'},Settings={'Accessibility','Audio','Quick'}}
 local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain',Competition='Social'}
 local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests',Competition='Challenges'}
 function S.new(root,store,feedback,onClose)
@@ -199,24 +200,7 @@ function S:discovery(data)
   end)
  end
 end
-function S:sanctuary(data)
- if self.tab=='Habitats' then
-  self:blocked('Creature habitats','Habitat construction and creature placement are not connected to this mountain review. Your owned creatures already contribute to its income.','Habitat placement unavailable')
-  self:blocked('Building upgrades','Your plot is assigned. Building levels, costs and placement still need their gameplay services.','Building upgrades unavailable')
- elseif self.tab=='Facilities' then
-  local row=self:note('Training','Open your collection to train, inspect evolution stages and select a specialization.',150)
-  W.button(row,'OpenTraining','Open training',UDim2.new(1,-28,0,44),UDim2.new(0,14,1,-56),function() self:open('Training') end,'gold')
-  local egg=self:note('Incubation','Three incubators. Free incubation. Secured eggs only. Visit your plot to start or hatch.',150)
-  W.button(egg,'OpenEggs','Open hatchery',UDim2.new(1,-28,0,44),UDim2.new(0,14,1,-56),function() self:open('Eggs') end)
-  self:blocked('Facility upgrades','Facility expansion has no purchase service in this review. Existing training and incubation remain available.')
- else
-  self:note('Your sanctuary collection',#data.creatures..' companions · '..data.coins..' coins\nPlot '..tostring(data.ui and data.ui.plot or '—')..' is yours this session. All three gates lead to Blossom Gardens.',120)
-  local income=self:note('Collect creature income','All owned creatures contribute. Offline accrual is capped at eight hours. Collection settles the current server balance.',160)
-  self:action(income,'CollectIncome','Collect income','CollectIncome',nil,data.ui and data.ui.atRefuge)
-  local at=data.ui and data.ui.atRefuge
-  self:note(if at then 'Home services available' else 'Return to sanctuary',if at then 'Use the nearby training, incubation and challenge stations, or manage your collection here.' else 'Fast travel from a discovered checkpoint. The mountain menu shows available destinations.',104)
- end
-end
+function S:sanctuary(data) TycoonHub.render(self,data) end
 function S:mountain(data)
  if self.tab=='Quests' then
   local q=P.quest(data);local card=self:note(q.title,q.detail,122)
