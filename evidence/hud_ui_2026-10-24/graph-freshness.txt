@@ -1,0 +1,18 @@
+2026-10-24 19:24 America/New_York
+Original checkout: C:/Users/HOME!/Desktop/climb&collect
+After appending the HUD milestone, status reported one changed vault input.
+Approved refresh.py completed and verified vault backup:
+C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-24-192435.zip
+Versioned export:
+C:/Users/HOME!/Documents/Obsidian Vault/Climb & Collect/graphify/exports/2026-10-24-192435
+Refresh benchmark: recall_at_8=1.0; MRR=0.75; mean_runtime_ms=25.78; mean_approx_tokens=1239.
+
+Project: 3160 nodes / 5648 edges
+Vault: 163 nodes / 216 edges
+Merged: 3323 nodes / 5964 edges / 100 cross links
+Global: 3323 nodes / 5832 edges
+Input drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0
+Status: CURRENT for all intended inputs
+
+Coverage excludes the isolated mountain-hud-ui worktree source. Exact source and its report remain authoritative.
+QUALITY_REPORT: zero broken edges; one historical project-overview heading review candidate remains.

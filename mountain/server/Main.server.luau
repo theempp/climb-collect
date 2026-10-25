@@ -6,6 +6,8 @@ local R=require(RS.MountainShared.Rules)
 local P=require(script.Parent.Profiles)
 local B=require(script.Parent.Combat)
 local Competition=require(script.Parent.Competition)
+local UIRequests=require(script.Parent.UIRequests)
+local UIProtocol=require(RS.MountainShared.UIProtocol)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.World).build() end
 local world=workspace.ImpossibleMountain
@@ -15,7 +17,11 @@ require(script.Parent.Traversal).start(world)
 local remotes=Instance.new('Folder');remotes.Name='MountainRemotes';remotes.Parent=RS
 local request=Instance.new('RemoteEvent');request.Name='Request';request.Parent=remotes
 local event=Instance.new('RemoteEvent');event.Name='Event';event.Parent=remotes
+local uiRequest=Instance.new('RemoteEvent');uiRequest.Name='UIRequest';uiRequest.Parent=remotes
+local uiResult=Instance.new('RemoteEvent');uiResult.Name='UIResult';uiResult.Parent=remotes
+local uiService
 local state={}
+local contextSnapshots={}
 local busy={};local limits={};local companions={};local motion={};local recovering={}
 local function send(player,kind,data) if player.Parent==Players then event:FireClient(player,kind,data) end end
 local function root(player) return player.Character and player.Character:FindFirstChild('HumanoidRootPart') end
@@ -44,9 +50,18 @@ local function rebuildTeam(player)
  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
  if h then local total=0;for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then total+=R.stats(c).health end end;h.MaxHealth=140+total*.15;h.Health=math.min(h.Health,h.MaxHealth) end
 end
+local function atRefuge(player) local rr=root(player);return rr~=nil and (rr.Position-Vector3.new(0,17,560)).Magnitude<95 end
+local function nearCheckpoint(player)
+ for _,cp in ipairs(world.Checkpoints:GetChildren()) do if nearby(player,cp,20) then return true end end
+ local p=P.get(player);local summit=world.Interactions:FindFirstChild('Impossible Summit')
+ return p~=nil and p.discoveries.summit==true and summit~=nil and nearby(player,summit,25) or false
+end
 local function publish(player,visual)
  local p=P.get(player);if not p then return end
- local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode;send(player,'state',s)
+ local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode
+ local serverClock=workspace:GetServerTimeNow();local cooldowns,dodgeReadyAt=B.cooldowns(player,serverClock)
+ s.ui={atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
+ send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
 B.init(P,send,function(player) publish(player,true) end)
@@ -83,7 +98,8 @@ end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
- B.remove(player);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
+ B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
+ contextSnapshots[player]=nil;if uiService then uiService.remove(player) end
  P.save(player,true);state[player]=nil;busy[player]=nil;limits[player]=nil;motion[player]=nil;companions[player]=nil;recovering[player]=nil
 end)
 local rng=Random.new()
@@ -136,46 +152,38 @@ game:GetService('ProximityPromptService').PromptTriggered:Connect(function(promp
  local now=os.clock();if now<(limits[player] or 0) or busy[player] then return end
  limits[player]=now+.35;interact(player,part)
 end)
-local function atRefuge(player) local rr=root(player);return rr and (rr.Position-Vector3.new(0,17,560)).Magnitude<95 end
-local function handle(player,action,data)
- local p=P.get(player);if not p then return end
- if action=='State' then publish(player);return end
- if not safe(player) then return end
- if action=='Special' then if type(data)=='table' then B.special(player,data.slot,data.ability) end
- elseif action=='Dodge' then if B.dodge(player) then send(player,'dodge',true) end
- elseif action=='Equip' then if R.equip(p,data) then rebuildTeam(player) end
- elseif action=='Incubate' or action=='Hatch' then
-  if not atRefuge(player) or type(data)~='string' then send(player,'toast','Use the expedition refuge incubator.');return end
-  local ok=if action=='Incubate' then R.incubate(p,data,os.time()) else R.hatch(p,data,os.time())
-  send(player,'toast',if ok then (if action=='Hatch' then 'A new companion hatched!' else 'Incubation started • hatching is free.') else 'Not ready or all three incubators are occupied.');if ok then task.spawn(P.save,player,false) end
- elseif action=='Specialize' then if type(data)=='table' and R.specialize(p,data.id,data.choice) then send(player,'toast','Specialization selected.');rebuildTeam(player) end
- elseif action=='Train' then
-  if not atRefuge(player) or type(data)~='string' then return end
-  local c=R.find(p.creatures,data)
-  if c and c.level<50 and p.coins>=15 then p.coins-=15;R.addXP(c,80);send(player,'toast','Training complete • +80 XP');rebuildTeam(player) end
- elseif action=='Travel' then
-  if type(data)~='string' then return end
-  local near=false
-  for _,cp in ipairs(world.Checkpoints:GetChildren()) do if nearby(player,cp,20) then near=true;break end end
-  if p.discoveries.summit and nearby(player,world.Interactions['Impossible Summit'],25) then near=true end
-  if not near and not atRefuge(player) then send(player,'toast','Fast travel begins at a checkpoint or refuge.');return end
-  if data=='refuge' then R.extract(p);teleport(player,Vector3.new(0,21,550))
-  else local cp=world.Checkpoints:FindFirstChild(data)
-   if cp and p.discoveries[data] and R.canEnter(p,cp:GetAttribute('Kingdom')) then R.extract(p);teleport(player,cp.Position+Vector3.new(0,5,0)) end
-  end
- elseif action=='CollectIncome' then if atRefuge(player) then local n=R.settleIncome(p,os.time());send(player,'toast','Collected '..n..' sanctuary coins.') end
- elseif action=='RegisterDefense' then
-  if not atRefuge(player) then return end
-  send(player,'toast',if Competition.register(p,player.UserId) then 'Defense snapshot saved • others can challenge your UserId while you are offline.' else 'Defense save unavailable. Try again later.')
- elseif action=='ChallengeDefense' then
-  if not atRefuge(player) then return end
-  local ok,result=Competition.challenge(p,player.UserId,data)
-  if ok then send(player,'competition',result);task.spawn(P.save,player,false) else send(player,'toast',result) end
+local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Competition,clock=os.time,
+ safe=safe,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
+ save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
+ travel=function(player,destination)
+  local p=P.get(player);if not p or not root(player) then return false end
+  if destination=='refuge' then R.extract(p);teleport(player,Vector3.new(0,21,550));return true end
+  local cp=world.Checkpoints:FindFirstChild(destination)
+  if not cp or not p.discoveries[destination] or not R.canEnter(p,cp:GetAttribute('Kingdom')) then return false end
+  R.extract(p);teleport(player,cp.Position+Vector3.new(0,5,0));return true
+ end,
+})
+local function handle(player,action,data,correlated)
+ local ok,message,result=dispatch(player,action,data)
+ if action=='Settings' then send(player,'save',ok) end
+ if action~='State' then
+  if not correlated and (action~='Special' and action~='Dodge' or not ok) then send(player,'toast',message) end
+  publish(player)
  end
- publish(player)
+ return ok,message,result
 end
+uiService=UIRequests.new({handle=function(player,action,data) return handle(player,action,data,true) end,available=function(player) return P.get(player)~=nil end,
+ busy=function(player) return busy[player]==true end,
+ setBusy=function(player,value) busy[player]=if value then true else nil end,
+ failed=function(err) warn('Mountain UI request failed: '..tostring(err)) end,
+})
+uiRequest.OnServerEvent:Connect(function(player,id,action,data)
+ local result=uiService.process(player,id,action,data)
+ if result and player.Parent==Players then uiResult:FireClient(player,result) end
+end)
+-- The original remote remains supported, with the same rules and honest errors.
 request.OnServerEvent:Connect(function(player,action,data)
- if type(action)~='string' or #action>32 or busy[player] then return end
+ if not UIProtocol.validate('legacy:1',action,data) or busy[player] then return end
  local now=os.clock();if now<(limits[player] or 0) then return end;limits[player]=now+.12;busy[player]=true
  local ok,err=pcall(handle,player,action,data);busy[player]=nil
  if not ok then warn('Mountain request failed: '..tostring(err));send(player,'toast','Action unavailable. Your saved data is preserved.') end
@@ -188,7 +196,7 @@ for _,part in ipairs(world.Dynamics:GetChildren()) do if part:GetAttribute('Kind
  local decorations={};for _,child in ipairs(part:GetChildren()) do if child:IsA('BasePart') then table.insert(decorations,{part=child,offset=part.CFrame:ToObjectSpace(child.CFrame)}) end end
  table.insert(moving,{part=part,origin=part.CFrame,decorations=decorations})
 end end
-local combatTick,checkTick=0,0
+local combatTick,checkTick,contextTick=0,0,0
 game:GetService('RunService').Heartbeat:Connect(function(dt)
  local now=os.clock()
  for _,m in ipairs(moving) do
@@ -216,11 +224,18 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
    m.PrimaryPart.CFrame=m.PrimaryPart.CFrame:Lerp(target,1-math.exp(-10*dt))
   end end
  end
- combatTick+=dt;checkTick+=dt
+ combatTick+=dt;checkTick+=dt;contextTick+=dt
+ local contextDue=contextTick>=.5;if contextDue then contextTick=0 end
  if combatTick>=1 then combatTick=0;B.tick() end
  if checkTick<.2 then return end;checkTick=0
  for _,player in ipairs(Players:GetPlayers()) do
   local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
+  if p and contextDue then
+   local refuge,near=atRefuge(player),nearCheckpoint(player);local previous=contextSnapshots[player]
+   if not previous or previous.atRefuge~=refuge or previous.nearCheckpoint~=near then
+    local context={atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
+   end
+  end
   if p and rr and h and h.Health>0 then
    local m=motion[player]
    if m then

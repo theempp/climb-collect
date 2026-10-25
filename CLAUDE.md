@@ -135,3 +135,8 @@ All four implementation phases are saved in `Fairground.Finale.Review.rbxl` (ide
 ## Fairground polish acceptance — 2026-10-22
 
 Supersedes earlier incomplete-ascent status: a genuine natural-spawn ascent completed all four camps and sixteen traversal sections without position or eligibility injection. Diagnostic stops, backtracking and live route repairs mean the recorded 32m54s is not a speed benchmark. One summit awarded 150 coins, 200 points and First Light Pennant; duplicate calls awarded nothing. Actual mouse return reached the bank and acknowledged result 1. Final `Fairground.Polished.Acceptance.rbxl` was reopened: 104 sources match/compile, terrain exact, seven protected groups unchanged, no QA agents, HTTP off. Actual two-client checks passed 16/16 before final terrace/stair changes. Physical devices, live DataStore networking and same-account reconnect remain unverified. Details: `design/fairground-polish-handoff-2026-10-22.md`. No publishing or spending.
+
+
+## Mountain HUD/UI isolated implementation — 2026-10-24
+
+VERIFIED in `codex/mountain-hud-ui`: approved 28-question blueprint recovered from `23ee172`; eight hubs/23 tabs, authoritative intents, settings and responsive HUD committed at `5e67fc2`. Read [the implementation report](design/hud-ui-implementation-report.md) for the baked review, 419 CLI/service checks, 50 isolated Studio checks and four device-emulator presets. Original expedition/profile rules are preserved. Direct sanctuary bridge, habitat/build/placement, party lifecycle, rankings and commerce remain blocked by missing services; physical device/live persistence/eight-client acceptance is unverified. Concurrent mountain art revisions are not automatically included. The original graph excludes this worktree source.

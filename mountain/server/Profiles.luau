@@ -1,5 +1,6 @@
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
+local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
 local Store=require(script.Parent.Store)
 local Http=game:GetService('HttpService')
 local Run=game:GetService('RunService')
@@ -11,6 +12,7 @@ local function valid(p)
  for _,key in ipairs({'creatures','team','cargo','eggs','wins','captures','discoveries','claims','shortcuts','resources'}) do if type(p[key])~='table' then return false end end
  for _,key in ipairs({'serial','unlocked','coins','trophies','lastIncome','competitionAt'}) do if type(p[key])~='number' or p[key]~=p[key] or math.abs(p[key])==math.huge then return false end end
  if p.unlocked<1 or p.unlocked>6 then return false end
+ if p.settings~=nil and not UIProtocol.settings(p.settings) then return false end
  for _,c in ipairs(p.creatures) do if not C.byId[c.species] or type(c.id)~='string' or type(c.level)~='number' or c.level<1 or c.level>50 or type(c.xp)~='number' then return false end end
  for _,list in ipairs({p.eggs,p.cargo}) do for _,e in ipairs(list) do if not C.byId[e.species] or C.byId[e.species].rarity=='Legendary' or type(e.id)~='string' or (e.readyAt and type(e.readyAt)~='number') then return false end end end
  return true
@@ -25,6 +27,7 @@ function P.load(player)
   accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}
  end)
  if not ok or not accepted or not data or not valid(data.profile) then return nil,err or 'Profile unavailable or in use; no data overwritten.' end
+ data.profile.settings=UIProtocol.settings(nil,data.profile.settings)
  local s={p=data.profile,busy=false,healthy=true,closing=false,lastSave=now}
  P.sessions[player]=s;return s.p
 end
@@ -55,6 +58,13 @@ function P.save(player,release)
   s.releaseRequested=nil;task.defer(P.save,player,true)
  end
  return written
+end
+function P.setSettings(player,patch)
+ local p=P.get(player);if not p then return false end
+ local settings=UIProtocol.settings(patch,p.settings);if not settings then return false end
+ p.settings=settings
+ local ok=P.save(player,false)
+ return ok,if ok then table.clone(settings) else nil
 end
 P.valid=valid
 return P

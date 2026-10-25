@@ -1,0 +1,253 @@
+local Players=game:GetService('Players')
+local RS=game:GetService('ReplicatedStorage')
+local UIS=game:GetService('UserInputService')
+local Run=game:GetService('RunService')
+local GuiService=game:GetService('GuiService')
+local player=Players.LocalPlayer
+local T=require(script.Parent.Theme)
+local W=require(script.Parent.Widgets)
+local Feedback=require(script.Parent.Feedback)
+local pg=player:WaitForChild('PlayerGui')
+if pg:FindFirstChild('MountainHUD') then return {} end
+local gui=W.new('ScreenGui',pg,{Name='MountainHUD',ResetOnSpawn=false,DisplayOrder=10,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets,ClipToDeviceSafeArea=true})
+gui:SetAttribute('BlueprintVersion',1)
+local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
+local loading=W.frame(root,'Loading',UDim2.fromScale(1,1),nil,T.navy);loading.ZIndex=90
+local mountain=W.mountain(loading);mountain.Size=UDim2.fromScale(.7,.8);mountain.Position=UDim2.fromScale(.15,.1)
+local brand=W.text(loading,'CLIMB & COLLECT',UDim2.new(.9,0,0,58),UDim2.fromScale(.05,.26),T.display,32,T.ink);brand.TextXAlignment=Enum.TextXAlignment.Center
+W.text(loading,'MOUNTAIN EMPIRE',UDim2.new(.9,0,0,30),UDim2.fromScale(.05,.44),T.bold,15,T.gold).TextXAlignment=Enum.TextXAlignment.Center
+local loadStatus=W.text(loading,'Connecting to your expedition…',UDim2.new(.9,0,0,38),UDim2.fromScale(.05,.62),nil,15,T.muted);loadStatus.TextXAlignment=Enum.TextXAlignment.Center
+local feedback=Feedback.new(root)
+local C=require(RS:WaitForChild('MountainShared'):WaitForChild('Catalog'))
+local R=require(RS.MountainShared.Rules)
+local P=require(RS.MountainShared.UIPresentation)
+local ClientState=require(script.Parent.ClientState)
+local Screens=require(script.Parent.Screens)
+local remotes=RS:WaitForChild('MountainRemotes',8)
+while not remotes and gui.Parent do
+ loadStatus.Text='The mountain service is taking longer to connect. Retrying…'
+ remotes=RS:WaitForChild('MountainRemotes',5)
+end
+if not remotes then feedback:destroy();return {} end
+local store=ClientState.new(remotes)
+local screens
+local connections={};local activeAbility=1;local expanded=false;local ready=false;local elapsed=0;local age=0;local lastSecond=-1;local saveFailed=false;local previousProfile;local memberStamp='';local wasInBattle=false
+local function connect(signal,fn) local c=signal:Connect(fn);table.insert(connections,c);return c end
+local click=W.new('Sound',gui,{Name='UIFeedback',SoundId='rbxasset://sounds/volume_slider.ogg',Volume=.15})
+local function sound() click.Volume=.16*(T.prefs.sfxVolume or .8);click:Play() end
+local function open(name) if ready then sound();screens:open(name) end end
+local top=W.panel(root,'Status',UDim2.fromOffset(320,48),UDim2.fromOffset(12,8))
+local coins=W.text(top,'— coins',UDim2.new(.55,-10,1,0),UDim2.fromOffset(12,0),T.bold,17,T.gold)
+local timer=W.text(top,'00:00',UDim2.new(.45,-16,1,0),UDim2.new(.55,0,0,0),T.bold,14,T.muted);timer.TextXAlignment=Enum.TextXAlignment.Right
+local progress=W.panel(root,'Journey',UDim2.fromOffset(292,80),UDim2.new(1,-304,0,8))
+local location=W.text(progress,'Blossom Gardens',UDim2.new(1,-20,0,25),UDim2.fromOffset(10,6),T.bold,14)
+local heightLabel=W.text(progress,'0 studs',UDim2.new(1,-20,0,21),UDim2.fromOffset(10,31),nil,12,T.muted)
+local heightFill=W.progress(progress,0,UDim2.new(1,-20,0,7),UDim2.fromOffset(10,63),T.sky)
+local quest=W.panel(root,'QuestTracker',UDim2.fromOffset(292,76),UDim2.new(1,-304,0,96))
+local questTitle=W.text(quest,'Explore the mountain',UDim2.new(1,-20,0,29),UDim2.fromOffset(10,5),T.bold,13,T.gold)
+local questDetail=W.text(quest,'',UDim2.new(1,-20,0,34),UDim2.fromOffset(10,34),nil,12,T.muted)
+local menu=W.button(root,'Menu','MENU',UDim2.fromOffset(78,46),UDim2.fromOffset(12,66),function() expanded=not expanded;sound() end,'gold')
+local sidebar=W.panel(root,'Navigation',UDim2.fromOffset(172,350),UDim2.fromOffset(12,120));sidebar.Visible=false
+local nav=W.scroll(sidebar,'Items',UDim2.new(1,-12,1,-12),UDim2.fromOffset(6,6))
+local hubNames={'Creatures','Discovery','Sanctuary','Mountain','Social','Profile','Shop','Settings'}
+for _,name in ipairs(hubNames) do W.button(nav,'Nav'..name,name,UDim2.new(1,-4,0,44),nil,function() expanded=false;open(name) end,'quiet') end
+local team=W.frame(root,'Team',UDim2.fromOffset(342,60),UDim2.new(.5,-171,1,-72));team.BackgroundTransparency=1
+local function selectedAbility(slot)
+ local p=store.profile;local c=p and R.find(p.creatures,p.team[slot])
+ return if c and C.byId[c.species].rarity=='Legendary' then activeAbility else 1
+end
+local slots={}
+for i=1,3 do
+ local index=i
+ slots[i]=W.button(team,'Slot'..i,'['..i..'] Empty slot',UDim2.new(1/3,-6,1,0),UDim2.new((i-1)/3,3,0,0),function() if store.battle then store:request('Special',{slot=index,ability=selectedAbility(index)}) else open('Creatures') end end,'quiet')
+ slots[i].TextSize=13;slots[i]:SetAttribute('BaseTextSize',13)
+ slots[i]:SetAttribute('Tooltip','Open your collection, or activate this companion’s special during combat.')
+end
+local actionbar=W.panel(root,'Actions',UDim2.fromOffset(342,48),UDim2.new(.5,-171,1,-128))
+local context=W.button(actionbar,'Context','Explore',UDim2.new(.66,-12,1,-8),UDim2.fromOffset(4,4),function() open(if store.profile and store.profile.ui and store.profile.ui.atRefuge then 'Sanctuary' else 'Mountain') end,'blue')
+W.button(actionbar,'Quick','Settings',UDim2.new(.34,-4,1,-8),UDim2.new(.66,0,0,4),function() open('Settings');if screens.hub then screens.tab='Quick';screens:render(false) end end,'quiet')
+local dodge=W.button(root,'Dodge','Dodge [Q]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),function() store:request('Dodge') end,'gold');dodge.Visible=false
+local ability=W.button(root,'Ability','Ability 1',UDim2.fromOffset(122,44),UDim2.new(1,-148,1,-270),function() activeAbility=activeAbility%4+1;sound() end,'quiet');ability.Visible=false
+ ability:SetAttribute('Tooltip','Choose a captured Guardian’s special. Regular companions use their role special.')
+ dodge:SetAttribute('Tooltip','Dodge the highlighted danger. A successful clean dodge advances Trial mastery.')
+local battle=W.panel(root,'Battle',UDim2.fromOffset(410,100),UDim2.new(.5,-205,0,8));battle.Visible=false
+local boss=W.text(battle,'Guardian',UDim2.new(1,-24,0,28),UDim2.fromOffset(12,6),T.display,21,T.gold)
+local hp=W.progress(battle,1,UDim2.new(1,-24,0,10),UDim2.fromOffset(12,38),T.coral)
+ local combatText=W.text(battle,'',UDim2.new(1,-24,0,50),UDim2.fromOffset(12,53),nil,12,T.ink)
+local save=W.text(root,'Connecting…',UDim2.new(.6,0,0,20),UDim2.new(.2,0,1,-23),nil,10,T.muted);save.TextXAlignment=Enum.TextXAlignment.Center
+local hint=W.panel(root,'Hint',UDim2.fromOffset(320,64),UDim2.new(.5,-160,0,78));hint.Visible=false
+local hintText=W.text(hint,'',UDim2.new(1,-60,1,-12),UDim2.fromOffset(12,6),nil,13,T.ink)
+local dismissHint=false
+W.button(hint,'DismissHint','×',UDim2.fromOffset(44,44),UDim2.new(1,-50,0,10),function() dismissHint=true;hint.Visible=false end,'quiet')
+local retry=W.button(loading,'RetryLoad','Retry connection',UDim2.fromOffset(210,46),UDim2.new(.5,-105,.82,0),function()
+ for id,pending in pairs(store.pending) do if pending.action=='State' then store:retry(id);return end end
+ store:request('State')
+end,'gold');retry.Visible=false
+screens=Screens.new(root,store,feedback,function() GuiService.SelectedObject=nil end)
+local defaultEffects={};local soundBases={};local settingsStamp=''
+local function applyPreferences(prefs)
+ T.configure(prefs);player:SetAttribute('MountainReducedMotion',prefs.reducedMotion==true)
+ player:SetAttribute('MountainSimplifiedVFX',prefs.simplifiedVFX==true)
+ for _,o in ipairs(root:GetDescendants()) do
+  if o:IsA('UIStroke') then o.Transparency=if prefs.highContrast then 0 else .15;o.Thickness=if prefs.highContrast then 2 else 1
+  elseif o:IsA('TextLabel') or o:IsA('TextButton') then local base=o:GetAttribute('BaseTextSize');if base then o.TextSize=T.size(base) end end
+ end
+ for _,o in ipairs(workspace:GetDescendants()) do
+  if o:IsA('ParticleEmitter') and not o:FindFirstAncestor('Dynamics') then
+   if defaultEffects[o]==nil then defaultEffects[o]=o.Enabled end;o.Enabled=defaultEffects[o] and not prefs.simplifiedVFX
+  end
+ end
+end
+connect(workspace.DescendantAdded,function(o) if o:IsA('ParticleEmitter') and not o:FindFirstAncestor('Dynamics') then defaultEffects[o]=o.Enabled;if T.prefs.simplifiedVFX then o.Enabled=false end end end)
+connect(workspace.DescendantRemoving,function(o) defaultEffects[o]=nil end)
+local nativeWatched=setmetatable({},{__mode='k'})
+local function layout()
+ local v=root.AbsoluteSize;if v.X<=0 then return end
+ local compact=v.X<950 or v.Y<550;local short=v.Y<390;local tw=math.clamp(v.X-360,276,366);local center=v.X/2
+ if UIS.TouchEnabled then
+  local touch=pg:FindFirstChild('TouchGui');local stick=touch and (touch:FindFirstChild('DynamicThumbstickFrame',true) or touch:FindFirstChild('ThumbstickFrame',true));local jump=touch and touch:FindFirstChild('JumpButton',true)
+  local left=if stick then stick.AbsolutePosition.X+stick.AbsoluteSize.X-root.AbsolutePosition.X+10 else v.X*.4+10
+  local right=if jump then jump.AbsolutePosition.X-root.AbsolutePosition.X-10 else v.X-130
+  left=math.min(left,v.X*.45);right=math.min(right,v.X-104)
+  for _,o in ipairs({stick,jump}) do if o and not nativeWatched[o] then
+   nativeWatched[o]=true
+   connect(o:GetPropertyChangedSignal('AbsolutePosition'),function() task.defer(layout) end)
+   connect(o:GetPropertyChangedSignal('AbsoluteSize'),function() task.defer(layout) end)
+  end end
+  tw=math.min(366,math.max(216,right-left));center=(left+right)/2
+ end
+ team.Size=UDim2.fromOffset(tw,if short then 48 else 58);team.Position=UDim2.new(0,center-tw/2,1,if short then -76 else -80)
+ actionbar.Size=UDim2.fromOffset(tw,56);actionbar.Position=UDim2.new(0,center-tw/2,1,if short then -136 else -144)
+ top.Size=UDim2.fromOffset(if compact then 225 else 320,48)
+ progress.Size=UDim2.fromOffset(if compact then 238 else 292,if short then 58 else 80);progress.Position=UDim2.new(1,-progress.Size.X.Offset-12,0,8)
+ heightFill.Parent.Position=UDim2.new(0,10,1,-12);heightLabel.Size=UDim2.new(1,-20,0,18);heightLabel.Position=UDim2.fromOffset(10,29)
+ quest.Position=UDim2.new(1,-250,0,if short then 74 else 96);quest.Size=UDim2.fromOffset(238,if short then 44 else 70)
+ questTitle.Size=UDim2.new(1,-20,0,if short then 20 else 29);questTitle.Position=UDim2.fromOffset(10,if short then 2 else 5)
+ questDetail.Size=UDim2.new(1,-20,0,if short then 20 else 34);questDetail.Position=UDim2.fromOffset(10,if short then 22 else 34)
+ sidebar.Size=UDim2.fromOffset(174,math.min(414,v.Y-132));sidebar.Position=UDim2.fromOffset(12,118)
+ menu.Position=UDim2.fromOffset(12,if short then 58 else 66)
+ if short then
+  sidebar.Size=UDim2.fromOffset(v.X-110,46);sidebar.Position=UDim2.fromOffset(98,58)
+  nav.Size=UDim2.fromScale(1,1);nav.Position=UDim2.new();nav.ScrollingDirection=Enum.ScrollingDirection.X;nav.AutomaticCanvasSize=Enum.AutomaticSize.X;nav.CanvasSize=UDim2.new()
+  nav.UIListLayout.FillDirection=Enum.FillDirection.Horizontal;nav.UIPadding.PaddingTop=UDim.new(0,1);nav.UIPadding.PaddingBottom=UDim.new(0,1)
+  for _,b in ipairs(nav:GetChildren()) do if b:IsA('TextButton') then b.Size=UDim2.fromOffset(120,44) end end
+ else
+  nav.Size=UDim2.new(1,-12,1,-12);nav.Position=UDim2.fromOffset(6,6);nav.ScrollingDirection=Enum.ScrollingDirection.Y;nav.AutomaticCanvasSize=Enum.AutomaticSize.Y;nav.CanvasSize=UDim2.new()
+  nav.UIListLayout.FillDirection=Enum.FillDirection.Vertical;nav.UIPadding.PaddingTop=UDim.new(0,4);nav.UIPadding.PaddingBottom=UDim.new(0,4)
+  for _,b in ipairs(nav:GetChildren()) do if b:IsA('TextButton') then b.Size=UDim2.new(1,-4,0,44) end end
+ end
+ hint.Size=UDim2.fromOffset(if short then tw else 320,64);hint.Position=if short then UDim2.new(0,center-tw/2,1,-198) else UDim2.new(.5,-160,0,110)
+ battle.Size=UDim2.fromOffset(math.min(410,v.X-300),108);battle.Position=UDim2.new(.5,-battle.Size.X.Offset/2,0,8)
+ dodge.Position=UDim2.new(1,-142,1,if short then -191 else -230);ability.Position=UDim2.new(1,-142,1,if short then -242 else -282)
+ if UIS.TouchEnabled then
+  local touch=pg:FindFirstChild('TouchGui');local jump=touch and touch:FindFirstChild('JumpButton',true)
+  if jump then
+   local y=math.min(v.Y+(if short then -191 else -230),jump.AbsolutePosition.Y-root.AbsolutePosition.Y-58)
+   dodge.Position=UDim2.new(1,-142,0,y);ability.Position=UDim2.new(1,-142,0,y-52)
+  end
+ end
+ feedback.host.Size=UDim2.new(.66,0,0,58);feedback.host.Position=UDim2.new(.17,0,0,if store.battle then 120 else 72)
+ feedback.tooltip.Position=UDim2.new(.5,-140,0,if store.battle then 120 else 124)
+ if screens.hub then screens:render(true) end
+end
+local function updateProfile()
+ local data=store.profile;if not data then return end
+ coins.Text=tostring(data.coins)..' coins';local q=P.quest(data);questTitle.Text=q.title;questDetail.Text=if root.AbsoluteSize.Y<390 then q.progress..' / '..q.total..' objectives · Map for details' else q.detail
+ local prefs=data.ui and data.ui.settings or {};local stamp=game:GetService('HttpService'):JSONEncode(prefs)
+ if stamp~=settingsStamp then settingsStamp=stamp;applyPreferences(prefs) end
+ save.Text=if saveFailed then 'SAVING PAUSED · Progress actions unavailable' elseif tostring(data.saveMode):find('Studio') then 'STUDIO REVIEW · Progress resets on Stop' else 'Profile synchronized'
+ if previousProfile then
+  if data.unlocked>previousProfile.unlocked then feedback:reveal('A new kingdom awaits',C.kingdoms[data.unlocked].name..' is now open. Follow the mountain map to continue.') end
+  for id in pairs(data.captures) do if not previousProfile.captures[id] then feedback:reveal('Guardian captured!',C.byId[id].name..' joins your collection. This Guardian can be captured once.',C.byId[id]) end end
+ end
+ previousProfile={unlocked=data.unlocked,captures=table.clone(data.captures)}
+ if screens.hub then screens:render(true) end
+end
+local disconnect=store:subscribe(function(kind,payload)
+ if kind=='state' or kind=='context' then updateProfile()
+ elseif kind=='battle' then
+  local active=payload~=nil and payload~=false;if active~=wasInBattle then wasInBattle=active;layout() end
+  if payload then
+   boss.Text=payload.name..(if payload.trial then ' · TRIAL' else '');hp.Size=UDim2.fromScale(math.clamp(payload.hp/math.max(1,payload.max),0,1),1)
+   combatText.Text=math.ceil(payload.hp)..' HP · Phase '..math.max(1,((payload.phase or 1)-1)%4+1)..' · '..#(payload.members or {})..' climber(s)'
+   if payload.trial then combatText.Text..='\n'..(payload.dodges or 0)..'/3 dodges · '..(payload.resolved or 0)..'/4 patterns · '..(if payload.captureOwned then 'Already captured' elseif payload.objective then 'Objective complete' else payload.objectiveText or 'Master the patterns') end
+  end
+  local stamp=game:GetService('HttpService'):JSONEncode(if payload then payload.members or {} else {})
+  if stamp~=memberStamp then memberStamp=stamp;if screens.hub=='Social' and screens.tab=='Party' then screens:render(true) end end
+ elseif kind=='open' then open(payload)
+ elseif kind=='toast' then feedback:toast(payload,store.battle and (string.find(payload,'golden heart',1,true)~=nil or string.find(payload,'constellation stones',1,true)~=nil))
+ elseif kind=='result' then
+  screens:pending()
+  if payload.action~='State' and payload.ok then
+   sound();local d=payload.data
+   if payload.action=='Hatch' and d and d.creature then feedback:reveal('A new companion!',C.byId[d.creature.species].name..' joins your collection.',C.byId[d.creature.species])
+   elseif payload.action=='Train' and d and d.creature and d.stage and d.previousStage and d.stage>d.previousStage then feedback:reveal('Evolution unlocked!',C.byId[d.creature.species].name..' reached evolution stage '..d.stage..'.',C.byId[d.creature.species])
+   elseif payload.action=='ChallengeDefense' and d then feedback:reveal(if d.won then 'Challenge won!' else 'Challenge complete',(if d.practice then 'Practice defense' else 'Opponent '..tostring(d.opponent))..' · '..tostring(d.rounds)..' rounds\n'..tostring(d.trophies)..' trophies awarded.')
+   elseif payload.action~='Special' and payload.action~='Dodge' then feedback:toast(payload.message or 'Confirmed.') end
+  elseif not payload.ok then feedback:toast(payload.message or 'That action is unavailable.') end
+ elseif kind=='timeout' then screens:pending();feedback:toast('Still waiting for the server. Open a menu to retry safely.')
+ elseif kind=='pending' then screens:pending()
+ elseif kind=='save' then saveFailed=not payload;save.Text=if payload then 'Profile saved' else 'SAVING PAUSED · Progress actions unavailable' end
+end)
+connect(UIS.InputBegan,function(input,processed)
+ if processed or UIS:GetFocusedTextBox() then return end
+ local key=input.KeyCode
+ if key==Enum.KeyCode.M or key==Enum.KeyCode.Tab or key==Enum.KeyCode.ButtonSelect then if screens.hub then screens:close() else open('Creatures') end
+ elseif key==Enum.KeyCode.Escape or key==Enum.KeyCode.ButtonB then if not feedback:close() then screens:back() end
+ elseif not screens.hub and not feedback.modal and ready then
+  if key==Enum.KeyCode.One or key==Enum.KeyCode.Two or key==Enum.KeyCode.Three then local slot=({[Enum.KeyCode.One]=1,[Enum.KeyCode.Two]=2,[Enum.KeyCode.Three]=3})[key];store:request('Special',{slot=slot,ability=selectedAbility(slot)})
+  elseif key==Enum.KeyCode.Q or key==Enum.KeyCode.ButtonY then store:request('Dodge') end
+ end
+end)
+connect(root:GetPropertyChangedSignal('AbsoluteSize'),layout)
+ connect(pg.DescendantAdded,function(o) if o.Name=='JumpButton' or o.Name=='DynamicThumbstickFrame' then task.defer(layout) end end)
+ connect(UIS:GetPropertyChangedSignal('TouchEnabled'),layout)
+local start=os.clock()
+connect(Run.Heartbeat,function(dt)
+ elapsed+=dt;age+=dt;if elapsed<.2 then return end;elapsed=0
+ local data=store.profile;local rr=player.Character and player.Character:FindFirstChild('HumanoidRootPart');ready=data~=nil and rr~=nil
+ loading.Visible=not ready;retry.Visible=not ready and os.clock()-start>8
+ if not ready then loadStatus.Text=if data then 'Waiting for your character…' elseif store.status=='error' then 'Connection delayed. Retry when ready.' else 'Synchronizing your collection…' end
+ sidebar.Visible=expanded and ready and not screens.hub and not store.battle;if store.battle then expanded=false end
+ top.Visible=ready and not store.battle;progress.Visible=ready and not store.battle and not (expanded and root.AbsoluteSize.Y<390);quest.Visible=ready and not store.battle and not expanded
+ menu.Visible=ready and not screens.hub;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle
+ dodge.Visible=ready and not screens.hub;ability.Visible=dodge.Visible and store.battle~=nil and store.battle~=false;battle.Visible=ability.Visible
+ if data then
+  local clock=store:clock();local ui=data.ui or {};local cooldowns=ui.cooldowns or {}
+  for i,b in ipairs(slots) do
+   local c=R.find(data.creatures,data.team[i]);local remain=c and P.remaining(cooldowns[c.id..':'..selectedAbility(i)] or 0,clock) or 0
+   b.Text=if c then C.byId[c.species].name..'\n'..(if store.battle then (if remain>0 then remain..'s' else 'Special ['..i..']') else 'Lv '..c.level) else 'Empty slot\nChoose companion'
+   W.enable(b,not store.battle or (c~=nil and remain==0))
+  end
+  local dr=P.remaining(ui.dodgeReadyAt or 0,clock);W.enable(dodge,dr==0,if dr>0 then 'Dodge · '..dr..'s' else 'Dodge [Q]');ability.Text='Ability '..activeAbility
+  context.Text=if ui.atRefuge then 'Sanctuary' elseif ui.nearCheckpoint then 'Checkpoint travel' else 'Mountain map'
+  hint.Visible=ready and not dismissHint and T.prefs.hints~=false and age<24 and not screens.hub and not store.battle and root.AbsoluteSize.Y>=390
+  hintText.Text=if #data.cargo>0 then 'Eggs on board! Reach a checkpoint to secure them.' else 'Follow the flags. Discover eggs and rest at checkpoints.'
+ end
+ if math.floor(age)~=lastSecond then
+  lastSecond=math.floor(age);timer.Text=P.formatTime(age);screens:tick();screens:pending()
+  if data then local q=P.quest(data);questDetail.Text=if root.AbsoluteSize.Y<390 then (if T.prefs.hints~=false and age<24 then 'Follow flags · secure eggs' else q.progress..' / '..q.total..' objectives · Map for details') else q.detail end
+  if rr then
+   local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=C.kingdoms[k].name
+   heightLabel.Text=math.max(0,math.floor(rr.Position.Y-16))..' studs · '..(if data then data.unlocked else 1)..'/6 unlocked';heightFill.Size=UDim2.fromScale(math.clamp((rr.Position.Y-16)/824,0,1),1)
+   for name,volume in pairs({['Mountain Birds 1 (SFX)']=if k==1 then .14 elseif k==2 then .05 else 0,WaterfallLoop=if k==2 then .12 else 0,AstralWind=if k>=3 then .08 else 0,LavaLoop=if k==5 then .1 else 0}) do
+    local s=game:GetService('SoundService'):FindFirstChild(name);if s then if soundBases[s]==nil then soundBases[s]=s.Volume end;s.Volume=volume*(T.prefs.musicVolume or .7);if not s.IsPlaying then s:Play() end end
+   end
+  end
+ end
+end)
+layout()
+connect(gui.Destroying,function()
+ disconnect();store:destroy();feedback:destroy();screens:close();for _,c in ipairs(connections) do c:Disconnect() end
+ for o,value in pairs(defaultEffects) do if o.Parent then o.Enabled=value end end;for s,value in pairs(soundBases) do if s.Parent then s.Volume=value end end;GuiService.SelectedObject=nil
+end)
+if Run:IsStudio() then
+ local probe=W.new('BindableFunction',gui,{Name='UIProbe'})
+ probe.OnInvoke=function(action,value)
+  if action=='open' and table.find(hubNames,value) then open(value)
+  elseif action=='close' then screens:close()
+  elseif action=='tab' and screens.hub and screens.shade.Hub.Tabs:FindFirstChild('Tab'..tostring(value)) then screens.tab=value;screens.detail=nil;screens.page=1;screens:render(false) end
+  return {ready=ready,hub=screens.hub,tab=screens.tab,view={root.AbsoluteSize.X,root.AbsoluteSize.Y},instances=#gui:GetDescendants(),pending=store.pending,status=store.status}
+ end
+end
+return {}
