@@ -73,3 +73,9 @@ Evidence: `evidence/tycoon_2026-10-24/`, and the adjacent `ClimbCollect.Tycoon.R
 Detailed prior ChatGPT assistant responses were unavailable; Q1–Q11 in the current user request are the controlling brief. Exact hybrid cadence, costs, rates and thresholds are provisional builder choices, documented in `design/tycoon-redesign.md`. Production assignment can coexist with combat-team membership, because the systems are independent. Existing outer plots were retained; the requested size applies to the internal production footprint. Initial cosmetics are free palettes, not invented purchased assets.
 
 Still unverified: published DataStore permissions/budgets and cross-server failure behavior, eight simultaneous live clients, real low-end phones, full economy pacing, and premium art/VFX owner approval. Existing unrelated limitations (including respawn recovery during a save outage) remain in the integration report. No public-release or zero-loss guarantee is made.
+
+## Final disk reopen and small-phone input
+
+Review03 reopened from its saved disk file and started cleanly. At iPhone 7 landscape (666x374 viewport), all six tabs had zero checked clipped description labels or buttons below44x44; the client pool contained exactly12 cosmetic eggs. Actual mouse/touch-emulator input opened Habitat1’s roster and assigned Mossbun; the server-confirmed button changed to Assigned here and disabled. Console contained only the normal ready line. Device simulation was reset to default and Play stopped. Evidence: final-reopen-phone.json.
+
+Implementation commit: febf6cf82b65e1ed2b977ba03cf9555013009084. The branch was pushed and remote SHA matched; the final documentation/evidence commit follows it.
