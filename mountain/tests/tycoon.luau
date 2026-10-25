@@ -73,4 +73,9 @@ check(over.tycoon.habitats[1].eggs==999 and over.tycoon.habitats[1].value==1999,
 local conservation=fresh();conservation.tycoon.habitats[1].eggs=23;conservation.tycoon.habitats[1].value=47
 T.collect(conservation,1);T.bank(conservation);T.collect(conservation,1);T.bank(conservation)
 check(conservation.coins==47,'partial batches conserve total egg value')
+local quote=fresh()
+check(type(T.upgradeEffect)=='function','upgrade effects available to hub')
+check(T.upgradeEffect(quote,'bag')=='Bag: 20 → 40 eggs','bag benefit matches next capacity')
+check(T.upgradeEffect(quote,'storage')=='Each habitat: +30 egg storage','storage benefit')
+check(T.upgradeEffect(quote,'habitats')=='Active habitats: 2 → 3','expansion benefit')
 print('PASS '..n..' tycoon checks')

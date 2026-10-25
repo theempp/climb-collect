@@ -1,0 +1,29 @@
+PASS 8 journey checks
+Route geometry checks passed: 657
+PASS 120 mountain rules checks
+PASS 18 sanctuary reservation checks
+Traversal checks passed: 131
+ECONOMY starter visit=5m eight-hour-coins=1160
+ECONOMY starter visit=15m eight-hour-coins=1160
+ECONOMY starter visit=30m eight-hour-coins=1056
+ECONOMY starter visit=60m eight-hour-coins=528
+ECONOMY starter save-20=9.10m
+ECONOMY starter save-25=10.92m
+ECONOMY starter save-40=17.28m
+ECONOMY starter save-50=20.92m
+ECONOMY starter save-100=41.83m
+ECONOMY eight max profiles: 28800 ticks in 0.2474s; coins/hour/profile=12819
+ECONOMY single Common level-zero hourly-coins=69
+ECONOMY single Uncommon level-zero hourly-coins=82
+ECONOMY single Rare level-zero hourly-coins=206
+ECONOMY single Epic level-zero hourly-coins=248
+ECONOMY single Mythic level-zero hourly-coins=453
+ECONOMY single Legendary level-zero hourly-coins=716
+PASS 125 tycoon economy checks
+PASS 11 tycoon request checks
+PASS 62 tycoon checks
+PASS 50 UI client state checks
+PASS 39 UI presentation checks
+PASS 39 UI protocol/request checks
+PASS 25 server action checks
+PASS 25 profile/combat adapter checks (service fixtures, no live DataStore)

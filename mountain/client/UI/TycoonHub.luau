@@ -8,7 +8,8 @@ function Hub.render(screen,data)
  local function action(card,name,label,payload,enabled) return screen:action(card,name,label,'Tycoon',payload,at and enabled~=false) end
  local function upgrade(path,slot)
   local q=T.quote(data,path,slot);local def=T.config.paths[path]
-  local card=screen:note(def.label..(if slot then ' '..slot else ''),if q then 'Level '..q.level..' → '..q.next..' · '..q.cost..' coins\n'..q.requirement else 'Maximum level reached. No resets required.',158)
+  local detail=if q then 'Level '..q.level..' → '..q.next..' · '..q.cost..' coins\n'..T.upgradeEffect(data,path)..(if q.requirement~='' then '\n'..q.requirement else '') else 'Maximum level reached. No resets required.'
+  local card=screen:note(def.label..(if slot then ' '..slot else ''),detail,if q and q.requirement~='' then 205 else 180)
   action(card,'Upgrade_'..path..tostring(slot or ''),if q then 'Upgrade · '..q.cost..' coins' else 'Maximum level',{op='upgrade',path=path,slot=slot},q~=nil and q.ready and data.coins>=q.cost)
  end
  if not at then screen:note('Manage from your sanctuary','You can inspect production anywhere. Return to your own plot to collect, bank, assign and upgrade.',118) end
@@ -65,7 +66,7 @@ function Hub.render(screen,data)
   action(collect,'CollectProduction','Collect all production eggs',{op='collect',slot=0},s.eggs>0 and s.bag.eggs<s.bagCapacity)
   local bank=screen:note('Bank production eggs','Bag base value: '..s.bag.value..' coins · banking bonus '..(t.levels.banking*2.5)..'%\nBank manually until advanced automation.',165)
   action(bank,'BankProduction','Bank eggs for coins',{op='bank'},s.bag.eggs>0)
-  screen:note('How production works','Assign creatures in Habitats. Every tenth egg has bonus value. Upgrade storage and bag, then progress toward processors, sorters, collectors and automated banking.',140)
+  screen:note('How production works','Assign both starter habitats. Every tenth egg has bonus value. Full storage pauses production; collect and bank to make room. Upgrade storage for longer expeditions.',140)
  end
 end
 return Hub

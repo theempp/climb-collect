@@ -121,6 +121,17 @@ function T.swap(p,first,second,now)
  a.progress,b.progress=b.progress,a.progress
  return true
 end
+function T.upgradeEffect(p,path)
+ local t=p.tycoon
+ if path=='habitats' then return 'Active habitats: '..t.slots..' → '..math.min(8,t.slots+1)
+ elseif path=='habitat' then return '+10% base egg rate · +10 egg storage'
+ elseif path=='production' then return '+15% base egg rate in every habitat'
+ elseif path=='storage' then return 'Each habitat: +30 egg storage'
+ elseif path=='bag' then return 'Bag: '..T.bagCapacity(p)..' → '..(T.bagCapacity(p)+20)..' eggs'
+ elseif path=='banking' then return string.format('Bank value bonus: %.1f%% → %.1f%%',t.levels.banking*2.5,(t.levels.banking+1)*2.5)
+ elseif path=='automation' then return Config.automation[t.levels.automation+1] or 'All automation installed' end
+ return ''
+end
 function T.quote(p,path,index)
  local def=Config.paths[path];if not def then return nil end
  local t=p.tycoon;local level

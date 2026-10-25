@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"1\":{\"ok\":true,\"bag\":{\"value\":0,\"eggs\":0},\"id\":\"polish04:1\",\"message\":\"Habitat assignment updated.\"},\"8\":{\"ok\":true,\"bag\":{\"value\":0,\"eggs\":0},\"id\":\"polish04:6\",\"message\":\"Banked production eggs for 2 coins.\"},\"3\":{\"ok\":false,\"bag\":{\"value\":0,\"eggs\":0},\"id\":\"polish04:3\",\"message\":\"No eggs collected: storage empty or bag full.\"},\"2\":{\"ok\":true,\"bag\":{\"value\":0,\"eggs\":0},\"id\":\"polish04:2\",\"message\":\"Habitat assignment updated.\"},\"5\":{\"ok\":false,\"bag\":{\"value\":0,\"eggs\":0},\"id\":\"polish04:4\",\"message\":\"Your production egg bag is empty.\"},\"4\":{\"ok\":false,\"bag\":{\"value\":0,\"eggs\":0},\"id\":\"polish04:4\",\"message\":\"Your production egg bag is empty.\"},\"7\":{\"ok\":true,\"bag\":{\"value\":0,\"eggs\":0},\"id\":\"polish04:6\",\"message\":\"Banked production eggs for 2 coins.\"},\"6\":{\"ok\":true,\"bag\":{\"value\":2,\"eggs\":2},\"id\":\"polish04:5\",\"message\":\"Collected 2 production eggs.\"}}"
+    }
+  ],
+  "isError": false
+}

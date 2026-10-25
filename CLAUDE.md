@@ -144,3 +144,6 @@ VERIFIED in `codex/mountain-hud-ui`: approved 28-question blueprint recovered fr
 ## Tycoon implementation — October 24–25, 2026
 
 Feature branch codex/tycoon-redesign preserves the local Review06 source in baseline commit 089c6a3. User Q1–Q11 is implemented through additive Tycoon modules and the existing profile/coins. See design/tycoon-implementation-report.md for exact source changes, assumptions, tests and unverified hosted/device acceptance. Original Studio places and local integration checkout were not edited. Verified tools: Windows PowerShell, Python 3.13, Luau CLI in Desktop/climb&collect/tools/.luau, Rojo 7.6.1 via its actual tool-storage executable. Source-only build requires baked Sanctuary geometry.
+
+## Tycoon verification and readability pass — 2026-10-25
+Verified on isolated codex/tycoon-redesign: 1,310 CLI checks, 89 compiles, 50 Studio memory checks and 213 isolated visual-fixture checks. Habitat frames/storage indicators/machine silhouettes and explicit upgrade benefits added. Rates/prices retained after deterministic pacing simulations; human timing, real eight-client/hosted/mobile and premium-art acceptance remain open. Review04 preserves baked world/service hashes. See design/tycoon-polish-2026-10-25.md and evidence/tycoon_2026-10-25/. Desktop graph freshness does not include isolated feature source.

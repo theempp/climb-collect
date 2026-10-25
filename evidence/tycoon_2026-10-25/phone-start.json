@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"touch\":true,\"tabs\":{\"Cosmetics\":[],\"Upgrades\":[],\"Automation\":[],\"Habitats\":[],\"Overview\":[],\"Facilities\":[]},\"orientation\":\"Enum.ScreenOrientation.LandscapeSensor\",\"pool\":12,\"screenInsets\":\"Enum.ScreenInsets.CoreUISafeInsets\",\"viewport\":\"666, 374\"}"
+    }
+  ],
+  "isError": false
+}

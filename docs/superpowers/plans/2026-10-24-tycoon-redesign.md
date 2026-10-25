@@ -41,3 +41,9 @@ Clock rollback and repeated catchup must not duplicate eggs. Full storage must n
 Baseline 089c6a3 preserves local reviewed integration before changes. Task 1: pure rule regressions failed before implementation, then passed. Task 2: wire/migration/client regressions failed before implementation, then passed. Task 3: additive runtime world/hub and protected-world package verified; real-client normal production/bank loop completed. Task 4: independent review completed; adjacency and atomic-swap findings fixed with regression tests; full suite compiled and passed.
 
 Rulings: preserve newer local Review06 dependencies rather than build from old main; retain 180x220 outer plots with internal110x120 grid; production assignment independent of combat membership; use documented provisional numeric balance; offline automation does not drain storage. Costs if wrong: integration/balance adjustment, no destructive world replacement. Public release, full eight-client, hosted save and premium art gates remain open as explicitly documented.
+
+## Continuation — October 25, 2026
+- Complete: deterministic economy/8-profile stress baseline, explicit upgrade benefits, bounded habitat/machine dressing and occupancy reset, isolated visual/persistence fixtures, fresh phone emulator and saved Review04 verification.
+- Ruling: retain numeric balance pending human pacing; first20 coins9.1min with both starters/continuous banking. No live-data tests or publication.
+- Evidence: design/tycoon-polish-2026-10-25.md and evidence/tycoon_2026-10-25/. Independent reviewer found no important regressions; suggested fixture setup assertions and clear/replacement coverage completed.
+- Final:1,310 CLI checks/89 compiles;50 existing+80 tycoon memory checks;213 visual fixtures; six phone tabs checked. Graph refreshed CURRENT with explicit isolated-source exclusion. Eight actual clients/hosted saves/physical devices/premium visual acceptance remain open.

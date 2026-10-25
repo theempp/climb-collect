@@ -79,3 +79,6 @@ Still unverified: published DataStore permissions/budgets and cross-server failu
 Review03 reopened from its saved disk file and started cleanly. At iPhone 7 landscape (666x374 viewport), all six tabs had zero checked clipped description labels or buttons below44x44; the client pool contained exactly12 cosmetic eggs. Actual mouse/touch-emulator input opened Habitat1’s roster and assigned Mossbun; the server-confirmed button changed to Assigned here and disabled. Console contained only the normal ready line. Device simulation was reset to default and Play stopped. Evidence: final-reopen-phone.json.
 
 Implementation commit: febf6cf82b65e1ed2b977ba03cf9555013009084. The branch was pushed and remote SHA matched; the final documentation/evidence commit follows it.
+
+## Follow-up — October 25, 2026
+Testing and readability polish continues in Review04. See [the follow-up report](tycoon-polish-2026-10-25.md) for fresh evidence, unchanged provisional economy values and remaining acceptance gaps. Review03 evidence above is historical; Review04 has its own package audit and Studio verification.

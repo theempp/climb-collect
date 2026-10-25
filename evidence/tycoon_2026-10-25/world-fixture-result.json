@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"scope\":\"isolated Studio visual fixtures; no real player state modified\",\"partsPerEmptyPlot\":101,\"checks\":213}"
+    }
+  ],
+  "isError": false
+}

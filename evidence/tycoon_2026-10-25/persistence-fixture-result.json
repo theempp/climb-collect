@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"scope\":\"sequential isolated memory save/rejoin/offline fixtures; no hosted DataStore, networking or real clients\",\"profiles\":8,\"checks\":80}"
+    }
+  ],
+  "isError": false
+}
