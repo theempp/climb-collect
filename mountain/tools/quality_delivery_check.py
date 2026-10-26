@@ -50,6 +50,10 @@ def main():
     assert identity['passed'] and identity['exact'] and not identity['differences']
     assert read('cold-source-parity')['passed'] and not read('cold-source-parity')['mismatches']
     assert read('final-collision-preservation')['identical_to_naturally_tested_layout']
+    traversal = read('observed-jump-traversal')
+    jumps = [s for s in traversal['log'] if s.get('jump')]
+    assert traversal['done'] and traversal['passed'] and len(jumps) == 12
+    assert all(s['jumpObserved'] and s['airborneObserved'] and s['landingObserved'] and s['maxUp'] > 10 for s in jumps)
     multiplayer = read('multiplayer-final')
     assert multiplayer['done'] and multiplayer['ok'] and not multiplayer['failures']
     regression = read('final-regression')
@@ -62,7 +66,8 @@ def main():
         s = read(n)
         assert s['protected_equal'] and s['lighting_equal']
     result = {'passed': True, 'images': images, 'geometry_checks': 10628, 'runtime_compiles': 77,
-              'regression_suites': 26, 'multiplayer_checks': multiplayer['checks'], 'place_sha256': integrity['sha256'],
+              'regression_suites': 26, 'multiplayer_checks': multiplayer['checks'], 'observed_keyboard_jumps': len(jumps),
+              'observed_traversal_steps': len(traversal['log']), 'place_sha256': integrity['sha256'],
               'performance_rows': len(report['rows']), 'scope': 'Local evidence and current artifact; no hosted-save, physical-device or owner aesthetic acceptance.'}
     (EV / 'delivery-verification.json').write_text(json.dumps(result, indent=2), encoding='utf-8')
     print(json.dumps({k: v for k, v in result.items() if k != 'images'}, indent=2))

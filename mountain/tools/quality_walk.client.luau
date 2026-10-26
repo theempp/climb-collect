@@ -10,10 +10,26 @@ local function publish(done)
 end
 local function walk(q,label,jump)
  local begin=os.clock();local timeout=(rr.Position-q).Magnitude/10+12
- if jump then h.Jump=true end
- repeat h:MoveTo(q);task.wait(.12) until Vector3.new(rr.Position.X-q.X,0,rr.Position.Z-q.Z).Magnitude<2.3 or os.clock()-begin>timeout or h.Health<=0
+ local jumpObserved,airborneObserved,landingObserved=false,false,false
+ local jumpStates={};local maxUp=0;local stateConnection
+ if jump then
+  stateConnection=h.StateChanged:Connect(function(_,state)
+   table.insert(jumpStates,tostring(state))
+   if state==Enum.HumanoidStateType.Jumping then jumpObserved=true end
+   if jumpObserved and state==Enum.HumanoidStateType.Freefall then airborneObserved=true end
+   if airborneObserved and (state==Enum.HumanoidStateType.Landed or state==Enum.HumanoidStateType.Running) then landingObserved=true end
+  end)
+  -- The external QA runner sends an actual Space keyDown/keyUp to this Studio
+  -- client when this marker appears. Observe the normal controller/physics path.
+  workspace:SetAttribute('MountainQA_RequestJump',label)
+ end
+ repeat h:MoveTo(q);task.wait(.12);maxUp=math.max(maxUp,rr.AssemblyLinearVelocity.Y)
+ until (Vector3.new(rr.Position.X-q.X,0,rr.Position.Z-q.Z).Magnitude<2.3 and (not jump or landingObserved)) or os.clock()-begin>timeout or h.Health<=0
+ if stateConnection then stateConnection:Disconnect() end
+ if jump then workspace:SetAttribute('MountainQA_RequestJump',nil) end
  local ok=Vector3.new(rr.Position.X-q.X,0,rr.Position.Z-q.Z).Magnitude<3 and math.abs(rr.Position.Y-q.Y)<5
- table.insert(log,{label=label,ok=ok,seconds=os.clock()-begin,position=tostring(rr.Position),target=tostring(q),speed=h.WalkSpeed,jump=jump==true})
+ if jump then ok=ok and jumpObserved and airborneObserved and landingObserved and maxUp>10 end
+ table.insert(log,{label=label,ok=ok,seconds=os.clock()-begin,position=tostring(rr.Position),target=tostring(q),speed=h.WalkSpeed,jump=jump==true,jumpObserved=jumpObserved,airborneObserved=airborneObserved,landingObserved=landingObserved,maxUp=maxUp,jumpStates=jumpStates})
  failed=failed or not ok;publish(not ok);return ok
 end
 local function point(k,x,d)

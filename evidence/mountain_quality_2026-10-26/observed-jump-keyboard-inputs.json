@@ -1,0 +1,74 @@
+[
+  {
+    "stage": "1:west-ascent:60",
+    "elapsed": 56.293945800000074,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "2:west-ascent:60",
+    "elapsed": 81.67825810000068,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "3:west-ascent:60",
+    "elapsed": 95.31078300000081,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "4:west-ascent:60",
+    "elapsed": 108.95923590000166,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "5:west-ascent:60",
+    "elapsed": 122.07571370000005,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "6:west-ascent:60",
+    "elapsed": 135.84158110000135,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "6:east-descent:60",
+    "elapsed": 164.37386770000012,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "5:east-descent:60",
+    "elapsed": 177.7064285000015,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "4:east-descent:60",
+    "elapsed": 191.17288220000046,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "3:east-descent:60",
+    "elapsed": 204.7726541000011,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "2:east-descent:60",
+    "elapsed": 218.37133760000143,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  },
+  {
+    "stage": "1:east-descent:60",
+    "elapsed": 231.8377040000014,
+    "input": "Space keyDown,200ms,keyUp",
+    "toolSuccess": true
+  }
+]

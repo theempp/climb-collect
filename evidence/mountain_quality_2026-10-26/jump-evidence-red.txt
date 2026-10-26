@@ -1,0 +1,4 @@
+Historical traversal requests: 12
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+AssertionError: REVIEW RED: prior trace records jump intent only, no observed takeoff/landing

@@ -9,20 +9,20 @@
     "vault_removed": 0
   },
   "project": {
-    "nodes": 3335,
-    "edges": 5806
+    "nodes": 3336,
+    "edges": 5807
   },
   "vault": {
-    "nodes": 264,
-    "edges": 317
+    "nodes": 269,
+    "edges": 322
   },
   "merged": {
-    "nodes": 3599,
-    "edges": 6274,
+    "nodes": 3605,
+    "edges": 6280,
     "cross_links": 151
   },
-  "verified_backup": "C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-26-021556.zip",
-  "export": "C:/Users/HOME!/Documents/Obsidian Vault/Climb & Collect/graphify/exports/2026-10-26-021556",
+  "verified_backup": "C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-26-024141.zip",
+  "export": "C:/Users/HOME!/Documents/Obsidian Vault/Climb & Collect/graphify/exports/2026-10-26-024141",
   "remaining_review_candidates": [
     "Five unresolved Markdown/wiki links",
     "Overview latest-status heading remains dated2026-10-22; appended evidence is newer"
@@ -32,6 +32,13 @@
     "mean_reciprocal_rank": 0.75
   },
   "coverage": "Navigation repo and vault only; isolated mountain-quality runtime source excluded",
-  "status_output": "Project: 3335 nodes / 5806 edges\r\nVault: 264 nodes / 317 edges\r\nMerged: 3599 nodes / 6274 edges / 151 cross links\r\nGlobal: 3599 nodes / 6089 edges\r\nInput drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0\r\nStatus: CURRENT for all intended inputs\r\n# Graph quality\r\n\r\nGenerated 2026-10-26T02:16:23-04:00.\r\n\r\n- Indexed project inputs: 367/367\r\n- Indexed vault notes: 7/7\r\n- Cross-links: 151; without provenance: 0\r\n- Broken edges: 0; weak community labels: 0\r\n- Luau files with no symbols: 0\r\n- Source-only code files: 0; supplemented declarations: 29\r\n- Ambiguous document mentions for review: 0\r\n\r\n- Unresolved Markdown/wiki links for review: 5\r\n\r\n## Review candidates\r\n\r\n- `Climb & Collect/Climb & Collect.md`: Latest status heading dated 2026-10-22; compare with current source before updating\r\n",
-  "protected_active_source_recheck": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0\n"
+  "status_output": "Project: 3336 nodes / 5807 edges\r\nVault: 269 nodes / 322 edges\r\nMerged: 3605 nodes / 6280 edges / 151 cross links\r\nGlobal: 3605 nodes / 6095 edges\r\nInput drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0\r\nStatus: CURRENT for all intended inputs\r\n- Source-only code files: 0; supplemented declarations: 29\r\n- Ambiguous document mentions for review: 0\r\n\r\n- Unresolved Markdown/wiki links for review: 5\r\n\r\n## Review candidates\r\n\r\n- `Climb & Collect/Climb & Collect.md`: Latest status heading dated 2026-10-22; compare with current source before updating\r\n",
+  "protected_active_source_recheck": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0\n",
+  "retrieval_check": {
+    "query": "mountain quality --project",
+    "freshness": "CURRENT",
+    "first_result": "design/mountain-quality-upgrade-2026-10-26.md",
+    "runtime_ms": 93
+  },
+  "final_review_fix": "12 observed keyboard jumps and165 natural route steps verified; runtime unchanged"
 }

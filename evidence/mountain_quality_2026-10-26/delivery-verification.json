@@ -266,6 +266,8 @@
   "runtime_compiles": 77,
   "regression_suites": 26,
   "multiplayer_checks": 9,
+  "observed_keyboard_jumps": 12,
+  "observed_traversal_steps": 165,
   "place_sha256": "c3000ce9b6eb626098089719d5fa30503f7947aeb2252d6f151cb1ec0edee680",
   "performance_rows": 7,
   "scope": "Local evidence and current artifact; no hosted-save, physical-device or owner aesthetic acceptance."

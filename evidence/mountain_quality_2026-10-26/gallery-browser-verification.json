@@ -1,0 +1,11 @@
+{
+  "gallery": "comparison.html",
+  "verified": [
+    "Whole Oblique before/after images rendered",
+    "Selector changed to Sunstone Desert escape and both original captures rendered",
+    "Final JPG paths reloaded and rendered"
+  ],
+  "captured_file_format": "JPEG; extensions corrected without image recompression",
+  "pairs": 26,
+  "physical_device": false
+}
