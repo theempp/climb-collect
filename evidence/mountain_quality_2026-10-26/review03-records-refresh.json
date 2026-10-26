@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-26",
+  "status": "CURRENT",
+  "drift": {
+    "projectChanged": 0,
+    "new": 0,
+    "removed": 0,
+    "vaultChanged": 0,
+    "vaultRemoved": 0
+  },
+  "project": {
+    "nodes": 3337,
+    "edges": 5808
+  },
+  "vault": {
+    "nodes": 273,
+    "edges": 326
+  },
+  "merged": {
+    "nodes": 3610,
+    "edges": 6285,
+    "crossLinks": 151
+  },
+  "verifiedVaultBackup": "C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-26-115754.zip",
+  "versionedExport": "C:/Users/HOME!/Documents/Obsidian Vault/Climb & Collect/graphify/exports/2026-10-26-115754",
+  "commands": [
+    "python tools/graphify_refresh/status.py",
+    "python tools/graphify_refresh/refresh.py",
+    "python tools/graphify_refresh/status.py"
+  ],
+  "benchmark": {
+    "recall_at_8": 1,
+    "mean_reciprocal_rank": 0.75,
+    "mean_runtime_ms": 50.69,
+    "mean_approx_tokens": 1240
+  },
+  "coverage": "Navigation repository and vault intended inputs only; isolated mountain runtime excluded.",
+  "finalStatusOutput": "Project: 3337 nodes / 5808 edges\r\nVault: 273 nodes / 326 edges\r\nMerged: 3610 nodes / 6285 edges / 151 cross links\r\nGlobal: 3610 nodes / 6100 edges\r\nInput drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0\r\nStatus: CURRENT for all intended inputs\r\n# Graph quality\r\n\r\nGenerated 2026-10-26T11:58:21-04:00.\r\n\r\n- Indexed project inputs: 367/367\r\n- Indexed vault notes: 7/7\r\n- Cross-links: 151; without provenance: 0\r\n- Broken edges: 0; weak community labels: 0\r\n- Luau files with no symbols: 0\r\n- Source-only code files: 0; supplemented declarations: 29\r\n- Ambiguous document mentions for review: 0\r\n\r\n- Unresolved Markdown/wiki links for review: 5\r\n\r\n## Review candidates\r\n\r\n- `Climb & Collect/Climb & Collect.md`: Latest status heading dated 2026-10-22; compare with current source before updating\r\n"
+}

@@ -1,11 +1,16 @@
 -- Mountain-only in-place upgrade. Never clears voxels or rebuilds gameplay anchors.
-local Q={version=2}
+local Q={version=3}
 local S=require(script.Parent.MountainSurface)
 local A=require(script.Parent.Art)
 local function folder(parent,name)
  local f=Instance.new('Folder');f.Name=name;f.Parent=parent;return f
 end
 local function part(parent,name,size,cf,color,material,collide,shape)
+ -- Small accent silhouettes need only a few faces, not a tessellated sphere.
+ if name=='Bloom' or name=='DesertBloom' or name=='TrailVerge' or name=='Foam' then shape=nil end
+ if name=='DesertSucculent' then
+  shape=Enum.PartType.Cylinder;size=Vector3.new(size.Y,size.X,size.Z);cf=cf*CFrame.Angles(0,0,math.pi/2)
+ end
  return A.part(parent,name,size,cf,color,material,shape,collide)
 end
 local function wedge(parent,name,size,cf,color,material,collide)
@@ -39,13 +44,37 @@ local function rock(parent,p,scale,yaw,color,material,interior)
  end
 end
 local function plant(parent,p,scale,color,accent,rng,flower)
- local cf=CFrame.new(p+Vector3.new(0,.8,0))*CFrame.Angles(0,rng:NextNumber(0,6.28),0)
- for j=1,5 do
-  local a=j*math.pi*2/5;local leaf=cf*CFrame.Angles(0,a,0)*CFrame.new(0,scale*.55,-scale*.45)*CFrame.Angles(-.7,0,0)
-  wedge(parent,'FernFrond',Vector3.new(scale*.5,scale*.18,scale*1.8),leaf,color:Lerp(Color3.new(1,1,1),j*.045),Enum.Material.Grass,false)
+ local yaw=rng:NextNumber(0,6.28)
+ local biome=parent:GetAttribute('Biome') or 1
+ local x=p.X-4096;local d=-210-(biome-1)*200-p.Z
+ local up=Vector3.yAxis
+ if d>=0 and d<=120 then
+  -- Ground on the rendered wedges, not the continuous profile between vertices.
+  local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Include
+  params.FilterDescendantsInstances={parent.Parent.WalkSurface}
+  local hit=workspace:Raycast(Vector3.new(p.X,16+(biome-1)*64+100,p.Z),Vector3.new(0,-120,0),params)
+  if hit then p=hit.Position;up=hit.Normal end
  end
- if flower then
-  part(parent,'Bloom',Vector3.new(scale*.6,scale*.35,scale*.6),cf*CFrame.new(0,scale*.75,0),accent,Enum.Material.SmoothPlastic,false,Enum.PartType.Ball)
+ local right=Vector3.new(up.Y,-up.X,0).Unit
+ local cf=CFrame.fromMatrix(p-up*.08,right,up)*CFrame.Angles(0,yaw,0)
+ if biome<=2 then
+  -- Low unequal sprays grow from a buried root rather than a five-legged tripod.
+  for j=1,3 do
+   local length=scale*(.85+j*.28)
+   local leaf=cf*CFrame.Angles(0,j*2.39,0)*CFrame.new(0,scale*.2,-length*.33)*CFrame.Angles(-.22-j*.035,0,.09)
+   wedge(parent,'LeafSpray',Vector3.new(scale*(.34+j*.08),scale*.12,length),leaf,color:Lerp(Color3.new(1,1,1),j*.04),Enum.Material.Grass,false)
+  end
+  if flower then
+   part(parent,'Bloom',Vector3.new(scale*.48,.18,scale*.48),cf*CFrame.new(.15,scale*.38,-.2)*CFrame.Angles(0,.7,.1),accent,Enum.Material.SmoothPlastic,false)
+  end
+ elseif biome==3 then
+  for j=1,3 do wedge(parent,'AgaveLeaf',Vector3.new(scale*.3,scale*.15,scale),cf*CFrame.Angles(0,j*2.4,0)*CFrame.new(0,scale*.24,-scale*.18)*CFrame.Angles(-.55,0,0),color,Enum.Material.Grass,false) end
+ elseif biome==4 then
+  for j=1,2 do wedge(parent,'AmethystShard',Vector3.new(scale*.32,scale*(.5+j*.22),scale*.4),cf*CFrame.new(j*.4,scale*.22,0)*CFrame.Angles(.1,0,j*.19),accent:Lerp(color,.45),Enum.Material.Slate,false) end
+ elseif biome==5 then
+  for j=1,2 do wedge(parent,'BasaltScree',Vector3.new(scale*.65,scale*.27,scale),cf*CFrame.new(j*.5,0,j*.4)*CFrame.Angles(.08,j,0),color:Lerp(Color3.fromRGB(45,43,46),.55),Enum.Material.Basalt,false) end
+ else
+  for j=1,2 do wedge(parent,'FrostShard',Vector3.new(scale*.4,scale*.45,scale*.8),cf*CFrame.new(j*.4,.1,j*.3)*CFrame.Angles(.12,j,.2),color:Lerp(accent,.3),Enum.Material.Ice,false) end
  end
 end
 local function tree(parent,p,scale,color,leaf,rng)
@@ -78,6 +107,7 @@ function Q.apply(root,onlySection)
    if p.Name=='BrokenCliff' or p.Name=='MineralCluster' or string.sub(p.Name,1,6)=='Grown_' then p:Destroy() end
   end
   local quality=folder(region,'MountainQuality');local surface=folder(quality,'WalkSurface');local art=folder(quality,'Scenery')
+  art:SetAttribute('Biome',k)
   local material=Enum.Material[if k<=2 then 'Grass' else c.material]
   local ground=if k<=2 then green:Lerp(stone,.25) else stone:Lerp(green,.22)
   for _,p in region:GetChildren() do
@@ -152,12 +182,15 @@ function Q.apply(root,onlySection)
   end
   -- Foreground patches make the path read as a worn trail, with a clear center for escape.
   -- Added after the primary geometry pass so every tested collider remains identical.
-  for side=-1,1,2 do for j=1,18 do
-   local d=5+j*6;local x=side*(25+((j*17+k*11)%62));local p=groundAt(x,d)
+  for side=-1,1,2 do for j=1,7 do
+   local d=8+j*14+math.sin(j*2.3+k)*5;local x=side*(35+((j*23+k*11)%43));local p=groundAt(x,d)
    local col=if k==1 then Color3.fromRGB(81,142,79) elseif k==2 then Color3.fromRGB(70,133,124) elseif k==3 then Color3.fromRGB(143,147,88) elseif k==4 then Color3.fromRGB(123,101,160) elseif k==5 then Color3.fromRGB(114,88,72) else Color3.fromRGB(143,169,191)
-   plant(art,p,if k<=2 then 2.6+(j%3)*.5 else 1.7+(j%3)*.4,col,accent,rng,k==1 or k==4 or k==6)
+   for n=1,3 do
+    local px=x+math.sin(n*2.4+j)*4;local pd=d+math.cos(n*2.4+j)*5
+    plant(art,groundAt(px,pd),if k<=2 then 2.3+(n%3)*.55 else 1.5+(n%3)*.4,col,accent,rng,k==1)
+   end
    -- Low irregular verge stones soften the edge without collision or route narrowing.
-   if j%3==0 then part(art,'TrailVerge',Vector3.new(3.5,.55,4.5),CFrame.new(groundAt(side*(16+j%2),d)+Vector3.new(0,.1,0))*CFrame.Angles(0,j,.08),stone,Enum.Material.Rock,false,Enum.PartType.Ball) end
+   if j%2==0 then wedge(art,'TrailVerge',Vector3.new(2.8,.35,3.8),CFrame.new(groundAt(side*(19+j%2),d))*CFrame.Angles(0,j,.08),stone,Enum.Material.Rock,false) end
   end end
   if k==1 then
    for j=1,3 do tree(art,groundAt(-110-j*6,35+j*18),17+j*1.8,Color3.fromRGB(91,72,63),accent:Lerp(green,.15),rng) end
@@ -190,6 +223,16 @@ function Q.apply(root,onlySection)
    rock(art,p+Vector3.new(13,0,0),Vector3.new(12,23,15),.12,pale,Enum.Material.Snow)
    for j=-1,1 do part(art,'CrownArch',Vector3.new(15,7,13),CFrame.new(p+Vector3.new(j*9,20+3*(1-math.abs(j)),0))*CFrame.Angles(0,0,-j*.35),pale,Enum.Material.Snow,false,Enum.PartType.Ball) end
    for j=1,5 do local star=part(art,'CrownStar',Vector3.new(1,1,1),CFrame.new(p+Vector3.new((j-3)*4,10+math.sin(j)*3,2))*CFrame.Angles(0,0,.78),accent,Enum.Material.Neon,false);star.CastShadow=false end
+  end
+  -- Low paired outcrops carry the adjacent palette across the outer terrace seam.
+  -- Keep the entire encounter apron and all three escape lines empty.
+  if k<6 then
+   local nextStone=A.color(C.kingdoms[k+1].rock)
+   for side=-1,1,2 do
+    local p=groundAt(side*(145-k%2*4),193-side*3)
+    rock(art,p-Vector3.new(0,1.5,0),Vector3.new(24,7+k%3,16),side*.7,stone:Lerp(nextStone,.35),Enum.Material[c.material])
+    for n=1,3 do plant(art,groundAt(side*(129+n*3),185+n*3),2+n*.3,green:Lerp(nextStone,.25),accent,rng,k==1) end
+   end
   end
   region:SetAttribute('MountainQualityVersion',Q.version)
   task.wait()

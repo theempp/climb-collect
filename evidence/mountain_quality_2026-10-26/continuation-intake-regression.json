@@ -1,0 +1,521 @@
+{
+  "suites": [
+    {
+      "suite": "egg_raids.luau",
+      "exit": 0,
+      "output": "PASS 21 egg raid checks\n"
+    },
+    {
+      "suite": "free_climb_geometry.luau",
+      "exit": 0,
+      "output": "PASS 62 free climb geometry checks\n"
+    },
+    {
+      "suite": "guardian_rules.luau",
+      "exit": 0,
+      "output": "PASS 12 guardian state checks\n"
+    },
+    {
+      "suite": "journey.luau",
+      "exit": 0,
+      "output": "PASS 8 journey checks\n"
+    },
+    {
+      "suite": "raid_hazards.luau",
+      "exit": 0,
+      "output": "PASS 30 authored hazard checks\n"
+    },
+    {
+      "suite": "route_geometry.luau",
+      "exit": 0,
+      "output": "Route geometry checks passed: 657\n"
+    },
+    {
+      "suite": "rules.luau",
+      "exit": 0,
+      "output": "PASS 121 mountain rules checks\n"
+    },
+    {
+      "suite": "run_journey.luau",
+      "exit": 0,
+      "output": "PASS 6 run journey checks\n"
+    },
+    {
+      "suite": "run_rules.luau",
+      "exit": 0,
+      "output": "PASS 23 run custody checks\n"
+    },
+    {
+      "suite": "sanctuary_sessions.luau",
+      "exit": 0,
+      "output": "PASS 18 sanctuary reservation checks\n"
+    },
+    {
+      "suite": "traversal.luau",
+      "exit": 0,
+      "output": "Traversal checks passed: 131\n"
+    },
+    {
+      "suite": "tycoon.luau",
+      "exit": 0,
+      "output": "PASS 62 tycoon checks\n"
+    },
+    {
+      "suite": "tycoon_economy.luau",
+      "exit": 0,
+      "output": "ECONOMY starter visit=5m eight-hour-coins=1160\nECONOMY starter visit=15m eight-hour-coins=1160\nECONOMY starter visit=30m eight-hour-coins=1056\nECONOMY starter visit=60m eight-hour-coins=528\nECONOMY starter save-20=9.10m\nECONOMY starter save-25=10.92m\nECONOMY starter save-40=17.28m\nECONOMY starter save-50=20.92m\nECONOMY starter save-100=41.83m\nECONOMY eight max profiles: 28800 ticks in 0.2362s; coins/hour/profile=12819\nECONOMY single Common level-zero hourly-coins=69\nECONOMY single Uncommon level-zero hourly-coins=82\nECONOMY single Rare level-zero hourly-coins=206\nECONOMY single Epic level-zero hourly-coins=248\nECONOMY single Mythic level-zero hourly-coins=453\nECONOMY single Legendary level-zero hourly-coins=716\nPASS 125 tycoon economy checks\n"
+    },
+    {
+      "suite": "tycoon_requests.luau",
+      "exit": 0,
+      "output": "PASS 11 tycoon request checks\n"
+    },
+    {
+      "suite": "ui_client_state.luau",
+      "exit": 0,
+      "output": "PASS 50 UI client state checks\n"
+    },
+    {
+      "suite": "ui_presentation.luau",
+      "exit": 0,
+      "output": "PASS 46 UI presentation checks\n"
+    },
+    {
+      "suite": "ui_protocol.luau",
+      "exit": 0,
+      "output": "PASS 42 UI protocol/request checks\n"
+    },
+    {
+      "suite": "run_persistence.py",
+      "exit": 0,
+      "output": "PASS 28 durable exit/migration checks (isolated adapter)\n"
+    },
+    {
+      "suite": "run_combat_raids.py",
+      "exit": 0,
+      "output": "PASS 18 combat raid integration checks\n"
+    },
+    {
+      "suite": "run_ui_server.py",
+      "exit": 0,
+      "output": "PASS 25 profile/combat adapter checks (service fixtures, no live DataStore)\n"
+    },
+    {
+      "suite": "run_lifecycle.py",
+      "exit": 0,
+      "output": "PASS 8 Main lifecycle checks\n"
+    },
+    {
+      "suite": "movement_cli.luau",
+      "exit": 0,
+      "output": "PASS 17 movement policy checks\n"
+    },
+    {
+      "suite": "entrances_cli.luau",
+      "exit": 0,
+      "output": "PASS 19 entrance geometry checks\n"
+    },
+    {
+      "suite": "run_movement.py",
+      "exit": 0,
+      "output": "PASS 14 movement authority checks\n"
+    },
+    {
+      "suite": "run_carry_pose.py",
+      "exit": 0,
+      "output": "PASS 8 legacy/current carry joint checks\n"
+    },
+    {
+      "suite": "quality_geometry.luau",
+      "exit": 0,
+      "output": "PASS 98981 mountain surface geometry checks\n"
+    }
+  ],
+  "compiles": [
+    {
+      "file": "mountain/shared/Catalog.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/GuardianRules.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/HazardRules.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/MovementRules.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/RaidConfig.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/Rules.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/RunRules.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/TerrainProfile.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/TraversalRules.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/Tycoon.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/TycoonConfig.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/UIPresentation.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/shared/UIProtocol.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/CarryVisuals.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Combat.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Competition.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/EggRaids.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Guardians.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Journey.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Main.server.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Movement.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Profiles.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/RaidHazards.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Sanctuary.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/SanctuarySessions.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Store.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/StudioTests.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/Traversal.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/TycoonWorld.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/server/UIRequests.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/CreatureMotion.client.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/EggCarry.client.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/HUD.client.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/Sprint.client.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/TycoonConveyors.client.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/UI/ClientState.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/UI/Controller.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/UI/Feedback.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/UI/Screens.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/UI/Theme.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/UI/TycoonHub.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/client/UI/Widgets.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/ArenaBoundary.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Art.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/ArtClearance.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/BlossomCanopies.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/CliffComposition.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/CreatureDetails.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/CrystalFinish.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Environment.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/EnvironmentFinish.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/FoliageFinish.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/FreeClimb.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/FrontShoulder.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/GardenGround.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/HeroFalls.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/HeroGarden.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Landmarks.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Massifs.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/MeasuredFinish.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/MountainEntrances.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/MountainQuality.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/MountainSurface.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/NaturalRidges.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/NaturalSurface.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Polish.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Relief.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/RidgeCrown.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/RidgeGroves.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/RidgeRockwork.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Sculpt.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/ShelfGardens.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/SlopeGroves.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/Strata.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/TraversalArt.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/WallGrowth.luau",
+      "exit": 0,
+      "errors": ""
+    },
+    {
+      "file": "mountain/world/World.luau",
+      "exit": 0,
+      "errors": ""
+    }
+  ]
+}

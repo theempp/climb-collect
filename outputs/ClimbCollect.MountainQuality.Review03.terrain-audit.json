@@ -1,0 +1,12 @@
+{
+  "source": "outputs\\ClimbCollect.MountainQuality.Working02.rbxl",
+  "reference": "evidence\\mountain_quality_2026-10-26\\baseline\\Review03.SprintEntrances.rbxl",
+  "output": "outputs\\ClimbCollect.MountainQuality.Review03.rbxl",
+  "sha256": "eb77b97a1f69c4e24818196d60131c425e9413794bb939aa3983288fa8d44577",
+  "changed_properties": [
+    "PhysicsGrid",
+    "SmoothGrid"
+  ],
+  "terrain_properties_exact": 70,
+  "other_chunks_preserved": 1618
+}

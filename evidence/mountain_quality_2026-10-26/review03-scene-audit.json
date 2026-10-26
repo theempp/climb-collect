@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "cold_scene_exact": true,
+  "parts": 3585,
+  "maximum_delta": 0.0,
+  "regional_colliders_unchanged": 929,
+  "protected_equal": true,
+  "lighting_equal": true,
+  "geometry_checks": 9546,
+  "grounding_checks": 724,
+  "grounding_maximum_error": 5.862295627594161e-05
+}

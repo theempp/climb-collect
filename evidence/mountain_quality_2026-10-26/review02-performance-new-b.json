@@ -1,0 +1,288 @@
+{
+  "views": {
+    "1": {
+      "p95Ms": 17.57580041885376,
+      "medianMs": 16.584599390625954,
+      "maxMs": 20.453499630093575,
+      "id": "whole",
+      "render": {
+        "Name": "TriangleComposition",
+        "Children": {
+          "1": {
+            "Name": "Opaque",
+            "Sizes": {
+              "Drawcalls": 37,
+              "Triangles": 122828
+            }
+          },
+          "2": {
+            "Name": "Terrain",
+            "Sizes": {
+              "Drawcalls": 121,
+              "Triangles": 73814
+            }
+          },
+          "3": {
+            "Name": "Sky",
+            "Sizes": {
+              "Drawcalls": 3,
+              "Triangles": 28
+            }
+          }
+        },
+        "Sizes": {
+          "Drawcalls": 161,
+          "Triangles": 196670
+        }
+      }
+    },
+    "2": {
+      "p95Ms": 17.630700021982193,
+      "medianMs": 16.693899407982826,
+      "maxMs": 18.048100173473358,
+      "id": "section-1",
+      "render": {
+        "Name": "TriangleComposition",
+        "Children": {
+          "1": {
+            "Name": "Opaque",
+            "Sizes": {
+              "Drawcalls": 25,
+              "Triangles": 41016
+            }
+          },
+          "2": {
+            "Name": "Terrain",
+            "Sizes": {
+              "Drawcalls": 93,
+              "Triangles": 64960
+            }
+          },
+          "3": {
+            "Name": "UI",
+            "Sizes": {
+              "Drawcalls": 1,
+              "Triangles": 350
+            }
+          },
+          "4": {
+            "Name": "Sky",
+            "Sizes": {
+              "Drawcalls": 4,
+              "Triangles": 37
+            }
+          }
+        },
+        "Sizes": {
+          "Drawcalls": 123,
+          "Triangles": 106363
+        }
+      }
+    },
+    "3": {
+      "p95Ms": 17.75519922375679,
+      "medianMs": 16.67040027678013,
+      "maxMs": 18.118800595402718,
+      "id": "section-2",
+      "render": {
+        "Name": "TriangleComposition",
+        "Children": {
+          "1": {
+            "Name": "Opaque",
+            "Sizes": {
+              "Drawcalls": 28,
+              "Triangles": 39280
+            }
+          },
+          "2": {
+            "Name": "Terrain",
+            "Sizes": {
+              "Drawcalls": 97,
+              "Triangles": 67470
+            }
+          },
+          "3": {
+            "Name": "UI",
+            "Sizes": {
+              "Drawcalls": 1,
+              "Triangles": 350
+            }
+          },
+          "4": {
+            "Name": "Sky",
+            "Sizes": {
+              "Drawcalls": 4,
+              "Triangles": 37
+            }
+          }
+        },
+        "Sizes": {
+          "Drawcalls": 130,
+          "Triangles": 107137
+        }
+      }
+    },
+    "4": {
+      "p95Ms": 17.832400277256966,
+      "medianMs": 16.644099727272987,
+      "maxMs": 18.067600205540657,
+      "id": "section-3",
+      "render": {
+        "Name": "TriangleComposition",
+        "Children": {
+          "1": {
+            "Name": "Opaque",
+            "Sizes": {
+              "Drawcalls": 21,
+              "Triangles": 23424
+            }
+          },
+          "2": {
+            "Name": "Terrain",
+            "Sizes": {
+              "Drawcalls": 77,
+              "Triangles": 51676
+            }
+          },
+          "3": {
+            "Name": "UI",
+            "Sizes": {
+              "Drawcalls": 1,
+              "Triangles": 350
+            }
+          },
+          "4": {
+            "Name": "Sky",
+            "Sizes": {
+              "Drawcalls": 4,
+              "Triangles": 37
+            }
+          }
+        },
+        "Sizes": {
+          "Drawcalls": 103,
+          "Triangles": 75487
+        }
+      }
+    },
+    "5": {
+      "p95Ms": 17.74200052022934,
+      "medianMs": 16.660399734973907,
+      "maxMs": 18.370699137449265,
+      "id": "section-4",
+      "render": {
+        "Name": "TriangleComposition",
+        "Children": {
+          "1": {
+            "Name": "Opaque",
+            "Sizes": {
+              "Drawcalls": 19,
+              "Triangles": 19910
+            }
+          },
+          "2": {
+            "Name": "Terrain",
+            "Sizes": {
+              "Drawcalls": 30,
+              "Triangles": 21098
+            }
+          },
+          "3": {
+            "Name": "UI",
+            "Sizes": {
+              "Drawcalls": 1,
+              "Triangles": 350
+            }
+          },
+          "4": {
+            "Name": "Sky",
+            "Sizes": {
+              "Drawcalls": 4,
+              "Triangles": 37
+            }
+          }
+        },
+        "Sizes": {
+          "Drawcalls": 54,
+          "Triangles": 41395
+        }
+      }
+    },
+    "6": {
+      "p95Ms": 17.681900411844254,
+      "medianMs": 16.641300171613693,
+      "maxMs": 18.35069991648197,
+      "id": "section-5",
+      "render": {
+        "Name": "TriangleComposition",
+        "Children": {
+          "1": {
+            "Name": "Opaque",
+            "Sizes": {
+              "Drawcalls": 20,
+              "Triangles": 25448
+            }
+          },
+          "2": {
+            "Name": "UI",
+            "Sizes": {
+              "Drawcalls": 1,
+              "Triangles": 350
+            }
+          },
+          "3": {
+            "Name": "Sky",
+            "Sizes": {
+              "Drawcalls": 4,
+              "Triangles": 37
+            }
+          }
+        },
+        "Sizes": {
+          "Drawcalls": 25,
+          "Triangles": 25835
+        }
+      }
+    },
+    "7": {
+      "p95Ms": 17.723700031638145,
+      "medianMs": 16.596399247646332,
+      "maxMs": 18.393799662590027,
+      "id": "section-6",
+      "render": {
+        "Name": "TriangleComposition",
+        "Children": {
+          "1": {
+            "Name": "Opaque",
+            "Sizes": {
+              "Drawcalls": 21,
+              "Triangles": 20498
+            }
+          },
+          "2": {
+            "Name": "UI",
+            "Sizes": {
+              "Drawcalls": 1,
+              "Triangles": 350
+            }
+          },
+          "3": {
+            "Name": "Sky",
+            "Sizes": {
+              "Drawcalls": 4,
+              "Triangles": 37
+            }
+          }
+        },
+        "Sizes": {
+          "Drawcalls": 26,
+          "Triangles": 20885
+        }
+      }
+    }
+  },
+  "streaming": false,
+  "viewport": "1429, 408",
+  "parts": 3689,
+  "quality": "Enum.QualityLevel.Level10"
+}
