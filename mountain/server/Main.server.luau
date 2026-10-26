@@ -31,6 +31,7 @@ local raidEggs={}
 local state={}
 local contextSnapshots={}
 local busy={};local limits={};local companions={};local motion={};local recovering={}
+local respawns={}
 local function send(player,kind,data) if player.Parent==Players then event:FireClient(player,kind,data) end end
 local function root(player) return player.Character and player.Character:FindFirstChild('HumanoidRootPart') end
 local function living(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 end
@@ -103,8 +104,8 @@ local function restoreRecovery(player)
  end
 end
 local function loseCargo(player)
- local p=P.get(player);if not p then return end
  if raids then raids.forfeit(player,'fall') end
+ local p=P.get(player);if not p then return end
  R.drop(p,os.time());restoreRecovery(player);publish(player)
 end
 local loadCharacter
@@ -114,7 +115,7 @@ local function onCharacter(player,character)
  local pos=if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
  teleport(player,pos);rebuildTeam(player)
- h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player) end;task.delay(3,function() if player.Parent==Players and P.get(player) then loadCharacter(player) end end) end)
+ h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player) end;respawns[player]=os.clock()+3 end)
 end
 loadCharacter=function(player)
  player:LoadCharacterAsync()
@@ -136,7 +137,7 @@ Players.PlayerRemoving:Connect(function(player)
  if raids then raids.remove(player) end;if guardians then guardians.remove(player) end;if raidHazards then raidHazards.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
- contextSnapshots[player]=nil;if uiService then uiService.remove(player) end
+ contextSnapshots[player]=nil;respawns[player]=nil;if uiService then uiService.remove(player) end
  P.save(player,true);state[player]=nil;busy[player]=nil;limits[player]=nil;motion[player]=nil;companions[player]=nil;recovering[player]=nil
 end)
 local rng=Random.new()
@@ -160,7 +161,7 @@ raids=require(script.Parent.EggRaids).new({profiles=P,clock=os.clock,guid=functi
   return false
  end,
  alert=function(k,userId,eggId,now) if guardians then guardians.alert(k,userId,eggId,now) end end,
- changed=publish,present=carryVisuals.show})
+ changed=publish,present=function(player,data) if data.kind=='securing' then areas[player]='sanctuary' end;carryVisuals.show(player,data) end})
 local guardianHeights={}
 for k=1,6 do
  local m=world.Encounters:FindFirstChild('Guardian_'..k)
@@ -219,7 +220,7 @@ local function interact(player,part)
   else p.shortcuts[id]=true;send(player,'toast','Shortcut attuned • use again to reach the Guardian approach.') end
  elseif kind=='Wild' then send(player,'toast','Discover companions by breaking a guarded egg.')
  elseif kind=='Guardian' or kind=='Trial' then
-  local altar=world.Interactions:FindFirstChild(C.guardians[k].name);local center=Vector3.new(altar:GetAttribute('ArenaX'),altar:GetAttribute('ArenaY'),altar:GetAttribute('ArenaZ'))
+  local center=Vector3.new(part:GetAttribute('ArenaX'),part:GetAttribute('ArenaY'),part:GetAttribute('ArenaZ'))
   local ok,msg=B.start(player,k,kind=='Trial',center);if not ok then send(player,'toast',msg) end
  elseif kind=='Puzzle' then
   state[player]=state[player] or {};local s=state[player];s.puzzle=s.puzzle or {};s.puzzle[id]=(s.puzzle[id] or 0)+1
@@ -336,6 +337,7 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
  if checkTick<.2 then return end;checkTick=0
  for _,player in ipairs(Players:GetPlayers()) do
   local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
+  if p and respawns[player] and now>=respawns[player] then respawns[player]=nil;task.spawn(loadCharacter,player) end
   if p and contextDue then
    local refuge,near=atRefuge(player),nearCheckpoint(player);local previous=contextSnapshots[player]
    if not previous or previous.atHome~=atHome(player) or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) or previous.nearestEgg~=nearestEgg(player) then

@@ -246,10 +246,15 @@ connect(Run.Heartbeat,function(dt)
  end
  if math.floor(age)~=lastSecond then
   lastSecond=math.floor(age);timer.Text=P.formatTime(age);screens:tick();screens:pending()
-  if data then local q=P.quest(data);questDetail.Text=if root.AbsoluteSize.Y<390 then (if T.prefs.hints~=false and age<24 then 'Follow flags · secure eggs' else q.progress..' / '..q.total..' objectives') else q.detail end
+  if data then local q=P.quest(data);questDetail.Text=if root.AbsoluteSize.Y<390 then (if T.prefs.hints~=false and age<24 then 'Break · carry · escape' else q.progress..' / '..q.total..' objectives') else q.detail end
   if rr then
-   local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=if data and data.ui and data.ui.inSanctuary then 'Sanctuary · Plot '..tostring(data.ui.plot or '—') else C.kingdoms[k].name
-   heightLabel.Text=math.max(0,math.floor(rr.Position.Y-16))..' studs · '..'6/6 open';heightFill.Size=UDim2.fromScale(math.clamp((rr.Position.Y-16)/824,0,1),1)
+   local mountain=workspace:FindFirstChild('ImpossibleMountain');local free=mountain and mountain:GetAttribute('FreeClimbVersion')
+   local k=math.clamp(math.floor((rr.Position.Y-16)/(if free then 64 else 136))+1,1,6)
+   if free and mountain:FindFirstChild('GuardianBounds') then
+    for _,bound in ipairs(mountain.GuardianBounds:GetChildren()) do local q=bound.CFrame:PointToObjectSpace(rr.Position);if math.abs(q.X)<=bound.Size.X/2 and math.abs(q.Z)<=bound.Size.Z/2 then k=tonumber(bound.Name) or k;break end end
+   end
+   location.Text=if data and data.ui and data.ui.inSanctuary then 'Sanctuary · Plot '..tostring(data.ui.plot or '—') else C.kingdoms[k].name
+   heightLabel.Text=math.max(0,math.floor(rr.Position.Y-16))..' studs · '..'6/6 open';heightFill.Size=UDim2.fromScale(math.clamp((rr.Position.Y-16)/(if free then 384 else 824),0,1),1)
    for name,volume in pairs({['Mountain Birds 1 (SFX)']=if k==1 then .14 elseif k==2 then .05 else 0,WaterfallLoop=if k==2 then .12 else 0,AstralWind=if k>=3 then .08 else 0,LavaLoop=if k==5 then .1 else 0}) do
     local s=game:GetService('SoundService'):FindFirstChild(name);if s then if soundBases[s]==nil then soundBases[s]=s.Volume end;s.Volume=volume*(T.prefs.musicVolume or .7);if not s.IsPlaying then s:Play() end end
    end

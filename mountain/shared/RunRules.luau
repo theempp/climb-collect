@@ -15,7 +15,13 @@ function Run.migrate(p)
  if type(p)~='table' or (p.schema~=1 and p.schema~=2) then return nil end
  if p.schema==2 then return p end
  if not eggs(p.eggs) or not eggs(p.cargo) or (p.recovery~=nil and (type(p.recovery)~='table' or not eggs(p.recovery.eggs))) then return nil end
- local seen={};for _,e in ipairs(p.eggs) do seen[e.id]=true end
+ local identities={}
+ for _,list in ipairs({p.eggs,p.cargo,if p.recovery then p.recovery.eggs else {}}) do for _,e in ipairs(list) do
+  local previous=identities[e.id]
+  if previous and (previous.species~=e.species or (previous.readyAt~=nil and e.readyAt~=nil and previous.readyAt~=e.readyAt)) then return nil end
+  identities[e.id]=previous or e
+ end end
+ local seen={};for _,e in ipairs(p.eggs) do if seen[e.id] then return nil end;seen[e.id]=true end
  local entitlements={}
  for _,list in ipairs({p.cargo,if p.recovery then p.recovery.eggs else {}}) do
   for _,e in ipairs(list) do

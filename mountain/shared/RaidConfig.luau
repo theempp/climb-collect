@@ -1,5 +1,5 @@
 -- All timings and distances are provisional local-playtest tuning, not approved targets.
-local Config={version=1,provisional=true,strikeRange=12,pickupRange=12,strikeCadence=.45,reservationSeconds=55,eggRestSeconds=18,seriousFall=32,saveRetrySeconds=5}
+local Config={version=1,provisional=true,strikeRange=12,pickupRange=12,strikeCadence=.45,reservationSeconds=55,eggRestSeconds=18,seriousFall=32,saveRetrySeconds=5,combatApproachSeconds=12}
 local hazards={'root','water','sandstone','prism','fire','gravity'}
 local records={}
 for k=1,6 do

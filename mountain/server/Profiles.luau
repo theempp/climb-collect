@@ -80,7 +80,7 @@ local function commitPending(player,s)
  if written then
   -- Preserve the top-level profile identity used by existing synchronous services.
   table.clear(s.p);for k,v in pairs(pending.draft) do s.p[k]=v end
-  s.pending=nil;s.lastSave=os.time();s.leaseUntil=leaseUntil
+  pending.committed=true;s.pending=nil;s.lastSave=os.time();s.leaseUntil=leaseUntil
  end
  s.busy=false;s.transacting=false;s.healthy=written
  if s.releaseRequested then s.releaseRequested=nil;task.defer(P.save,player,true) end
@@ -91,9 +91,6 @@ function P.transact(player,transactionId,mutate)
  if not s or type(transactionId)~='string' or #transactionId<1 or #transactionId>128 then return false,'unavailable' end
  if s.pending and s.pending.id~=transactionId then return false,'save_pending' end
  if s.closing and not s.pending then return false,'closing' end
- local deadline=os.clock()+12
- while s.busy and os.clock()<deadline do task.wait(.1) end
- if s.busy then return false,'busy' end
  if not s.pending then
   if not s.healthy or os.time()>=s.leaseUntil then return false,'unavailable' end
   local copied,draft=pcall(copy,s.p);if not copied then return false,'invalid_profile' end
@@ -101,6 +98,13 @@ function P.transact(player,transactionId,mutate)
   if not called or not ok or not valid(draft) then return false,reason or 'invalid_transaction' end
   s.pending={id=transactionId,writeId=Http:GenerateGUID(false),draft=draft,reason=reason}
  end
+ -- Reserve the exact draft BEFORE yielding behind an autosave. Disconnect must
+ -- commit this pending exit before releasing its lease, regardless of wait order.
+ local requested=s.pending
+ local deadline=os.clock()+12
+ while s.busy and os.clock()<deadline do task.wait(.1) end
+ if requested.committed then return true,requested.reason end
+ if s.busy then return false,'busy' end
  return commitPending(player,s)
 end
 function P.pending(player) local s=P.sessions[player];return s and s.pending and s.pending.id end

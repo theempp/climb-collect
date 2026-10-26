@@ -3,7 +3,7 @@ local Config=if script then require(game.ReplicatedStorage.MountainShared.RaidCo
 local E={}
 function E.new(context)
  local P=context.profiles
- local reservations,owners,cooldowns,exits={},{},{},{}
+ local reservations,owners,cooldowns,exits,cancellations={},{},{},{},{}
  local service={}
  local function changed(player) if context.changed then context.changed(player) end end
  local function present(player,data) if context.present then context.present(player,data) end end
@@ -49,7 +49,8 @@ function E.new(context)
  function service.forfeit(player,reason)
   if exits[player] or (P.pending and P.pending(player)) then return false,'save_pending' end
   local p=P.get(player);local lost=p and p.run and table.clone(p.run)
-  if p then Run.forfeit(p,reason) end
+  if not p then cancellations[player]=reason;return false,'profile_unavailable' end
+  cancellations[player]=nil;Run.forfeit(p,reason)
   release(player,true)
   if lost then present(player,{kind='lost',reason=reason,species=lost.species,eggId=lost.eggId});changed(player) end
   return lost~=nil
@@ -89,9 +90,11 @@ function E.new(context)
   if not exits[player] then service.forfeit(player,'leave') end
   -- Profiles owns pending durable work after disconnect; do not retain this Player.
   exits[player]=nil
+  cancellations[player]=nil
   release(player,true)
  end
  function service.tick(now)
+  for player,reason in pairs(cancellations) do service.forfeit(player,reason) end
   for player,record in pairs(owners) do
    if record.expiresAt and now>=record.expiresAt then service.forfeit(player,'abandoned') end
   end

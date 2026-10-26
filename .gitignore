@@ -6,3 +6,6 @@
 
 # Durable local playable reviews are checkpointed separately, not Git objects.
 outputs/*.rbxlx
+outputs/*.rbxl
+mountain/tests/__pycache__/
+mountain/tools/__pycache__/

@@ -6,6 +6,7 @@ function F.layout()
  for k=1,6 do
   local z=-210-(k-1)*200;local y=16+(k-1)*64
   local s={id=k,requiredWins=0,entry=point(4096,y,z),terrace=point(4096,y+64,z-160),finish=point(4096,y+64,z-200),escape={x=4096,width=32},bounds={minX=3924,maxX=4268,minZ=z-198,maxZ=z-2,minY=y-20,maxY=y+100},hazard={x=4168,y=y+64,z=z-154,halfWidth=16}}
+  s.normalAltar=point(4068,y+65,z-181);s.trialAltar=point(4215,y+65,z-181)
   table.insert(g.sections,s)
   for i,x in ipairs({-58,58}) do table.insert(g.eggs,{id='raid:'..k..':'..i,section=k,position=point(4096+x,y+64,z-174)}) end
   for _,r in ipairs({{'entrance',point(4096,y,z-2)},{'recovery',point(4000,y+64,z-136)},{'guardian',point(4096,y+64,z-184)}}) do table.insert(g.restPoints,{id=k..':'..r[1],section=k,position=r[2]}) end
@@ -54,10 +55,17 @@ function F.build()
   ramp(region,'OpenAscent',entry,top,344,stone)
   ramp(region,'DownhillLane',entry+Vector3.new(0,.45,0),top+Vector3.new(0,.45,0),32,stone:Lerp(Color3.fromRGB(240,227,182),.55),.4)
   -- Broad terrace keeps eggs and the shared defender in the same readable space.
-  part(region,'Terrace',terrace-Vector3.new(0,4,0),Vector3.new(344,8,80),stone,Enum.Material[c.material],true)
+  if k==3 then
+   -- A shallow, escapable notch under actual breakaway sandstone plates.
+   part(region,'TerraceFront',Vector3.new(4096,terrace.Y-4,entry.Z-131.5),Vector3.new(344,8,23),stone,Enum.Material.Sandstone,true)
+   part(region,'TerraceBack',Vector3.new(4096,terrace.Y-4,entry.Z-182.5),Vector3.new(344,8,35),stone,Enum.Material.Sandstone,true)
+   part(region,'TerraceLeft',Vector3.new(4038,terrace.Y-4,entry.Z-154),Vector3.new(228,8,22),stone,Enum.Material.Sandstone,true)
+   part(region,'TerraceRight',Vector3.new(4226,terrace.Y-4,entry.Z-154),Vector3.new(84,8,22),stone,Enum.Material.Sandstone,true)
+   part(region,'SandstoneCatch',Vector3.new(4168,terrace.Y-8,entry.Z-154),Vector3.new(32,4,22),stone,Enum.Material.Sandstone,true)
+  else part(region,'Terrace',terrace-Vector3.new(0,4,0),Vector3.new(344,8,80),stone,Enum.Material[c.material],true) end
   part(region,'DownhillLane',terrace+Vector3.new(0,.15,0),Vector3.new(32,.3,80),stone:Lerp(Color3.fromRGB(240,227,182),.55),Enum.Material.Cobblestone,true)
   -- Cliff mass sits below the playable face; no terrain edits or camera tunnels.
-  part(region,'MountainMass',terrace-Vector3.new(0,terrace.Y/2+9,0),Vector3.new(338,terrace.Y+10,76),stone:Lerp(Color3.new(0,0,0),.16),Enum.Material.Rock,true)
+  part(region,'MountainMass',terrace-Vector3.new(0,terrace.Y/2+25,0),Vector3.new(338,terrace.Y+10,76),stone:Lerp(Color3.new(0,0,0),.16),Enum.Material.Rock,true)
   for side=-1,1,2 do
    for j=1,4 do local p=Vector3.new(4096+side*(178+rng:NextNumber(0,16)),terrace.Y-18,entry.Z-115-j*18)
     local rock=part(region,'BrokenCliff',p,Vector3.new(20,46+rng:NextNumber(0,18),28),stone,Enum.Material.Rock,true);rock.CFrame*=CFrame.Angles(0,j*.3,side*.12)
@@ -75,7 +83,7 @@ function F.build()
   local b=s.bounds;local bound=part(bounds,tostring(k),Vector3.new((b.minX+b.maxX)/2,(b.minY+b.maxY)/2,(b.minZ+b.maxZ)/2),Vector3.new(b.maxX-b.minX,b.maxY-b.minY,b.maxZ-b.minZ),accent,nil,false);bound.Transparency=1
   local boss=A.creature(encounters,C.guardians[k],Vector3.new(4096,terrace.Y,entry.Z-185),3.2,1);boss.Name='Guardian_'..k;boss:SetAttribute('Kingdom',k)
   for _,kind in ipairs({'Guardian','Trial'}) do
-   local pos=Vector3.new(4096+(if kind=='Guardian' then -119 else 119),terrace.Y+1,entry.Z-181)
+   local pos=v(if kind=='Guardian' then s.normalAltar else s.trialAltar)
    local altar=part(interactions,if kind=='Guardian' then C.guardians[k].name else 'Trial_'..k,pos,Vector3.new(8,2,8),accent,Enum.Material.Marble,true)
    prompt(altar,kind,k,kind..':'..k,if kind=='Trial' then 'Begin harder Trial' else 'Challenge Guardian')
    altar:SetAttribute('ArenaX',pos.X);altar:SetAttribute('ArenaY',terrace.Y);altar:SetAttribute('ArenaZ',pos.Z)
@@ -87,7 +95,7 @@ function F.build()
   local details=folder(hazard,'TellArt')
   if k==1 then for j=1,3 do A.link(details,'Root',Vector3.new(hp.x-14,hp.y+1,hp.z-6+j*3),Vector3.new(hp.x+14,hp.y+1,hp.z-6+j*3),1.1,Color3.fromRGB(111,87,57),Enum.Material.Wood,false) end
   elseif k==2 then for j=1,3 do part(details,'WaterSheet',Vector3.new(hp.x,hp.y+j*.6,hp.z-7+j*4),Vector3.new(28,.3,2),Color3.fromRGB(114,212,242),Enum.Material.Neon,false) end
-  elseif k==3 then for j=1,4 do part(details,'SandstoneSlab',Vector3.new(hp.x-12+j*5,hp.y+.8,hp.z),Vector3.new(4,1,17),stone,Enum.Material.Sandstone,false) end
+  elseif k==3 then for j=1,4 do part(details,'SandstoneSlab',Vector3.new(hp.x-20+j*8,hp.y+.5,hp.z),Vector3.new(8,1,22),stone,Enum.Material.Sandstone,true) end
   elseif k==4 then for side=-1,1,2 do local p=part(details,'PrismBeam',Vector3.new(hp.x,hp.y+2,hp.z),Vector3.new(28,.6,1),accent,Enum.Material.Neon,false);p.CFrame*=CFrame.Angles(0,side*.55,0) end
   elseif k==5 then for j=1,3 do part(details,'Vent',Vector3.new(hp.x-14+j*7,hp.y+1.5,hp.z),Vector3.new(3,3,3),Color3.fromRGB(255,145,72),Enum.Material.Neon,false) end
   else for j=1,5 do local a=j*math.pi*2/5;part(details,'GravityRune',Vector3.new(hp.x+math.cos(a)*10,hp.y+2,hp.z+math.sin(a)*6),Vector3.new(1,3,1),accent,Enum.Material.Neon,false) end end

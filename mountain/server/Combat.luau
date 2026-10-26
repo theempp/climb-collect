@@ -7,7 +7,10 @@ local profiles,send,changed
 local raidContext
 local function root(player) local c=player.Character;return c and c:FindFirstChild('HumanoidRootPart') end
 local function alive(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 and h end
-local function inArena(player,b) local r=root(player);return r and (r.Position-b.center).Magnitude<58 and alive(player) end
+local function inArena(player,b)
+ local center=if not b.trial and raidContext then raidContext.guardians.position(b.k) or b.center else b.center
+ local r=root(player);return r and (r.Position-center).Magnitude<58 and alive(player)
+end
 local function power(p,targetElement)
  local damage=0
  for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then local st=R.stats(c);damage+=if targetElement then R.damage(st.element,targetElement,st.attack) else st.attack end end
@@ -53,7 +56,7 @@ function B.start(player,k,trial,center)
   if trial and raidContext and raidContext.manifest then b.manifest=raidContext.manifest(k,center) end
  end
  if not trial and raidContext then raidContext.guardians.alert(k,player.UserId,nil,os.clock()) end
- b.members[player]={damage=0,dodges=0,hits=0,joined=os.clock()};send(player,'toast',if trial then 'Legendary Trial • master the patterns, then carry the reward to sanctuary.' else 'Guardian battle • allies can join at the altar.');return true
+ b.members[player]={damage=0,dodges=0,hits=0,joined=os.clock(),approachUntil=os.clock()+RaidConfig.combatApproachSeconds};send(player,'toast',if trial then 'Legendary Trial • master the patterns, then carry the reward to sanctuary.' else 'Guardian battle • approach the moving Guardian to engage.');return true
 end
 function B.startWild(player,species,part)
  local p=profiles.get(player);local s=C.byId[species]
@@ -202,12 +205,16 @@ function B.tick()
  for key,b in pairs(B.battles) do
   local k=b.k
   if not b.trial and raidContext then b.center=raidContext.guardians.position(k) or b.center end
-  local active=0
+  local active=0;local approaching=0
   for player,m in pairs(b.members) do
    local p=profiles.get(player)
-   if not p or not inArena(player,b) then b.members[player]=nil;send(player,'battle',false)
+   if p and alive(player) and root(player) and not inArena(player,b) and not b.trial and not m.engaged and now<m.approachUntil then
+    -- An altar challenger may need to approach a defender pursuing another raider.
+    -- Keep the invitation briefly, but apply no damage or patterns out of range.
+    approaching+=1
+   elseif not p or not inArena(player,b) then b.members[player]=nil;send(player,'battle',false)
    else
-    active+=1;local buff=B.buffs[player];local damage=power(p,C.kingdoms[k].element)*(if buff and now<buff.untilTime then buff.power else 1)*(if now<(b.breakUntil or 0) then 1.25 else 1)
+    m.engaged=true;active+=1;local buff=B.buffs[player];local damage=power(p,C.kingdoms[k].element)*(if buff and now<buff.untilTime then buff.power else 1)*(if now<(b.breakUntil or 0) then 1.25 else 1)
     if now<(b.burnUntil or 0) then damage+=(b.burnPower or 0)/math.max(1,active) end
     b.hp-=damage;m.damage+=damage
     local members={};for ally in pairs(b.members) do table.insert(members,{userId=ally.UserId,name=ally.DisplayName}) end
@@ -215,9 +222,11 @@ function B.tick()
     send(player,'battle',{name=C.guardians[k].name,hp=math.max(0,b.hp),max=b.max,trial=b.trial,dodges=m.dodges,phase=b.beat,kingdom=k,resolved=b.resolved,objective=m.objective==true,objectiveText=if k==5 then 'Interrupt the golden heart' elseif k==6 then 'Align all three constellation stones' elseif b.trial then 'Dodge three patterns and win' else 'Defeat the Guardian',members=members,captureOwned=p.captures[C.guardians[k].id]==true})
    end
   end
-  if active==0 or now-b.started>300 then
+  if (active==0 and approaching==0) or now-b.started>300 then
    for player in pairs(b.members) do send(player,'battle',false);send(player,'toast','Encounter ended • challenge again at the altar.') end
    B.battles[key]=nil;if b.manifest then b.manifest:Destroy() end;for _,e in ipairs(b.effects) do e:Destroy() end
+  elseif active==0 then
+   -- Waiting for an entrant to reach the moving defender.
   elseif b.hp<=0 and b.trial and not R.trialReady(k,b.resolved,b.members) then
    b.hp=1
    if now>=b.nextAttack then b.nextAttack=now+5;pattern(b) end

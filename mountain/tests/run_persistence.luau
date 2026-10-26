@@ -58,6 +58,19 @@ check(coroutine.resume(leaveThread),'disconnect waits')
 check(coroutine.resume(exitThread) and exitOK,'exit commits during disconnect')
 check(coroutine.resume(leaveThread) and leaveOK and race.sessions[leaver]==nil,'disconnect releases committed profile')
 check(#raceBackend.backend.u105.profile.creatures==4 and raceBackend.backend.u105.lock==nil,'exit_disconnect_race_exactly_once')
+-- Autosave is already in storage when exit is crossed; release resumes before exit.
+local queuedBackend=Store.memory();local queued=Profiles.newForTests(queuedBackend,'queue');local qplayer={UserId=109}
+carry(queued.load(qplayer),'queued-exit')
+local qupdate=queuedBackend.update;local qpause=true
+function queuedBackend:update(key,fn) if qpause then qpause=false;coroutine.yield('storage') end;return qupdate(self,key,fn) end
+local qexitOK,qleaveOK
+local autosave=coroutine.create(function() queued.save(qplayer,false) end)
+local qexit=coroutine.create(function() qexitOK=queued.transact(qplayer,'queued-exit',function(draft) return RunRules.secure(draft,'queued-exit') end) end)
+local qleave=coroutine.create(function() qleaveOK=queued.save(qplayer,true) end)
+assert(coroutine.resume(autosave));assert(coroutine.resume(qexit));assert(coroutine.resume(qleave))
+assert(coroutine.resume(autosave));assert(coroutine.resume(qleave));assert(coroutine.resume(qexit))
+check(qexitOK and qleaveOK and #queuedBackend.backend.u109.profile.creatures==4,'exit_intent_survives_autosave_then_disconnect_winning_wait')
+check(#queued.load(qplayer).creatures==4,'queued_exit_survives_rejoin')
 task.wait=normalWait
 local malformed=Rules.newProfile(1);malformed.creatures={false};backend.backend.u106={profile=malformed}
 check(not service.load({UserId=106}) and backend.backend.u106.profile.creatures[1]==false,'malformed_entry_preserved')
@@ -65,4 +78,6 @@ local sparse=Rules.newProfile(1);sparse.schema=1;sparse.cargo={[2]={id='sparse',
 check(not service.load({UserId=107}) and backend.backend.u107.profile.cargo[2].id=='sparse','sparse_legacy_payload_preserved')
 local invalid=Rules.newProfile(1);invalid.creatures[2].id=invalid.creatures[1].id;backend.backend.u108={profile=invalid}
 check(not service.load({UserId=108}),'duplicate_roster_ids_rejected')
+local conflict=Rules.newProfile(1);conflict.schema=1;conflict.eggs={{id='same',species='mossbun',readyAt=77}};conflict.cargo={{id='same',species='petalyn'}};backend.backend.u110={profile=conflict}
+check(not service.load({UserId=110}) and backend.backend.u110.profile.schema==1 and #backend.backend.u110.profile.cargo==1,'conflicting_legacy_identity_preserved_without_overwrite')
 print('PASS '..checks..' durable exit/migration checks (isolated adapter)')
