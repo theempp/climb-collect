@@ -1,0 +1,6 @@
+{
+  "archive": "evidence\\mountain_quality_2026-10-26\\record-backups\\review04-20261026-125803.zip",
+  "sha256": "4e8000226e6b41ca9222b2d380e9ebc5c1bfad4576fa08886c6bcef1b328340f",
+  "verified_files": 5,
+  "purpose": "Exact-byte record backups preserved across Git line-ending normalization."
+}

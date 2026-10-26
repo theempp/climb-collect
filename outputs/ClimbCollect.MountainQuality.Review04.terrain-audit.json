@@ -1,0 +1,13 @@
+{
+  "source": "outputs\\ClimbCollect.MountainQuality.Review04.Native.rbxl",
+  "reference": "outputs\\ClimbCollect.MountainQuality.Review03.rbxl",
+  "output": "outputs\\ClimbCollect.MountainQuality.Review04.rbxl",
+  "sha256": "b0ae05855a36c6623b5cb8cd7bcae8f7cb90bdbcf4f75bfe9cd249c7529129e3",
+  "changed_properties": [
+    "Materials",
+    "PhysicsGrid",
+    "SmoothGrid"
+  ],
+  "terrain_properties_exact": 70,
+  "other_chunks_preserved": 1697
+}

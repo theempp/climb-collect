@@ -4,14 +4,14 @@
   "runtime_files": {
     "mountain/world/FreeClimb.luau": "422d82a601cdde715ce6b8d6c8ea053ac5726050c5edf1f64704bb06c0762ce0",
     "mountain/world/MountainSurface.luau": "26839ac462bd9c3f7f396738b08380fee3be9dd37fb23378f546e280b1f508b0",
-    "mountain/world/MountainQuality.luau": "c9e165c9460cb9ab86ae0c515acfe5e347a8a7d79621afd4e85256f650e65aaf"
+    "mountain/world/MountainQuality.luau": "92ce3c4c36f511320fa6bb7d53f8405a6a384182995df6fec6ea75334385c186"
   },
   "source_hash_normalization": "UTF-8 bytes with LF line endings",
   "review": {
-    "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review03.rbxl",
-    "sha256": "eb77b97a1f69c4e24818196d60131c425e9413794bb939aa3983288fa8d44577",
-    "bytes": 2518161,
-    "instances": 9226,
+    "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review04.rbxl",
+    "sha256": "b0ae05855a36c6623b5cb8cd7bcae8f7cb90bdbcf4f75bfe9cd249c7529129e3",
+    "bytes": 2553332,
+    "instances": 9416,
     "runtime_sources": 77,
     "source_mismatches": [],
     "changed_baseline_sources": [
@@ -36,9 +36,9 @@
     "mountain/world/MountainEntrances.luau"
   ],
   "source_authority_recheck": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0",
-  "helper_version": 3,
-  "continuation_from": "aed37ea",
-  "report": "design/mountain-quality-review03-report.md",
-  "delivery_checker": "mountain/tools/quality_review03_delivery.py",
-  "historical_manifest": "design/mountain-quality-manifest-review01.json"
+  "helper_version": 4,
+  "continuation_from": "e22b924de7314af9f8b0c4e1720c3cc375aaffd5",
+  "report": "design/mountain-quality-review04-report.md",
+  "delivery_checker": "mountain/tools/quality_review04_delivery.py",
+  "historical_manifest": "design/mountain-quality-manifest-review03.json"
 }

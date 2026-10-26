@@ -1,0 +1,418 @@
+[
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/whole-oblique.jpg",
+    "sha256": "d532b38c5ac75ff7b802dfec4d1d9cfd6368ab8491810653862f5fe50dc820b3",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/whole-oblique.jpg",
+    "sha256": "bf90fb5bc8eeb1af7fac59c7102d58c8d91e52f747394706b754447bafa459ad",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/whole-front.jpg",
+    "sha256": "84240724b47c898baac0c672463abe641cf02a51e8907fb3f112611040fb9cbc",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/whole-front.jpg",
+    "sha256": "1b552a66190a881567b7e160bf7120258f1dfeb533336fc034abeedb9f963a4d",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-1-ascent.jpg",
+    "sha256": "ee04ca9c56c00d8f20636ae5f95b9917cf7cb51e9245396ab4a4ff8b812e39a5",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-1-ascent.jpg",
+    "sha256": "7d928e5300ae8f149eb705bf922130cddf8595c9c005777240ba191fc56a123d",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-1-terrace.jpg",
+    "sha256": "49cb639d1bde5afec91cfa3cf12ded2371d34dcd8dee199304f0760e4b89d0ee",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-1-terrace.jpg",
+    "sha256": "95d3abf4ab3ede333eda1c9ab1947a91bb01df3f4299c7475b24345bb1ea3e5a",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-1-escape.jpg",
+    "sha256": "794274af142916c7351a4b6887c359c86536539f7a61bbd3dcade909f102e0d2",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-1-escape.jpg",
+    "sha256": "19fd41601e973a895ff4de7374f9c7413c3346d2709d7c6d24c04a7dc49267d1",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-2-ascent.jpg",
+    "sha256": "bd8039ec139814d8533a3c7bf23e7cf72ad050040b5b7d8e9d694c3b5a382411",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-2-ascent.jpg",
+    "sha256": "843618720dc51763a0ac4a50d6afd9f962413297869c34244fd5ee11aa40cd47",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-2-terrace.jpg",
+    "sha256": "398fef58c819a6cb631774ec560d8d893af1947afde4fb8d80d7ce6c563375e6",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-2-terrace.jpg",
+    "sha256": "c3e50cc4c5dfcd0d9349aa3dc49c65ac5894448fed699fb35c176cab384976b6",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-2-escape.jpg",
+    "sha256": "df5035f617b0cce32379b33813ccda95e24fe3c1fc48853fcc2efc473ac6e4a0",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-2-escape.jpg",
+    "sha256": "20a82d127ab34c966be06728482f16a8c9de1cd7fc16af9ad8b9efc583a11c12",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-3-ascent.jpg",
+    "sha256": "666187b8ef0e5158894e5f565a55e44993f164c1313d92e1301545e29a80ae6c",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-3-ascent.jpg",
+    "sha256": "b03274478428e19b52172692f0eabbc5f929cac152d99c875d0b73352f9dd8f1",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-3-terrace.jpg",
+    "sha256": "ea1ba67302b92be05edb5c33927944bf0fdf97187a6a349448a1bf9f3fffacee",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-3-terrace.jpg",
+    "sha256": "608cfc9db05ff67d70218bdb9c302ccde8fdb6698c1c3914a7ca5cdd8f756b75",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-3-escape.jpg",
+    "sha256": "44f0d8905b036855f15ce7add6b89d57c71fb4de63fd5e48abb840b1fe2f6979",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-3-escape.jpg",
+    "sha256": "6dfd35ee1ef704e54a1a0deefdcfd11c23ee60b7d09d7d366e122afd02aad033",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-4-ascent.jpg",
+    "sha256": "2fef72557b8ef07590e9611e37f83674716b5ad78f4a0f0643816b1b1403ee84",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-4-ascent.jpg",
+    "sha256": "21aa56db45d622ebd1d5e21f9482d4857b6201dd0916d307630d0072d26e2395",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-4-terrace.jpg",
+    "sha256": "56b67cb06eb797e1baefeee19e92594b771adc897a3d7702ba400deed95272d2",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-4-terrace.jpg",
+    "sha256": "5acec3525cfe66e66db478fda05f445e0cbc60cc6f43227c08d3553fac5c0e9c",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-4-escape.jpg",
+    "sha256": "40c0212e1feb7f1b54e86221713a03cfde29f193c800381f471da6cf5e82669f",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-4-escape.jpg",
+    "sha256": "a2f84789f224e1213e9c4ca098c85386a8d9ecbdc7b9e7bfe311941998cee5b1",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-5-ascent.jpg",
+    "sha256": "22e486028da67bf14147e15470c21ce0ddddfb3bc329ecf95196a90d8685b14b",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-5-ascent.jpg",
+    "sha256": "42c9e8f162cd16e9a0fb12fb9634f61815a4caefe4e8325f780982276f00809e",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-5-terrace.jpg",
+    "sha256": "a591cbffd3aa0c6c89300a5b69454fc714b7388ac2822926e2fefc7869f07516",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-5-terrace.jpg",
+    "sha256": "88769d6908a388700854f508f4366289625ae1a98cb35ae59367485001360fb9",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-5-escape.jpg",
+    "sha256": "212ce1094678ef8f3e105de4ddb268ec13d0e16289644e0f324417be6167c0bd",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-5-escape.jpg",
+    "sha256": "66e5a4302391eb9781f12f5a001761124046b31677c701c6d9a99d6d9e878145",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-6-ascent.jpg",
+    "sha256": "6bb4269e8346d6b52a554c399099b8ad334651d3de81d25a90d107e1b8436b73",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-6-ascent.jpg",
+    "sha256": "ca9642c15c6dedddede067d011fb0d33eb3af2114422fceca269b3a2b253e183",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-6-terrace.jpg",
+    "sha256": "42f812f4b4c50a056e6b93cdb013b6675b611cb00b27a3624628c2a22c433683",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-6-terrace.jpg",
+    "sha256": "e11ad586dbd4b6ed6f1e68664e5c34d1e2b2e39967da3d4a0c8fe621c9dd5ac1",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/section-6-escape.jpg",
+    "sha256": "9a600da61be4cc15717ad1105b69df19ed42af6ebfe35fa38193855d1520b361",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/section-6-escape.jpg",
+    "sha256": "f2149c614c4b1622d8af384edbb9c163947b39b31d815110ade35df1bc73e34b",
+    "size": [
+      1429,
+      412
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/phone-section-1-terrace.jpg",
+    "sha256": "3854ed26b7abb4667b43e82dee2f3d5d4af1c79fea7421b509c3ebe3a4d045d5",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/phone-section-1-terrace.jpg",
+    "sha256": "5e0fe802797f676c622429b3a9fe9eabfd6615f1ba0daacce16ca2921d89b0c5",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/phone-section-2-terrace.jpg",
+    "sha256": "51073c16b726f6b1b0766f6c414c6c41aa7b5f0cb0e74c1d1bf36584f3ac8049",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/phone-section-2-terrace.jpg",
+    "sha256": "d9549b288a9d6bd294fbcb3db5a3decccad95bdc543d3c68036e003f41d3f901",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/phone-section-3-terrace.jpg",
+    "sha256": "327c4d0284b34b97c1b3b1703ea40938df9777cec0fe85f03395bf72063ee3d9",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/phone-section-3-terrace.jpg",
+    "sha256": "9f23b86f4c31561aacd02d3b475934d1b180238cc07f4544a1a1e4be618f9414",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/phone-section-4-terrace.jpg",
+    "sha256": "0485a571b120195135fd5f52d71665ad2987cb7f707edaba3e64809741f29992",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/phone-section-4-terrace.jpg",
+    "sha256": "3a2afdb3711608bbbf9b55f7c6096436b7f89edf40b2f6f927b48d868d0a992a",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/phone-section-5-terrace.jpg",
+    "sha256": "051dbef1a699043a17921a770d9475172b25b47851f27fabb53d86015253379e",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/phone-section-5-terrace.jpg",
+    "sha256": "5114b5da9a3cdaa6f6def1fd3091f46eff0c1b5822a94d9b6a4283680a1ee0d3",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-before/phone-section-6-terrace.jpg",
+    "sha256": "9954d2e1063fec9d51eef6d541641c740cd324ac06c64436d179de9358ce248b",
+    "size": [
+      671,
+      302
+    ]
+  },
+  {
+    "path": "evidence/mountain_quality_2026-10-26/review04-after/phone-section-6-terrace.jpg",
+    "sha256": "94328d54fe9eb8954ae7fa0b036a39936807c4b07a27ad8dba6f331bb69e7f34",
+    "size": [
+      671,
+      302
+    ]
+  }
+]

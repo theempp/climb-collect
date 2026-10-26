@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "review": {
+    "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review04.rbxl",
+    "sha256": "b0ae05855a36c6623b5cb8cd7bcae8f7cb90bdbcf4f75bfe9cd249c7529129e3",
+    "bytes": 2553332,
+    "instances": 9416,
+    "runtime_sources": 77,
+    "source_mismatches": [],
+    "changed_baseline_sources": [
+      "ServerStorage.MountainWorld.FreeClimb"
+    ],
+    "new_sources": [
+      "ServerStorage.MountainWorld.MountainQuality",
+      "ServerStorage.MountainWorld.MountainSurface"
+    ],
+    "terrain_properties": 70,
+    "terrain_drift": [],
+    "terrain_payload_sha256": "75b1513b6b406a812de7456b01783f2b7882abf4b204bc196a66e2fe446255d5",
+    "temporary_qa": []
+  },
+  "scene": {
+    "passed": true,
+    "parts": 3964,
+    "cold_scene_exact": true,
+    "max_delta": 0.0,
+    "colliders_unchanged": 996,
+    "effective_physics_checked": 996,
+    "protected_equal": true,
+    "lighting_equal": true,
+    "binary_authority_label_checks": 58,
+    "geometry_checks": 9925,
+    "grounding_checks": 792,
+    "grounding_max_error": 5.862295627594161e-05
+  },
+  "image_pairs": 26,
+  "raid_steps": 120,
+  "traversal_steps": 165,
+  "observed_keyboard_jumps": 12,
+  "regression_suites": 26,
+  "compiles": 77,
+  "idempotency": {
+    "streaming": true,
+    "version": 4,
+    "sameFolders": true,
+    "http": false,
+    "partsUnchanged": true
+  },
+  "limits": [
+    "Owner aesthetic acceptance unresolved.",
+    "Physical-device, hosted/network and current combined-place integration unverified.",
+    "Nine multiplayer checks historical, not rerun."
+  ]
+}
