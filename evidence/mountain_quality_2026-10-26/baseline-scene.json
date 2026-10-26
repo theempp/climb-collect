@@ -130529,7 +130529,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "WATER PULSE\nWatch the warning \u00e2\u20ac\u00a2 clear lane to the left",
+                    "Text": "WATER PULSE\nWatch the warning \u2022 clear lane to the left",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"
@@ -130753,7 +130753,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "SHIFTING SANDSTONE\nWatch the warning \u00e2\u20ac\u00a2 clear lane to the left",
+                    "Text": "SHIFTING SANDSTONE\nWatch the warning \u2022 clear lane to the left",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"
@@ -130901,7 +130901,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "PRISM CROSSING\nWatch the warning \u00e2\u20ac\u00a2 clear lane to the left",
+                    "Text": "PRISM CROSSING\nWatch the warning \u2022 clear lane to the left",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"
@@ -131087,7 +131087,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "FIRE VENTS\nWatch the warning \u00e2\u20ac\u00a2 clear lane to the left",
+                    "Text": "FIRE VENTS\nWatch the warning \u2022 clear lane to the left",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"
@@ -131349,7 +131349,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "GRAVITY PULSE\nWatch the warning \u00e2\u20ac\u00a2 clear lane to the left",
+                    "Text": "GRAVITY PULSE\nWatch the warning \u2022 clear lane to the left",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"
@@ -131535,7 +131535,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "ROOT SWEEP\nWatch the warning \u00e2\u20ac\u00a2 clear lane to the left",
+                    "Text": "ROOT SWEEP\nWatch the warning \u2022 clear lane to the left",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"
@@ -147908,7 +147908,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "MOUNTAIN \u00e2\u2020\u2014\nSprint: hold Shift / mobile toggle",
+                    "Text": "MOUNTAIN \u2197\nSprint: hold Shift / mobile toggle",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"
@@ -148740,7 +148740,7 @@
                       0.9647058844566345,
                       0.8627451062202454
                     ],
-                    "Text": "MOUNTAIN \u00e2\u2020\u2014\nSprint: hold Shift / mobile toggle",
+                    "Text": "MOUNTAIN \u2197\nSprint: hold Shift / mobile toggle",
                     "class": "TextLabel",
                     "TextSize": 17,
                     "name": "TextLabel"

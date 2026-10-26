@@ -1,0 +1,43 @@
+{
+  "name": "ClimbCollect.FreeClimb.Review02.rbxl",
+  "sha256": "6b0773dbc75ffb4c15caf22196229c67d55d0ecce60d32b5a9e6658d9660ba72",
+  "sources": 77,
+  "source_differences": [],
+  "counts": {
+    "Part": [
+      3987,
+      3987
+    ],
+    "MeshPart": [
+      11,
+      11
+    ],
+    "WedgePart": [
+      60,
+      60
+    ],
+    "CornerWedgePart": [
+      1152,
+      1152
+    ],
+    "SpecialMesh": [
+      862,
+      862
+    ],
+    "TrussPart": [
+      0,
+      0
+    ],
+    "ProximityPrompt": [
+      42,
+      42
+    ],
+    "SpawnLocation": [
+      8,
+      8
+    ]
+  },
+  "verified": true,
+  "process": 17136,
+  "scope": "Saved source parity and geometry-class counts; not exhaustive property parity"
+}

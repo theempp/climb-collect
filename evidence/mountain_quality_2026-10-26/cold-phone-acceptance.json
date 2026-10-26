@@ -1,0 +1,12 @@
+{
+  "checkpoints": 18,
+  "sections": 6,
+  "scope": "Samsung Galaxy A06 simulator; cold client after natural traversal",
+  "passed": true,
+  "bounds": 6,
+  "exits": 3,
+  "touch": true,
+  "viewport": "705, 338",
+  "hudCount": 1,
+  "initial_probe": "At home, client streamed 17/18 checkpoints while server had18. After natural traversal client has18. No runtime changes."
+}

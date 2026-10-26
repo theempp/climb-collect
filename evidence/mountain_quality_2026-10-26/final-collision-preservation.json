@@ -1,0 +1,8 @@
+{
+  "colliders": 929,
+  "identical_to_naturally_tested_layout": true,
+  "comparison": [
+    "colliders-iteration02.json",
+    "colliders-v2.json"
+  ]
+}

@@ -6,7 +6,9 @@ local remotes=RS:WaitForChild('MountainRemotes',120)
 local replies={};local serial=0
 remotes.UIResult.OnClientEvent:Connect(function(r) replies[r.id]=r end)
 command.OnClientInvoke=function(action,data)
- if action=='walk' then
+ if action=='stream' then
+  player:RequestStreamAroundAsync(data,5);return {ok=true}
+ elseif action=='walk' then
   local deadline=os.clock()+75
   local lastPosition;local lastProgress=os.clock();local jumps=0
   repeat
@@ -34,4 +36,4 @@ command.OnClientInvoke=function(action,data)
  end
  return {ok=false,reason='unknown command'}
 end
-player:SetAttribute('FreeClimbClientQAReady',true)
+RS:WaitForChild('FreeClimbQAReady'):FireServer()

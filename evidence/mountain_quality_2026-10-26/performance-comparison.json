@@ -1,0 +1,144 @@
+{
+  "scope": "120 frame samples per matched Studio camera, 1365x768, desktop simulator; render counts depend on streaming residency.",
+  "rows": [
+    {
+      "view": "whole-oblique",
+      "before": {
+        "medianMs": 16.71830005943775,
+        "p95Ms": 17.47800037264824
+      },
+      "after": {
+        "medianMs": 16.63449965417385,
+        "p95Ms": 18.157800659537315
+      },
+      "before_render": {
+        "Drawcalls": 256,
+        "Triangles": 122270
+      },
+      "after_render": {
+        "Drawcalls": 304,
+        "Triangles": 307622
+      }
+    },
+    {
+      "view": "section-1",
+      "before": {
+        "medianMs": 16.710499301552773,
+        "p95Ms": 17.63949915766716
+      },
+      "after": {
+        "medianMs": 16.656100749969482,
+        "p95Ms": 18.2413998991251
+      },
+      "before_render": {
+        "Drawcalls": 152,
+        "Triangles": 68070
+      },
+      "after_render": {
+        "Drawcalls": 166,
+        "Triangles": 130468
+      }
+    },
+    {
+      "view": "section-2",
+      "before": {
+        "medianMs": 16.61749929189682,
+        "p95Ms": 17.527099698781967
+      },
+      "after": {
+        "medianMs": 16.597099602222443,
+        "p95Ms": 18.152499571442604
+      },
+      "before_render": {
+        "Drawcalls": 121,
+        "Triangles": 50780
+      },
+      "after_render": {
+        "Drawcalls": 128,
+        "Triangles": 93896
+      }
+    },
+    {
+      "view": "section-3",
+      "before": {
+        "medianMs": 16.62920042872429,
+        "p95Ms": 17.695099115371704
+      },
+      "after": {
+        "medianMs": 16.5972001850605,
+        "p95Ms": 17.566300928592682
+      },
+      "before_render": {
+        "Drawcalls": 86,
+        "Triangles": 22308
+      },
+      "after_render": {
+        "Drawcalls": 95,
+        "Triangles": 55290
+      }
+    },
+    {
+      "view": "section-4",
+      "before": {
+        "medianMs": 16.66029915213585,
+        "p95Ms": 17.75749959051609
+      },
+      "after": {
+        "medianMs": 16.67810045182705,
+        "p95Ms": 17.892399802803993
+      },
+      "before_render": {
+        "Drawcalls": 64,
+        "Triangles": 6996
+      },
+      "after_render": {
+        "Drawcalls": 72,
+        "Triangles": 31216
+      }
+    },
+    {
+      "view": "section-5",
+      "before": {
+        "medianMs": 16.649900004267693,
+        "p95Ms": 17.593199387192726
+      },
+      "after": {
+        "medianMs": 16.562100499868393,
+        "p95Ms": 17.944900318980217
+      },
+      "before_render": {
+        "Drawcalls": 38,
+        "Triangles": 20516
+      },
+      "after_render": {
+        "Drawcalls": 46,
+        "Triangles": 41926
+      }
+    },
+    {
+      "view": "section-6",
+      "before": {
+        "medianMs": 16.66400022804737,
+        "p95Ms": 17.932500690221786
+      },
+      "after": {
+        "medianMs": 16.669800505042076,
+        "p95Ms": 17.759699374437332
+      },
+      "before_render": {
+        "Drawcalls": 13,
+        "Triangles": 23202
+      },
+      "after_render": {
+        "Drawcalls": 19,
+        "Triangles": 39206
+      }
+    }
+  ],
+  "limitations": [
+    "Not a physical-phone or uncapped GPU budget measurement.",
+    "First cold run used for this comparison; repeated run confirms regional frame times, but its whole view had only572 triangles and is excluded as incompletely streamed.",
+    "Native-small-mesh experiment was not adopted: background throttling and incomplete streaming confounded its samples."
+  ],
+  "decision": "Retain v2: desktop median remains near16.7ms and p95 under18.3ms. Whole-view observed triangles rise122270 to307622 and draws256 to304; hardware cost remains a deployment gate."
+}

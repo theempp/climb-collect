@@ -15,13 +15,13 @@ def canonical(x):
     return x
 def load(name):
     path=EV/(name+'.json')
-    if path.exists(): return canonical(json.loads(path.read_text()))
-    parts=sorted(EV.glob(name+'-*.json'),key=lambda p:int(p.stem.rsplit('-',1)[1]))
+    parts=sorted((p for p in EV.glob(name+'-*.json') if p.stem.rsplit('-',1)[1].isdigit()),key=lambda p:int(p.stem.rsplit('-',1)[1]))
+    if not parts and path.exists(): return canonical(json.loads(path.read_text(encoding='utf-8')))
     assert parts,name
-    result=canonical(json.loads(''.join(json.loads(p.read_text())['data'] for p in parts)))
-    if isinstance(result.get('protected',{}).get('ImpossibleMountain'),list):
+    result=canonical(json.loads(''.join(json.loads(p.read_text(encoding='utf-8'))['data'] for p in parts)))
+    if isinstance(result,dict) and isinstance(result.get('protected',{}).get('ImpossibleMountain'),list):
         result['protected']['ImpossibleMountain'].sort(key=lambda y:json.dumps(y,sort_keys=True))
-    path.write_text(json.dumps(result,indent=2));return result
+    path.write_text(json.dumps(result,indent=2),encoding='utf-8');return result
 def digest(v):return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('name');p.add_argument('--compare');a=p.parse_args()

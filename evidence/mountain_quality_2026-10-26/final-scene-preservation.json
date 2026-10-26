@@ -1,0 +1,109 @@
+{
+  "baseline": "baseline-scene",
+  "current": "final-scene",
+  "protected_equal": true,
+  "lighting_equal": true,
+  "protected_sha256": "37b24bd1f0831dafef6354b54d2b4e1229315a25e86ba69fe3b17047078e4101",
+  "sections": {
+    "Azure Falls": {
+      "min": [
+        3912.51953125,
+        -30,
+        -610
+      ],
+      "max": [
+        4276.94482421875,
+        165.67156982421875,
+        -392.6161193847656
+      ],
+      "colliders": 154,
+      "parts": 704
+    },
+    "Blossom Gardens": {
+      "min": [
+        3910.566162109375,
+        -30,
+        -410
+      ],
+      "max": [
+        4277.66650390625,
+        101.6275405883789,
+        -192.76832580566406
+      ],
+      "colliders": 154,
+      "parts": 826
+    },
+    "Inferno Heights": {
+      "min": [
+        3910.03759765625,
+        -30,
+        -1210
+      ],
+      "max": [
+        4276.94482421875,
+        356.0666198730469,
+        -992.6161499023438
+      ],
+      "colliders": 154,
+      "parts": 652
+    },
+    "Sunstone Desert": {
+      "min": [
+        3914.15283203125,
+        -30,
+        -810
+      ],
+      "max": [
+        4278.85498046875,
+        228.1393280029297,
+        -592.768310546875
+      ],
+      "colliders": 159,
+      "parts": 657
+    },
+    "Violet Crystals": {
+      "min": [
+        3914.701416015625,
+        -30,
+        -1010
+      ],
+      "max": [
+        4276.8408203125,
+        291.9418029785156,
+        -792.768310546875
+      ],
+      "colliders": 154,
+      "parts": 718
+    },
+    "Astral Crown": {
+      "min": [
+        3913.609130859375,
+        -30,
+        -1410
+      ],
+      "max": [
+        4277.1865234375,
+        420.0873107910156,
+        -1192.768310546875
+      ],
+      "colliders": 154,
+      "parts": 726
+    }
+  },
+  "counts": {
+    "ProximityPrompt": 42,
+    "BillboardGui": 50,
+    "Part": 3697,
+    "SpecialMesh": 1001,
+    "SpawnLocation": 8,
+    "SurfaceGui": 8,
+    "Folder": 74,
+    "Camera": 1,
+    "TextLabel": 58,
+    "Model": 48,
+    "CornerWedgePart": 912,
+    "Attachment": 1,
+    "WedgePart": 3301,
+    "Terrain": 1
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "passed": true,
+  "images": [
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/whole-oblique.jpg",
+      "bytes": 349847,
+      "sha256": "5d58995b18db6a506b64ac7e83aa5985597ea0cd2c56e869be2e33116b5abd5a"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/whole-front.jpg",
+      "bytes": 324647,
+      "sha256": "06b08967306b398e6c6339e27a4bb806a562f19344c475eabb675c886cf4bf37"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-1-ascent.jpg",
+      "bytes": 364815,
+      "sha256": "d82faa4abd8be479035a1717ea06912472bb8b6c589c2684967c5bc17a863abc"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-1-terrace.jpg",
+      "bytes": 394896,
+      "sha256": "866cb15046253d7d16f84f732f94100072394be4aef67e365dcb54e277cd9098"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-1-escape.jpg",
+      "bytes": 335403,
+      "sha256": "dcba3b68e84db4e19769500eb9cd94cf41ddd3f2596c5c0d8ed8ec4aae182796"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-2-ascent.jpg",
+      "bytes": 389762,
+      "sha256": "0a5a1caa81c875e14068869982decf17d66cd2e52cf0638a5574c898cf7dcc85"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-2-terrace.jpg",
+      "bytes": 419912,
+      "sha256": "b0e50efc46c3b16630fc6deb2df58eabc5525a7b4cacda1e6021d7c388766d56"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-2-escape.jpg",
+      "bytes": 391246,
+      "sha256": "1aeb02db5e5c7f0b384b944bcda2660f5ce6fcddde1db7b98389eeeac0cf24ff"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-3-ascent.jpg",
+      "bytes": 394629,
+      "sha256": "d3187364f6b489fe235187ddebc0a48e094b1dd9e2dd68dfc2407f5a8f11a847"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-3-terrace.jpg",
+      "bytes": 448442,
+      "sha256": "eeb8c3f2359386e899cf412a374f50223df31a65beafec6086812b63fd2fdad1"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-3-escape.jpg",
+      "bytes": 402633,
+      "sha256": "798d06865e346396502a35abe53bcb9c07d614460ccbdfbf4e7f5f2a56b575a4"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-4-ascent.jpg",
+      "bytes": 308808,
+      "sha256": "81661b3599e44ac5f0476edfd89c136fb88b4bfaf34288130a3a15e4c3aad63b"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-4-terrace.jpg",
+      "bytes": 387449,
+      "sha256": "f53e13794b487b5a67e7a164af38a61f657bced5702315deb6005111973a633f"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-4-escape.jpg",
+      "bytes": 401537,
+      "sha256": "a283c76e06ac3c96e30a2898f88bb755f30483d1e6b0fb815c2331750a8f532d"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-5-ascent.jpg",
+      "bytes": 277384,
+      "sha256": "27b8a71b13263adf735b8ed38d75f265680cf79d225aefc23d54c3d240595f39"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-5-terrace.jpg",
+      "bytes": 312876,
+      "sha256": "d0bcd18aa327b9f5887c90bdbfd2537961a6a2c5e7b7e689760f3a81e1b2cc79"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-5-escape.jpg",
+      "bytes": 360835,
+      "sha256": "e8cf89d4d4de8567807234b826961126a2edf497eed7f15f267f3c2e4a255a58"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-6-ascent.jpg",
+      "bytes": 346102,
+      "sha256": "06913fb103df397b8e331a1c4b67fd8481e551f41fac7414121d6e5d9b5bfcae"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-6-terrace.jpg",
+      "bytes": 272856,
+      "sha256": "865dd143fb1880105701ceef65bc4ee4cb330c101e3cffe8db8001b33739e79c"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/section-6-escape.jpg",
+      "bytes": 388683,
+      "sha256": "f393661d6fa333c6673b98318a5a2d44eae96d5be60fdf6dda5d3be3a764ba82"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/phone-section-1-terrace.jpg",
+      "bytes": 78190,
+      "sha256": "3ee92e6d4cb15e265f272ec2587824859d974cedcb39b34f819eafed31a3b666"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/phone-section-2-terrace.jpg",
+      "bytes": 79685,
+      "sha256": "a6484b4037e7517670c376850745a37029eb3920f89f0a5707e295518803f5ef"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/phone-section-3-terrace.jpg",
+      "bytes": 83761,
+      "sha256": "aa940e7a474086a491b1aa60b3fe14ff9429586ce5b3246d5fd2f27e82196f1c"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/phone-section-4-terrace.jpg",
+      "bytes": 77471,
+      "sha256": "e48c2d8fda12591e71889442b2e6f4dfd413f843c7547070b4db126f7fad9256"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/phone-section-5-terrace.jpg",
+      "bytes": 70792,
+      "sha256": "b7701e648638a86ae93cfebca4bb21ba9521cc007c063d703367918fb5cb518d"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/before/phone-section-6-terrace.jpg",
+      "bytes": 63927,
+      "sha256": "e3ad2e825b502e8d683493d1f98cb95e7ce534ada96c0192df766b1d12ebf73a"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/whole-oblique.jpg",
+      "bytes": 356253,
+      "sha256": "ddc0b9bf0765b656a48ca4c9497442ffe091b43465741e12061ccb6948019d10"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/whole-front.jpg",
+      "bytes": 325286,
+      "sha256": "8a7bffafcffa132504ef49c2daa876145a087cc0626cc6ec9eb5a048b6071e39"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-1-ascent.jpg",
+      "bytes": 388641,
+      "sha256": "e5d0945d708fddf75d0ec46f6b406c37feef2f5196afe0cf989af773b387a4e7"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-1-terrace.jpg",
+      "bytes": 394327,
+      "sha256": "15895b980a0c5e72bd450a46d54995dc45d64b03161a34a6b7f8e5be19390bd0"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-1-escape.jpg",
+      "bytes": 474795,
+      "sha256": "dfdd08b7c2852a50331540f7737e34f9e183fd5b0f45b31c8d0bc404ff5a57b0"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-2-ascent.jpg",
+      "bytes": 432483,
+      "sha256": "46677880191a17069baa595d1e7d0213ef3390af7a46ec31104fea61cfbdde57"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-2-terrace.jpg",
+      "bytes": 433721,
+      "sha256": "d8fc2aeb434a61e19d59c9afb078a725c6133bfbb7ac4288ee5761986ad02ecd"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-2-escape.jpg",
+      "bytes": 437193,
+      "sha256": "8ffac377e7d9c2a894c34d905746a5955ebe63a1bd2b77482291b97dfb178c82"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-3-ascent.jpg",
+      "bytes": 366220,
+      "sha256": "0811d360bd23267239a948bbf5fa1300a83b3a821c6537a5db44116d5ffcf56a"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-3-terrace.jpg",
+      "bytes": 454288,
+      "sha256": "b0748787dbb65e49a4bcb013384a3006618d4cdf3ce1186b10af0c69f757a438"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-3-escape.jpg",
+      "bytes": 428760,
+      "sha256": "8cea9454f191d42570089a65c4272c56676be010efbfb8215091805d7957e3e0"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-4-ascent.jpg",
+      "bytes": 332627,
+      "sha256": "4dd6e21df4860682d241510e0308afb73889698dcdd871c5fc9bcb2f6aba5271"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-4-terrace.jpg",
+      "bytes": 396596,
+      "sha256": "75e498312326f8797de1b2bcbb4ca3c6541b3af836617f13077d74aac2074d81"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-4-escape.jpg",
+      "bytes": 440590,
+      "sha256": "86fa739145c377a7e212f94eee78d7ee75ceb242628c4913596d9a1028b6fe06"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-5-ascent.jpg",
+      "bytes": 281989,
+      "sha256": "77b03d6e182ccc0b92bb169417209b7f669fcef62e6bf5df5b964988ef148c2c"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-5-terrace.jpg",
+      "bytes": 297755,
+      "sha256": "d12aeb6e6d1919515d6fc87b131bfc5ae3163ca3bc308820947a0fa23773612b"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-5-escape.jpg",
+      "bytes": 394128,
+      "sha256": "8b163ff11d1c164ed8e17d7867f037208669f89b2a3151dee35e52cf89d56ff1"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-6-ascent.jpg",
+      "bytes": 260462,
+      "sha256": "d95938e60f004433c66e0c6b3e4e13835c4f5f3a9f8ba4aca75424c659a0ebde"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-6-terrace.jpg",
+      "bytes": 250080,
+      "sha256": "080f53f0c46d2b6aec8a75fa9c837fc3e5c37ad7a1590e3b668ca51a9dd9031c"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/section-6-escape.jpg",
+      "bytes": 379956,
+      "sha256": "0d2ab30318a842ca6b5e7d616f294af6f1cd4ed3187d7dc214bba3ec3f1d8bf6"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/phone-section-1-terrace.jpg",
+      "bytes": 79847,
+      "sha256": "260c7f8283428c6534dce890f00213309063ddc8db2c0a6de8982ce4e0996167"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/phone-section-2-terrace.jpg",
+      "bytes": 80702,
+      "sha256": "246be981364cdc23e6ba674d9ca8ef6d2d298e363d8b750635da7213bdd64a1e"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/phone-section-3-terrace.jpg",
+      "bytes": 86310,
+      "sha256": "21af28cf342ce83f9abb539791288fc37f026e503f5c600215e9839de6e0ec85"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/phone-section-4-terrace.jpg",
+      "bytes": 80493,
+      "sha256": "a4a6c63168a86391c3adf5890b3a8fc37e877e6f03e297baa40164c62d774212"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/phone-section-5-terrace.jpg",
+      "bytes": 70040,
+      "sha256": "cb87c9bc67ef1332141e46c702a0946a18ed4eb8d65c5c103d059d05971b8a02"
+    },
+    {
+      "path": "evidence/mountain_quality_2026-10-26/after/phone-section-6-terrace.jpg",
+      "bytes": 62698,
+      "sha256": "eeaf3f9eb228bd076284d7e86d7fec0ccc499a933493cda0f37ceb72d86fdfc7"
+    }
+  ],
+  "geometry_checks": 10628,
+  "runtime_compiles": 77,
+  "regression_suites": 26,
+  "multiplayer_checks": 9,
+  "place_sha256": "c3000ce9b6eb626098089719d5fa30503f7947aeb2252d6f151cb1ec0edee680",
+  "performance_rows": 7,
+  "scope": "Local evidence and current artifact; no hosted-save, physical-device or owner aesthetic acceptance."
+}

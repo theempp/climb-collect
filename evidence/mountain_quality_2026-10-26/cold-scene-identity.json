@@ -1,0 +1,13 @@
+{
+  "before": "final-fingerprint",
+  "after": "cold-fingerprint",
+  "parts_before": 4667,
+  "parts_after": 4667,
+  "exact": true,
+  "before_sha256": "f1754b45c29f42516cfb542a911e3f6fd9fb3f519dd928eb2e71f4efe7a29e53",
+  "after_sha256": "f1754b45c29f42516cfb542a911e3f6fd9fb3f519dd928eb2e71f4efe7a29e53",
+  "maximum_numeric_delta": 0.0,
+  "tolerance": 1e-05,
+  "differences": [],
+  "passed": true
+}

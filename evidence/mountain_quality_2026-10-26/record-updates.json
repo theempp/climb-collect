@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-26T02:14:59.822345",
+  "backups": [
+    {
+      "path": "C:\\Users\\HOME!\\Desktop\\climb&collect\\master.md",
+      "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\records-backup\\0-master.md",
+      "before_sha256": "5915fae136dd303f1bc3781cbec286cf075f7ea651957bbfd95fbf67b17fe4bd",
+      "after_sha256": "05d8cb3bdcc3e68bd5f0bb4dd236263178eddcb744e2c9bf2ce5c57cd0235273",
+      "prior_content_preserved": true
+    },
+    {
+      "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Climb & Collect.md",
+      "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\records-backup\\1-Climb & Collect.md",
+      "before_sha256": "71e97ccad78e5b593f4a84fc0f00648660cea7108654b802d1b5dff92fb9ac59",
+      "after_sha256": "e99b5d8e990a45e88da9660e1e8ff4818ae07108a98bb3e19135948dc92e8f61",
+      "prior_content_preserved": true
+    },
+    {
+      "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Decisions.md",
+      "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\records-backup\\2-Decisions.md",
+      "before_sha256": "12a2f3c47723f5754a4233f597b58281e70e0ea4ca38601fc363d8f2851fb735",
+      "after_sha256": "7b32e23b5855e634bb7f6b09a5412c1a335d9f26a883f25d73fc40eb1bbaf096",
+      "prior_content_preserved": true
+    },
+    {
+      "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Milestones.md",
+      "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\records-backup\\3-Milestones.md",
+      "before_sha256": "90a256c2f885283ea0e528d0e2d93d75da9cf208905a275f2e3c1cab6929cec7",
+      "after_sha256": "ab0b149667d11b8f26961a6f10b8a184f5ab24f469406e44bce82a750d3629c7",
+      "prior_content_preserved": true
+    },
+    {
+      "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Open Questions.md",
+      "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\records-backup\\4-Open Questions.md",
+      "before_sha256": "566c27e9f01c038b48f05475257682782542b1b77de41f179f75a746c7fcbeaf",
+      "after_sha256": "f67009483b4c0db297f04b688b582de47fce8afa5878998680e600897c387cfd",
+      "prior_content_preserved": true
+    }
+  ],
+  "project_record": "C:\\Users\\HOME!\\Desktop\\climb&collect\\design\\mountain-quality-upgrade-2026-10-26.md"
+}

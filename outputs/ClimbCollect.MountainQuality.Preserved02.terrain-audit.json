@@ -1,0 +1,9 @@
+{
+  "source": "outputs\\ClimbCollect.MountainQuality.Working02.rbxl",
+  "reference": "evidence\\mountain_quality_2026-10-26\\baseline\\Review03.SprintEntrances.rbxl",
+  "output": "outputs\\ClimbCollect.MountainQuality.Preserved02.rbxl",
+  "output_sha256": "89b73248330340e00567fb7137fb5274370672d93cea62ddf9c53f46a2690ff4",
+  "changed_chunks": 1,
+  "terrain_payload_sha256": "75b1513b6b406a812de7456b01783f2b7882abf4b204bc196a66e2fe446255d5",
+  "other_chunks_preserved": 1619
+}
