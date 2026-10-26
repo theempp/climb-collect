@@ -1,0 +1,142 @@
+[
+  {
+    "name": "ClimbCollect.FreeClimb.Baseline01.rbxlx",
+    "sha256": "3c05d0738a2c3beec350138764425a42c6387fcb4a72753d408fe5f269adec9f",
+    "source_matches": true,
+    "differences": [],
+    "geometry_class_counts": {
+      "Part": [
+        17998,
+        17998
+      ],
+      "MeshPart": [
+        443,
+        443
+      ],
+      "WedgePart": [
+        4787,
+        4787
+      ],
+      "CornerWedgePart": [
+        1152,
+        1152
+      ],
+      "SpecialMesh": [
+        9532,
+        9532
+      ],
+      "TrussPart": [
+        24,
+        24
+      ],
+      "ProximityPrompt": [
+        107,
+        107
+      ],
+      "SpawnLocation": [
+        9,
+        9
+      ]
+    },
+    "verified": true,
+    "verified_copy": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\baseline\\ClimbCollect.FreeClimb.Baseline01.rbxlx"
+  },
+  {
+    "name": "ClimbCollect.FreeClimb.Geometry01.rbxlx",
+    "sha256": "266b37ab5ca02a42ec2128260861c299f7ce0379594d8118f6fa365f459471d5",
+    "source_matches": false,
+    "differences": [
+      "StarterPlayer.StarterPlayerScripts.MountainClient.UI.ClientState",
+      "StarterPlayer.StarterPlayerScripts.MountainClient.UI.Controller",
+      "StarterPlayer.StarterPlayerScripts.MountainClient.UI.Screens",
+      "ReplicatedStorage.MountainShared.UIPresentation",
+      "ReplicatedStorage.MountainShared.UIProtocol",
+      "ReplicatedStorage.MountainShared.RunRules",
+      "ServerScriptService.MountainServer.Profiles",
+      "ServerScriptService.MountainServer.Main",
+      "ServerScriptService.MountainServer.Journey",
+      "ServerScriptService.MountainServer.Sanctuary",
+      "ServerScriptService.MountainServer.UIRequests",
+      "ServerScriptService.MountainServer.CarryVisuals",
+      "ServerScriptService.MountainServer.EggRaids",
+      "ServerStorage.MountainWorld.FreeClimb"
+    ],
+    "geometry_class_counts": {
+      "Part": [
+        17998,
+        3990
+      ],
+      "MeshPart": [
+        443,
+        20
+      ],
+      "WedgePart": [
+        4787,
+        60
+      ],
+      "CornerWedgePart": [
+        1152,
+        1152
+      ],
+      "SpecialMesh": [
+        9532,
+        862
+      ],
+      "TrussPart": [
+        24,
+        0
+      ],
+      "ProximityPrompt": [
+        107,
+        42
+      ],
+      "SpawnLocation": [
+        9,
+        8
+      ]
+    },
+    "verified": false
+  },
+  {
+    "name": "ClimbCollect.FreeClimb.Review01.rbxl",
+    "sha256": "6bcd6489bcfcee6ce8190c41e56e74de1454a0225fc405c08857ea47eddb2b7b",
+    "source_matches": true,
+    "differences": [],
+    "geometry_class_counts": {
+      "Part": [
+        3987,
+        3987
+      ],
+      "MeshPart": [
+        11,
+        11
+      ],
+      "WedgePart": [
+        60,
+        60
+      ],
+      "CornerWedgePart": [
+        1152,
+        1152
+      ],
+      "SpecialMesh": [
+        862,
+        862
+      ],
+      "TrussPart": [
+        0,
+        0
+      ],
+      "ProximityPrompt": [
+        42,
+        42
+      ],
+      "SpawnLocation": [
+        8,
+        8
+      ]
+    },
+    "verified": true,
+    "verified_copy": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\baseline\\ClimbCollect.FreeClimb.Review01.rbxl"
+  }
+]

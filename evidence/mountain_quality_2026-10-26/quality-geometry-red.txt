@@ -1,0 +1,4 @@
+error requiring module "../world/MountainSurface": could not resolve child component "MountainSurface"
+stacktrace:
+[C] function require
+./mountain/tests/quality_geometry.luau:2

@@ -9,3 +9,7 @@ outputs/*.rbxlx
 outputs/*.rbxl
 mountain/tests/__pycache__/
 mountain/tools/__pycache__/
+tools/.luau/
+evidence/mountain_quality_2026-10-26/baseline/*.rbxl
+evidence/mountain_quality_2026-10-26/baseline/*.rbxlx
+evidence/mountain_quality_2026-10-26/baseline/*.zip
