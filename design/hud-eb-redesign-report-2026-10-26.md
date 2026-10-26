@@ -59,3 +59,9 @@ Navigation collapses during combat. Desktop expands to a two-column sidebar; tou
 Physical phones/tablets/controllers, low-end GPU/memory/battery performance, hosted DataStore/save/rejoin/network faults, fresh eight-client acceptance and owner aesthetic/human pacing review remain open. Existing party/daily/ranking/badge/title/live-raid/paid-commerce dependencies remain explicitly unavailable. The active compact-mountain prototype and separately produced creature assets require their own reviewed integration. This is a complete local UI review build, not public-release certification.
 
 Graph/vault freshness and the final PR URL are recorded in the final handoff after backed-up project/vault updates. The navigation graph excludes this isolated implementation source.
+
+## Final handoff
+
+Draft PR: https://github.com/theempp/climb-collect/pull/2 on codex/hud-eb-redesign; frozen review base codex/hud-eb-base/b97ddc0. Implementation f093e3b. Review05 binary verified identical to committed bytes. Final cold runtime console contains only the ready line; respawn retains exactly one ready HUD and forty cycles retain429 descendants. Studio is left in Edit with device simulation stopped; no fixture was saved.
+
+Navigation/vault graph CURRENT with zero intended-input drift after backed-up appends and supported refresh; export2026-10-26-175042. Verified broad backup C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-26-175042.zip; six individual record backups C:/Users/HOME!/Documents/ClimbCollect-HUD-EB-RecordBackup-2026-10-26. Graph quality retains five pre-existing unresolved links and the historical overview-heading candidate, zero broken edges. Isolated runtime source is outside graph coverage.
