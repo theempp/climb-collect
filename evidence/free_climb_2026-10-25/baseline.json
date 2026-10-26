@@ -1,0 +1,30 @@
+{
+  "artifacts": [
+    {
+      "path": "C:\\Users\\HOME!\\Documents\\ClimbCollect-HUD-Recovery-2026-10-25\\ClimbCollect.HUD.Complete.Review02.rbxlx",
+      "sha256": "b712e1654653519e1d060c05f5e976c2b6ca8737e3d5604ce7f88b5c802cf62b",
+      "bytes": 112756018
+    },
+    {
+      "path": "C:\\Users\\HOME!\\Documents\\Codex\\2026-10-24\\referenced-chatgpt-conversation-this-is-an-4\\outputs\\ClimbCollect.Tycoon.Review06.rbxlx",
+      "sha256": "3c45ca40a09af5d06ca1f5edc79aeff9ae8bd9f257287c9d53a7d7f0bae99ab6",
+      "bytes": 112753430
+    }
+  ],
+  "normalized_differences": [
+    "mountain\\client\\UI\\Controller.luau",
+    "mountain\\client\\UI\\Screens.luau",
+    "mountain\\client\\UI\\TycoonHub.luau",
+    "mountain\\client\\UI\\Widgets.luau",
+    "mountain\\server\\TycoonWorld.luau",
+    "mountain\\shared\\UIPresentation.luau",
+    "mountain\\tests\\ui_presentation.luau"
+  ],
+  "source_heads": {
+    "C:\\Users\\HOME!\\Documents\\ClimbCollect-HUD-2026-10-25": "ddf870acf0cfacce465a2d6bbf75562defca6db4",
+    "C:\\Users\\HOME!\\Documents\\Codex\\2026-10-24\\referenced-chatgpt-conversation-this-is-an-4\\work\\climb-collect": "3517d8a67b8e2b1d384102a3ae0a1999bd89e963"
+  },
+  "luau": "C:\\Users\\HOME!\\Desktop\\climb&collect\\tools\\.luau\\luau.exe",
+  "preserved_studio": "90ad0952-bd01-4779-a41c-d96d58390f15 ClimbCollect.Tycoon.Review06.rbxlx",
+  "backup_verified": true
+}

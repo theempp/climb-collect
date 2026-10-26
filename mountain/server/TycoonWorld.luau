@@ -10,8 +10,9 @@ function W.new(home)
   local p=Instance.new('Part');p.Name=name;p.Size=size;p.CFrame=cf;p.Color=color;p.Material=material or Enum.Material.SmoothPlastic
   p.Anchored=true;p.CanCollide=false;p.CanTouch=false;p.CanQuery=false;p.CastShadow=false;p.Parent=parent;return p
  end
- local function label(p,text)
-  local gui=Instance.new('BillboardGui');gui.Size=UDim2.fromOffset(160,42);gui.StudsOffset=Vector3.new(0,3,0);gui.MaxDistance=45;gui.Parent=p
+ local function label(p,text,height)
+  local gui=Instance.new('BillboardGui');gui.Size=UDim2.fromOffset(160,42);gui.MaxDistance=45;gui.Parent=p
+  if height then gui.StudsOffsetWorldSpace=Vector3.new(0,height,0) else gui.StudsOffset=Vector3.new(0,3,0) end
   local textLabel=Instance.new('TextLabel');textLabel.Size=UDim2.fromScale(1,1);textLabel.BackgroundTransparency=.25;textLabel.BackgroundColor3=Color3.fromRGB(24,40,48)
   textLabel.TextColor3=Color3.fromRGB(245,240,218);textLabel.TextSize=14;textLabel.Font=Enum.Font.GothamMedium;textLabel.TextWrapped=true;textLabel.Text=text;textLabel.Parent=gui
   return textLabel
@@ -39,7 +40,7 @@ function W.new(home)
    local gauge=part(root,'StorageTrack_'..i,Vector3.new(28,.25,.8),center*CFrame.new(0,.5,9),spine.Color,Enum.Material.Metal)
    local fill=part(root,'StorageFill_'..i,Vector3.new(.05,.3,.65),center*CFrame.new(-14,.55,9),rim.Color,Enum.Material.Neon)
    fill.Transparency=1
-   habitats[i]={pad=pad,rim=rim,branch=branch,label=label(pad,'Habitat '..i),cf=center,frame=frame,gauge=gauge,fill=fill}
+   habitats[i]={pad=pad,rim=rim,branch=branch,label=label(pad,'Habitat '..i,7),cf=center,frame=frame,gauge=gauge,fill=fill}
   end
   local bank=part(root,'ProductionBank',Vector3.new(12,3,6),cf*CFrame.new(0,1.5,56),Color3.fromRGB(219,189,122),Enum.Material.Metal)
   bank.CanQuery=true;bank:SetAttribute('SanctuarySlot',slot);bank:SetAttribute('Service','Sanctuary')
@@ -74,6 +75,9 @@ function W.new(home)
    if row.key~=key then
     if row.creature then row.creature:Destroy();row.creature=nil end
     if species and unlocked then row.creature=A.creature(plot.root,species,row.cf.Position+Vector3.new(0,2,0),.65,if c.level>=35 then 3 elseif c.level>=15 then 2 else 1) end
+    local height=5
+    if row.creature then local bounds,size=row.creature:GetBoundingBox();height=math.max(height,bounds.Position.Y+size.Y/2-row.pad.Position.Y+2) end
+    row.label.Parent.StudsOffsetWorldSpace=Vector3.new(0,height,0)
     row.key=key
    end
    row.pad.Transparency=if unlocked then 0 else .8;row.rim.Color=accent;row.rim.Transparency=if unlocked then 0 else .8

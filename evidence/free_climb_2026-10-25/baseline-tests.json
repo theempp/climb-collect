@@ -1,0 +1,66 @@
+[
+  {
+    "test": "journey",
+    "exit": 0,
+    "tail": "PASS 8 journey checks\n"
+  },
+  {
+    "test": "route_geometry",
+    "exit": 0,
+    "tail": "Route geometry checks passed: 657\n"
+  },
+  {
+    "test": "rules",
+    "exit": 0,
+    "tail": "PASS 120 mountain rules checks\n"
+  },
+  {
+    "test": "sanctuary_sessions",
+    "exit": 0,
+    "tail": "PASS 18 sanctuary reservation checks\n"
+  },
+  {
+    "test": "traversal",
+    "exit": 0,
+    "tail": "Traversal checks passed: 131\n"
+  },
+  {
+    "test": "tycoon",
+    "exit": 0,
+    "tail": "PASS 62 tycoon checks\n"
+  },
+  {
+    "test": "tycoon_economy",
+    "exit": 0,
+    "tail": "-coins=82\nECONOMY single Rare level-zero hourly-coins=206\nECONOMY single Epic level-zero hourly-coins=248\nECONOMY single Mythic level-zero hourly-coins=453\nECONOMY single Legendary level-zero hourly-coins=716\nPASS 125 tycoon economy checks\n"
+  },
+  {
+    "test": "tycoon_requests",
+    "exit": 0,
+    "tail": "PASS 11 tycoon request checks\n"
+  },
+  {
+    "test": "ui_client_state",
+    "exit": 0,
+    "tail": "PASS 50 UI client state checks\n"
+  },
+  {
+    "test": "ui_presentation",
+    "exit": 0,
+    "tail": "PASS 45 UI presentation checks\n"
+  },
+  {
+    "test": "ui_protocol",
+    "exit": 0,
+    "tail": "PASS 39 UI protocol/request checks\n"
+  },
+  {
+    "test": "mocked-ui-server",
+    "exit": 0,
+    "tail": "PASS 25 profile/combat adapter checks (service fixtures, no live DataStore)\n"
+  },
+  {
+    "compile": 61,
+    "failures": []
+  }
+]
