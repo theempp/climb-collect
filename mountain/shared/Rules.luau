@@ -4,11 +4,12 @@ R.tycoon=if script then require(script.Parent.Tycoon) else require('./Tycoon')
 local function nextId(p,prefix) p.serial+=1;return prefix..p.serial end
 local function find(list,id) for i,v in ipairs(list) do if v.id==id then return v,i end end end
 function R.newProfile(now)
- local p={schema=1,serial=3,unlocked=1,wins={},captures={},cargo={},eggs={},creatures={},team={},checkpoint='1:entrance',discoveries={},claims={},shortcuts={},resources={},coins=0,trophies=0,lastIncome=now,competitionAt=0}
+ local p={schema=2,legacyEntitlements={},securedRunIds={},serial=3,unlocked=1,wins={},captures={},cargo={},eggs={},creatures={},team={},checkpoint='1:entrance',discoveries={},claims={},shortcuts={},resources={},coins=0,trophies=0,lastIncome=now,competitionAt=0}
  for i,id in ipairs({'mossbun','petalyn','fernox'}) do local v={id='c'..i,species=id,level=1,xp=0};table.insert(p.creatures,v);table.insert(p.team,v.id) end
  return p
 end
-function R.canEnter(p,k) return type(k)=='number' and k==math.floor(k) and k>=1 and k<=6 and k<=p.unlocked end
+R.run=if script then require(script.Parent.RunRules) else require('./RunRules')
+function R.canEnter(p,k) return type(k)=='number' and k==math.floor(k) and k>=1 and k<=6 end
 function R.stage(level) return if level>=35 then 3 elseif level>=15 then 2 else 1 end
 function R.trialReady(k,resolvedPatterns,members)
  if resolvedPatterns<4 then return false end
@@ -26,6 +27,7 @@ function R.winGuardian(p,k,trial)
  if not R.canEnter(p,k) then return false end
  local g=C.guardians[k]
  if trial then
+  if p.schema==2 then return false,'trial_requires_raid' end
   if not p.wins[tostring(k)] or p.captures[g.id] then return false end
   p.captures[g.id]=true
   table.insert(p.creatures,{id=nextId(p,'c'),species=g.id,level=1,xp=0})

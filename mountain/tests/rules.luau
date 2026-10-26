@@ -11,12 +11,14 @@ for _,s in ipairs(C.species) do
 end
 for _,g in ipairs(C.guardians) do check(#g.abilities==4,'four abilities') end
 local p=R.newProfile(100)
-check(R.canEnter(p,1) and not R.canEnter(p,2),'sequential gates')
+check(R.canEnter(p,1) and R.canEnter(p,6),'free section access')
 check(not R.canEnter(p,0) and not R.canEnter(p,7) and not R.canEnter(p,0/0),'invalid kingdom')
-check(not R.winGuardian(p,2,false),'cannot skip guardian')
+check(R.winGuardian(p,2,false),'higher normal battle allowed')
 check(R.winGuardian(p,1,false) and R.canEnter(p,2),'normal unlock')
 check(not p.captures.floravelle,'normal never captures')
-check(R.winGuardian(p,1,true) and p.captures.floravelle,'trial capture')
+check(not R.winGuardian(p,1,true) and not p.captures.floravelle,'trial requires carried exit')
+local reward={id='trial',runId='trial',species='floravelle',section=1,hitsRequired=1,trial=true}
+check(R.run.strike(p,reward,100) and R.run.pickup(p,'trial') and R.run.secure(p,'trial') and p.captures.floravelle,'trial secured at exit')
 local n=#p.creatures
 R.winGuardian(p,1,true);check(#p.creatures==n,'no duplicate capture')
 for i=1,3 do check(R.collect(p,'mossbun','nest'..i,100),'collect egg') end
@@ -42,7 +44,7 @@ check(#p.eggs==2,'secured eggs survive loss')
 check(not R.equip(p,{}) and not R.equip(p,'bad'),'invalid teams')
 check(R.damage('Water','Fire',10)>R.damage('Water','Nature',10),'elemental interactions')
 check(C.incubation.Common==30 and C.incubation.Mythic==1200,'incubation times')
-check(R.newProfile(100).schema==1,'isolated schema')
+check(R.newProfile(100).schema==2,'additive schema')
 local income=R.newProfile(100)
 for t=110,300,10 do R.settleIncome(income,t) end
 check(income.coins==1,'fractional income survives frequent collection')

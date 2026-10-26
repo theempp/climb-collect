@@ -6,7 +6,7 @@ function T.run()
  local R=require(game.ReplicatedStorage.MountainShared.Rules);local C=require(game.ReplicatedStorage.MountainShared.Catalog)
  local checks={};local function check(name,value) assert(value,name);table.insert(checks,name) end
  local backend=Store.memory();local a=P.newForTests(backend,'test-a');local b=P.newForTests(backend,'test-b');local player={UserId=92833001}
- local p=a.load(player);check('new schema loads',p and p.schema==1)
+ local p=a.load(player);check('new schema loads',p and p.schema==2)
  check('contended session rejects',not b.load(player))
  p.coins=97;R.collect(p,'mossbun','fixture',100);R.extract(p);R.incubate(p,p.eggs[1].id,100)
  check('release save succeeds',a.save(player,true))
@@ -44,7 +44,7 @@ function T.run()
  check('final leave snapshot flushed',durable.profile.coins==42 and durable.lock==nil and slow.sessions[leaving]==nil)
  local profile=R.newProfile(100)
  for k=1,6 do
-  check('gate '..k,R.canEnter(profile,k));check('normal win '..k,R.winGuardian(profile,k,false));check('trial capture '..k,R.winGuardian(profile,k,true));check('duplicate capture '..k,not R.winGuardian(profile,k,true))
+  check('gate '..k,R.canEnter(profile,k));check('normal win '..k,R.winGuardian(profile,k,false));local id='trial'..k;check('trial reward '..k,R.run.strike(profile,{id=id,runId=id,species=C.guardians[k].id,section=k,trial=true,hitsRequired=1},100) and R.run.pickup(profile,id) and R.run.secure(profile,id));check('duplicate capture '..k,not R.winGuardian(profile,k,true))
  end
  check('six permanent guardian captures',#profile.creatures==9)
  local defense=require(script.Parent.Competition)

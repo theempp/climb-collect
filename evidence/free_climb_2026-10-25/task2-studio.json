@@ -1,0 +1,6 @@
+{
+  "passed": 50,
+  "studio": "428ea440-c1d2-429d-ad89-879abdde0ff4",
+  "scope": "isolated Studio memory profiles and snapshots; no production store",
+  "cold_baseline_sha256": "3c05d0738a2c3beec350138764425a42c6387fcb4a72753d408fe5f269adec9f"
+}
