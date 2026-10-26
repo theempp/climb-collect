@@ -110,6 +110,7 @@ function F.build()
  end
  for _,p in ipairs(root.Interactions:GetChildren()) do local label=p:FindFirstChild('Label');if label then label.MaxDistance=45 end end
  for _,p in ipairs(root.Dynamics:GetChildren()) do local label=p:FindFirstChild('Label');if label then label.MaxDistance=50 end end
+ require(script.Parent.MountainQuality).apply(root)
  return root,g
 end
 return F
