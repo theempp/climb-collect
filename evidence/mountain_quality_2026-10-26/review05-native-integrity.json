@@ -1,0 +1,23 @@
+{
+  "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review05.rbxl",
+  "sha256": "c4e48fa124af56140815adddb377d3a314cb6f081be7b37bebb45ee7800c5927",
+  "bytes": 1240072,
+  "instances": 9416,
+  "runtime_sources": 77,
+  "source_mismatches": [],
+  "changed_baseline_sources": [
+    "ServerStorage.MountainWorld.FreeClimb"
+  ],
+  "new_sources": [
+    "ServerStorage.MountainWorld.MountainQuality",
+    "ServerStorage.MountainWorld.MountainSurface"
+  ],
+  "terrain_properties": 70,
+  "terrain_drift": [
+    "Materials",
+    "PhysicsGrid",
+    "SmoothGrid"
+  ],
+  "terrain_payload_sha256": "139ad769a44c9e6614d490139487a4bb7ecfda9c4b0aadb560b647881bfb7b05",
+  "temporary_qa": []
+}

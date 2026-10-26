@@ -1,5 +1,19 @@
 # Scoped mountain integration — local review only
 
+## Review05 landscape continuation — October 26, 2026
+
+The latest owner direction extends the surrounding mountain/hills through all six sections and around the summit, superseding the earlier outer-silhouette restriction. Review05 adds **baked Terrain only** relative to Review04/e33a61a. The77 current runtime sources, six historical sources,3964 mountain parts,996 collider transforms/effective physics, anchors, protected scene and Lighting remain unchanged. MountainQuality stays version4; the baked root additionally records LandscapeContinuationVersion1.
+
+Current local review: `outputs/ClimbCollect.MountainQuality.Review05.rbxl`. Its current hash and validation are in `mountain-quality-manifest.json` and [Review05 report](mountain-quality-review05-report.md). Review01/03/04 remain immutable. Review04's manifest is archived separately.
+
+For later integration, **do not copy this older complete place over the current combined game**. On a new saved copy of that combined game, reconcile its terrain, region bounds and current source first. The edit-time recipe is `mountain/tools/quality_landscape_bake.luau`: run the returned chunk with stages1,2,3 in that order, followed by `quality_landscape_reconcile.luau` with the decoded `evidence/mountain_quality_2026-10-26/review05-recipe-correction.json`. This final guarded correction records native occupancy/material remnants of the original authoring experiments; it validates every expected source cell before writing. The complete recipe exactly reproduces Review05 on Review04. Do not blindly apply the correction to a newer combined terrain: a precondition mismatch requires reconciliation against that newer authority. It requires a baked FreeClimbVersion1/MountainQualityVersion4 root, and must not run during Play. Default stage3 repeats the final profile and is idempotent on this delivered terrain. This tool is not a runtime module or automatic startup hook. Preserve the integration copy's own baseline and compare its protected voxels before/after.
+
+Write bounds: x3392..4800, y−64..800, z−1840..−208, in32-stud z slices at4-stud resolution. The playable corridor x3920..4272 is excluded for z≥−1412; behind the summit the cap may span the center. Only greater occupancy is written; existing nonempty-cell material is retained. No terrain is cleared. The natural landscape outside the tested face is scenery; this does not promise new seamless routes across every hill. Revalidate route-edge approaches and summit views on the combined place.
+
+**The older blanket70-payload preservation/restoration instructions below apply to the prior art-only passes, not this intentional landscape edit.** Review05 retains its new Materials/PhysicsGrid/SmoothGrid serialization. Never restore its entire Terrain from Review04 or an older authority: that would erase the requested mountain continuation. Compare the intended terrain spatially after native save/cold reopen, alongside exact protected scene/source checks. Current evidence includes exact run-length voxel comparison in the documented sanctuary, playable corridor and legacy mountain domains.
+
+The remainder records the earlier runtime-helper integration and remains relevant when reconciling those helpers.
+
 Authority: `a3e896ad624d966c75f57a1c692b58c5f0ef63a0` and the saved Review03.SprintEntrances baseline. This upgrade is isolated on `codex/mountain-quality-overnight` in `C:/Users/HOME!/Desktop/climb-collect-mountain-quality`. Do not replace a newer combined place with this review.
 
 Runtime scope is exactly three files:

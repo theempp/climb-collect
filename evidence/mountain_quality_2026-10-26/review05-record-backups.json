@@ -1,0 +1,32 @@
+[
+  {
+    "path": "C:\\Users\\HOME!\\Desktop\\climb&collect\\design\\mountain-quality-upgrade-2026-10-26.md",
+    "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\record-backups\\review05-20261026-135253\\0-mountain-quality-upgrade-2026-10-26.md",
+    "before_sha256": "df3ad5a59d7d2c8a3ebcdf534ae4070176ac28108d21f36b3c7d7887cb06b24b",
+    "after_sha256": "365189481ca1b4424cb23e174f9a981ff1fec6a02015ce7cd7eddbbeb913804a"
+  },
+  {
+    "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Climb & Collect.md",
+    "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\record-backups\\review05-20261026-135253\\1-Climb & Collect.md",
+    "before_sha256": "e59e73c2fe5587fd17858152c20eadbc044a8589982c58a44a5c77d4ab39bec2",
+    "after_sha256": "cf978cfe21c4057840c72c8f9ea5ce8d961206fb7bd94eb9927ad27e08c2db45"
+  },
+  {
+    "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Milestones.md",
+    "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\record-backups\\review05-20261026-135253\\2-Milestones.md",
+    "before_sha256": "39d1e4c95237879271f4dbe61bdfc868e9e728ee4513a1e253acd4aae658cdd1",
+    "after_sha256": "405e5cb85e8cfcdc5535b4389b1f728098635629e63fd4ed0605bd3250cac98a"
+  },
+  {
+    "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Decisions.md",
+    "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\record-backups\\review05-20261026-135253\\3-Decisions.md",
+    "before_sha256": "3d10646abe93b10972b1e48da2f450a7fcbf287a862ea196aab7f2f3b88adcee",
+    "after_sha256": "c357beb0cc253c4480c5db52ae4da73d6653dea87d1cf725a253617f256b2a40"
+  },
+  {
+    "path": "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Open Questions.md",
+    "backup": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\evidence\\mountain_quality_2026-10-26\\record-backups\\review05-20261026-135253\\4-Open Questions.md",
+    "before_sha256": "4efc51a19f8b8336547cbb01fa2cc8a94cc1177893ba37fbead9a2bbd9953752",
+    "after_sha256": "97ab523b6556c67186e0c55fd4781404af6e742314254b67652bfa7793c2926f"
+  }
+]

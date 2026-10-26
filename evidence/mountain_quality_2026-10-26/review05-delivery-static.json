@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review05.rbxl",
+  "sha256": "c4e48fa124af56140815adddb377d3a314cb6f081be7b37bebb45ee7800c5927",
+  "bytes": 1240072,
+  "runtime_sources_unchanged": 77,
+  "all_saved_sources_unchanged": 83,
+  "exact_mountain_parts": 3964,
+  "colliders": 996,
+  "protected_scene": true,
+  "lighting": true,
+  "native_cold_voxels_equal": true,
+  "protected_voxel_domains": [
+    "sanctuary",
+    "playable",
+    "legacyMountain"
+  ],
+  "terrain_payload_changes": [
+    "Materials",
+    "PhysicsGrid",
+    "SmoothGrid"
+  ],
+  "terrain_properties": 70,
+  "coverage_checks": 39,
+  "suites": 26,
+  "compiles": 77,
+  "temporary_qa": [],
+  "exact_protected_voxel_cells": 54793408,
+  "exact_voxel_recipe_reproduced": true,
+  "walk_steps": 165,
+  "jumps": 12,
+  "edge_steps": 98,
+  "raid_steps": 120,
+  "limits": [
+    "Spatial signatures are supplemented by exact run-length material/occupancy comparison within the documented domains. No whole-Terrain byte-equality claim.",
+    "Intentional landscape terrain retained; native serialization changes audited through cold spatial fingerprints."
+  ]
+}

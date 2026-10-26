@@ -1,0 +1,37 @@
+[
+  {
+    "file": "mountain\\tools\\quality_landscape_bake.luau",
+    "exit": 0,
+    "errors": ""
+  },
+  {
+    "file": "mountain\\tools\\quality_landscape_boundary.luau",
+    "exit": 0,
+    "errors": ""
+  },
+  {
+    "file": "mountain\\tools\\quality_landscape_check.luau",
+    "exit": 0,
+    "errors": ""
+  },
+  {
+    "file": "mountain\\tools\\quality_landscape_reconcile.luau",
+    "exit": 0,
+    "errors": ""
+  },
+  {
+    "file": "mountain\\tools\\quality_terrain_exact.luau",
+    "exit": 0,
+    "errors": ""
+  },
+  {
+    "file": "mountain\\tools\\quality_terrain_fingerprint.luau",
+    "exit": 0,
+    "errors": ""
+  },
+  {
+    "file": "mountain\\tools\\quality_edges.client.luau",
+    "exit": 0,
+    "errors": ""
+  }
+]

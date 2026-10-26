@@ -1,0 +1,44 @@
+{
+  "base_commit": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0",
+  "branch": "codex/mountain-quality-overnight",
+  "runtime_files": {
+    "mountain/world/FreeClimb.luau": "422d82a601cdde715ce6b8d6c8ea053ac5726050c5edf1f64704bb06c0762ce0",
+    "mountain/world/MountainSurface.luau": "26839ac462bd9c3f7f396738b08380fee3be9dd37fb23378f546e280b1f508b0",
+    "mountain/world/MountainQuality.luau": "92ce3c4c36f511320fa6bb7d53f8405a6a384182995df6fec6ea75334385c186"
+  },
+  "source_hash_normalization": "UTF-8 bytes with LF line endings",
+  "review": {
+    "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review04.rbxl",
+    "sha256": "b0ae05855a36c6623b5cb8cd7bcae8f7cb90bdbcf4f75bfe9cd249c7529129e3",
+    "bytes": 2553332,
+    "instances": 9416,
+    "runtime_sources": 77,
+    "source_mismatches": [],
+    "changed_baseline_sources": [
+      "ServerStorage.MountainWorld.FreeClimb"
+    ],
+    "new_sources": [
+      "ServerStorage.MountainWorld.MountainQuality",
+      "ServerStorage.MountainWorld.MountainSurface"
+    ],
+    "terrain_properties": 70,
+    "terrain_drift": [],
+    "terrain_payload_sha256": "75b1513b6b406a812de7456b01783f2b7882abf4b204bc196a66e2fe446255d5",
+    "temporary_qa": []
+  },
+  "instructions": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\design\\mountain-quality-integration.md",
+  "protected_source_paths": [
+    "mountain/server",
+    "mountain/client",
+    "mountain/shared",
+    "mountain/world/Art.luau",
+    "mountain/world/CreatureDetails.luau",
+    "mountain/world/MountainEntrances.luau"
+  ],
+  "source_authority_recheck": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0",
+  "helper_version": 4,
+  "continuation_from": "e22b924de7314af9f8b0c4e1720c3cc375aaffd5",
+  "report": "design/mountain-quality-review04-report.md",
+  "delivery_checker": "mountain/tools/quality_review04_delivery.py",
+  "historical_manifest": "design/mountain-quality-manifest-review03.json"
+}
