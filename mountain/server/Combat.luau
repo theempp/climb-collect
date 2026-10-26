@@ -1,8 +1,10 @@
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+local RaidConfig=require(game.ReplicatedStorage.MountainShared.RaidConfig)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 local B={battles={},wild={},dodgeUntil={},specialAt={},buffs={},nextId=0}
 local profiles,send,changed
+local raidContext
 local function root(player) local c=player.Character;return c and c:FindFirstChild('HumanoidRootPart') end
 local function alive(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 and h end
 local function inArena(player,b) local r=root(player);return r and (r.Position-b.center).Magnitude<58 and alive(player) end
@@ -28,21 +30,30 @@ local function warnPart(b,name,pos,size,color)
  local p=A.part(workspace.ImpossibleMountain.Dynamics,name,size,CFrame.new(pos),color,Enum.Material.Neon,nil,false);p.Transparency=.55;table.insert(b.effects,p);return p
 end
 function B.init(p,s,c) profiles=p;send=s;changed=c end
+function B.connectRaids(context) raidContext=context end
 function B.start(player,k,trial,center)
  local p=profiles.get(player);if not p or not R.canEnter(p,k) or (trial and not p.wins[tostring(k)]) then return false,'Defeat the normal Guardian first.' end
+ if p.run then return false,'Finish your creature run before fighting.' end
+ if trial and p.captures[C.guardians[k].id] then return false,'You already secured this Guardian.' end
+ if not trial and raidContext and raidContext.guardians.resting(k) then return false,'The Guardian is resting. Use the raid opening.' end
  if B.wild[player] then return false,'Finish your wild encounter first.' end
- for _,other in pairs(B.battles) do if other.members[player] and other.k~=k then return false,'Already in another battle.' end end
- local b=B.battles[k]
+ for _,other in pairs(B.battles) do if other.members[player] then return false,'Already in another battle.' end end
+ local key=if trial then 'trial:'..k else k
+ local config=RaidConfig.section(k)
+ local b=B.battles[key]
  if b then
   if b.trial~=trial then return false,'A different encounter is already active.' end
   if b.members[player] then return false,'You are already in this encounter.' end
   if b.hp<b.max*.75 then return false,'Battle underway; join the next encounter.' end
-  b.max+=350+k*80;b.hp+=350+k*80
+  b.max+=config.joinHealth;b.hp+=config.joinHealth
  else
-  b={k=k,trial=trial,center=center,hp=950+k*300,max=950+k*300,members={},nextAttack=os.clock()+4,beat=0,resolved=0,effects={},started=os.clock(),regen=false}
-  B.battles[k]=b
+  local health=config.normalHealth*(if trial then config.trialHealthMultiplier else 1)
+  b={key=key,k=k,trial=trial,center=center,hp=health,max=health,members={},nextAttack=os.clock()+4,beat=0,resolved=0,effects={},started=os.clock(),regen=false}
+  B.battles[key]=b
+  if trial and raidContext and raidContext.manifest then b.manifest=raidContext.manifest(k,center) end
  end
- b.members[player]={damage=0,dodges=0,hits=0,joined=os.clock()};send(player,'toast',if trial then 'Legendary Trial • dodge 3 patterns and win for guaranteed capture.' else 'Guardian battle • allies can join at the altar.');return true
+ if not trial and raidContext then raidContext.guardians.alert(k,player.UserId,nil,os.clock()) end
+ b.members[player]={damage=0,dodges=0,hits=0,joined=os.clock()};send(player,'toast',if trial then 'Legendary Trial • master the patterns, then carry the reward to sanctuary.' else 'Guardian battle • allies can join at the altar.');return true
 end
 function B.startWild(player,species,part)
  local p=profiles.get(player);local s=C.byId[species]
@@ -88,7 +99,7 @@ function B.special(player,slot,ability)
 end
 local function pattern(b)
  b.beat+=1;local phase=(b.beat-1)%4+1;local center=b.center;local tell=if b.trial then 1.6 else 2.2
- local guardian=workspace.ImpossibleMountain.Encounters:FindFirstChild('Guardian_'..b.k)
+ local guardian=if b.trial then b.manifest else workspace.ImpossibleMountain.Encounters:FindFirstChild('Guardian_'..b.k)
  if guardian then guardian:SetAttribute('TellUntil',workspace:GetServerTimeNow()+tell) end
  local effects={};local attackPos=center
  if b.k==5 and phase==3 then
@@ -122,7 +133,7 @@ local function pattern(b)
   for i=1,16 do local a=i*math.pi/8;table.insert(effects,warnPart(b,'ExpandingWave',center+Vector3.new(math.cos(a)*25,.3,math.sin(a)*25),Vector3.new(8,.25,8),Color3.fromRGB(235,112,162))) end
  end
  task.delay(tell,function()
-  if B.battles[b.k]~=b then for _,e in ipairs(effects) do e:Destroy() end;return end
+  if B.battles[b.key]~=b then for _,e in ipairs(effects) do e:Destroy() end;return end
   for player,m in pairs(b.members) do
    if inArena(player,b) then
     local p=root(player).Position;local d=p-center;local hit
@@ -142,6 +153,37 @@ local function pattern(b)
   for _,e in ipairs(effects) do e:Destroy() end
  end)
 end
+function B.finish(b)
+ if B.battles[b.key]~=b then return false end
+ local k=b.k;local contributors={}
+ for player,m in pairs(b.members) do if m.damage>=b.max*RaidConfig.section(k).contributionFraction and profiles.get(player) then table.insert(contributors,player.UserId) end end
+ local eligible={}
+ if not b.trial and raidContext then
+  local effects=raidContext.guardians.normalWin(k,contributors)
+  for _,id in ipairs(effects.xp) do eligible[id]=true end
+ else for _,id in ipairs(contributors) do eligible[id]=true end end
+ for player,m in pairs(b.members) do
+  local p=profiles.get(player)
+  if p and eligible[player.UserId] then
+   if not b.trial or R.mastered(k,m) then
+    local awarded
+    if b.trial then
+     awarded=raidContext and raidContext.raids.reward(player,k,C.guardians[k].id,b.center)
+     send(player,'toast',if awarded then 'Trial won! Pick up your Guardian reward and escape to sanctuary.' else 'Guardian reward unavailable. Finish your current attempt first.')
+    else
+     R.winGuardian(p,k,false);awarded=true
+     send(player,'toast',C.guardians[k].name..' is resting. The section has a brief raid opening!')
+    end
+    if awarded then for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,RaidConfig.section(k).companionXP) end end end
+   else send(player,'toast','Victory, but mastery requires 3 clean dodges. Retry the Trial.') end
+   changed(player);task.spawn(profiles.save,player,false)
+  end
+  send(player,'battle',false)
+ end
+ B.battles[b.key]=nil;if b.manifest then b.manifest:Destroy() end
+ for _,effect in ipairs(b.effects) do effect:Destroy() end
+ return true
+end
 function B.tick()
  local now=os.clock()
  for player,w in pairs(B.wild) do
@@ -157,7 +199,9 @@ function B.tick()
    end
   end
  end
- for k,b in pairs(B.battles) do
+ for key,b in pairs(B.battles) do
+  local k=b.k
+  if not b.trial and raidContext then b.center=raidContext.guardians.position(k) or b.center end
   local active=0
   for player,m in pairs(b.members) do
    local p=profiles.get(player)
@@ -173,24 +217,12 @@ function B.tick()
   end
   if active==0 or now-b.started>300 then
    for player in pairs(b.members) do send(player,'battle',false);send(player,'toast','Encounter ended • challenge again at the altar.') end
-   B.battles[k]=nil;for _,e in ipairs(b.effects) do e:Destroy() end
+   B.battles[key]=nil;if b.manifest then b.manifest:Destroy() end;for _,e in ipairs(b.effects) do e:Destroy() end
   elseif b.hp<=0 and b.trial and not R.trialReady(k,b.resolved,b.members) then
    b.hp=1
    if now>=b.nextAttack then b.nextAttack=now+5;pattern(b) end
   elseif b.hp<=0 then
-   for player,m in pairs(b.members) do
-    local p=profiles.get(player)
-    if p and m.damage>=b.max*.03 then
-     if not b.trial or R.mastered(k,m) then
-      local captured=R.winGuardian(p,k,b.trial);p.coins+=80*k
-      for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,200*k) end end
-      send(player,'toast',if b.trial then (if captured then 'Guaranteed capture! '..C.guardians[k].name..' joins your collection.' else 'Trial mastered • Guardian already owned.') else C.guardians[k].name..' defeated • next kingdom unlocked!')
-     else send(player,'toast','Victory, but mastery requires 3 clean dodges. Retry the Trial.') end
-     changed(player);task.spawn(profiles.save,player,false)
-    end
-    send(player,'battle',false)
-   end
-   B.battles[k]=nil;for _,e in ipairs(b.effects) do e:Destroy() end
+   B.finish(b)
   elseif now>=b.nextAttack then b.nextAttack=now+5;pattern(b) end
  end
 end

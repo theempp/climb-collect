@@ -112,7 +112,7 @@ local function onCharacter(player,character)
  local pos=if areas[player]=='sanctuary' then home.spawn(player) elseif p.checkpoint=='1:entrance' then Vector3.new(0,21,550) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
  teleport(player,pos);rebuildTeam(player)
- h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);task.delay(3,function() if player.Parent==Players and P.get(player) then loadCharacter(player) end end) end)
+ h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player) end;task.delay(3,function() if player.Parent==Players and P.get(player) then loadCharacter(player) end end) end)
 end
 loadCharacter=function(player)
  player:LoadCharacterAsync()
@@ -131,7 +131,7 @@ end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
- if raids then raids.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
+ if raids then raids.remove(player) end;if guardians then guardians.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
  contextSnapshots[player]=nil;if uiService then uiService.remove(player) end
@@ -159,6 +159,36 @@ raids=require(script.Parent.EggRaids).new({profiles=P,clock=os.clock,guid=functi
  end,
  alert=function(k,userId,eggId,now) if guardians then guardians.alert(k,userId,eggId,now) end end,
  changed=publish,present=carryVisuals.show})
+local guardianHeights={}
+for k=1,6 do
+ local m=world.Encounters:FindFirstChild('Guardian_'..k)
+ if m and m.PrimaryPart then local cf,size=m:GetBoundingBox();guardianHeights[k]=m.PrimaryPart.Position.Y-cf.Position.Y+size.Y/2 end
+end
+local groundParams=RaycastParams.new();groundParams.FilterType=Enum.RaycastFilterType.Exclude
+local ignore={world.Encounters,world.RaidPresentation,world.Interactions,world.Checkpoints};groundParams.FilterDescendantsInstances=ignore
+local function guardianInside(k,position)
+ local bounds=world:FindFirstChild('GuardianBounds');local box=bounds and bounds:FindFirstChild(tostring(k))
+ if box then local q=box.CFrame:PointToObjectSpace(position);return math.abs(q.X)<=box.Size.X/2 and math.abs(q.Y)<=box.Size.Y/2 and math.abs(q.Z)<=box.Size.Z/2 end
+ return position.Y>16+(k-1)*136-35 and position.Y<16+k*136+30 and not home.inSanctuary(position)
+end
+guardians=require(script.Parent.Guardians).new({world=world,clock=os.clock,players=function() return Players:GetPlayers() end,root=root,profile=P.get,alive=living,
+ protected=raids.protected,inside=guardianInside,rootHeight=function(k) return guardianHeights[k] or 12 end,
+ ground=function(pos,k)
+  local hit=workspace:Raycast(pos+Vector3.new(0,30,0),Vector3.new(0,-95,0),groundParams)
+  return hit and hit.Position
+ end,
+ warning=function(userId,k) local player=Players:GetPlayerByUserId(userId);if player then send(player,'toast',C.guardians[k].name..' heard your strike! Watch its approach.') end end,
+ catch=function(player,k)
+  if raids.protected(player) or os.clock()<(B.dodgeUntil[player] or 0) then return end
+  local p=P.get(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
+  if p and p.run then raids.forfeit(player,'catch');teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));guardians.remove(player)
+  elseif h then h:TakeDamage(14+k*4) end
+ end})
+B.connectRaids({guardians=guardians,raids=raids,manifest=function(k,center)
+ local m=A.creature(world.Encounters,C.guardians[k],center+Vector3.new(0,1,0),3.2,1);m.Name='TrialManifestation_'..k
+ for _,v in ipairs(m:GetDescendants()) do if v:IsA('BasePart') then v.Transparency=.38;v.Material=Enum.Material.Neon end end
+ return m
+end})
 local function interact(player,part)
  local p=P.get(player);if not p or not safe(player) or not nearby(player,part,15) then return end
  local kind=part:GetAttribute('Kind');local k=part:GetAttribute('Kingdom') or 1;local id=part:GetAttribute('Id')
@@ -273,7 +303,7 @@ end end
 local combatTick,checkTick,contextTick=0,0,0
 game:GetService('RunService').Heartbeat:Connect(function(dt)
  local now=os.clock()
- carryVisuals.tick();raids.tick(now)
+ carryVisuals.tick();raids.tick(now);guardians.tick(now)
  for _,m in ipairs(moving) do
   local offset=(math.sin(now*.5)+1)*17
   local k=m.part:GetAttribute('Kingdom')
