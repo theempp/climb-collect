@@ -1,0 +1,1 @@
+PASS 25 profile/combat adapter checks (service fixtures, no live DataStore)

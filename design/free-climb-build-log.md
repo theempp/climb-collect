@@ -1,31 +1,74 @@
-# Free-climb build log
-
-October 25, 2026. Owner confirmed plan in originating chat and explicitly authorized actual build in this chat.
-
-Isolated durable clone: Desktop/climb-collect-free-climb-build, codex/free-climb-mountain. HUD ddf870a; tycoon 3517d8a; exact artifact backups verified in evidence/free_climb_2026-10-25/baseline.json. Existing Studio Review06 preserved.
-
-Task 1: baseline reconciled and verified; 1,291 CLI checks, 61 runtime/world compiles, recursive HUD package (30 sources), saved audit (20 selected runtime/world sources), unchanged Workspace/services and exact terrain. Separate Baseline01 cold-opened in Studio 428ea440; original Review06 still connected. Seven normalized differences confirmed; only later TycoonWorld label correction copied.
-
-Ruling: Use approved independent durable clone instead of managed worktree; history of worktree loss and exact requested destination take priority. No original checkout or place is changed.
-Ruling: Adapt Bash ledger helpers to Python/PowerShell on Windows; preserve task briefs, BASE commits, test logs and completion records.
-
-Pre-flight interfaces: Task 2 RunRules/Profiles -> Tasks 3,4,6 custody and durable exit consistent; Task 3 EggRaids -> Task 4 Trial reward must use same reservation path; Task 4 Guardians -> Task 5 bounds/hazards metadata consistent; Task 5 FreeClimb -> Task 6 physical exit validation; Tasks 3-6 -> Task 7 recursive source packaging/audit required. No interface conflict found.
-
-Tasks 2–7: pending.
-
-Task 2: complete — RunRules custody and schema-2 additive migration, Profiles.transact prepared-draft commit/retry, blocked pending mutations, same-ID exit replay, expired session rejection and interleaved disconnect protection. New custody 23 and persistence 23 checks pass; full affected CLI suites pass; 62 runtime/world compiles; actual Studio isolated memory suite 50/50. Evidence: task2-tests.json, task2-compile.json, task2-studio.json.
-Ruling: legacy Rules.winGuardian cannot award a schema-2 Trial directly; Task 4 will route its reward through EggRaids custody. Old incubation helpers remain callable for existing egg compatibility.
-Ruling: transaction callers mutate a draft synchronously, access to live gameplay is frozen during pending commits, ordinary save snapshots retain the existing mutation-compatible behavior; exit serializes behind saves. Hosted persistence remains unverified and untested by authorization.
-Task 3: in progress — implement authoritative egg service before presentation, then verify live input with a temporary isolated fixture until Task 5 supplies final geometry.
-
-Task 3: implemented — authoritative reservations/cadence/distance/ownership, contextual tap action, shell cracks, pickaxe, reveal, server carry and client arm poses. 18 egg raid checks, all 15 suites and 66 compiles pass. Real mouse three-strike reveal/pickup and keyboard 8.87-stud carry movement with one HUD verified in temporary Play-only spawn fixture. Evidence task3-tests.json/task3-live.json.
-Ruling: device simulator is inaccessible because Computer Use returns no Studio windows although Studio MCP operates; carry visual was obstructed by old terrain. Defer simulator and final avatar-scale visual acceptance to Task 7/Task 5 geometry, without claiming those checks passed.
-Ruling: add CarryVisuals server module to keep replicated cosmetic models separate from pure custody service. Portable Guardian presentation is a distinct procedural adult variant; premium anatomy/art acceptance remains open.
-Task 4: in progress.
+# Free-climb build log
+
+
+
+October 25, 2026. Owner confirmed plan in originating chat and explicitly authorized actual build in this chat.
+
+
+
+Isolated durable clone: Desktop/climb-collect-free-climb-build, codex/free-climb-mountain. HUD ddf870a; tycoon 3517d8a; exact artifact backups verified in evidence/free_climb_2026-10-25/baseline.json. Existing Studio Review06 preserved.
+
+
+
+Task 1: baseline reconciled and verified; 1,291 CLI checks, 61 runtime/world compiles, recursive HUD package (30 sources), saved audit (20 selected runtime/world sources), unchanged Workspace/services and exact terrain. Separate Baseline01 cold-opened in Studio 428ea440; original Review06 still connected. Seven normalized differences confirmed; only later TycoonWorld label correction copied.
+
+
+
+Ruling: Use approved independent durable clone instead of managed worktree; history of worktree loss and exact requested destination take priority. No original checkout or place is changed.
+
+Ruling: Adapt Bash ledger helpers to Python/PowerShell on Windows; preserve task briefs, BASE commits, test logs and completion records.
+
+
+
+Pre-flight interfaces: Task 2 RunRules/Profiles -> Tasks 3,4,6 custody and durable exit consistent; Task 3 EggRaids -> Task 4 Trial reward must use same reservation path; Task 4 Guardians -> Task 5 bounds/hazards metadata consistent; Task 5 FreeClimb -> Task 6 physical exit validation; Tasks 3-6 -> Task 7 recursive source packaging/audit required. No interface conflict found.
+
+
+
+The entries below supersede the initial pending state.
+
+
+
+Task 2: complete — RunRules custody and schema-2 additive migration, Profiles.transact prepared-draft commit/retry, blocked pending mutations, same-ID exit replay, expired session rejection and interleaved disconnect protection. New custody 23 and persistence 23 checks pass; full affected CLI suites pass; 62 runtime/world compiles; actual Studio isolated memory suite 50/50. Evidence: task2-tests.json, task2-compile.json, task2-studio.json.
+
+Ruling: legacy Rules.winGuardian cannot award a schema-2 Trial directly; Task 4 will route its reward through EggRaids custody. Old incubation helpers remain callable for existing egg compatibility.
+
+Ruling: transaction callers mutate a draft synchronously, access to live gameplay is frozen during pending commits, ordinary save snapshots retain the existing mutation-compatible behavior; exit serializes behind saves. Hosted persistence remains unverified and untested by authorization.
+
+Task 3: in progress — implement authoritative egg service before presentation, then verify live input with a temporary isolated fixture until Task 5 supplies final geometry.
+
+
+
+Task 3: implemented — authoritative reservations/cadence/distance/ownership, contextual tap action, shell cracks, pickaxe, reveal, server carry and client arm poses. 18 egg raid checks, all 15 suites and 66 compiles pass. Real mouse three-strike reveal/pickup and keyboard 8.87-stud carry movement with one HUD verified in temporary Play-only spawn fixture. Evidence task3-tests.json/task3-live.json.
+
+Ruling: device simulator is inaccessible because Computer Use returns no Studio windows although Studio MCP operates; carry visual was obstructed by old terrain. Defer simulator and final avatar-scale visual acceptance to Task 7/Task 5 geometry, without claiming those checks passed.
+
+Ruling: add CarryVisuals server module to keep replicated cosmetic models separate from pure custody service. Portable Guardian presentation is a distinct procedural adult variant; premium anatomy/art acceptance remains open.
+
+Task 4: in progress.
+
 
 ## Task 4 implementation — 2026-10-26
 
 Shared defenders select accepted raiders/deliberate fighters, prefer active egg breaking, hand off dead/left/expired targets, move within bounds and use three-dimensional catch distance. Normal victories issue finite nonstacking public respite and contributor XP. Separate harder Trial manifestations reserve portable rewards; capture still requires durable exit. Tuning is provisional.
 
 Verification: GuardianRules 12/12; actual Combat service fixtures 11/11 including coexistence, lost reward retry and repeated completion; profile/combat regression 25/25; recursive compilation passed. Two-client contention, late join, natural pursuit and Trial-to-exit remain Tasks 5–7 gates. Device simulator enumeration succeeds; no touch interaction claimed. Studio MCP temporarily disconnected during inspection.
-## Tasks 5–6 implementation and first live loop — 2026-10-26Added FreeClimb layout/build: six contiguous open terraces, 12 egg anchors, 18 rest points, bounded shared defenders, direct downhill lane and physical sanctuary exit. Added six telegraphed hazard presentations/effects and free-access HUD/travel messaging. Travel confirmation is scoped to the exact run ID; only actual exit commits ownership. Old checkpoint, puzzle, wild and home entry paths no longer bank new runs. Legacy eggs/incubation and tycoon remain.Corrected assumption: the sanctuary has its own terrain mountain north of the gates, peaking above 610 studs. The first proposed terraces intersected it. New-review terrain authority now clears only x3904..4288, z-1410..-210, above the stepped route floor to y1024. Sanctuary model remains untouched; historical terrain/place remains in the exact baseline and verified backup. This new bounded terrain requires saved-place audit; baseline terrain equality is no longer the acceptance claim for the new review.Current verification: 20 local suites pass; 71 runtime sources compile. New tests include geometry50, hazards30, run travel6, custody23, raids19, guardian12, durable persistence25, Combat integration11. Extra fixes reject sparse migration and duplicate roster IDs without replacing the old payload, and release disconnected exit-service references.Live Geometry01: normal-speed navigation walked from own plot (3438,3,176) through sanctuary gate to Blossom egg (4038,83,-374). Actual contextual mouse taps broke/revealed/picked up; normal-speed return to (4096,19,-166) produced replicated Secured=true. Actual server-script probe: roster4 (from3), securedRunIds1, run=false, coins0, legacy eggs0. Then normal-speed return to own plot and contextual put-down. Temporary server proof script exists only in Play and must be discarded by Stop. No production DataStore used. Whole-mountain natural traversal, actual multiplayer/phone and saved package remain open gates.
+## Tasks 5–6 implementation and first live loop — 2026-10-26
+
+Added FreeClimb layout/build: six contiguous open terraces, 12 egg anchors, 18 rest points, bounded shared defenders, direct downhill lane and physical sanctuary exit. Added six telegraphed hazard presentations/effects and free-access HUD/travel messaging. Travel confirmation is scoped to the exact run ID; only actual exit commits ownership. Old checkpoint, puzzle, wild and home entry paths no longer bank new runs. Legacy eggs/incubation and tycoon remain.
+
+Corrected assumption: the sanctuary has its own terrain mountain north of the gates, peaking above 610 studs. The first proposed terraces intersected it. New-review terrain authority now clears only x3904..4288, z-1410..-210, above the stepped route floor to y1024. Sanctuary model remains untouched; historical terrain/place remains in the exact baseline and verified backup. This new bounded terrain requires saved-place audit; baseline terrain equality is no longer the acceptance claim for the new review.
+
+Current verification: 20 local suites pass; 71 runtime sources compile. New tests include geometry50, hazards30, run travel6, custody23, raids19, guardian12, durable persistence25, Combat integration11. Extra fixes reject sparse migration and duplicate roster IDs without replacing the old payload, and release disconnected exit-service references.
+
+Live Geometry01: normal-speed navigation walked from own plot (3438,3,176) through sanctuary gate to Blossom egg (4038,83,-374). Actual contextual mouse taps broke/revealed/picked up; normal-speed return to (4096,19,-166) produced replicated Secured=true. Actual server-script probe: roster4 (from3), securedRunIds1, run=false, coins0, legacy eggs0. Then normal-speed return to own plot and contextual put-down. Temporary server proof script exists only in Play and must be discarded by Stop. No production DataStore used. Whole-mountain natural traversal, actual multiplayer/phone and saved package remain open gates.
+
+
+## Task 7 final review checkpoint — October 26, 2026
+
+Runtime commit d31e44c resolves the independent review findings and adds guarded binary packaging. All21 suites /1,504 checks and71 runtime compiles pass. Reviewer final focused combat18/lifecycle8 pass, no actionable findings remain in code-review scope. Review02 SHA2566b0773dbc75ffb4c15caf22196229c67d55d0ecce60d32b5a9e6658d9660ba72 cold-opened with final sources;71 normalized source matches,1,617 non-Source chunks preserved, six historical modules unchanged, no saved QA. Sanctuary canonical property rows match baseline.
+
+Natural all-six ascent/descent and saved Review01 normal fight/rest/return plus Trial reveal/pickup/physical-exit capture passed. Phone landscape larger-text/reduced-motion inputs and delayed-profile reset/one-HUD check pass in Review02; viewport restored. Actual-client multiplayer and six-hazard matrix underway.
+
+Corrected assumptions: source-only synchronization does not bake world geometry; use the verified Studio baked recovery. StudioTestService supports real multiplayer despite the solo-only MCP launch tool. First new multiplayer harness had a syntax error; retained failed attempt, corrected and compiled QA scripts, reran without changing game source. No physical-device, hosted-save, premium-art or human-pacing acceptance inferred. See design/free-climb-build-report.md and evidence/free_climb_2026-10-25/.
+
+Task7 local review complete: actual multiplayer44 checks pass, eight concurrent clients, late join/departure/shared target/physical-exit and same-egg contention. All-six actual-client hazard walk/jump8 checks pass. Walking-only sandstone fixture stalled; normal jumps escaped, with no game geometry change. Temporary QA removed; delivered Review02 remains hash6b0773dbc75ffb4c15caf22196229c67d55d0ecce60d32b5a9e6658d9660ba72. Report lists physical-device, hosted-save, human-pacing and premium-art gates; no release claim.

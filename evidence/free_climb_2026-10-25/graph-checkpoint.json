@@ -1,0 +1,20 @@
+{
+  "status": "CURRENT",
+  "intended_input_drift": 0,
+  "project_nodes": 3331,
+  "project_edges": 5804,
+  "vault_nodes": 248,
+  "vault_edges": 301,
+  "merged_nodes": 3579,
+  "merged_edges": 6252,
+  "cross_links": 147,
+  "recall_at_8": 1.0,
+  "MRR": 0.75,
+  "verified_backup": "C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-26-000712.zip",
+  "export": "2026-10-26-000712",
+  "coverage": "Original navigation repo and vault; isolated implementation checkout excluded",
+  "quality_candidates": [
+    "5 unresolved Markdown/wiki links",
+    "Project entry latest-status heading dated2026-10-22"
+  ]
+}
