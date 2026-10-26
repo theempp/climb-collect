@@ -3,6 +3,10 @@ assert(not game:GetService('RunService'):IsRunning(),'Stop Play before syncing')
 assert(game.Name:find('FreeClimb',1,true) and game.ServerStorage:FindFirstChild('MountainWorld'),'Not this isolated free-climb review')
 local Http=game:GetService('HttpService')
 local manifest={
+ {"ReplicatedStorage.MountainShared", "MovementRules", "ModuleScript", "mountain/shared/MovementRules.luau"},
+ {"ServerStorage.MountainWorld", "MountainEntrances", "ModuleScript", "mountain/world/MountainEntrances.luau"},
+ {"ServerScriptService.MountainServer", "Movement", "ModuleScript", "mountain/server/Movement.luau"},
+ {"StarterPlayer.StarterPlayerScripts.MountainClient", "Sprint", "LocalScript", "mountain/client/Sprint.client.luau"},
  {"ReplicatedStorage.MountainShared", "Catalog", "ModuleScript", "mountain/shared/Catalog.luau"},
  {"ReplicatedStorage.MountainShared", "GuardianRules", "ModuleScript", "mountain/shared/GuardianRules.luau"},
  {"ReplicatedStorage.MountainShared", "HazardRules", "ModuleScript", "mountain/shared/HazardRules.luau"},

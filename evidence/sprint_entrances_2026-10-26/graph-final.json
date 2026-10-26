@@ -1,0 +1,16 @@
+{
+  "status": "CURRENT",
+  "changed": 0,
+  "new": 0,
+  "removed": 0,
+  "vault_changed": 0,
+  "vault_removed": 0,
+  "merged_nodes": 3590,
+  "merged_edges": 6266,
+  "backup": "C:/Users/HOME!/Documents/vault-backup-graphify-2026-10-26-004039.zip",
+  "export": "2026-10-26-004039",
+  "recall_at_8": 1.0,
+  "mrr": 0.75,
+  "unresolved_note_links": 5,
+  "coverage": "Original navigation repo/vault only; isolated implementation excluded"
+}

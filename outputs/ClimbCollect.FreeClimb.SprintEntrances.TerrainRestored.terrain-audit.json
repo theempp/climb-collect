@@ -1,0 +1,9 @@
+{
+  "source": "outputs\\ClimbCollect.FreeClimb.SprintEntrances.Working.rbxl",
+  "reference": "outputs\\ClimbCollect.FreeClimb.Review02.rbxl",
+  "output": "outputs\\ClimbCollect.FreeClimb.SprintEntrances.TerrainRestored.rbxl",
+  "output_sha256": "c513c7d2666d08946b49ff9b4e22aabe1a8755b323bd7ebde5377821baa76a80",
+  "changed_chunks": 1,
+  "terrain_payload_sha256": "75b1513b6b406a812de7456b01783f2b7882abf4b204bc196a66e2fe446255d5",
+  "other_chunks_preserved": 1619
+}

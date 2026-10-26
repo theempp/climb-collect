@@ -8,7 +8,7 @@ Run.PreSimulation:Connect(function()
   local carry=c:GetAttribute('CarryingCreature')
   local t=workspace:GetServerTimeNow()-(c:GetAttribute('PickaxeStrikeAt') or -100)
   for _,joint in ipairs(c:GetDescendants()) do
-   if not joint:IsA('Motor6D') then continue end
+   if not (joint:IsA('Motor6D') or joint:IsA('AnimationConstraint')) then continue end
    local name=joint.Name
    if carry then
     if name=='RightShoulder' or name=='Right Shoulder' then joint.Transform=CFrame.Angles(1.05,0,-.42)

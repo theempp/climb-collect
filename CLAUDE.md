@@ -147,3 +147,8 @@ Feature branch codex/tycoon-redesign preserves the local Review06 source in base
 
 ## Tycoon verification and readability pass — 2026-10-25
 Verified on isolated codex/tycoon-redesign: 1,310 CLI checks, 89 compiles, 50 Studio memory checks and 213 isolated visual-fixture checks. Habitat frames/storage indicators/machine silhouettes and explicit upgrade benefits added. Rates/prices retained after deterministic pacing simulations; human timing, real eight-client/hosted/mobile and premium-art acceptance remain open. Review04 preserves baked world/service hashes. See design/tycoon-polish-2026-10-25.md and evidence/tycoon_2026-10-25/. Desktop graph freshness does not include isolated feature source.
+
+
+## Sprint and direct entrances — October 26, 2026
+
+Owner-authorized local review: C:/Users/HOME!/Desktop/climb-collect-free-climb-build/outputs/ClimbCollect.FreeClimb.Review03.SprintEntrances.rbxl, SHA256 af2c14388fc6be0b7b4739c94f7a5417780f3d271bad4f06037d045fc5cb4da5. Sprint16/27, cargo0.9 provisional; two extra wide side approaches/physical exits, eight180x220 plots unchanged. Fresh1,562 checks/25 suites/75 compiles, exact75-source cold-open, loaded two-arm run and west physical-exit ownership plus both outer-plot walks verified. All70 terrain properties restored equal Review02 after detected Studio SmoothGrid drift. Review02 unchanged. Full evidence/limits: isolated design/sprint-entrances-review-2026-10-26.md and evidence/sprint_entrances_2026-10-26/. Actual touch/hosted saves/human pacing/published animation permission/new multiplayer sprint matrix remain open. Graph excludes isolated source. No publishing or unrelated place changes.

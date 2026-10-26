@@ -271,3 +271,8 @@ Current user-approved redesign supersedes old passive collection income for migr
 
 ## Tycoon readability and economy baseline — October 25, 2026
 VERIFIED: restrained habitat/machine framing, visible storage fill/FULL status, clear-on-vacancy visuals and next-upgrade benefit text. Fresh tests and Review04 world-preservation audit: design/tycoon-polish-2026-10-25.md. PROVISIONAL economy unchanged: two starter producers save first20 coins in9.1 simulated minutes with continuous banking; full late-game/human balance is not accepted. Eight real clients, hosted saves and physical phones remain unverified; no merge or publish.
+
+
+## Sprint and direct entrances — October 26, 2026
+
+Owner-authorized local review: C:/Users/HOME!/Desktop/climb-collect-free-climb-build/outputs/ClimbCollect.FreeClimb.Review03.SprintEntrances.rbxl, SHA256 af2c14388fc6be0b7b4739c94f7a5417780f3d271bad4f06037d045fc5cb4da5. Sprint16/27, cargo0.9 provisional; two extra wide side approaches/physical exits, eight180x220 plots unchanged. Fresh1,562 checks/25 suites/75 compiles, exact75-source cold-open, loaded two-arm run and west physical-exit ownership plus both outer-plot walks verified. All70 terrain properties restored equal Review02 after detected Studio SmoothGrid drift. Review02 unchanged. Full evidence/limits: isolated design/sprint-entrances-review-2026-10-26.md and evidence/sprint_entrances_2026-10-26/. Actual touch/hosted saves/human pacing/published animation permission/new multiplayer sprint matrix remain open. Graph excludes isolated source. No publishing or unrelated place changes.

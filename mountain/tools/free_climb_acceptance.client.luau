@@ -7,7 +7,7 @@ assert(count==1,'Expected exactly one HUD after respawn')
 local world=workspace.ImpossibleMountain
 assert(world:GetAttribute('FreeClimbVersion')==1)
 assert(#world.Sections:GetChildren()==6 and #world.GuardianBounds:GetChildren()==6)
-assert(#world.Checkpoints:GetChildren()==18 and #world.SanctuaryExits:GetChildren()==1)
+assert(#world.Checkpoints:GetChildren()==18 and #world.SanctuaryExits:GetChildren()==3)
 local root=player.Character and player.Character:FindFirstChild('HumanoidRootPart')
 return {hudCount=count,viewport=workspace.CurrentCamera.ViewportSize,touch=game:GetService('UserInputService').TouchEnabled,
  reducedMotion=player:GetAttribute('MountainReducedMotion'),position=root and root.Position,

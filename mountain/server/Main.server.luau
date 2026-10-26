@@ -11,6 +11,7 @@ local UIProtocol=require(RS.MountainShared.UIProtocol)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
+require(game.ServerStorage.MountainWorld.MountainEntrances).apply(world,workspace:FindFirstChild('Sanctuary'))
 local home=require(script.Parent.Sanctuary).new(workspace:FindFirstChild('Sanctuary'))
 local tycoonWorld=require(script.Parent.TycoonWorld).new(home)
 local areas={}
@@ -25,6 +26,8 @@ local request=Instance.new('RemoteEvent');request.Name='Request';request.Parent=
 local event=Instance.new('RemoteEvent');event.Name='Event';event.Parent=remotes
 local uiRequest=Instance.new('RemoteEvent');uiRequest.Name='UIRequest';uiRequest.Parent=remotes
 local uiResult=Instance.new('RemoteEvent');uiResult.Name='UIResult';uiResult.Parent=remotes
+local sprintRequest=Instance.new('RemoteEvent');sprintRequest.Name='SprintRequest';sprintRequest.Parent=remotes
+local movement=require(script.Parent.Movement).new(sprintRequest)
 local uiService
 local raids,guardians,carryVisuals,raidHazards
 local raidEggs={}
@@ -111,6 +114,7 @@ end
 local loadCharacter
 local function onCharacter(player,character)
  local h=character:WaitForChild('Humanoid');local rr=character:WaitForChild('HumanoidRootPart');h.WalkSpeed=16;h.UseJumpPower=true;h.JumpPower=48;h.MaxHealth=140;h.Health=140
+ movement.bind(player,character)
  local p=P.get(player);if not p then return end
  local pos=if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
@@ -134,6 +138,7 @@ end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
+ movement.clear(player)
  if raids then raids.remove(player) end;if guardians then guardians.remove(player) end;if raidHazards then raidHazards.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
@@ -336,6 +341,7 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
  if combatTick>=1 then combatTick=0;B.tick() end
  if checkTick<.2 then return end;checkTick=0
  for _,player in ipairs(Players:GetPlayers()) do
+  movement.update(player)
   local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
   if p and respawns[player] and now>=respawns[player] then respawns[player]=nil;task.spawn(loadCharacter,player) end
   if p and contextDue then
