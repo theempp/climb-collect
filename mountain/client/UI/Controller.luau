@@ -192,6 +192,9 @@ local disconnect=store:subscribe(function(kind,payload)
    elseif payload.action=='Train' and d and d.creature and d.stage and d.previousStage and d.stage>d.previousStage then feedback:reveal('Evolution unlocked!',C.byId[d.creature.species].name..' reached evolution stage '..d.stage..'.',C.byId[d.creature.species])
    elseif payload.action=='ChallengeDefense' and d then feedback:reveal(if d.won then 'Challenge won!' else 'Challenge complete',(if d.practice then 'Practice defense' else 'Opponent '..tostring(d.opponent))..' · '..tostring(d.rounds)..' rounds\n'..tostring(d.trophies)..' trophies awarded.')
    elseif payload.action~='Special' and payload.action~='Dodge' then feedback:toast(payload.message or 'Confirmed.') end
+  elseif not payload.ok and payload.data and payload.data.confirmAbandon then
+   local d=payload.data
+   feedback:confirm('Abandon this creature?', 'Travel loses your unsecured attempt. Your owned creatures and coins stay safe. Cancel to keep climbing.',function() store:request('TravelAbandon',{destination=d.destination,runId=d.runId}) end)
   elseif not payload.ok then feedback:toast(payload.message or 'That action is unavailable.') end
  elseif kind=='timeout' then screens:pending();feedback:toast('Still waiting for the server. Open a menu to retry safely.')
  elseif kind=='pending' then screens:pending()

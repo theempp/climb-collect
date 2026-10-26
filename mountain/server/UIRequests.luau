@@ -212,11 +212,16 @@ function U.actions(context)
 
    return true,'Training complete • +80 XP',{creature=copyCreature(c),previousLevel=previousLevel,previousStage=previousStage,stage=R.stage(c.level),xp=80,cost=15}
 
-  elseif action=='Travel' then
+  elseif action=='Travel' or action=='TravelAbandon' then
 
    if not context.nearCheckpoint(player) and not context.atRefuge(player) then return false,'Fast travel begins at a checkpoint or refuge.' end
 
-   if not context.travel(player,payload) then return false,'Destination locked or unavailable.' end
+   local destination=if action=='TravelAbandon' then payload.destination else payload
+   local ok,reason,runId=context.travel(player,destination,if action=='TravelAbandon' then payload.runId else nil)
+   if not ok then
+    if reason=='abandon_confirmation_required' then return false,'Travel abandons your unsecured creature.',{confirmAbandon=true,destination=destination,runId=runId} end
+    return false,'Destination or travel unavailable.'
+   end
 
    return true,'Travel complete.',{destination=payload}
 

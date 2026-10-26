@@ -61,4 +61,8 @@ check(#raceBackend.backend.u105.profile.creatures==4 and raceBackend.backend.u10
 task.wait=normalWait
 local malformed=Rules.newProfile(1);malformed.creatures={false};backend.backend.u106={profile=malformed}
 check(not service.load({UserId=106}) and backend.backend.u106.profile.creatures[1]==false,'malformed_entry_preserved')
+local sparse=Rules.newProfile(1);sparse.schema=1;sparse.cargo={[2]={id='sparse',species='mossbun'}};backend.backend.u107={profile=sparse}
+check(not service.load({UserId=107}) and backend.backend.u107.profile.cargo[2].id=='sparse','sparse_legacy_payload_preserved')
+local invalid=Rules.newProfile(1);invalid.creatures[2].id=invalid.creatures[1].id;backend.backend.u108={profile=invalid}
+check(not service.load({UserId=108}),'duplicate_roster_ids_rejected')
 print('PASS '..checks..' durable exit/migration checks (isolated adapter)')

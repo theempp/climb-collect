@@ -51,7 +51,7 @@ function E.new(context)
   local p=P.get(player);local lost=p and p.run and table.clone(p.run)
   if p then Run.forfeit(p,reason) end
   release(player,true)
-  if lost then present(player,{kind='lost',reason=reason,species=lost.species});changed(player) end
+  if lost then present(player,{kind='lost',reason=reason,species=lost.species,eggId=lost.eggId});changed(player) end
   return lost~=nil
  end
  function service.exit(player,runId)
@@ -87,6 +87,8 @@ function E.new(context)
  end
  function service.remove(player)
   if not exits[player] then service.forfeit(player,'leave') end
+  -- Profiles owns pending durable work after disconnect; do not retain this Player.
+  exits[player]=nil
   release(player,true)
  end
  function service.tick(now)

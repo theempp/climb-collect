@@ -14,13 +14,21 @@ def visit(item,path=''):
     for child in item.findall('Item'):visit(child,path)
 for item in doc.getroot().findall('Item'):visit(item)
 for folder,prefix in [('shared','ReplicatedStorage.MountainShared'),('world','ServerStorage.MountainWorld'),('server','ServerScriptService.MountainServer'),('client','StarterPlayer.StarterPlayerScripts.MountainClient')]:
-    for path in (root/'mountain'/folder).glob('*.luau'):
+    for path in (root/'mountain'/folder).rglob('*.luau'):
+        parent_key=prefix
+        for directory in path.relative_to(root/'mountain'/folder).parts[:-1]:
+            folder_key=parent_key+'.'+directory
+            if folder_key not in found:
+                node=ET.SubElement(found[parent_key],'Item',{'class':'Folder','referent':'MountainFolder'+folder_key})
+                props=ET.SubElement(node,'Properties');ET.SubElement(props,'string',{'name':'Name'}).text=directory
+                found[folder_key]=node
+            parent_key=folder_key
         name=path.name.split('.')[0]
-        key=f'{prefix}.{name}'
+        key=f'{parent_key}.{name}'
         item=found.get(key)
         if item is None:
             kind='Script' if '.server.' in path.name else 'LocalScript' if '.client.' in path.name else 'ModuleScript'
-            item=ET.SubElement(found[prefix],'Item',{'class':kind,'referent':'MountainContinuation'+folder+name})
+            item=ET.SubElement(found[parent_key],'Item',{'class':kind,'referent':'MountainContinuation'+key})
             props=ET.SubElement(item,'Properties')
             ET.SubElement(props,'string',{'name':'Name'}).text=name
             ET.SubElement(props,'ProtectedString',{'name':'Source'})

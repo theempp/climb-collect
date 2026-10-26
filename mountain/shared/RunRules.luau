@@ -2,10 +2,19 @@
 local C=if script then require(script.Parent.Catalog) else require('./Catalog')
 local Run={}
 local function text(v) return type(v)=='string' and #v>0 and #v<=128 end
+local function eggs(list)
+ if type(list)~='table' then return false end
+ local count=0
+ for key,e in pairs(list) do
+  if type(key)~='number' or key%1~=0 or key<1 or key>#list or type(e)~='table' or not text(e.id) or not C.byId[e.species] or C.byId[e.species].rarity=='Legendary' then return false end
+  count+=1
+ end
+ return count==#list
+end
 function Run.migrate(p)
  if type(p)~='table' or (p.schema~=1 and p.schema~=2) then return nil end
  if p.schema==2 then return p end
- if type(p.eggs)~='table' or type(p.cargo)~='table' or (p.recovery~=nil and (type(p.recovery)~='table' or type(p.recovery.eggs)~='table')) then return nil end
+ if not eggs(p.eggs) or not eggs(p.cargo) or (p.recovery~=nil and (type(p.recovery)~='table' or not eggs(p.recovery.eggs))) then return nil end
  local seen={};for _,e in ipairs(p.eggs) do seen[e.id]=true end
  local entitlements={}
  for _,list in ipairs({p.cargo,if p.recovery then p.recovery.eggs else {}}) do

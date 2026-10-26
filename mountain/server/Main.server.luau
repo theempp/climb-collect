@@ -9,22 +9,24 @@ local Competition=require(script.Parent.Competition)
 local UIRequests=require(script.Parent.UIRequests)
 local UIProtocol=require(RS.MountainShared.UIProtocol)
 local A=require(game.ServerStorage.MountainWorld.Art)
-if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.World).build() end
+if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
 local home=require(script.Parent.Sanctuary).new(workspace:FindFirstChild('Sanctuary'))
 local tycoonWorld=require(script.Parent.TycoonWorld).new(home)
 local areas={}
 local Journey=require(script.Parent.Journey)
-require(game.ServerStorage.MountainWorld.Polish).apply(world)
-require(game.ServerStorage.MountainWorld.TraversalArt).apply(world)
-require(script.Parent.Traversal).start(world)
+if not world:GetAttribute('FreeClimbVersion') then
+ require(game.ServerStorage.MountainWorld.Polish).apply(world)
+ require(game.ServerStorage.MountainWorld.TraversalArt).apply(world)
+ require(script.Parent.Traversal).start(world)
+end
 local remotes=Instance.new('Folder');remotes.Name='MountainRemotes';remotes.Parent=RS
 local request=Instance.new('RemoteEvent');request.Name='Request';request.Parent=remotes
 local event=Instance.new('RemoteEvent');event.Name='Event';event.Parent=remotes
 local uiRequest=Instance.new('RemoteEvent');uiRequest.Name='UIRequest';uiRequest.Parent=remotes
 local uiResult=Instance.new('RemoteEvent');uiResult.Name='UIResult';uiResult.Parent=remotes
 local uiService
-local raids,guardians,carryVisuals
+local raids,guardians,carryVisuals,raidHazards
 local raidEggs={}
 local state={}
 local contextSnapshots={}
@@ -109,7 +111,7 @@ local loadCharacter
 local function onCharacter(player,character)
  local h=character:WaitForChild('Humanoid');local rr=character:WaitForChild('HumanoidRootPart');h.WalkSpeed=16;h.UseJumpPower=true;h.JumpPower=48;h.MaxHealth=140;h.Health=140
  local p=P.get(player);if not p then return end
- local pos=if areas[player]=='sanctuary' then home.spawn(player) elseif p.checkpoint=='1:entrance' then Vector3.new(0,21,550) else checkpoint(p).Position+Vector3.new(0,5,0)
+ local pos=if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
  teleport(player,pos);rebuildTeam(player)
  h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player) end;task.delay(3,function() if player.Parent==Players and P.get(player) then loadCharacter(player) end end) end)
@@ -131,7 +133,7 @@ end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
- if raids then raids.remove(player) end;if guardians then guardians.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
+ if raids then raids.remove(player) end;if guardians then guardians.remove(player) end;if raidHazards then raidHazards.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
  contextSnapshots[player]=nil;if uiService then uiService.remove(player) end
@@ -189,27 +191,33 @@ B.connectRaids({guardians=guardians,raids=raids,manifest=function(k,center)
  for _,v in ipairs(m:GetDescendants()) do if v:IsA('BasePart') then v.Transparency=.38;v.Material=Enum.Material.Neon end end
  return m
 end})
+raidHazards=require(script.Parent.RaidHazards).new({world=world,players=function() return Players:GetPlayers() end,root=root,
+ alive=function(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 and h end,
+ protected=raids.protected,inSanctuary=home.inSanctuary,dodging=function(player,now) return now<(B.dodgeUntil[player] or 0) end})
 local function interact(player,part)
  local p=P.get(player);if not p or not safe(player) or not nearby(player,part,15) then return end
  local kind=part:GetAttribute('Kind');local k=part:GetAttribute('Kingdom') or 1;local id=part:GetAttribute('Id')
  if not R.canEnter(p,k) then send(player,'toast','Defeat the previous Guardian first.');return end
  if kind=='Checkpoint' then
-  p.checkpoint=id;local n=R.extract(p);local first=not p.discoveries[id]
+  p.checkpoint=id;local first=not p.discoveries[id]
   p.discoveries[id]=true
   local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');if h then h.Health=h.MaxHealth end
   if first then for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,40*k) end end end
-  send(player,'toast','Checkpoint saved • '..n..' eggs secured.');task.spawn(P.save,player,false)
+  send(player,'toast','Rest point saved. Unsecured creatures still need the sanctuary exit.');task.spawn(P.save,player,false)
  elseif kind=='Nest' then
-  send(player,'toast',if R.collect(p,roll(k),id,os.time()) then 'Egg found • carry it to an extraction checkpoint.' else 'Nest resting or your three egg slots are full.')
+  local ok,reason
+  if p.run and p.run.eggId==id and p.run.phase=='revealed' then ok,reason=raids.pickup(player,p.run.id) else ok,reason=raids.strike(player,id) end
+  if not ok then send(player,'toast',if reason=='reserved' then 'Another climber is breaking this egg.' else 'Move closer or finish your current creature run.') end
  elseif kind=='Discovery' then
   if not p.discoveries[id] then p.discoveries[id]=true;p.resources[tostring(k)]=(p.resources[tostring(k)] or 0)+10;p.coins+=20
    for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,60*k) end end
    send(player,'toast','Landmark discovered • +10 '..C.kingdoms[k].resource)
   else send(player,'toast','Landmark recorded in your expedition journal.') end
  elseif kind=='Shortcut' then
+  if p.run then send(player,'toast','Use the map to confirm abandoning your unsecured creature before travel.');return end
   if p.shortcuts[id] then teleport(player,world.Checkpoints[k..':guardian'].Position+Vector3.new(0,5,0));send(player,'toast','Shortcut to the Guardian approach.')
   else p.shortcuts[id]=true;send(player,'toast','Shortcut attuned • use again to reach the Guardian approach.') end
- elseif kind=='Wild' then local _,msg=B.startWild(player,id,part);send(player,'toast',msg)
+ elseif kind=='Wild' then send(player,'toast','Discover companions by breaking a guarded egg.')
  elseif kind=='Guardian' or kind=='Trial' then
   local altar=world.Interactions:FindFirstChild(C.guardians[k].name);local center=Vector3.new(altar:GetAttribute('ArenaX'),altar:GetAttribute('ArenaY'),altar:GetAttribute('ArenaZ'))
   local ok,msg=B.start(player,k,kind=='Trial',center);if not ok then send(player,'toast',msg) end
@@ -217,15 +225,14 @@ local function interact(player,part)
   state[player]=state[player] or {};local s=state[player];s.puzzle=s.puzzle or {};s.puzzle[id]=(s.puzzle[id] or 0)+1
   local rune=math.floor(workspace:GetServerTimeNow()/2)%3+1
   if rune~=s.puzzle[id] then s.puzzle[id]=0;send(player,'toast','Align runes in order: I → II → III. Wait for the matching rune.');return end
-  if s.puzzle[id]>=3 then s.puzzle[id]=0;send(player,'toast',if R.collect(p,roll(k),id,os.time()) then 'Three runes aligned • egg discovered!' else 'Puzzle resting or cargo full.') else send(player,'toast','Rune '..s.puzzle[id]..' / 3 aligned. Rotate again.') end
+  if s.puzzle[id]>=3 then s.puzzle[id]=0;send(player,'toast','Three runes aligned. Find a guarded egg to discover a companion.') else send(player,'toast','Rune '..s.puzzle[id]..' / 3 aligned. Rotate again.') end
  elseif kind=='Recovery' then
   if part:GetAttribute('Owner')==player.UserId and R.recover(p,os.time()) then part:Destroy();recovering[player]=nil;send(player,'toast','Eggs recovered • extract them now.') end
  elseif kind=='Summit' then
-  if not p.wins['6'] then send(player,'toast','Caeloryn guards the final summit.');return end
   if not p.discoveries.summit then p.discoveries.summit=true;p.coins+=1000;p.trophies+=100 end
   send(player,'toast','IMPOSSIBLE MOUNTAIN CONQUERED • Sovereign Explorer!')
  elseif table.find({'Incubator','Sanctuary','Training','Competition'},kind) then
-  R.extract(p);R.settleIncome(p,os.time());send(player,'open',kind)
+  R.settleIncome(p,os.time());send(player,'open',kind)
  end
  publish(player,true)
 end
@@ -243,12 +250,12 @@ local journey=Journey.new({profile=P.get,ready=function(player) return safe(play
  end,
  resolve=function(player,destination)
   if destination=='refuge' then local cf=home.spawn(player);return cf and {cf=cf,area='sanctuary'} end
-  if destination=='blossom' then return {cf=CFrame.new(0,21,550),area='mountain'} end
+  if destination=='blossom' then return {cf=world.Checkpoints['1:entrance'].CFrame+Vector3.new(0,5,0),area='mountain'} end
   local p=P.get(player);local cp=world.Checkpoints:FindFirstChild(destination)
   if not p or not cp or not p.discoveries[destination] or not R.canEnter(p,cp:GetAttribute('Kingdom')) then return nil end
   return {cf=cp.CFrame+Vector3.new(0,5,0),area='mountain'}
  end,
- move=function(player,target) return teleport(player,target.cf) end,extract=R.extract,
+ move=function(player,target) return teleport(player,target.cf) end,extract=R.extract,forfeit=raids.forfeit,
  arrived=function(player,target) areas[player]=target.area end,
 })
 game:GetService('ProximityPromptService').PromptTriggered:Connect(function(prompt,player)
@@ -303,7 +310,7 @@ end end
 local combatTick,checkTick,contextTick=0,0,0
 game:GetService('RunService').Heartbeat:Connect(function(dt)
  local now=os.clock()
- carryVisuals.tick();raids.tick(now);guardians.tick(now)
+ carryVisuals.tick();raids.tick(now);guardians.tick(now);raidHazards.tick(now)
  for _,m in ipairs(moving) do
   local offset=(math.sin(now*.5)+1)*17
   local k=m.part:GetAttribute('Kingdom')
@@ -340,15 +347,15 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
    if m then
     local elapsed=now-m.time;local distance=(rr.Position-m.pos).Magnitude
     if distance>math.max(22,elapsed*75) and now>m.blockedUntil then teleport(player,m.pos);send(player,'toast','Movement corrected.');m=motion[player] end
-    local ceiling=if p.wins['6'] then 885 else 16+p.unlocked*136+6
-    if rr.Position.Y>ceiling then teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));send(player,'toast','Defeat the previous Guardian to enter this kingdom.');m=motion[player] end
     if h.FloorMaterial==Enum.Material.Air then m.fallTop=math.max(m.fallTop,rr.Position.Y)
     else
-     if m.fallTop-rr.Position.Y>38 then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+     if m.fallTop-rr.Position.Y>require(RS.MountainShared.RaidConfig).seriousFall and not raids.protected(player) then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
      m.fallTop=rr.Position.Y
     end
     if rr.Position.Y < -25 then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
     m.pos=rr.Position;m.time=now
+    if home.inSanctuary(rr.Position) then areas[player]='sanctuary' elseif world:GetAttribute('FreeClimbVersion') then areas[player]='mountain' end
+    if p.run and p.run.phase=='carried' and not raids.protected(player) then task.spawn(raids.exit,player,p.run.id) end
    end
    if p.recovery and os.time()>=p.recovery.expires then p.recovery=nil;if recovering[player] then recovering[player]:Destroy();recovering[player]=nil end;publish(player) end
    for _,hazard in ipairs(world.Dynamics:GetChildren()) do

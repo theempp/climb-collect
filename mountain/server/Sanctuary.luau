@@ -32,7 +32,9 @@ function S.new(model)
  end
  function service.inSanctuary(pos)
   local center=plots[4].floor.Position.X+94
-  return math.abs(pos.X-center)<1250 and pos.Z>-1400 and pos.Z<550
+  local mountain=workspace:FindFirstChild('ImpossibleMountain')
+  local north=if mountain and mountain:GetAttribute('FreeClimbVersion') then -157 else -1400
+  return math.abs(pos.X-center)<1250 and pos.Z>north and pos.Z<550
  end
  function service.nearGate(pos)
   for marker in pairs(gates) do if (marker.Position-pos).Magnitude<=15 then return true end end

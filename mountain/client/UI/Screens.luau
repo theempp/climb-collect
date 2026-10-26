@@ -200,8 +200,8 @@ function S:discovery(data)
   end;return
  end
  local active=0;for _,e in ipairs(data.eggs) do if e.readyAt then active+=1 end end
- self:note('Carry. Secure. Hatch.','#'..#data.cargo..' / 3 carried eggs  ·  '..#data.eggs..' secured  ·  '..active..' / 3 incubators\nExtract at a checkpoint. Incubation and hatching are free on your plot or at the refuge.',116)
- if #data.cargo+#data.eggs==0 then self:note('Your next companion is out there','Follow the Blossom Gardens flags. Find a nest or win a wild encounter, then secure the egg at a checkpoint.',120) end
+ self:note('Legacy eggs & incubation',#data.eggs..' secured legacy eggs  ·  '..active..' / 3 incubators\nYour old eggs remain safe. Incubation and hatching are free at home. New mountain creatures are revealed on the mountain and secured at the sanctuary exit.',140)
+ if #data.cargo+#data.eggs==0 then self:note('Your next companion is out there','Climb into any section. Break a visible egg, pick up the creature and escape through the sanctuary exit.',120) end
  for _,e in ipairs(data.cargo) do self:note(C.byId[e.species].name..' egg · unsecured','Carry to a checkpoint. A fall leaves your eggs in a recoverable pack for three minutes.',106) end
  for _,e in ipairs(data.eggs) do
   local species=C.byId[e.species];local card=self:note(species.name..' egg',species.rarity..' · secured',178)
@@ -221,19 +221,19 @@ function S:mountain(data)
  if self.tab=='Quests' then
   local q=P.quest(data);local card=self:note(q.title,q.detail,122)
   W.progress(card,q.progress/math.max(q.total,1),UDim2.new(1,-28,0,8),UDim2.new(0,14,1,-18),T.green)
-  for k,kingdom in ipairs(C.kingdoms) do self:note(kingdom.name,if data.wins[tostring(k)] then 'Guardian defeated · next ascent unlocked' elseif R.canEnter(data,k) then 'Explore, strengthen your team and challenge '..C.guardians[k].name else 'Defeat '..C.guardians[k-1].name..' to unlock this kingdom.',94) end
+  for k,kingdom in ipairs(C.kingdoms) do self:note(kingdom.name,if data.wins[tostring(k)] then 'Open to all · normal Guardian defeated · Trial available' else 'Open to all · break eggs or optionally challenge '..C.guardians[k].name,94) end
   self:blocked('Daily missions','Daily objectives and claimable daily rewards are not connected. This journal tracks your actual mountain progression.','Daily rewards unavailable')
  elseif self.tab=='Trials' then
   for k,g in ipairs(C.guardians) do
    local owned=data.captures[g.id];local won=data.wins[tostring(k)]
-   self:note(g.name..' · '..g.title,(if owned then 'CAPTURED · replay for mastery; no duplicate capture.' elseif won then 'Trial available at the kingdom altar.' else 'Defeat the normal Guardian to unlock its Trial.')..'\n3 clean dodges + 4 resolved patterns'..(if k==5 then ' + interrupt the golden heart.' elseif k==6 then ' + align three constellation stones.' else '.'),132)
+   self:note(g.name..' · '..g.title,(if owned then 'CAPTURED · this Guardian is already in your collection.' elseif won then 'Trial available at the kingdom altar.' else 'Defeat the normal Guardian to unlock its Trial.')..'\n3 clean dodges + 4 resolved patterns'..(if k==5 then ' + interrupt the golden heart.' elseif k==6 then ' + align three constellation stones.' else '.'),132)
   end
  else
-  local f=self:note('Six kingdoms. One summit.','Travel from a checkpoint or refuge. Only discovered checkpoints are available. Travelling secures carried eggs.',146)
+  local f=self:note('Six open sections','Walk freely into any section. Fast travel uses discovered rest points and requires abandoning an unsecured creature. Only the sanctuary exit secures it.',146)
   self:action(f,'ReturnRefuge','Return to sanctuary','Travel','refuge',data.ui and (data.ui.atRefuge or data.ui.nearCheckpoint))
   for k,kingdom in ipairs(C.kingdoms) do
    local unlocked=R.canEnter(data,k);local color=Color3.fromRGB(table.unpack(kingdom.accent))
-   local f=self:note(kingdom.name,(if data.wins[tostring(k)] then 'Guardian defeated' elseif unlocked then 'Explore and challenge '..C.guardians[k].name else 'Locked · defeat '..C.guardians[k-1].name)..'\n'..(data.resources[tostring(k)] or 0)..' '..kingdom.resource,174)
+   local f=self:note(kingdom.name,(if data.wins[tostring(k)] then 'Open · Guardian defeated' else 'Open · eggs and optional Guardian encounters')..'\n'..(data.resources[tostring(k)] or 0)..' '..kingdom.resource,174)
    W.stroke(f,color,2)
    for i,point in ipairs({'entrance','recovery','guardian'}) do
     local id=k..':'..point;local found=data.discoveries[id]==true

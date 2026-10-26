@@ -30,6 +30,9 @@ check(unknown.name == 'Unknown creature' and unknown.attack == 0, 'missing speci
 p.creatures[1].level = 50
 check(P.creature(p.creatures[1]).xpRequired == 0, 'level cap has no fictional next level')
 local q = P.quest(p)
+check(q.title=='Explore any of the six sections','free climb objective has no victory gate')
+p.schema=1 -- retain presentation coverage for historical profile snapshots
+q=P.quest(p)
 check(q.total > 0 and q.progress == 0 and q.title:find('Blossom'), 'first objective reflects undiscovered route')
 p.discoveries['1:entrance'] = true
 check(P.quest(p).title:find('Floravelle') ~= nil, 'discovered entrance directs to actual first guardian')

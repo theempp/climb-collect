@@ -1,6 +1,6 @@
 -- Shared wire validation only; all ownership, proximity and costs remain server rules.
 local U={}
-local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true}
+local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true}
 local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true}
 local function finite(value) return type(value)=='number' and value==value and math.abs(value)<math.huge end
 local function text(value) return type(value)=='string' and #value>0 and #value<=80 end
@@ -39,6 +39,7 @@ function U.validate(id,action,payload)
  if type(action)~='string' or not actions[action] then return false,'Unknown action.' end
  local valid=false
  if action=='PutDown' then valid=payload==nil
+ elseif action=='TravelAbandon' then valid=fields(payload,{destination=true,runId=true}) and text(payload.destination) and text(payload.runId)
  elseif action=='Strike' or action=='Pickup' then valid=text(payload)
  elseif action=='Tycoon' then
   local function slot(v,zero) return finite(v) and v%1==0 and v>=(if zero then 0 else 1) and v<=8 end

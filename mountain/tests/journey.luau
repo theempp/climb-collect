@@ -2,7 +2,7 @@ local J=require('../server/Journey')
 local R=require('../shared/Rules')
 local n=0
 local function check(v,m) assert(v,m);n+=1 end
-local p=R.newProfile(0);R.collect(p,'mossbun','test',0)
+local p=R.newProfile(0);p.schema=1;R.collect(p,'mossbun','test',0)
 local ready,origin,moveOK=true,true,false
 local location='mountain';local destinationSeen
 local j=J.new({profile=function()return p end,ready=function()return ready end,origin=function()return origin end,

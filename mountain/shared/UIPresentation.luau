@@ -55,6 +55,11 @@ function P.filterCreatures(profile,query,rarity,sort)
 end
 function P.quest(profile)
  if not profile then return {title='Preparing your mountain',detail='Waiting for the server profile.',progress=0,total=1} end
+ if profile.schema==2 then
+  if profile.run then return {title=if profile.run.phase=='carried' then 'Escape to sanctuary' elseif profile.run.phase=='revealed' then 'Pick up your creature' else 'Break the guarded egg',detail='Follow the clear downhill lane. Only the sanctuary exit secures this attempt.',progress=0,total=1} end
+  local count=0;for k=1,6 do if profile.discoveries[k..':entrance'] then count+=1 end end
+  return {title='Explore any of the six sections',detail='Find a visible egg, tap each strike, then carry your creature to sanctuary.',progress=count,total=6}
+ end
  local discoveries,wins=profile.discoveries or {},profile.wins or {}
  for k,kingdom in ipairs(C.kingdoms) do
   if not wins[tostring(k)] then

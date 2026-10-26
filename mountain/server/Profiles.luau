@@ -8,6 +8,12 @@ local Custody=R.run
 local function create(store,owner)
 local P={sessions={},mode=if Run:IsStudio() then 'Studio memory • resets when Play stops' else 'Live DataStore'}
 local function copy(t) return Http:JSONDecode(Http:JSONEncode(t)) end
+local function finite(n) return type(n)=='number' and n==n and math.abs(n)<math.huge end
+local function dense(t)
+ if type(t)~='table' then return false end
+ local count=0;for k in pairs(t) do if not finite(k) or k%1~=0 or k<1 or k>#t then return false end;count+=1 end
+ return count==#t
+end
 local function valid(p)
  if type(p)~='table' or (p.schema~=1 and p.schema~=2) then return false end
  for _,key in ipairs({'creatures','team','cargo','eggs','wins','captures','discoveries','claims','shortcuts','resources'}) do if type(p[key])~='table' then return false end end
@@ -15,14 +21,20 @@ local function valid(p)
  if p.unlocked<1 or p.unlocked>6 then return false end
  if p.tycoon~=nil and not R.tycoon.valid(p.tycoon) then return false end
  if p.settings~=nil and not UIProtocol.settings(p.settings) then return false end
- for _,c in ipairs(p.creatures) do if type(c)~='table' or not C.byId[c.species] or type(c.id)~='string' or type(c.level)~='number' or c.level<1 or c.level>50 or type(c.xp)~='number' then return false end end
+ for _,key in ipairs({'creatures','team','cargo','eggs'}) do if not dense(p[key]) then return false end end
+ local ids={}
+ for _,c in ipairs(p.creatures) do
+  if type(c)~='table' or not C.byId[c.species] or type(c.id)~='string' or #c.id==0 or ids[c.id] or not finite(c.level) or c.level%1~=0 or c.level<1 or c.level>50 or not finite(c.xp) or c.xp<0 then return false end
+  ids[c.id]=true
+ end
+ local team={};for _,id in ipairs(p.team) do if not ids[id] or team[id] then return false end;team[id]=true end
  for _,list in ipairs({p.eggs,p.cargo}) do for _,e in ipairs(list) do if type(e)~='table' or not C.byId[e.species] or C.byId[e.species].rarity=='Legendary' or type(e.id)~='string' or (e.readyAt and type(e.readyAt)~='number') then return false end end end
  if p.recovery~=nil then
-  if type(p.recovery)~='table' or type(p.recovery.eggs)~='table' then return false end
+  if type(p.recovery)~='table' or not dense(p.recovery.eggs) then return false end
   for _,e in ipairs(p.recovery.eggs) do if type(e)~='table' or type(e.id)~='string' or not C.byId[e.species] or C.byId[e.species].rarity=='Legendary' then return false end end
  end
  if p.schema==2 then
-  if type(p.legacyEntitlements)~='table' or type(p.securedRunIds)~='table' or #p.securedRunIds>128 then return false end
+  if type(p.legacyEntitlements)~='table' or not dense(p.securedRunIds) or #p.securedRunIds>128 then return false end
   for _,id in ipairs(p.securedRunIds) do if type(id)~='string' or #id>128 then return false end end
   local r=p.run
   if r~=nil and (type(r)~='table' or type(r.id)~='string' or type(r.eggId)~='string' or not C.byId[r.species] or not R.canEnter(p,r.section) or not table.find({'breaking','revealed','carried'},r.phase) or type(r.hits)~='number' or r.hits<0 or r.hits%1~=0 or type(r.trial)~='boolean') then return false end
