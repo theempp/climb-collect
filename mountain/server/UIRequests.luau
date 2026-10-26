@@ -130,6 +130,15 @@ function U.actions(context)
 
   if not context.safe(player) then return false,'Wait until your character is ready and movement is safe.' end
 
+  if action=='Strike' or action=='Pickup' or action=='PutDown' then
+   if not context.raids then return false,'Mountain discovery is unavailable.' end
+   local ok,reason
+   if action=='Strike' then ok,reason=context.raids.strike(player,payload)
+   elseif action=='Pickup' then ok,reason=context.raids.pickup(player,payload)
+   elseif context.atHome(player) and not p.run then context.putDown(player);ok=true end
+   local messages={reserved='Another climber is breaking this egg.',full_hands='Finish your current creature run first.',too_far='Move closer to the egg.',cadence='Tap again after the pickaxe strike.',egg_resting='This egg is resting. Try another.',finish_battle='Finish your fight before breaking an egg.'}
+   return ok==true,if ok then (if action=='Strike' then 'Strike landed.' elseif action=='Pickup' then 'Carry your creature downhill to sanctuary.' else 'Creature safely in your collection.') else messages[reason] or 'That action is unavailable.'
+  end
   if action=='Tycoon' or (action=='CollectIncome' and p.tycoon) then
    if not context.atHome or not context.atHome(player) then return false,'Use your own sanctuary plot.' end
    local T=R.tycoon;local request=if action=='CollectIncome' then {op='bank'} else payload

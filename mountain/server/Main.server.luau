@@ -24,6 +24,8 @@ local event=Instance.new('RemoteEvent');event.Name='Event';event.Parent=remotes
 local uiRequest=Instance.new('RemoteEvent');uiRequest.Name='UIRequest';uiRequest.Parent=remotes
 local uiResult=Instance.new('RemoteEvent');uiResult.Name='UIResult';uiResult.Parent=remotes
 local uiService
+local raids,guardians,carryVisuals
+local raidEggs={}
 local state={}
 local contextSnapshots={}
 local busy={};local limits={};local companions={};local motion={};local recovering={}
@@ -70,12 +72,18 @@ local function nearCheckpoint(player)
  local summit=world.Interactions:FindFirstChild('Impossible Summit')
  return p~=nil and p.discoveries.summit==true and summit~=nil and nearby(player,summit,25) or false
 end
+local function nearestEgg(player)
+ local rr=root(player);if not rr then return nil end
+ local nearest,best=nil,12
+ for id,egg in pairs(raidEggs) do local distance=(rr.Position-egg.position).Magnitude;if distance<best then nearest=id;best=distance end end
+ return nearest
+end
 local function publish(player,visual)
  local p=P.get(player);if not p then return end
  local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode
  local serverClock=workspace:GetServerTimeNow();local cooldowns,dodgeReadyAt=B.cooldowns(player,serverClock)
  tycoonWorld.update(player,p)
- s.ui={atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
+ s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
  send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
@@ -94,6 +102,7 @@ local function restoreRecovery(player)
 end
 local function loseCargo(player)
  local p=P.get(player);if not p then return end
+ if raids then raids.forfeit(player,'fall') end
  R.drop(p,os.time());restoreRecovery(player);publish(player)
 end
 local loadCharacter
@@ -103,7 +112,7 @@ local function onCharacter(player,character)
  local pos=if areas[player]=='sanctuary' then home.spawn(player) elseif p.checkpoint=='1:entrance' then Vector3.new(0,21,550) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
  teleport(player,pos);rebuildTeam(player)
- h.Died:Connect(function() loseCargo(player);B.remove(player);task.delay(3,function() if player.Parent==Players and P.get(player) then loadCharacter(player) end end) end)
+ h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);task.delay(3,function() if player.Parent==Players and P.get(player) then loadCharacter(player) end end) end)
 end
 loadCharacter=function(player)
  player:LoadCharacterAsync()
@@ -122,6 +131,7 @@ end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
+ if raids then raids.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
  contextSnapshots[player]=nil;if uiService then uiService.remove(player) end
@@ -131,6 +141,24 @@ local rng=Random.new()
 local function roll(k)
  local r=rng:NextNumber()*100;for i=1,6 do local s=C.species[(k-1)*6+i];r-=s.weight;if r<=0 then return s.id end end;return C.species[k*6].id
 end
+carryVisuals=require(script.Parent.CarryVisuals).new(world,send)
+for _,part in ipairs(world.Interactions:GetChildren()) do
+ if part:GetAttribute('Kind')=='Nest' then
+  local id=part:GetAttribute('Id');local egg={id=id,section=part:GetAttribute('Kingdom'),position=part.Position,part=part}
+  raidEggs[id]=egg;carryVisuals.shell(egg);part.Transparency=1
+  local prompt=part:FindFirstChildOfClass('ProximityPrompt');if prompt then prompt.ActionText='Strike egg';prompt.HoldDuration=0 end
+ end
+end
+raids=require(script.Parent.EggRaids).new({profiles=P,clock=os.clock,guid=function() return game:GetService('HttpService'):GenerateGUID(false) end,
+ eggs=raidEggs,roll=roll,alive=living,inBattle=inBattle,spawn=task.spawn,
+ near=function(player,egg,range) local rr=root(player);return rr and safe(player) and (rr.Position-egg.position).Magnitude<=range end,
+ atExit=function(player)
+  local rr=root(player);local exits=world:FindFirstChild('SanctuaryExits');if not rr or not exits then return false end
+  for _,v in ipairs(exits:GetChildren()) do local q=v.CFrame:PointToObjectSpace(rr.Position);if math.abs(q.X)<=v.Size.X/2 and math.abs(q.Y)<=v.Size.Y/2 and math.abs(q.Z)<=v.Size.Z/2 then return true end end
+  return false
+ end,
+ alert=function(k,userId,eggId,now) if guardians then guardians.alert(k,userId,eggId,now) end end,
+ changed=publish,present=carryVisuals.show})
 local function interact(player,part)
  local p=P.get(player);if not p or not safe(player) or not nearby(player,part,15) then return end
  local kind=part:GetAttribute('Kind');local k=part:GetAttribute('Kingdom') or 1;local id=part:GetAttribute('Id')
@@ -207,7 +235,7 @@ end)
 local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Competition,clock=os.time,
  safe=safe,atHome=atHome,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
  save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
- travel=journey.go,
+ travel=journey.go,raids=raids,putDown=carryVisuals.clear,
 })
 local function handle(player,action,data,correlated)
  local ok,message,result=dispatch(player,action,data)
@@ -245,6 +273,7 @@ end end
 local combatTick,checkTick,contextTick=0,0,0
 game:GetService('RunService').Heartbeat:Connect(function(dt)
  local now=os.clock()
+ carryVisuals.tick();raids.tick(now)
  for _,m in ipairs(moving) do
   local offset=(math.sin(now*.5)+1)*17
   local k=m.part:GetAttribute('Kingdom')
@@ -272,8 +301,8 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
   local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
   if p and contextDue then
    local refuge,near=atRefuge(player),nearCheckpoint(player);local previous=contextSnapshots[player]
-   if not previous or previous.atHome~=atHome(player) or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) then
-    local context={atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
+   if not previous or previous.atHome~=atHome(player) or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) or previous.nearestEgg~=nearestEgg(player) then
+    local context={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
    end
   end
   if p and rr and h and h.Health>0 then

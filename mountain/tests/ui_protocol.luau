@@ -55,4 +55,7 @@ check(concurrent.process(player,'inflight:1','State',nil)==nil and paid==1,'in-f
 local ok,done=coroutine.resume(thread)
 check(not sharedBusy,'correlated completion releases shared busy lock')
 check(ok and done.ok and concurrent.process(player,'inflight:1','State',nil)==done,'completed in-flight replay returns final result')
+check(intent('raid:1','Strike','1:egg1'),'strike server egg ID')
+check(intent('raid:2','Pickup','run-1'),'pickup server run ID')
+check(not intent('raid:3','Pickup',{species='floravelle'}),'cannot supply reward species')
 print('PASS '..count..' UI protocol/request checks')

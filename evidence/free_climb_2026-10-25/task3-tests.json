@@ -1,0 +1,81 @@
+{
+  "tests": [
+    {
+      "suite": "egg_raids",
+      "exit": 0,
+      "output": "PASS 18 egg raid checks\n"
+    },
+    {
+      "suite": "journey",
+      "exit": 0,
+      "output": "PASS 8 journey checks\n"
+    },
+    {
+      "suite": "route_geometry",
+      "exit": 0,
+      "output": "Route geometry checks passed: 657\n"
+    },
+    {
+      "suite": "rules",
+      "exit": 0,
+      "output": "PASS 121 mountain rules checks\n"
+    },
+    {
+      "suite": "run_rules",
+      "exit": 0,
+      "output": "PASS 23 run custody checks\n"
+    },
+    {
+      "suite": "sanctuary_sessions",
+      "exit": 0,
+      "output": "PASS 18 sanctuary reservation checks\n"
+    },
+    {
+      "suite": "traversal",
+      "exit": 0,
+      "output": "Traversal checks passed: 131\n"
+    },
+    {
+      "suite": "tycoon",
+      "exit": 0,
+      "output": "PASS 62 tycoon checks\n"
+    },
+    {
+      "suite": "tycoon_economy",
+      "exit": 0,
+      "output": "ECONOMY starter visit=5m eight-hour-coins=1160\nECONOMY starter visit=15m eight-hour-coins=1160\nECONOMY starter visit=30m eight-hour-coins=1056\nECONOMY starter visit=60m eight-hour-coins=528\nECONOMY starter save-20=9.10m\nECONOMY starter save-25=10.92m\nECONOMY starter save-40=17.28m\nECONOMY starter save-50=20.92m\nECONOMY starter save-100=41.83m\nECONOMY eight max profiles: 28800 ticks in 0.2622s; coins/hour/profile=12819\nECONOMY single Common level-zero hourly-coins=69\nECONOMY single Uncommon level-zero hourly-coins=82\nECONOMY single Rare level-zero hourly-coins=206\nECONOMY single Epic level-zero hourly-coins=248\nECONOMY single Mythic level-zero hourly-coins=453\nECONOMY single Legendary level-zero hourly-coins=716\nPASS 125 tycoon economy checks\n"
+    },
+    {
+      "suite": "tycoon_requests",
+      "exit": 0,
+      "output": "PASS 11 tycoon request checks\n"
+    },
+    {
+      "suite": "ui_client_state",
+      "exit": 0,
+      "output": "PASS 50 UI client state checks\n"
+    },
+    {
+      "suite": "ui_presentation",
+      "exit": 0,
+      "output": "PASS 45 UI presentation checks\n"
+    },
+    {
+      "suite": "ui_protocol",
+      "exit": 0,
+      "output": "PASS 42 UI protocol/request checks\n"
+    },
+    {
+      "suite": "run_ui_server.py",
+      "exit": 0,
+      "output": "PASS 25 profile/combat adapter checks (service fixtures, no live DataStore)\n"
+    },
+    {
+      "suite": "run_persistence.py",
+      "exit": 0,
+      "output": "PASS 23 durable exit/migration checks (isolated adapter)\n"
+    }
+  ],
+  "compile": 66,
+  "compile_failures": []
+}

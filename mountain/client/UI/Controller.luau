@@ -68,7 +68,11 @@ for i=1,3 do
  slots[i]:SetAttribute('Tooltip','Open your collection, or activate this companion’s special during combat.')
 end
 local actionbar=W.panel(root,'Actions',UDim2.fromOffset(342,48),UDim2.new(.5,-171,1,-128))
-local context=W.button(actionbar,'Context','Explore',UDim2.new(.66,-12,1,-8),UDim2.fromOffset(4,4),function() open(if store.profile and store.profile.ui and store.profile.ui.atRefuge then 'Sanctuary' else 'Mountain') end,'blue')
+local context=W.button(actionbar,'Context','Explore',UDim2.new(.66,-12,1,-8),UDim2.fromOffset(4,4),function() local p=store.profile;local run=p and p.run;local ui=p and p.ui or {}
+ if run and run.phase=='revealed' then store:request('Pickup',run.id)
+ elseif ui.nearestEgg and (not run or run.phase=='breaking') then store:request('Strike',ui.nearestEgg)
+ elseif ui.atHome then store:request('PutDown');open('Sanctuary')
+ else open('Mountain') end end,'blue')
 W.button(actionbar,'Quick','Settings',UDim2.new(.34,-4,1,-8),UDim2.new(.66,0,0,4),function() open('Settings');if screens.hub then screens.tab='Quick';screens:render(false) end end,'quiet')
 local dodge=W.button(root,'Dodge','Dodge [Q]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),function() store:request('Dodge') end,'gold');dodge.Visible=false
 local ability=W.button(root,'Ability','Ability 1',UDim2.fromOffset(122,44),UDim2.new(1,-148,1,-270),function() activeAbility=activeAbility%4+1;sound() end,'quiet');ability.Visible=false
@@ -161,7 +165,7 @@ local function updateProfile()
  if stamp~=settingsStamp then settingsStamp=stamp;applyPreferences(prefs) end
  save.Text=if saveFailed then 'SAVING PAUSED · Progress actions unavailable' elseif tostring(data.saveMode):find('Studio') then 'STUDIO REVIEW · Progress resets on Stop' else 'Profile synchronized'
  if previousProfile then
-  if data.unlocked>previousProfile.unlocked then feedback:reveal('A new kingdom awaits',C.kingdoms[data.unlocked].name..' is now open. Follow the mountain map to continue.') end
+
   for id in pairs(data.captures) do if not previousProfile.captures[id] then feedback:reveal('Guardian captured!',C.byId[id].name..' joins your collection. This Guardian can be captured once.',C.byId[id]) end end
  end
  previousProfile={unlocked=data.unlocked,captures=table.clone(data.captures)}
@@ -231,16 +235,18 @@ connect(Run.Heartbeat,function(dt)
    W.enable(b,not store.battle or (c~=nil and remain==0))
   end
   local dr=P.remaining(ui.dodgeReadyAt or 0,clock);W.enable(dodge,dr==0,if dr>0 then 'Dodge · '..dr..'s' else 'Dodge [Q]');ability.Text='Ability '..activeAbility
-  context.Text=if ui.atRefuge then 'Manage plot' elseif ui.nearCheckpoint then 'Checkpoint travel' else 'Mountain map'
+  local run=data.run
+  context.Text=if run and run.phase=='revealed' then 'Pick up creature' elseif run and run.phase=='carried' then 'Escape to sanctuary' elseif ui.nearestEgg then 'Strike egg' elseif ui.atHome then 'Put down / manage' else 'Mountain map'
+  game:GetService('ProximityPromptService').Enabled=not screens.hub and not feedback.modal
   hint.Visible=ready and not dismissHint and T.prefs.hints~=false and age<24 and not screens.hub and not store.battle and root.AbsoluteSize.Y>=390
-  hintText.Text=if ui.inSanctuary then 'Prepare your team. Any of the three gates enters Blossom.' elseif #data.cargo>0 then 'Eggs on board! Reach a checkpoint to secure them.' else 'Follow the flags. Discover eggs and rest at checkpoints.'
+  hintText.Text=if data.run then 'Unsecured creature: return through the sanctuary exit. Catch, serious fall or leaving loses this attempt.' elseif ui.inSanctuary then 'Choose your companions, then climb freely into any section.' else 'Find an egg. Tap each strike, pick up the creature, escape downhill.'
  end
  if math.floor(age)~=lastSecond then
   lastSecond=math.floor(age);timer.Text=P.formatTime(age);screens:tick();screens:pending()
   if data then local q=P.quest(data);questDetail.Text=if root.AbsoluteSize.Y<390 then (if T.prefs.hints~=false and age<24 then 'Follow flags · secure eggs' else q.progress..' / '..q.total..' objectives') else q.detail end
   if rr then
    local k=math.clamp(math.floor((rr.Position.Y-16)/136)+1,1,6);location.Text=if data and data.ui and data.ui.inSanctuary then 'Sanctuary · Plot '..tostring(data.ui.plot or '—') else C.kingdoms[k].name
-   heightLabel.Text=math.max(0,math.floor(rr.Position.Y-16))..' studs · '..(if data then data.unlocked else 1)..'/6 unlocked';heightFill.Size=UDim2.fromScale(math.clamp((rr.Position.Y-16)/824,0,1),1)
+   heightLabel.Text=math.max(0,math.floor(rr.Position.Y-16))..' studs · '..'6/6 open';heightFill.Size=UDim2.fromScale(math.clamp((rr.Position.Y-16)/824,0,1),1)
    for name,volume in pairs({['Mountain Birds 1 (SFX)']=if k==1 then .14 elseif k==2 then .05 else 0,WaterfallLoop=if k==2 then .12 else 0,AstralWind=if k>=3 then .08 else 0,LavaLoop=if k==5 then .1 else 0}) do
     local s=game:GetService('SoundService'):FindFirstChild(name);if s then if soundBases[s]==nil then soundBases[s]=s.Volume end;s.Volume=volume*(T.prefs.musicVolume or .7);if not s.IsPlaying then s:Play() end end
    end

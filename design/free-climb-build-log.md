@@ -17,3 +17,8 @@ Task 2: complete — RunRules custody and schema-2 additive migration, Profiles.tr
 Ruling: legacy Rules.winGuardian cannot award a schema-2 Trial directly; Task 4 will route its reward through EggRaids custody. Old incubation helpers remain callable for existing egg compatibility.
 Ruling: transaction callers mutate a draft synchronously, access to live gameplay is frozen during pending commits, ordinary save snapshots retain the existing mutation-compatible behavior; exit serializes behind saves. Hosted persistence remains unverified and untested by authorization.
 Task 3: in progress — implement authoritative egg service before presentation, then verify live input with a temporary isolated fixture until Task 5 supplies final geometry.
+
+Task 3: implemented — authoritative reservations/cadence/distance/ownership, contextual tap action, shell cracks, pickaxe, reveal, server carry and client arm poses. 18 egg raid checks, all 15 suites and 66 compiles pass. Real mouse three-strike reveal/pickup and keyboard 8.87-stud carry movement with one HUD verified in temporary Play-only spawn fixture. Evidence task3-tests.json/task3-live.json.
+Ruling: device simulator is inaccessible because Computer Use returns no Studio windows although Studio MCP operates; carry visual was obstructed by old terrain. Defer simulator and final avatar-scale visual acceptance to Task 7/Task 5 geometry, without claiming those checks passed.
+Ruling: add CarryVisuals server module to keep replicated cosmetic models separate from pure custody service. Portable Guardian presentation is a distinct procedural adult variant; premium anatomy/art acceptance remains open.
+Task 4: in progress.

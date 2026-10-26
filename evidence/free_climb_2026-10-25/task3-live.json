@@ -1,0 +1,14 @@
+{
+  "scope": "Temporary Play-only spawn beside existing nest; not natural ascent",
+  "schema": 2,
+  "input": "3 actual mouse clicks on context action; actual pickup click",
+  "revealed": "thorncub",
+  "hits": 3,
+  "carried": true,
+  "keyboardMovementStuds": 8.870367050170898,
+  "hudCount": 1,
+  "consoleErrors": 0,
+  "touchSimulator": "Unavailable through desktop helper: no targetable Studio window",
+  "visual": "Carry camera obstructed by old mountain; verify/polish on Task 5 world",
+  "fixtureRemoved": "Stop Play discarded temporary script/spawn changes"
+}
