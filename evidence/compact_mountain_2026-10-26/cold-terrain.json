@@ -1,0 +1,9 @@
+{
+  "exact": true,
+  "regions": {
+    "sanctuary": 4352,
+    "landscape": 6930560,
+    "legacyMountain": 5584724,
+    "playable": 1119288
+  }
+}

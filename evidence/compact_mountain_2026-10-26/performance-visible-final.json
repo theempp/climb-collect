@@ -1,0 +1,17 @@
+{
+  "scope": "Studio Play Solo, desktop GPU, focused + maximized visible window (viewport 3151x1113), StreamingEnabled=false (full residency), camera bound after default camera, avatar not moved. Clearance-corrected compact edit model. Supersedes performance-native-client.json (lost focus at home 5: 15 FPS throttle, collapsed triangle counts) and performance-final.json (camera position unverified).",
+  "date": "2026-10-26",
+  "memoryNote": "memoryMB is Studio's whole-process total (edit + server + client DataModels, after ~25 min of raid/walk probes); a fresh session measured ~3.0 GB. Neither is a phone/tablet memory figure.",
+  "views": [
+    {"home": 1, "cameraError": 0, "medianMs": 16.63, "p95Ms": 17.78, "drawcalls": 853, "triangles": 707960, "parts": 5488},
+    {"home": 2, "cameraError": 0, "medianMs": 16.64, "p95Ms": 17.76, "drawcalls": 706, "triangles": 707209, "parts": 5488},
+    {"home": 3, "cameraError": 0, "medianMs": 16.60, "p95Ms": 18.03, "drawcalls": 525, "triangles": 698983, "parts": 5488},
+    {"home": 4, "cameraError": 0, "medianMs": 16.71, "p95Ms": 17.80, "drawcalls": 461, "triangles": 669309, "parts": 5488},
+    {"home": 5, "cameraError": 0, "medianMs": 16.56, "p95Ms": 17.83, "drawcalls": 462, "triangles": 668177, "parts": 5488},
+    {"home": 6, "cameraError": 0, "medianMs": 16.70, "p95Ms": 17.58, "drawcalls": 514, "triangles": 695649, "parts": 5488},
+    {"home": 7, "cameraError": 0, "medianMs": 16.61, "p95Ms": 17.90, "drawcalls": 701, "triangles": 713997, "parts": 5488},
+    {"home": 8, "cameraError": 0, "medianMs": 16.72, "p95Ms": 17.92, "drawcalls": 862, "triangles": 722284, "parts": 5488}
+  ],
+  "processMemoryMB": 8347,
+  "lifecycle": {"deathObserved": true, "respawnObserved": true, "passed": true, "samples": 67, "note": "server-triggered QA death; one atmosphere folder, one tint, three emitters throughout; emitters off while dead"}
+}

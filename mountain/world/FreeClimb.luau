@@ -1,7 +1,7 @@
 -- Open-face review topology. Distances and hazard tuning are provisional.
 local F={version=1}
 local function point(x,y,z) return {x=x,y=y,z=z} end
-function F.layout()
+function F.originalLayout()
  local g={sections={},eggs={},restPoints={},exit={x=4096,y=24,z=-166,width=180,height=24,depth=18}}
  for k=1,6 do
   local z=-210-(k-1)*200;local y=16+(k-1)*64
@@ -13,6 +13,10 @@ function F.layout()
  end
  return g
 end
+function F.layout()
+ local G=if game then require(game.ReplicatedStorage.MountainShared.CompactGeometry) else require('../shared/CompactGeometry')
+ return G.layout(F.originalLayout())
+end
 function F.build()
  assert(not workspace:FindFirstChild('ImpossibleMountain'),'Build only into a new review with its old mountain removed')
  local C=require(game.ReplicatedStorage.MountainShared.Catalog)
@@ -23,7 +27,7 @@ function F.build()
  local root=folder(workspace,'ImpossibleMountain');root:SetAttribute('FreeClimbVersion',F.version);root:SetAttribute('GeneratorVersion',C.version)
  local checkpoints=folder(root,'Checkpoints');local interactions=folder(root,'Interactions');local dynamics=folder(root,'Dynamics');local encounters=folder(root,'Encounters')
  local bounds=folder(root,'GuardianBounds');local exits=folder(root,'SanctuaryExits');local meta=folder(root,'Sections')
- local g=F.layout();local rng=Random.new(42961)
+ local g=F.originalLayout();local rng=Random.new(42961)
  -- New-review terrain authority: only the open face beyond the sanctuary bridge.
  -- The exact historical terrain remains in the immutable baseline and backup.
  -- Eight-stud slices clear above the authored walk surface, with voxel-aligned bounds.
@@ -111,6 +115,7 @@ function F.build()
  for _,p in ipairs(root.Interactions:GetChildren()) do local label=p:FindFirstChild('Label');if label then label.MaxDistance=45 end end
  for _,p in ipairs(root.Dynamics:GetChildren()) do local label=p:FindFirstChild('Label');if label then label.MaxDistance=50 end end
  require(script.Parent.MountainQuality).apply(root)
- return root,g
+ require(script.Parent.CompactMountain).apply(root)
+ return root,F.layout()
 end
 return F

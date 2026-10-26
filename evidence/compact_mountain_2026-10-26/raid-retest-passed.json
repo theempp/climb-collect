@@ -1,0 +1,27 @@
+{
+  "scope": "Studio Play Solo on ClimbCollect.CompactMountain.Review01 edit model with CompactEncounterClearanceVersion=1 (raid pads at X 4038/4154) and 83/83 runtime sources matching repo. Client probe mountain/tools/compact_raid.client.luau, ordinary Humanoid movement and ordinary UI requests; no position/progression injection.",
+  "date": "2026-10-26",
+  "done": true,
+  "passed": true,
+  "checks": 120,
+  "failures": 0,
+  "elapsedSeconds": 279.99,
+  "finalHealth": 165.0,
+  "coverage": [
+    "6 entrance legs + 24 section approach legs (all six sections)",
+    "summit egg reached at compact (4038, 346, -1208)",
+    "8 summit strikes, reveal is not ownership, pickup",
+    "cargo sprint speed 24.3 unchanged",
+    "carry clear of guardian (the step that failed in raid-first-failure.json)",
+    "24 cargo descent legs with cargo retained at every leg",
+    "physical sanctuary return secures exactly one creature",
+    "six hazards: approach, entry, actual damage + survival, escape; sandstone drop + walk-only recovery"
+  ],
+  "serverToasts": [
+    "77s Caeloryn heard your strike! Watch its approach.",
+    "80s Starbit revealed - pick it up and escape!",
+    "130s Securing your creature... You are protected while saving.",
+    "130s Safe! Starbit is yours. Carry it home."
+  ],
+  "supersedes": "raid-first-failure.json (kept as history)"
+}

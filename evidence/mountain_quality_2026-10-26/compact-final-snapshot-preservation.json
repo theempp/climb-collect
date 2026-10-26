@@ -1,0 +1,110 @@
+{
+  "baseline": "compact-baseline-snapshot",
+  "current": "compact-final-snapshot",
+  "protected_equal": false,
+  "lighting_equal": true,
+  "protected_sha256": "3a31ae71296f93dc8b419e73a89ce2aa36f58f17c1880b6d79d6887ec1208974",
+  "sections": {
+    "Azure Falls": {
+      "min": [
+        3897.9580078125,
+        -23.100006103515625,
+        -564.953125
+      ],
+      "max": [
+        4299.125,
+        147.33901977539062,
+        -365.2237243652344
+      ],
+      "colliders": 154,
+      "parts": 969
+    },
+    "Blossom Gardens": {
+      "min": [
+        3893.7392578125,
+        -23.100000381469727,
+        -394.9531555175781
+      ],
+      "max": [
+        4293.34521484375,
+        93.09625244140625,
+        -195.35308837890625
+      ],
+      "colliders": 154,
+      "parts": 1114
+    },
+    "Inferno Heights": {
+      "min": [
+        3889.57177734375,
+        -23.099998474121094,
+        -1074.953125
+      ],
+      "max": [
+        4302.2861328125,
+        307.5530700683594,
+        -875.2236938476562
+      ],
+      "colliders": 154,
+      "parts": 689
+    },
+    "Sunstone Desert": {
+      "min": [
+        3900.790283203125,
+        -23.099998474121094,
+        -734.953125
+      ],
+      "max": [
+        4296.583984375,
+        198.15380859375,
+        -535.3530883789062
+      ],
+      "colliders": 159,
+      "parts": 735
+    },
+    "Violet Crystals": {
+      "min": [
+        3898.447021484375,
+        -23.100006103515625,
+        -904.953125
+      ],
+      "max": [
+        4302.73583984375,
+        252.40382385253906,
+        -705.3530883789062
+      ],
+      "colliders": 154,
+      "parts": 697
+    },
+    "Astral Crown": {
+      "min": [
+        3888.234619140625,
+        -23.099990844726562,
+        -1244.953125
+      ],
+      "max": [
+        4299.162109375,
+        361.3719177246094,
+        -1045.35302734375
+      ],
+      "colliders": 154,
+      "parts": 668
+    }
+  },
+  "counts": {
+    "ProximityPrompt": 42,
+    "IntersectOperation": 471,
+    "BillboardGui": 50,
+    "Part": 3344,
+    "SpecialMesh": 525,
+    "SpawnLocation": 8,
+    "SurfaceGui": 8,
+    "Folder": 81,
+    "Camera": 1,
+    "TextLabel": 58,
+    "Model": 48,
+    "CornerWedgePart": 912,
+    "Attachment": 1,
+    "WedgePart": 3900,
+    "Terrain": 1
+  }
+}

@@ -11,7 +11,8 @@ for y=16,600,1 do
  check(v>=old and v>=0 and v<=1,'intensity smoothly grows with altitude')
  check(v-old<.015,'no altitude step flash');old=v
 end
-check(P.intensity(4096,400,-1300)>.95,'summit has full effect')
+local G=require('../shared/CompactGeometry');local summit=G.point({x=4096,y=400,z=-1300})
+check(P.intensity(summit.x,summit.y,summit.z)>.95,'compact summit has full effect')
 for z=-210,-1410,-1 do
  local a=P.ground(0,z);local b=P.ground(0,z-1)
  for i=1,3 do check(a[i]>=0 and a[i]<=255 and math.abs(a[i]-b[i])<8,'continuous bounded ground palette') end

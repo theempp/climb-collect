@@ -1,0 +1,13 @@
+{
+  "scope": "Studio Play Solo, fresh spawn, clearance-corrected compact edit model. mountain/tools/compact_walk.client.luau: ordinary Humanoid MoveTo; 12 jumps triggered by real Space keyDown/keyUp sent through Studio user_keyboard_input when the probe raised MountainQA_RequestJump. No teleports, speed/health edits or progression injection.",
+  "date": "2026-10-26",
+  "done": true,
+  "passed": true,
+  "legs": 165,
+  "failures": 0,
+  "realJumpsObserved": 12,
+  "elapsedSeconds": 314,
+  "sprintLegsSeconds": 81,
+  "finalHealth": 198.95,
+  "coverage": "6 entrance legs; west ascent all six sections (9 legs each, jump at d=60); summit crossing; east descent all six sections (8 legs each, jump at d=60); center transfer; sprint ascent 24 legs + sprint descent 30 legs; physical exit"
+}

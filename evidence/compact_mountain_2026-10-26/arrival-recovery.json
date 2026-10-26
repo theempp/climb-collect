@@ -1,0 +1,14 @@
+{
+  "asset": {
+    "viewport": "750, 381",
+    "recovered": true,
+    "failure": "asset"
+  },
+  "bootstrap": {
+    "failure": "timeout",
+    "viewport": "750, 381",
+    "elapsed": 45.09686839999631,
+    "recovered": true,
+    "retryVisible": true
+  }
+}

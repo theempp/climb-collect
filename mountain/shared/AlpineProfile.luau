@@ -1,10 +1,12 @@
 -- Pure spatial contract for cosmetic mountain presentation. No gameplay state.
 local P={version=1}
+local G=if game then require(game.ReplicatedStorage.MountainShared.CompactGeometry) else require('./CompactGeometry')
 local function smooth(a,b,x)
  local t=math.clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)
 end
 P.smooth=smooth
 function P.intensity(x,y,z)
+ local p=G.original({x=x,y=y,z=z});x=p.x;y=p.y;z=p.z
  local area=(1-smooth(210,360,math.abs(x-4096)))*smooth(-210,-270,z)*(1-smooth(1410,1510,-z))
  return smooth(16,400,y)*area
 end

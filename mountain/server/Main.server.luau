@@ -408,4 +408,5 @@ game:BindToClose(function()
  for player in pairs(P.sessions) do remaining+=1;task.spawn(function() P.save(player,true);remaining-=1 end) end
  local untilTime=os.clock()+25;while remaining>0 and os.clock()<untilTime do task.wait(.1) end
 end)
+world:SetAttribute('ArrivalReady',true)
 print('Impossible Mountain ready • six kingdoms • isolated profile namespace')

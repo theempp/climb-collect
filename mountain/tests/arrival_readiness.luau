@@ -1,0 +1,7 @@
+local R=require('../shared/ArrivalReadiness')
+assert(R.state(false,false,0,0)=='loading')
+assert(R.state(true,true,0,0)=='ready')
+assert(R.state(true,false,25,0)=='retry')
+assert(R.state(true,true,5,1)=='retry')
+assert(R.state(true,false,24,0)=='loading')
+print('PASS arrival readiness: real completion, bounded wait, failed asset retry')
