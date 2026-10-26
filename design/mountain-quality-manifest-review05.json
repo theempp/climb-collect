@@ -1,0 +1,70 @@
+{
+  "base_commit": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0",
+  "branch": "codex/mountain-quality-overnight",
+  "runtime_files": {
+    "mountain/world/FreeClimb.luau": "422d82a601cdde715ce6b8d6c8ea053ac5726050c5edf1f64704bb06c0762ce0",
+    "mountain/world/MountainSurface.luau": "26839ac462bd9c3f7f396738b08380fee3be9dd37fb23378f546e280b1f508b0",
+    "mountain/world/MountainQuality.luau": "92ce3c4c36f511320fa6bb7d53f8405a6a384182995df6fec6ea75334385c186"
+  },
+  "source_hash_normalization": "UTF-8 bytes with LF line endings",
+  "review": {
+    "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review05.rbxl",
+    "sha256": "c4e48fa124af56140815adddb377d3a314cb6f081be7b37bebb45ee7800c5927",
+    "bytes": 1240072,
+    "runtime_sources": 77,
+    "all_saved_sources": 83,
+    "changed_review04_sources": [],
+    "terrain_properties": 70,
+    "intentional_terrain_payload_changes": [
+      "Materials",
+      "PhysicsGrid",
+      "SmoothGrid"
+    ],
+    "temporary_qa": [],
+    "audit": "evidence/mountain_quality_2026-10-26/review05-delivery-static.json"
+  },
+  "instructions": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\design\\mountain-quality-integration.md",
+  "protected_source_paths": [
+    "mountain/server",
+    "mountain/client",
+    "mountain/shared",
+    "mountain/world/Art.luau",
+    "mountain/world/CreatureDetails.luau",
+    "mountain/world/MountainEntrances.luau"
+  ],
+  "source_authority_recheck": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0",
+  "helper_version": 4,
+  "continuation_from": "e33a61ad70e71dbd6ce5907aa275f910e4232760",
+  "report": "design/mountain-quality-review05-report.md",
+  "delivery_checker": "mountain/tools/quality_review05_delivery.py",
+  "historical_manifest": "design/mountain-quality-manifest-review04.json",
+  "landscape": {
+    "version": 1,
+    "runtime_changes": false,
+    "recipe": "On compatible fresh Review04: bake stages 1,2,3 then guarded reconciliation with decoded correction JSON. Verify exact exports. Reconcile newer combined authority independently.",
+    "files": {
+      "mountain/tools/quality_landscape_bake.luau": "db1de74bafd76c3ad1ad1c3c81a9a79940ced8f7c079683a218e330063af1ce0",
+      "mountain/tools/quality_landscape_reconcile.luau": "7bc2d1ac3d608579ca31c56683730c8f7b6a1660b30adac324eb4ca3586ceaa0",
+      "evidence/mountain_quality_2026-10-26/review05-recipe-correction.json": "ef312c598ac9e5327dc353db205166bf9b86e8854fd4277e5058236aa747e010"
+    },
+    "bounds": {
+      "min": [
+        3392,
+        -64,
+        -1840
+      ],
+      "max": [
+        4800,
+        800,
+        -208
+      ]
+    },
+    "protected_corridor": "x3920..4272 for z>=-1412",
+    "protected_voxel_domains": [
+      "sanctuary",
+      "playable",
+      "legacyMountain"
+    ],
+    "whole_terrain_restore_forbidden": true
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review06.rbxl",
+  "sha256": "bff89f92041687ddfc1cb815a728a1adeef9ca34939324b450cf9217917b09be",
+  "bytes": 1254129,
+  "runtime_sources": 79,
+  "unchanged_saved_sources": 83,
+  "new_sources": [
+    "ReplicatedStorage.MountainShared.AlpineProfile",
+    "StarterPlayer.StarterPlayerScripts.MountainClient.AltitudeAtmosphere"
+  ],
+  "preserved_original_parts": 3964,
+  "added_noncolliding_parts": 1420,
+  "colliders": 996,
+  "exact_protected_cells": 54793408,
+  "native_cold_voxels": true,
+  "terrain_payload_changes": [
+    "SmoothGrid",
+    "PhysicsGrid"
+  ],
+  "suites": 27,
+  "compiles": 79,
+  "walk_steps": 165,
+  "jumps": 12,
+  "edge_steps": 98,
+  "raid_steps": 120,
+  "effect_samples": 647,
+  "temporary_qa": []
+}

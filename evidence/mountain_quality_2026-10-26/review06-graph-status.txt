@@ -1,0 +1,23 @@
+Project: 3355 nodes / 5823 edges
+Vault: 295 nodes / 348 edges
+Merged: 3650 nodes / 6331 edges / 160 cross links
+Global: 3650 nodes / 6137 edges
+Input drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0
+Status: CURRENT for all intended inputs
+# Graph quality
+
+Generated 2026-10-26T14:40:24-04:00.
+
+- Indexed project inputs: 370/370
+- Indexed vault notes: 7/7
+- Cross-links: 160; without provenance: 0
+- Broken edges: 0; weak community labels: 0
+- Luau files with no symbols: 0
+- Source-only code files: 0; supplemented declarations: 29
+- Ambiguous document mentions for review: 0
+
+- Unresolved Markdown/wiki links for review: 5
+
+## Review candidates
+
+- `Climb & Collect/Climb & Collect.md`: Latest status heading dated 2026-10-22; compare with current source before updating

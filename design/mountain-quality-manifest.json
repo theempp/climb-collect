@@ -4,24 +4,21 @@
   "runtime_files": {
     "mountain/world/FreeClimb.luau": "422d82a601cdde715ce6b8d6c8ea053ac5726050c5edf1f64704bb06c0762ce0",
     "mountain/world/MountainSurface.luau": "26839ac462bd9c3f7f396738b08380fee3be9dd37fb23378f546e280b1f508b0",
-    "mountain/world/MountainQuality.luau": "92ce3c4c36f511320fa6bb7d53f8405a6a384182995df6fec6ea75334385c186"
+    "mountain/world/MountainQuality.luau": "92ce3c4c36f511320fa6bb7d53f8405a6a384182995df6fec6ea75334385c186",
+    "mountain/shared/AlpineProfile.luau": "2f211a8ab03c4f2871f93cebca2ef39191f5f2e445a18d2de37161f3ea9cb0d7",
+    "mountain/client/AltitudeAtmosphere.client.luau": "1bba95c7807184684e5b628c0a603348b5e8f85ac998edc1e456bdd52bdee7e0"
   },
   "source_hash_normalization": "UTF-8 bytes with LF line endings",
   "review": {
-    "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review05.rbxl",
-    "sha256": "c4e48fa124af56140815adddb377d3a314cb6f081be7b37bebb45ee7800c5927",
-    "bytes": 1240072,
-    "runtime_sources": 77,
-    "all_saved_sources": 83,
-    "changed_review04_sources": [],
+    "place": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\outputs\\ClimbCollect.MountainQuality.Review06.rbxl",
+    "sha256": "bff89f92041687ddfc1cb815a728a1adeef9ca34939324b450cf9217917b09be",
+    "bytes": 1254129,
+    "runtime_sources": 79,
+    "all_saved_sources": 85,
+    "unchanged_review05_saved_sources": 83,
     "terrain_properties": 70,
-    "intentional_terrain_payload_changes": [
-      "Materials",
-      "PhysicsGrid",
-      "SmoothGrid"
-    ],
-    "temporary_qa": [],
-    "audit": "evidence/mountain_quality_2026-10-26/review05-delivery-static.json"
+    "audit": "evidence/mountain_quality_2026-10-26/review06-delivery.json",
+    "status": "verified local delivery; cold source/scene/terrain, gameplay, repeat recipe and effect lifecycle pass"
   },
   "instructions": "C:\\Users\\HOME!\\Desktop\\climb-collect-mountain-quality\\design\\mountain-quality-integration.md",
   "protected_source_paths": [
@@ -34,10 +31,10 @@
   ],
   "source_authority_recheck": "a3e896ad624d966c75f57a1c692b58c5f0ef63a0",
   "helper_version": 4,
-  "continuation_from": "e33a61ad70e71dbd6ce5907aa275f910e4232760",
-  "report": "design/mountain-quality-review05-report.md",
-  "delivery_checker": "mountain/tools/quality_review05_delivery.py",
-  "historical_manifest": "design/mountain-quality-manifest-review04.json",
+  "continuation_from": "2709da5",
+  "report": "design/mountain-quality-review06-report.md",
+  "delivery_checker": "mountain/tools/quality_review06_delivery.py",
+  "historical_manifest": "design/mountain-quality-manifest-review05.json",
   "landscape": {
     "version": 1,
     "runtime_changes": false,
@@ -66,5 +63,14 @@
       "legacyMountain"
     ],
     "whole_terrain_restore_forbidden": true
+  },
+  "naturalization": {
+    "recipe": "mountain/tools/quality_naturalize.luau",
+    "version": 1,
+    "base": "exact Review05; install AlpineProfile before the edit-only recipe",
+    "new_client": "AltitudeAtmosphere",
+    "preserve": "996 original colliders and original anchors; no rebuild",
+    "terrain": "Material-only outside x3920..4272; additive ridges behind z-1424; exact protected domains unchanged",
+    "recipe_sha256": "9a56d5de68bb4c30af0bacb2e5d87de5fb1ce7337db847f10ff98f450ba5b08f"
   }
 }

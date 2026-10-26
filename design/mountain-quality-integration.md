@@ -1,10 +1,22 @@
+# Review06 natural landscape integration — October 26, 2026
+
+Current local review is `outputs/ClimbCollect.MountainQuality.Review06.rbxl`; previous Review05 is immutable. Reconcile a newer combined place against its own authority; do not replace it wholesale with this isolated older game.
+
+Add `mountain/shared/AlpineProfile.luau` as `ReplicatedStorage.MountainShared.AlpineProfile` and `mountain/client/AltitudeAtmosphere.client.luau` as `StarterPlayer.StarterPlayerScripts.MountainClient.AltitudeAtmosphere`. They are the only new runtime sources relative to Review05; all83 previous saved sources are unchanged. The client creates its own non-colliding, non-querying particle volume and dedicated color correction. It reads the local player's actual position, disables/clears particles outside the mountain or on death, and fades the tint. It never changes server state or global weather. Keep both source names unique.
+
+On a separately saved compatible Review05 copy, run the edit-only `mountain/tools/quality_naturalize.luau` once. It does not belong in runtime startup. It retains original part transforms and effective physics, recolors ground, adds non-colliding surface patches/rock spurs/foothill planting, repaints exterior terrain, and adds a native summit ridgeline. It replaces only its own `NaturalTransitions` and `NaturalLandscape` folders on repeat. Terrain write bounds remain x3392..4800,y-64..800,z-1840..-208; material changes exclude x3920..4272 for z>=-1420; additive ridge occupancy is confined behind z-1424. Exact protected corridor/sanctuary/legacy terrain comparisons and repeat scene/voxel comparisons are verified in this local review. Never call FreeClimb.build, clear the mountain, or restore older whole Terrain over this intentional landscape.
+
+The current physical six-section route remains straight. This is a presentation pass: continuous neighboring ground colors and irregular scenery soften the strip appearance while keeping the tested paths. Physical phones, newest combined-place integration, hosted/network behavior and owner aesthetic acceptance remain open. Re-run collision/voxel/source checks and natural traversal/cargo/hazards when integrating into another current place. Use `python mountain/tools/quality_review06_delivery.py` for this exact isolated delivery after final evidence is complete.
+
+---
+
 # Scoped mountain integration — local review only
 
 ## Review05 landscape continuation — October 26, 2026
 
 The latest owner direction extends the surrounding mountain/hills through all six sections and around the summit, superseding the earlier outer-silhouette restriction. Review05 adds **baked Terrain only** relative to Review04/e33a61a. The77 current runtime sources, six historical sources,3964 mountain parts,996 collider transforms/effective physics, anchors, protected scene and Lighting remain unchanged. MountainQuality stays version4; the baked root additionally records LandscapeContinuationVersion1.
 
-Current local review: `outputs/ClimbCollect.MountainQuality.Review05.rbxl`. Its current hash and validation are in `mountain-quality-manifest.json` and [Review05 report](mountain-quality-review05-report.md). Review01/03/04 remain immutable. Review04's manifest is archived separately.
+Historical Review05: `outputs/ClimbCollect.MountainQuality.Review05.rbxl`. Its hash and validation are in `mountain-quality-manifest-review05.json` and [Review05 report](mountain-quality-review05-report.md). Review01/03/04/05 remain immutable. Review04's manifest is archived separately.
 
 For later integration, **do not copy this older complete place over the current combined game**. On a new saved copy of that combined game, reconcile its terrain, region bounds and current source first. The edit-time recipe is `mountain/tools/quality_landscape_bake.luau`: run the returned chunk with stages1,2,3 in that order, followed by `quality_landscape_reconcile.luau` with the decoded `evidence/mountain_quality_2026-10-26/review05-recipe-correction.json`. This final guarded correction records native occupancy/material remnants of the original authoring experiments; it validates every expected source cell before writing. The complete recipe exactly reproduces Review05 on Review04. Do not blindly apply the correction to a newer combined terrain: a precondition mismatch requires reconciliation against that newer authority. It requires a baked FreeClimbVersion1/MountainQualityVersion4 root, and must not run during Play. Default stage3 repeats the final profile and is idempotent on this delivered terrain. This tool is not a runtime module or automatic startup hook. Preserve the integration copy's own baseline and compare its protected voxels before/after.
 

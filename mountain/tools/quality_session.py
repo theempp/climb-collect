@@ -39,6 +39,8 @@ def regression(name):
     base=json.loads((ROOT/'evidence/sprint_entrances_2026-10-26/regression.json').read_text())
     if (ROOT/'mountain/tests/quality_geometry.luau').exists():
         base['suites'].append({'suite':'quality_geometry.luau'})
+    if (ROOT/'mountain/tests/alpine_profile.luau').exists():
+        base['suites'].append({'suite':'alpine_profile.luau'})
     for row in base['suites']:
         f=ROOT/'mountain/tests'/row['suite']
         result=subprocess.run([sys.executable if f.suffix=='.py' else str(CLI),str(f)],cwd=ROOT,text=True,capture_output=True)
