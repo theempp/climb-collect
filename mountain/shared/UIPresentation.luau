@@ -117,4 +117,37 @@ function P.layout(width,height,largeText)
   teamWidth=teamWidth,teamBottom=math.min(teamBottom,math.max(0,h-160)),
   actionBottom=math.min(teamBottom+100,math.max(0,h-48))}
 end
+-- Safe-root coordinates. Native bounds are supplied by the actual TouchGui.
+function P.horizontalNavigation(height,touch) return height<550 or touch==true end
+function P.hudLayout(w,h,obstacles,touch)
+ local short=h<400
+ local left,right=12,w-12
+ for _,o in ipairs(obstacles or {}) do
+  if o.y+o.h>h-100 then
+   if o.x<w/2 then left=math.max(left,math.min(o.x+o.w+8,w*.43))
+   else right=math.min(right,o.x-8) end
+  end
+ end
+ local tw=math.min(if short then 258 else 330,right-left)
+ local center=(left+right)/2
+ local function rect(x,y,rw,rh) return {x=x,y=y,w=rw,h=rh} end
+ local horizontal=P.horizontalNavigation(h,touch==true or #(obstacles or {})>0)
+ local actionY=math.min(h-190,h-((if short then 140 else 170)+54))
+ for _,o in ipairs(obstacles or {}) do if o.x>w/2 then actionY=math.min(actionY,o.y-108) end end
+ return {
+  short=short,
+  horizontalNavigation=horizontal,
+  navigation=if horizontal then rect(100,if h<550 then 54 else 60,math.min(w-110,696),if h<550 then 50 else 82) else rect(12,140,184,326),
+  status=rect(12,8,if w<900 then 230 else 290,44),
+  journey=rect(w-(if short then 232 else 272)-12,8,if short then 232 else 272,if short then 64 else 78),
+  menu=rect(12,if short then 54 else 60,80,if short then 48 else 70),
+  quickCreatures=rect(100,if short then 54 else 60,76,if short then 48 else 70),
+  quickMountain=rect(184,if short then 54 else 60,76,if short then 48 else 70),
+  team=rect(center-tw/2,h-(if short then 90 else 112),tw,if short then 76 else 94),
+  context=rect(center-math.min(tw,250)/2,h-(if short then 144 else 168),math.min(tw,250),48),
+  dodge=rect(w-106,actionY,94,48),
+  ability=rect(w-208,actionY,94,48),
+  sprint=rect(w-106,actionY+54,94,48),
+ }
+end
 return P

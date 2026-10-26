@@ -1,7 +1,7 @@
 -- Read-only Studio QA; run against the separate HUD review in Play.
 local pg=game.Players.LocalPlayer:WaitForChild('PlayerGui')
 local gui=pg:FindFirstChild('MountainHUD')
-assert(gui and gui:GetAttribute('BlueprintVersion')==1,'Approved HUD root absent')
+assert(gui and gui:GetAttribute('BlueprintVersion')==2,'Approved HUD root absent')
 local count=0
 for _,g in ipairs(pg:GetChildren()) do if g.Name=='MountainHUD' then count+=1 end end
 assert(count==1,'Duplicate HUD root')

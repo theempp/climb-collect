@@ -10,7 +10,7 @@ local Feedback=require(script.Parent.Feedback)
 local pg=player:WaitForChild('PlayerGui')
 if pg:FindFirstChild('MountainHUD') then return {} end
 local gui=W.new('ScreenGui',pg,{Name='MountainHUD',ResetOnSpawn=false,DisplayOrder=10,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets,ClipToDeviceSafeArea=true})
-gui:SetAttribute('BlueprintVersion',1)
+gui:SetAttribute('BlueprintVersion',2);gui:SetAttribute('VisualSystem','E+B')
 local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
 local loading=W.frame(root,'Loading',UDim2.fromScale(1,1),nil,T.navy);loading.ZIndex=90
 local mountain=W.mountain(loading);mountain.Size=UDim2.fromScale(.7,.8);mountain.Position=UDim2.fromScale(.15,.1)
@@ -37,7 +37,8 @@ local click=W.new('Sound',gui,{Name='UIFeedback',SoundId='rbxasset://sounds/volu
 local function sound() click.Volume=.16*(T.prefs.sfxVolume or .8);click:Play() end
 local function open(name) if ready then sound();screens:open(name) end end
 local top=W.panel(root,'Status',UDim2.fromOffset(320,48),UDim2.fromOffset(12,8))
-local coins=W.text(top,'— coins',UDim2.new(.55,-10,1,0),UDim2.fromOffset(12,0),T.bold,17,T.gold)
+W.icon(top,'Coin',UDim2.fromOffset(32,32),UDim2.fromOffset(6,6))
+local coins=W.text(top,'—',UDim2.new(.55,-30,1,0),UDim2.fromOffset(42,0),T.display,19,T.gold)
 local timer=W.text(top,'00:00',UDim2.new(.45,-16,1,0),UDim2.new(.55,0,0,0),T.bold,14,T.muted);timer.TextXAlignment=Enum.TextXAlignment.Right
 local progress=W.panel(root,'Journey',UDim2.fromOffset(292,80),UDim2.new(1,-304,0,8))
 local location=W.text(progress,'Blossom Gardens',UDim2.new(1,-20,0,25),UDim2.fromOffset(10,6),T.bold,14)
@@ -46,11 +47,11 @@ local heightFill=W.progress(progress,0,UDim2.new(1,-20,0,7),UDim2.fromOffset(10,
 local quest=W.panel(root,'QuestTracker',UDim2.fromOffset(292,76),UDim2.new(1,-304,0,96))
 local questTitle=W.text(quest,'Explore the mountain',UDim2.new(1,-20,0,29),UDim2.fromOffset(10,5),T.bold,13,T.gold)
 local questDetail=W.text(quest,'',UDim2.new(1,-20,0,34),UDim2.fromOffset(10,34),nil,12,T.muted)
-local menu=W.button(root,'Menu','MENU',UDim2.fromOffset(88,46),UDim2.fromOffset(12,66),function() expanded=not expanded;sound() end,'gold')
+local menu=W.tile(root,'Menu','Menu','Menu',UDim2.fromOffset(80,70),UDim2.fromOffset(12,60),function() expanded=not expanded;sound() end,T.gold)
 local sidebar=W.panel(root,'Navigation',UDim2.fromOffset(172,350),UDim2.fromOffset(12,120));sidebar.Visible=false
 local nav=W.scroll(sidebar,'Items',UDim2.new(1,-12,1,-12),UDim2.fromOffset(6,6))
 local hubNames={'Creatures','Discovery','Sanctuary','Mountain','Social','Profile','Shop','Settings'}
-for _,name in ipairs(hubNames) do W.button(nav,'Nav'..name,name,UDim2.new(1,-4,0,44),nil,function() expanded=false;open(name) end,'quiet') end
+for i,name in ipairs(hubNames) do local b=W.tile(nav,'Nav'..name,name,name,UDim2.fromOffset(78,72),nil,function() expanded=false;open(name) end,({T.sky,T.purple,T.green,T.sky,T.purple,T.gold,T.gold,T.line})[i]);b.LayoutOrder=i end
 local team=W.frame(root,'Team',UDim2.fromOffset(342,60),UDim2.new(.5,-171,1,-72));team.BackgroundTransparency=1
 local function selectedAbility(slot)
  local p=store.profile;local c=p and R.find(p.creatures,p.team[slot])
@@ -61,19 +62,23 @@ for i=1,3 do
  local index=i
  slots[i]=W.button(team,'Slot'..i,'['..i..'] Empty slot',UDim2.new(1/3,-6,1,0),UDim2.new((i-1)/3,3,0,0),function() if store.battle then store:request('Special',{slot=index,ability=selectedAbility(index)}) else open('Creatures') end end,'quiet')
  slots[i].Text=''
- slotNames[i]=W.text(slots[i],'Empty slot',UDim2.new(1,-8,0,25),UDim2.fromOffset(4,29),T.bold,12)
+ slotNames[i]=W.text(slots[i],'Empty slot',UDim2.new(1,-6,0,22),UDim2.new(0,3,1,-23),T.bold,11)
  slotNames[i].TextXAlignment=Enum.TextXAlignment.Center
- slotStates[i]=W.text(slots[i],tostring(i),UDim2.new(1,-38,0,24),UDim2.fromOffset(34,4),T.bold,11,T.gold)
+ slotStates[i]=W.text(slots[i],tostring(i),UDim2.new(1,-8,0,18),UDim2.new(0,4,1,-41),T.bold,11,T.gold)
  slotStates[i].TextXAlignment=Enum.TextXAlignment.Center
+ slotStates[i].ZIndex=3;slotStates[i].BackgroundColor3=T.navy;slotStates[i].BackgroundTransparency=.1;W.round(slotStates[i],5)
  slots[i]:SetAttribute('Tooltip','Open your collection, or activate this companion’s special during combat.')
 end
-local actionbar=W.panel(root,'Actions',UDim2.fromOffset(342,48),UDim2.new(.5,-171,1,-128))
-local context=W.button(actionbar,'Context','Explore',UDim2.new(.66,-12,1,-8),UDim2.fromOffset(4,4),function() local p=store.profile;local run=p and p.run;local ui=p and p.ui or {}
+local actionbar=W.frame(root,'Actions',UDim2.fromOffset(342,48),UDim2.new(.5,-171,1,-128))
+actionbar.BackgroundTransparency=1
+local context=W.button(actionbar,'Context','Explore',UDim2.fromScale(1,1),UDim2.new(),function() local p=store.profile;local run=p and p.run;local ui=p and p.ui or {}
  if run and run.phase=='revealed' then store:request('Pickup',run.id)
  elseif ui.nearestEgg and (not run or run.phase=='breaking') then store:request('Strike',ui.nearestEgg)
- elseif ui.atHome then store:request('PutDown');open('Sanctuary')
+ elseif ui.atHome then open('Sanctuary')
  else open('Mountain') end end,'blue')
-W.button(actionbar,'Quick','Settings',UDim2.new(.34,-4,1,-8),UDim2.new(.66,0,0,4),function() open('Settings');if screens.hub then screens.tab='Quick';screens:render(false) end end,'quiet')
+local quickCreatures=W.tile(root,'QuickCreatures','Creatures','Creatures',UDim2.fromOffset(76,70),UDim2.fromOffset(100,60),function() open('Creatures') end,T.sky)
+local quickMountain=W.tile(root,'QuickMountain','Mountain','Mountain',UDim2.fromOffset(76,70),UDim2.fromOffset(184,60),function() open('Mountain') end,T.green)
+local quick=W.tile(root,'Quick','Settings','Settings',UDim2.fromOffset(68,70),UDim2.fromOffset(268,60),function() open('Settings');if screens.hub then screens.tab='Quick';screens:render(false) end end,T.line)
 local dodge=W.button(root,'Dodge','Dodge [Q]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),function() store:request('Dodge') end,'gold');dodge.Visible=false
 local ability=W.button(root,'Ability','Ability 1',UDim2.fromOffset(122,44),UDim2.new(1,-148,1,-270),function() activeAbility=activeAbility%4+1;sound() end,'quiet');ability.Visible=false
  ability:SetAttribute('Tooltip','Choose a captured Guardian’s special. Regular companions use their role special.')
@@ -82,7 +87,8 @@ local battle=W.panel(root,'Battle',UDim2.fromOffset(410,100),UDim2.new(.5,-205,0
 local boss=W.text(battle,'Guardian',UDim2.new(1,-24,0,28),UDim2.fromOffset(12,6),T.display,21,T.gold)
 local hp=W.progress(battle,1,UDim2.new(1,-24,0,10),UDim2.fromOffset(12,38),T.coral)
  local combatText=W.text(battle,'',UDim2.new(1,-24,0,50),UDim2.fromOffset(12,53),nil,12,T.ink)
-local save=W.text(root,'Connecting…',UDim2.new(.6,0,0,20),UDim2.new(.2,0,1,-23),nil,10,T.muted);save.TextXAlignment=Enum.TextXAlignment.Center
+local save=W.text(top,'Connecting…',UDim2.new(1,-16,0,14),UDim2.fromOffset(8,28),nil,9,T.muted);save.TextXAlignment=Enum.TextXAlignment.Center
+coins.Size=UDim2.new(.60,-35,0,29);timer.Size=UDim2.new(.40,-16,0,29);timer.Position=UDim2.new(.60,0,0,0)
 local hint=W.panel(root,'Hint',UDim2.fromOffset(320,64),UDim2.new(.5,-160,0,78));hint.Visible=false
 local hintText=W.text(hint,'',UDim2.new(1,-60,1,-12),UDim2.fromOffset(12,6),nil,13,T.ink)
 local dismissHint=false
@@ -97,7 +103,7 @@ local function applyPreferences(prefs)
  T.configure(prefs);player:SetAttribute('MountainReducedMotion',prefs.reducedMotion==true)
  player:SetAttribute('MountainSimplifiedVFX',prefs.simplifiedVFX==true)
  for _,o in ipairs(root:GetDescendants()) do
-  if o:IsA('UIStroke') then o.Transparency=if prefs.highContrast then 0 else .15;o.Thickness=if prefs.highContrast then 2 else 1
+  if o:IsA('UIStroke') then local base=o:GetAttribute('BaseThickness') or 1;o.Transparency=if prefs.highContrast then 0 else .15;o.Thickness=if prefs.highContrast then math.max(2,base) else base
   elseif o:IsA('TextLabel') or o:IsA('TextButton') then local base=o:GetAttribute('BaseTextSize');if base then o.TextSize=T.size(base) end end
  end
  for _,o in ipairs(workspace:GetDescendants()) do
@@ -111,59 +117,73 @@ connect(workspace.DescendantRemoving,function(o) defaultEffects[o]=nil end)
 local nativeWatched=setmetatable({},{__mode='k'})
 local function layout()
  local v=root.AbsoluteSize;if v.X<=0 then return end
- local compact=v.X<950 or v.Y<550;local short=v.Y<390;local tw=math.clamp(v.X-360,276,366);local center=v.X/2
+ local obstacles={}
  if UIS.TouchEnabled then
-  local touch=pg:FindFirstChild('TouchGui');local stick=touch and (touch:FindFirstChild('DynamicThumbstickFrame',true) or touch:FindFirstChild('ThumbstickFrame',true));local jump=touch and touch:FindFirstChild('JumpButton',true)
-  local left=if stick then stick.AbsolutePosition.X+stick.AbsoluteSize.X-root.AbsolutePosition.X+10 else v.X*.4+10
-  local right=if jump then jump.AbsolutePosition.X-root.AbsolutePosition.X-10 else v.X-130
-  left=math.min(left,v.X*.45);right=math.min(right,v.X-104)
-  for _,o in ipairs({stick,jump}) do if o and not nativeWatched[o] then
-   nativeWatched[o]=true
-   connect(o:GetPropertyChangedSignal('AbsolutePosition'),function() task.defer(layout) end)
-   connect(o:GetPropertyChangedSignal('AbsoluteSize'),function() task.defer(layout) end)
-  end end
-  tw=math.min(366,math.max(216,right-left));center=(left+right)/2
- end
- team.Size=UDim2.fromOffset(tw,58);team.Position=UDim2.new(0,center-tw/2,1,-86)
- actionbar.Size=UDim2.fromOffset(tw,56);actionbar.Position=UDim2.new(0,center-tw/2,1,-146)
- top.Size=UDim2.fromOffset(if compact then 225 else 320,48)
- progress.Size=UDim2.fromOffset(if compact then 238 else 292,if short then 58 else 80);progress.Position=UDim2.new(1,-progress.Size.X.Offset-12,0,8)
- heightFill.Parent.Position=UDim2.new(0,10,1,-12);heightLabel.Size=UDim2.new(1,-20,0,18);heightLabel.Position=UDim2.fromOffset(10,29)
- quest.Position=UDim2.new(1,-250,0,if short then 74 else 96);quest.Size=UDim2.fromOffset(238,if short then 44 else 70)
- questTitle.Size=UDim2.new(1,-20,0,if short then 20 else 29);questTitle.Position=UDim2.fromOffset(10,if short then 2 else 5)
- questDetail.Size=UDim2.new(1,-20,0,if short then 20 else 34);questDetail.Position=UDim2.fromOffset(10,if short then 22 else 34)
- sidebar.Size=UDim2.fromOffset(174,math.min(414,v.Y-132));sidebar.Position=UDim2.fromOffset(12,118)
- menu.Position=UDim2.fromOffset(12,if short then 58 else 66)
- if short then
-  sidebar.Size=UDim2.fromOffset(v.X-110,46);sidebar.Position=UDim2.fromOffset(98,58)
-  nav.Size=UDim2.fromScale(1,1);nav.Position=UDim2.new();nav.ScrollingDirection=Enum.ScrollingDirection.X;nav.AutomaticCanvasSize=Enum.AutomaticSize.X;nav.CanvasSize=UDim2.new()
-  nav.UIListLayout.FillDirection=Enum.FillDirection.Horizontal;nav.UIPadding.PaddingTop=UDim.new(0,1);nav.UIPadding.PaddingBottom=UDim.new(0,1)
-  for _,b in ipairs(nav:GetChildren()) do if b:IsA('TextButton') then b.Size=UDim2.fromOffset(120,44) end end
- else
-  nav.Size=UDim2.new(1,-12,1,-12);nav.Position=UDim2.fromOffset(6,6);nav.ScrollingDirection=Enum.ScrollingDirection.Y;nav.AutomaticCanvasSize=Enum.AutomaticSize.Y;nav.CanvasSize=UDim2.new()
-  nav.UIListLayout.FillDirection=Enum.FillDirection.Vertical;nav.UIPadding.PaddingTop=UDim.new(0,4);nav.UIPadding.PaddingBottom=UDim.new(0,4)
-  for _,b in ipairs(nav:GetChildren()) do if b:IsA('TextButton') then b.Size=UDim2.new(1,-4,0,44) end end
- end
- hint.Size=UDim2.fromOffset(if short then tw else 320,64);hint.Position=if short then UDim2.new(0,center-tw/2,1,-198) else UDim2.new(.5,-160,0,110)
- battle.Size=UDim2.fromOffset(math.min(410,v.X-300),108);battle.Position=UDim2.new(.5,-battle.Size.X.Offset/2,0,8)
- dodge.Position=UDim2.new(1,-142,1,if short then -191 else -230);ability.Position=UDim2.new(1,-142,1,if short then -242 else -282)
- if UIS.TouchEnabled then
-  local touch=pg:FindFirstChild('TouchGui');local jump=touch and touch:FindFirstChild('JumpButton',true)
-  if jump then
-   local y=math.min(v.Y+(if short then -191 else -230),jump.AbsolutePosition.Y-root.AbsolutePosition.Y-58)
-   dodge.Position=UDim2.new(1,-142,0,y);ability.Position=UDim2.new(1,-142,0,y-52)
+  local touch=pg:FindFirstChild('TouchGui')
+  for _,name in ipairs({'DynamicThumbstickFrame','ThumbstickFrame','JumpButton'}) do
+   local o=touch and touch:FindFirstChild(name,true)
+   if o and o.Visible then
+    table.insert(obstacles,{x=o.AbsolutePosition.X-root.AbsolutePosition.X,y=o.AbsolutePosition.Y-root.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y})
+    if not nativeWatched[o] then nativeWatched[o]=true
+     connect(o:GetPropertyChangedSignal('AbsolutePosition'),function() task.defer(layout) end)
+     connect(o:GetPropertyChangedSignal('AbsoluteSize'),function() task.defer(layout) end)
+    end
+   end
   end
  end
- feedback.host.Size=UDim2.new(.66,0,0,58);feedback.host.Position=UDim2.new(.17,0,0,if store.battle then 120 else 72)
- feedback.tooltip.Position=UDim2.new(.5,-140,0,if store.battle then 120 else 124)
+ local l=P.hudLayout(v.X,v.Y,obstacles,UIS.TouchEnabled)
+ local function place(o,r) o.Size=UDim2.fromOffset(r.w,r.h);o.Position=UDim2.fromOffset(r.x,r.y) end
+ place(top,l.status);place(progress,l.journey);place(menu,l.menu);place(quickCreatures,l.quickCreatures);place(quickMountain,l.quickMountain);place(team,l.team);place(actionbar,l.context);place(dodge,l.dodge);place(ability,l.ability)
+ quick.Position=UDim2.fromOffset(268,60);quick.Visible=not l.short
+ -- One compact corner panel carries location, real height and the minimal objective.
+ location.Size=UDim2.new(1,-20,0,22);location.Position=UDim2.fromOffset(10,3)
+ heightLabel.Size=UDim2.new(1,-20,0,18);heightLabel.Position=UDim2.fromOffset(10,24)
+ heightFill.Parent.Position=UDim2.new(0,10,1,-8);heightFill.Parent.Size=UDim2.new(1,-20,0,5)
+ quest.BackgroundTransparency=1;quest.UIStroke.Enabled=false;quest.UIGradient.Enabled=false
+ quest.Size=UDim2.new(1,-16,0,20);quest.Position=UDim2.fromOffset(8,40);quest.Parent=progress
+ questTitle.Size=UDim2.fromScale(1,1);questTitle.Position=UDim2.new();questTitle.TextSize=T.size(11)
+ questDetail.Visible=false
+ sidebar.Size=UDim2.fromOffset(184,326);sidebar.Position=UDim2.fromOffset(12,140)
+ nav.Size=UDim2.new(1,-8,1,-8);nav.Position=UDim2.fromOffset(4,4)
+ local list=nav:FindFirstChildOfClass('UIListLayout');if list then list:Destroy() end
+ local grid=nav:FindFirstChildOfClass('UIGridLayout') or W.new('UIGridLayout',nav,{SortOrder=Enum.SortOrder.LayoutOrder,CellPadding=UDim2.fromOffset(8,8)})
+ if l.horizontalNavigation then
+  place(sidebar,l.navigation)
+  nav.Size=UDim2.new(1,-8,1,-4)
+  nav.ScrollingDirection=Enum.ScrollingDirection.X;nav.AutomaticCanvasSize=Enum.AutomaticSize.X
+  nav.UIPadding.PaddingTop=UDim.new(0,0);nav.UIPadding.PaddingBottom=UDim.new(0,0)
+  grid.FillDirection=Enum.FillDirection.Vertical;grid.FillDirectionMaxCells=1;grid.CellSize=UDim2.fromOffset(78,if v.Y<550 then 44 else 70)
+ else
+  nav.UIPadding.PaddingTop=UDim.new(0,4);nav.UIPadding.PaddingBottom=UDim.new(0,4)
+  nav.ScrollingDirection=Enum.ScrollingDirection.Y;nav.AutomaticCanvasSize=Enum.AutomaticSize.Y
+  grid.FillDirection=Enum.FillDirection.Horizontal;grid.FillDirectionMaxCells=2;grid.CellSize=UDim2.fromOffset(78,70)
+ end
+ for _,b in ipairs(root:GetDescendants()) do
+  if b:IsA('TextButton') then
+   for _,o in ipairs(b:GetChildren()) do
+    if o:IsA('Frame') and o.Name:sub(1,4)=='Icon' then
+     local small=l.short or (b.Parent==nav and v.Y<550)
+     o.Size=UDim2.fromOffset(if small then 26 else 42,if small then 26 else 42);o.Position=UDim2.new(.5,if small then -13 else -21,0,2)
+     local caption=b:FindFirstChild('Text');if caption then caption.Size=UDim2.new(1,-6,0,if small then 18 else 22);caption.Position=UDim2.new(0,3,1,if small then -19 else -25) end
+    end
+   end
+  end
+ end
+ for _,b in ipairs(slots) do
+  local portrait=b:FindFirstChild('Portrait');if portrait then portrait.Size=UDim2.new(1,-14,1,-34);portrait.Position=UDim2.fromOffset(7,1) end
+ end
+ hint.Size=UDim2.fromOffset(math.min(360,v.X-380),54);hint.Position=UDim2.new(.5,-hint.Size.X.Offset/2,0,66)
+ battle.Size=UDim2.fromOffset(math.min(410,v.X-230),100);battle.Position=UDim2.new(.5,-battle.Size.X.Offset/2,0,8)
+ feedback.host.Size=UDim2.fromOffset(math.min(440,v.X-210),58);feedback.host.Position=UDim2.new(.5,-feedback.host.Size.X.Offset/2,0,if store.battle then 116 else 80)
+ feedback.tooltip.Position=UDim2.new(.5,-140,0,if store.battle then 116 else 144)
  if screens.hub then screens:render(true) end
 end
 local function updateProfile()
  local data=store.profile;if not data then return end
- coins.Text=tostring(data.coins)..' coins';local q=P.quest(data);questTitle.Text=q.title;questDetail.Text=if root.AbsoluteSize.Y<390 then q.progress..' / '..q.total..' objectives' else q.detail
+ coins.Text=tostring(data.coins);local q=P.quest(data);questTitle.Text=q.title;questDetail.Text=if root.AbsoluteSize.Y<390 then q.progress..' / '..q.total..' objectives' else q.detail
  local prefs=data.ui and data.ui.settings or {};local stamp=game:GetService('HttpService'):JSONEncode(prefs)
  if stamp~=settingsStamp then settingsStamp=stamp;applyPreferences(prefs) end
- save.Text=if saveFailed then 'SAVING PAUSED · Progress actions unavailable' elseif tostring(data.saveMode):find('Studio') then 'STUDIO REVIEW · Progress resets on Stop' else 'Profile synchronized'
+ save.Text=if saveFailed then 'SAVING PAUSED · Progress actions unavailable' elseif tostring(data.saveMode):find('Studio') then 'STUDIO · Resets on Stop' else 'Profile synchronized'
  if previousProfile then
 
   for id in pairs(data.captures) do if not previousProfile.captures[id] then feedback:reveal('Guardian captured!',C.byId[id].name..' joins your collection. This Guardian can be captured once.',C.byId[id]) end end
@@ -198,7 +218,7 @@ local disconnect=store:subscribe(function(kind,payload)
   elseif not payload.ok then feedback:toast(payload.message or 'That action is unavailable.') end
  elseif kind=='timeout' then screens:pending();feedback:toast('Still waiting for the server. Open a menu to retry safely.')
  elseif kind=='pending' then screens:pending()
- elseif kind=='save' then saveFailed=not payload;save.Text=if payload then 'Profile saved' else 'SAVING PAUSED · Progress actions unavailable' end
+ elseif kind=='save' then saveFailed=not payload;save.Text=if not payload then 'SAVING PAUSED · Actions unavailable' elseif store.profile and tostring(store.profile.saveMode):find('Studio') then 'STUDIO · Resets on Stop' else 'Profile saved' end
 end)
 connect(UIS.InputBegan,function(input,processed)
  if processed or UIS:GetFocusedTextBox() then return end
@@ -220,8 +240,8 @@ connect(Run.Heartbeat,function(dt)
  loading.Visible=not ready;retry.Visible=not ready and os.clock()-start>8
  if not ready then loadStatus.Text=if data then 'Waiting for your character…' elseif store.status=='error' then 'Connection delayed. Retry when ready.' else 'Synchronizing your collection…' end
  sidebar.Visible=expanded and ready and not screens.hub and not store.battle;if store.battle then expanded=false end
- top.Visible=ready and not store.battle;progress.Visible=ready and not store.battle and not (expanded and root.AbsoluteSize.Y<390);quest.Visible=ready and not store.battle and not expanded
- menu.Visible=ready and not screens.hub;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle
+ top.Visible=ready and not store.battle;progress.Visible=ready and not store.battle and not (expanded and P.horizontalNavigation(root.AbsoluteSize.Y,UIS.TouchEnabled));quest.Visible=ready and not store.battle and not expanded
+ menu.Visible=ready and not screens.hub;quickCreatures.Visible=ready and not screens.hub and not expanded and not store.battle;quickMountain.Visible=quickCreatures.Visible;quick.Visible=ready and not screens.hub and not expanded and root.AbsoluteSize.Y>=400;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle and data~=nil and ((data.ui and data.ui.atHome) or (data.ui and data.ui.nearestEgg) or (data.run and data.run.phase=='revealed'))
  dodge.Visible=P.combatVisible(store.battle,ready,screens.hub~=nil);ability.Visible=dodge.Visible;battle.Visible=dodge.Visible
  if data then
   local clock=store:clock();local ui=data.ui or {};local cooldowns=ui.cooldowns or {}
@@ -230,18 +250,20 @@ connect(Run.Heartbeat,function(dt)
    if slotSpecies[i]~=(c and c.species) then
     if slotPortraits[i] then slotPortraits[i]:Destroy();slotPortraits[i]=nil end
     slotSpecies[i]=c and c.species
-    if c then slotPortraits[i]=W.portrait(b,C.byId[c.species],UDim2.fromOffset(26,26),UDim2.fromOffset(5,3)) end
+    if c then slotPortraits[i]=W.portrait(b,C.byId[c.species],UDim2.new(1,-14,1,-34),UDim2.fromOffset(7,1)) end
    end
    slotNames[i].Text=if c then C.byId[c.species].name else 'Empty slot'
    slotStates[i].Text=if not c then tostring(i) elseif store.battle then (if remain>0 then remain..'s' else 'READY') else 'Lv '..c.level
    slotStates[i].TextColor3=if remain>0 then T.muted else T.gold
+   b.UIStroke.Color=if c then T.rarity[C.byId[c.species].rarity] else T.line;b.UIStroke.Thickness=2
    W.enable(b,not store.battle or (c~=nil and remain==0))
+   b.BackgroundColor3=if remain>0 then T.panel else T.navy
   end
   local dr=P.remaining(ui.dodgeReadyAt or 0,clock);W.enable(dodge,dr==0,if dr>0 then 'Dodge · '..dr..'s' else 'Dodge [Q]');ability.Text='Ability '..activeAbility
   local run=data.run
-  context.Text=if run and run.phase=='revealed' then 'Pick up creature' elseif run and run.phase=='carried' then 'Escape to sanctuary' elseif ui.nearestEgg then 'Strike egg' elseif ui.atHome then 'Put down / manage' else 'Mountain map'
+  context.Text=if run and run.phase=='revealed' then 'Pick up creature' elseif run and run.phase=='carried' then 'Escape to sanctuary' elseif ui.nearestEgg then 'Strike egg' elseif ui.atHome then 'Manage sanctuary' else 'Mountain map'
   game:GetService('ProximityPromptService').Enabled=not screens.hub and not feedback.modal
-  hint.Visible=ready and not dismissHint and T.prefs.hints~=false and age<24 and not screens.hub and not store.battle and root.AbsoluteSize.Y>=390
+  hint.Visible=ready and not expanded and not dismissHint and T.prefs.hints~=false and age<24 and not screens.hub and not store.battle and root.AbsoluteSize.Y>=550
   hintText.Text=if data.run then 'Unsecured creature: return through the sanctuary exit. Catch, serious fall or leaving loses this attempt.' elseif ui.inSanctuary then 'Choose your companions, then climb freely into any section.' else 'Find an egg. Tap each strike, pick up the creature, escape downhill.'
  end
  if math.floor(age)~=lastSecond then
