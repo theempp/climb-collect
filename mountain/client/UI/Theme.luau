@@ -1,11 +1,28 @@
+-- HUD v2 tokens: every value traces to design/hud-v2-intel.md §1–§3 (Climb & Collect references only).
+local rgb=Color3.fromRGB
 local T={
- navy=Color3.fromRGB(7,23,39),panel=Color3.fromRGB(14,43,65),card=Color3.fromRGB(25,66,91),
- sky=Color3.fromRGB(33,184,255),blue=Color3.fromRGB(52,120,246),gold=Color3.fromRGB(255,194,71),
- green=Color3.fromRGB(66,217,121),purple=Color3.fromRGB(163,107,255),coral=Color3.fromRGB(255,102,95),
- ink=Color3.fromRGB(248,253,255),muted=Color3.fromRGB(190,218,231),line=Color3.fromRGB(100,178,209),
- display=Enum.Font.FredokaOne,body=Enum.Font.GothamMedium,bold=Enum.Font.GothamBold,
+ -- Legacy keys kept so callers keep working; values now come from the v2 palette.
+ navy=rgb(27,43,90),panel=rgb(46,111,226),card=rgb(27,43,90),
+ sky=rgb(59,182,240),blue=rgb(61,142,242),gold=rgb(255,210,60),
+ green=rgb(63,197,58),purple=rgb(122,62,226),coral=rgb(236,59,78),
+ ink=rgb(255,255,255),muted=rgb(213,224,243),line=rgb(20,32,63),
+ -- v2 tokens (intel §1).
+ outline=rgb(20,32,63),panelBlue=rgb(46,111,226),panelPurple=rgb(122,62,226),row=rgb(213,224,243),textDark=rgb(28,30,60),
+ cta={base=rgb(255,196,20),shade=rgb(242,154,0),lip=rgb(140,74,28),ink=rgb(74,35,14)},
+ ok={base=rgb(63,197,58),lip=rgb(35,137,42)},no={base=rgb(236,59,78),lip=rgb(166,30,51)},
+ close=rgb(228,58,54),alt=rgb(61,142,242),tert=rgb(198,108,242),off=rgb(174,182,192),
+ alertDot=rgb(238,58,72),readyDot=rgb(72,200,60),plus=rgb(69,196,58),
+ bar={fill=rgb(59,182,240),ready=rgb(92,203,58),max=rgb(246,192,42)},
+ coin=rgb(255,199,44),gem=rgb(178,61,232),heart=rgb(232,50,60),
+ -- Type (owner decisions 2026-10-27): Bangers labels, FredokaOne numbers/small text, LuckiestGuy reward titles.
+ label=Enum.Font.Bangers,display=Enum.Font.FredokaOne,title=Enum.Font.LuckiestGuy,body=Enum.Font.FredokaOne,bold=Enum.Font.FredokaOne,
  prefs={},
- rarity={Common=Color3.fromRGB(190,211,227),Uncommon=Color3.fromRGB(89,222,153),Rare=Color3.fromRGB(70,186,255),Epic=Color3.fromRGB(181,133,255),Mythic=Color3.fromRGB(255,136,185),Legendary=Color3.fromRGB(255,204,91)},
+ -- PROVISIONAL tier mapping (intel ladder; owner still picks tier count/names): Common/Uncommon blue, Rare golden, Epic royal, Mythic/Legendary prismatic.
+ rarity={Common=rgb(58,139,238),Uncommon=rgb(58,139,238),Rare=rgb(247,162,27),Epic=rgb(138,75,230),Mythic=rgb(255,95,160),Legendary=rgb(255,201,60)},
+ prismatic={Mythic=true,Legendary=true},
+ -- Approved icon set (design/hud-v2-icons, 512 px PNG), uploaded 2026-10-27 to the owner account (Asset Manager import, verified
+ -- by name/type/creator). 0 = not uploaded: Widgets falls back to vector art.
+ icons={bat=79489949621094,calendar=101408301548587,chest=93290064339576,climb=133883871347895,coin=101762154408109,creature=102205177846663,['egg-cracked']=72577063796540,egg=84031222220207,gear=83884046347131,gem=130750668923756,gift=96134676501853,heart=107212691032570,jump=117549058558428,map=95680349687396,padlock=81136570252405,scroll=130731564657582,sprint=120480218410073},
 }
 function T.configure(p) T.prefs=p or {} end
 function T.size(n) return n+(if T.prefs.largeText then 2 else 0) end

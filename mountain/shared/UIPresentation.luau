@@ -119,38 +119,48 @@ function P.layout(width,height,largeText)
 end
 -- Safe-root coordinates. Native bounds are supplied by the actual TouchGui.
 function P.horizontalNavigation(height,touch) return height<550 or touch==true end
-function P.hudLayout(w,h,obstacles,touch)
+-- topbar (optional): Roblox's topbar row in safe-root coordinates (y is negative: the row sits above the root).
+function P.hudLayout(w,h,obstacles,touch,topbar)
  local short=h<400
- local left,right=12,w-12
- for _,o in ipairs(obstacles or {}) do
-  if o.y+o.h>h-100 then
-   if o.x<w/2 then left=math.max(left,math.min(o.x+o.w+8,w*.43))
-   else right=math.min(right,o.x-8) end
-  end
- end
- local tw=math.min(if short then 258 else 330,right-left)
- local center=(left+right)/2
+ -- Owner 2026-10-27: creature slots and the context button sit in the true bottom middle of the screen.
+ local center=w/2
  local function rect(x,y,rw,rh) return {x=x,y=y,w=rw,h=rh} end
  local horizontal=P.horizontalNavigation(h,touch==true or #(obstacles or {})>0)
  local actionY=math.min(h-190,h-((if short then 140 else 170)+54))
  for _,o in ipairs(obstacles or {}) do if o.x>w/2 then actionY=math.min(actionY,o.y-108) end end
- -- Very short screens: if a left native control reaches the navigation row, Menu joins the top bar and shortcuts hide (Menu reaches every hub).
- local navY,navH=if short then 54 else 60,if short then 48 else 70
- local statusW=if w<900 then 230 else 290
- local crowded=false
- for _,o in ipairs(obstacles or {}) do if o.x<w/2 and o.y<navY+navH+4 and o.y+o.h>navY then crowded=true end end
+ -- HUD v2 (mock 1): menu + quick tiles top-left, coin pill + settings gear top-right, journey card under them.
+ -- Expanded navigation scrolls in the free top strip, so native controls lower on the screen never collide.
+ local tile=if short then 52 else 60
+ local statusW=if w<900 then 210 else 260
+ local jw=if short then 232 else 272
+ local tw=3*64+2*8+12
+ local navX=12+tile+8
+ -- Owner 2026-10-27: the whole top row rides in Roblox's own topbar row at the core buttons' size (44 px): menu +
+ -- quick tiles just right of the core buttons, coin pill + settings flush right; the journey card moves up to the
+ -- first HUD row and the expanded navigation strip opens there.
+ local tilesEnd=if type(topbar)=='table' then topbar.x+8+3*44+2*8 else 0
+ local inTopbar=type(topbar)=='table' and topbar.h>=44 and math.min(w,topbar.x+topbar.w)-12-44-8-statusW>=tilesEnd+8
+ local gear=if inTopbar then 44 else tile
+ local edge=if inTopbar then math.min(w,topbar.x+topbar.w)-12 else w-12
+ -- Roblox's 44 px core buttons sit 12 px below the top of the 58 px row (measured in the iPhone emulator).
+ local rowY=if inTopbar then topbar.y+math.min(12,topbar.h-44) else 8
+ local statusX=edge-gear-8-statusW
+ local journeyY=if inTopbar then 8 else tile+16
+ local navRight=if inTopbar then edge-jw else statusX
  return {
   short=short,
-  crowdedNavigation=crowded,
+  crowdedNavigation=false,
   horizontalNavigation=horizontal,
-  navigation=if crowded then rect(12+statusW+8,6,math.max(1,w-statusW-40),50) elseif horizontal then rect(100,if h<550 then 54 else 60,math.min(w-110,696),if h<550 then 50 else 82) else rect(12,140,184,326),
-  status=rect(12,8,statusW,44),
-  journey=rect(w-(if short then 232 else 272)-12,8,if short then 232 else 272,if short then 64 else 78),
-  menu=if crowded then rect(12+statusW+8,8,80,44) else rect(12,navY,80,navH),
-  quickCreatures=rect(100,navY,76,navH),
-  quickMountain=rect(184,navY,76,navH),
-  team=rect(center-tw/2,h-(if short then 90 else 112),tw,if short then 76 else 94),
-  context=rect(center-math.min(tw,250)/2,h-(if short then 144 else 168),math.min(tw,250),48),
+  topbar=inTopbar,
+  navigation=if horizontal then (if inTopbar then rect(12,4,math.max(1,math.min(navRight-8-12,696)),tile+8) else rect(navX,4,math.max(1,math.min(navRight-8-navX,696)),tile+8)) else rect(12,tile+16,184,326),
+  status=rect(statusX,if inTopbar then rowY else 8+(tile-44)/2,statusW,44),
+  settings=rect(edge-gear,rowY,gear,gear),
+  journey=rect(edge-jw,journeyY,jw,if short then 58 else 72),
+  menu=if inTopbar then rect(topbar.x+8,rowY,44,44) else rect(12,8,tile,tile),
+  quickCreatures=if inTopbar then rect(topbar.x+8+52,rowY,44,44) else rect(12+tile+8,8,tile,tile),
+  quickMountain=if inTopbar then rect(topbar.x+8+104,rowY,44,44) else rect(12+2*(tile+8),8,tile,tile),
+  team=rect(center-tw/2,h-76,tw,66),
+  context=rect(center-math.min(250,w-24)/2,h-132,math.min(250,w-24),48),
   dodge=rect(w-106,actionY,94,48),
   ability=rect(w-208,actionY,94,48),
   sprint=rect(w-106,actionY+54,94,48),

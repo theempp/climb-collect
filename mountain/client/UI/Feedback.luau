@@ -4,10 +4,10 @@ local GuiService=game:GetService('GuiService')
 local F={};F.__index=F
 function F.new(root)
  local self=setmetatable({root=root,queue={},serial=0,alive=true},F)
- self.host=W.panel(root,'Toast',UDim2.new(.6,0,0,58),UDim2.new(.2,0,0,68));self.host.ZIndex=40;self.host.Visible=false
+ self.host=W.panel(root,'Toast',UDim2.new(.6,0,0,58),UDim2.new(.2,0,0,68),T.navy);self.host.ZIndex=40;self.host.Visible=false
  local icon=W.icon(self.host,'Profile',UDim2.fromOffset(40,40),UDim2.fromOffset(8,8));icon.ZIndex=41
  self.label=W.text(self.host,'',UDim2.new(1,-68,1,-12),UDim2.fromOffset(56,6),T.bold,14);self.label.ZIndex=41
- self.tooltip=W.panel(root,'Tooltip',UDim2.fromOffset(280,64),UDim2.new(.5,-140,0,124));self.tooltip.ZIndex=80;self.tooltip.Visible=false
+ self.tooltip=W.panel(root,'Tooltip',UDim2.fromOffset(280,64),UDim2.new(.5,-140,0,124),T.navy);self.tooltip.ZIndex=80;self.tooltip.Visible=false
  self.tooltipText=W.text(self.tooltip,'',UDim2.new(1,-24,1,-12),UDim2.fromOffset(12,6),nil,14);self.tooltipText.ZIndex=81
  local function attach(o)
   if not o:IsA('GuiButton') then return end
@@ -56,6 +56,9 @@ function F:reveal(title,description,species)
  self:confirm(title,description,function() end)
  local f=self.modal and self.modal:FindFirstChild('Dialog')
  if f then
+  -- Reward moment (intel §4 + owner decision): purple panel, LuckiestGuy gold title, green confirm.
+  f.BackgroundColor3=T.panelPurple;f.Text.Font=T.title;f.Text.TextColor3=T.gold;f.Text.TextXAlignment=Enum.TextXAlignment.Center;f.Text.TextSize=T.size(28);f.Text.UIStroke.Thickness=3
+  f.Confirm:SetAttribute('ButtonColor',T.ok.base);f.Confirm.BackgroundColor3=T.ok.base
   f.Confirm.Text='Continue';f.Cancel.Visible=false;f.Confirm.Size=UDim2.new(1,-32,0,48);f.Confirm.Position=UDim2.new(0,16,1,-64)
   if species then
    f.Size=UDim2.new(.86,0,0,300);f.UISizeConstraint.MaxSize=Vector2.new(480,300)

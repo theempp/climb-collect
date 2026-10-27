@@ -10,16 +10,17 @@ local T=require(script.Parent.UI.Theme)
 local gui=Instance.new('ScreenGui');gui.Name='MountainSprint';gui.ResetOnSpawn=false;gui.DisplayOrder=15;gui.Parent=player:WaitForChild('PlayerGui')
 gui.ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets;gui.ClipToDeviceSafeArea=true
 local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
-local button=W.button(root,'SprintToggle','Sprint',UDim2.fromOffset(94,48),nil,nil,'quiet')
-button.Position=UDim2.new(1,-22,1,-170);button.BackgroundColor3=Color3.fromRGB(34,67,60);button.TextColor3=Color3.fromRGB(248,244,216)
-button.Font=T.bold;button.TextSize=14
-local stroke=button.UIStroke;stroke.Color=T.sky
+-- HUD v2 (mock 1/2): round green candy with the sprint icon and an ON badge; Text stays for audits, the label is hidden.
+local button=W.button(root,'SprintToggle','Sprint',UDim2.fromOffset(64,64),nil,nil,'ok')
+button.Position=UDim2.new(1,-22,1,-170);button.Label.Visible=false
+for _,o in ipairs({button,button.Face,button.Face.Shine}) do o:FindFirstChildOfClass('UICorner').CornerRadius=UDim.new(.5,0) end
+W.icon(button,'Sprint',UDim2.fromOffset(44,44),UDim2.new(.5,-22,0,6))
+local badge=W.tag(button,'ON',UDim2.new(1,-30,0,-8),T.ok.base);badge.Size=UDim2.fromOffset(36,20);badge.ZIndex=3;badge.Text.ZIndex=4;badge.Visible=false
 local wanted=false;local held={};local toggle=false;local character,humanoid,track,animation
 local function label()
  button.Visible=Input.TouchEnabled
  button.Text=if wanted then 'Sprint ON' else 'Sprint'
- button.BackgroundColor3=if wanted then T.green else T.card
- button.TextColor3=if wanted then T.navy else T.ink
+ badge.Visible=wanted
 end
 local function set(value)
  if wanted~=value then wanted=value;remote:FireServer(value) end
@@ -72,6 +73,6 @@ Run.Heartbeat:Connect(function(dt)
   if o and o.Visible then table.insert(obstacles,{x=o.AbsolutePosition.X-root.AbsolutePosition.X,y=o.AbsolutePosition.Y-root.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y}) end
  end
  local r=P.hudLayout(root.AbsoluteSize.X,root.AbsoluteSize.Y,obstacles).sprint
- button.Position=UDim2.fromOffset(r.x,r.y)
+ button.Position=UDim2.fromOffset(r.x+r.w-64,r.y+r.h-64)
 end)
 label()
