@@ -4,7 +4,7 @@ local ClientState = {}
 local Store = {}
 Store.__index = Store
 local actions = {Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,
- Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true}
+ Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true}
 local function finite(value)
  return type(value)=='number' and value==value and math.abs(value)<math.huge
 end
