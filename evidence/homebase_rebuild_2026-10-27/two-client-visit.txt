@@ -1,0 +1,7 @@
+Studio Server & Clients, 2 players (Player1 owns plot 1, Player2 owns plot 2). Server seeded Player1 (Play-only script, discarded on stop).
+Owner (Player1 client): bought 7 items, placed 9 decor/shelf, posed 5 creatures -> all ok.
+Visitor (Player2 client) walked (Humanoid:MoveTo, no teleport) from plot 2 across the promenade into plot 1, position 4048.4,19.1,-98.0.
+Visitor requests: Tycoon collect/bank/assign/upgrade, Home place/clear/showcase -> all false "Use your own sanctuary plot."
+Visitor Inspect: habitat 1 -> "Mossbun · level 5 · 63 eggs/hour"; display D1 -> "Mossbun · level 5 (on display)"; D6 -> "Trophy shelf · 4 trophies".
+Visitor client sees owner's decor replicated: 165 decor parts, 5 display creature models.
+Owner state before/after visitor: coins 4502/4502, bag 0/0, decor+showcase identical (14 entries); habitat eggs 217->220 from normal production only.
