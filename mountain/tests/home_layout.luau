@@ -63,4 +63,10 @@ for _,s in L.decorSlots do
  check(L.decorSlot(s.id)==s,'decor lookup '..s.id)
 end
 check(displays==6 and decor==8,'6 display + 8 decor slots')
+-- Review02 creature wander box (TycoonWorld WanderHalf): room to walk, clear of the posts (1 in), stock eggs (back) and gauge (front).
+do local PR=L.contents.production;local hx,hz=PR.padWidth/2-4.5,PR.padDepth/2-5.5
+ check(hx>=6 and hz>=1.5,'wander box leaves room to walk')
+ check(hz+1.5<=PR.padDepth/2-3.2+.65 and hz+1.5<=PR.padDepth/2-1.5,'wander box clear of stock eggs and gauge (creature half-width 1.5)')
+ check(hx+1.5<=PR.padWidth/2-1,'wander box inside the habitat posts')
+end
 print(string.format('PASS %d home layout checks (farthest spawn-to-gate %.0f studs)',n,math.max(table.unpack((function() local t={} for i=1,8 do t[i]=L.gateDistance(i) end return t end)()))))

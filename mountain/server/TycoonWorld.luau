@@ -15,11 +15,14 @@ function W.new(home)
   local p=Instance.new('Part');p.Name=name;p.Size=size;p.CFrame=cf;p.Color=color;p.Material=material or Enum.Material.SmoothPlastic
   p.Anchored=true;p.CanCollide=false;p.CanTouch=false;p.CanQuery=false;p.CastShadow=false;p.Parent=parent;return p
  end
- local function label(p,text,height)
-  local gui=Instance.new('BillboardGui');gui.Size=UDim2.fromOffset(160,42);gui.MaxDistance=45;gui.Parent=p
+ -- Compact one-line tags. The client (TycoonFeel) shows only the nearest non-overlapping ones, so they never stack.
+ local function label(p,text,height,range,priority)
+  local gui=Instance.new('BillboardGui');gui.Name='TycoonTag';gui.Size=UDim2.fromOffset(150,26);gui.MaxDistance=range or 40;gui.LightInfluence=0;gui.Parent=p
   if height then gui.StudsOffsetWorldSpace=Vector3.new(0,height,0) else gui.StudsOffset=Vector3.new(0,3,0) end
+  gui:SetAttribute('TagPriority',priority or 1);Tags:AddTag(gui,'TycoonTag')
   local textLabel=Instance.new('TextLabel');textLabel.Size=UDim2.fromScale(1,1);textLabel.BackgroundTransparency=.25;textLabel.BackgroundColor3=Color3.fromRGB(24,40,48)
-  textLabel.TextColor3=Color3.fromRGB(245,240,218);textLabel.TextSize=14;textLabel.Font=Enum.Font.GothamMedium;textLabel.TextWrapped=true;textLabel.Text=text;textLabel.Parent=gui
+  textLabel.TextColor3=Color3.fromRGB(245,240,218);textLabel.TextSize=13;textLabel.Font=Enum.Font.GothamMedium;textLabel.TextScaled=false;textLabel.TextTruncate=Enum.TextTruncate.AtEnd;textLabel.Text=text;textLabel.Parent=gui
+  local corner=Instance.new('UICorner');corner.CornerRadius=UDim.new(0,6);corner.Parent=textLabel
   return textLabel
  end
  local WOOD,METAL,SLATE,GRASS=Color3.fromRGB(219,189,122),Color3.fromRGB(40,62,65),Color3.fromRGB(82,104,114),Color3.fromRGB(85,123,100)
@@ -31,7 +34,7 @@ function W.new(home)
   elseif item=='flower_barrel' then
    part(f,'Barrel',Vector3.new(3,2,3),cf*CFrame.new(0,1,0),WOOD,Enum.Material.Wood);part(f,'Blooms',Vector3.new(2.5,.5,2.5),cf*CFrame.new(0,2.2,0),GRASS,Enum.Material.Grass);part(f,'Flower',Vector3.new(1,1,1),cf*CFrame.new(0,2.9,0),accent,Enum.Material.SmoothPlastic)
   elseif item=='pennant_banner' then
-   part(f,'Pole',Vector3.new(.4,8,.4),cf*CFrame.new(0,4,0),WOOD,Enum.Material.Wood);part(f,'Pennant',Vector3.new(.2,3,2.4),cf*CFrame.new(0,6,1.4),accent,Enum.Material.Fabric)
+   part(f,'Pole',Vector3.new(.4,8,.4),cf*CFrame.new(0,4,0),WOOD,Enum.Material.Wood);Tags:AddTag(part(f,'Pennant',Vector3.new(.2,3,2.4),cf*CFrame.new(0,6,1.4),accent,Enum.Material.Fabric),'DecorSway')
   elseif item=='stone_bench' then
    part(f,'Seat',Vector3.new(4.5,.6,1.6),cf*CFrame.new(0,1.5,0),SLATE,Enum.Material.Slate)
    for _,x in ipairs({-1.8,1.8}) do part(f,'Leg',Vector3.new(.6,1.3,1.4),cf*CFrame.new(x,.7,0),SLATE,Enum.Material.Slate) end
@@ -40,7 +43,7 @@ function W.new(home)
    part(f,'ArchTop',Vector3.new(6,.8,.8),cf*CFrame.new(0,5.6,0),WOOD,Enum.Material.Wood);part(f,'ArchVine',Vector3.new(5.6,.5,1),cf*CFrame.new(0,6.1,0),GRASS,Enum.Material.Grass)
   elseif item=='wind_chime' then
    part(f,'Hook',Vector3.new(.4,6,.4),cf*CFrame.new(0,3,0),METAL,Enum.Material.Metal);part(f,'Arm',Vector3.new(3,.3,.3),cf*CFrame.new(1.4,6,0),METAL,Enum.Material.Metal)
-   for k=0,2 do part(f,'Tube',Vector3.new(.3,2+k*.4,.3),cf*CFrame.new(.4+k*1,4.4-k*.2,0),accent,Enum.Material.Neon) end
+   for k=0,2 do Tags:AddTag(part(f,'Tube',Vector3.new(.3,2+k*.4,.3),cf*CFrame.new(.4+k*1,4.4-k*.2,0),accent,Enum.Material.Neon),'DecorSway') end
   elseif item=='trophy_shelf' then
    part(f,'Back',Vector3.new(7,3.4,.3),cf*CFrame.new(0,2.5,-1),WOOD,Enum.Material.Wood);part(f,'Shelf',Vector3.new(7,.4,2),cf*CFrame.new(0,1.6,0),WOOD,Enum.Material.Wood)
    for k=1,math.min(5,view.trophies) do part(f,'Cup',Vector3.new(.9,1.1,.9),cf*CFrame.new(-2.8+(k-1)*1.4,2.35,0),accent,Enum.Material.Neon) end
@@ -84,7 +87,7 @@ function W.new(home)
    -- Full-store beacon pulses on the client (TycoonFeel); hidden until the store is full.
    local beacon=part(root,'FullBeacon_'..i,Vector3.new(1.4,1.4,1.4),center*CFrame.new(PW/2-2,3.4,-(PD/2-1)),rim.Color,Enum.Material.Neon)
    beacon.Shape=Enum.PartType.Ball;beacon.Transparency=1;Tags:AddTag(beacon,'HabitatBeacon')
-   habitats[i]={pad=pad,rim=rim,branch=branch,label=label(pad,'Habitat '..i,7),cf=center,frame=frame,gauge=gauge,fill=fill,gaugeLen=gaugeLen,gz=gz,pile=pile,beacon=beacon}
+   habitats[i]={pad=pad,rim=rim,branch=branch,label=label(pad,'Habitat '..i,7,40,2),cf=center,frame=frame,gauge=gauge,fill=fill,gaugeLen=gaugeLen,gz=gz,pile=pile,beacon=beacon}
    local click=Instance.new('ClickDetector');click.MaxActivationDistance=45;click.Parent=pad
    local index=i
    click.MouseClick:Connect(function(player) if service.onInspect then service.onInspect(player,slot,'habitat',index) end end)
@@ -92,7 +95,7 @@ function W.new(home)
   local bank=part(root,'ProductionBank',Vector3.new(12,3,6),cf*CFrame.new(0,1.5,PR.bankZ),Color3.fromRGB(219,189,122),Enum.Material.Metal)
   bank.CanQuery=true;bank:SetAttribute('SanctuarySlot',slot);bank:SetAttribute('Service','Sanctuary')
   local prompt=Instance.new('ProximityPrompt');prompt.ActionText='Manage / collect / bank';prompt.ObjectText='Production eggs';prompt.HoldDuration=.2;prompt.MaxActivationDistance=12;prompt.Parent=bank
-  label(bank,'PRODUCTION BANK')
+  label(bank,'Production bank',4.5,45,3)
   part(root,'BankPlinth',Vector3.new(14,.6,8),cf*CFrame.new(0,.3,PR.bankZ),spine.Color,Enum.Material.Slate)
   part(root,'BankDepositSlot',Vector3.new(7,.15,1.2),cf*CFrame.new(0,3.1,PR.bankZ-1),spine.Color,Enum.Material.Metal)
   local machines={}
@@ -107,8 +110,8 @@ function W.new(home)
    local gear=part(root,name..'Gear',Vector3.new(.5,2.6,2.6),machine.CFrame*CFrame.new(0,3.3,-1.6),bank.Color,Enum.Material.Metal)
    gear.Shape=Enum.PartType.Cylinder;gear:SetAttribute('Spin',0);Tags:AddTag(gear,'MachineGear')
    table.insert(pieces,gear)
-   -- Compact grid: machine labels only up close so they never stack over the habitat labels.
-   local machineLabel=label(machine,name);machineLabel.Parent.MaxDistance=22
+   -- Compact grid: machine tags sit above the arch, show only up close and yield to habitat/bank tags.
+   local machineLabel=label(machine,name,5.4,18,1)
    machines[i]={part=machine,label=machineLabel,pieces=pieces,gear=gear}
   end
   local base=floor.CFrame*CFrame.new(0,floor.Size.Y/2+.15,0)
@@ -143,7 +146,7 @@ function W.new(home)
     if row.creature then row.creature:Destroy();row.creature=nil end
     if species and unlocked then
      row.creature=A.creature(plot.root,species,row.cf.Position+Vector3.new(0,2,0),.65,if c.level>=35 then 3 elseif c.level>=15 then 2 else 1)
-     row.creature:SetAttribute('IdleSeed',i*1.3);Tags:AddTag(row.creature,'HabitatCreature')
+     row.creature:SetAttribute('IdleSeed',i*1.3);row.creature:SetAttribute('WanderFrame',row.cf);row.creature:SetAttribute('WanderHalf',Vector2.new(PR.padWidth/2-4.5,PR.padDepth/2-5.5));Tags:AddTag(row.creature,'HabitatCreature')
     end
     local height=5
     if row.creature then local bounds,size=row.creature:GetBoundingBox();height=math.max(height,bounds.Position.Y+size.Y/2-row.pad.Position.Y+2) end
@@ -161,11 +164,12 @@ function W.new(home)
    row.fill.Transparency=if unlocked and h.eggs>0 then 0 else 1
    for k,egg in ipairs(row.pile) do egg.Color=accent;egg.Transparency=if unlocked and ratio>=(k-.5)/5 and h.eggs>0 then 0 else 1 end
    row.beacon.Transparency=if unlocked and ratio>=1 then .1 else 1;row.beacon.Color=accent
-   row.label.Text=if not unlocked then 'Habitat '..i..' · locked' else (if species then species.name else 'Assign a creature')..'\n'..h.eggs..' / '..T.capacity(p,i)..' production eggs'
+   row.label.Text=if not unlocked then 'Habitat '..i..' · locked' else (if species then species.name..' · '..h.eggs..'/'..capacity..' eggs' else 'Empty · assign a creature')
    if unlocked and ratio>=1 then row.label.Text..=' · FULL' end
+   row.label.Parent:SetAttribute('TagPriority',if unlocked and ratio>=1 then 4 elseif unlocked then 2 else 0)
   end
   for i,v in ipairs(plot.machines) do
-   local enabled=t.levels.automation>=i+1;v.part.Transparency=if enabled then .1 else .85;v.label.Text=v.part.Name..(if enabled then ' · active' else ' · locked');v.part.Color=accent
+   local enabled=t.levels.automation>=i+1;v.part.Transparency=if enabled then .1 else .85;v.label.Text=v.part.Name..(if enabled then ' · running' else ' · locked');v.part.Color=accent
    for _,piece in ipairs(v.pieces) do piece.Color=accent;piece.Transparency=if enabled then 0 else .9 end
    v.gear:SetAttribute('Spin',if enabled then 1.2+i*.4 else 0)
   end
@@ -204,7 +208,7 @@ function W.new(home)
   plot.spine:SetAttribute('Automation',0)
   for _,row in ipairs(plot.habitats) do
    if row.creature then row.creature:Destroy();row.creature=nil end
-   row.key=nil;row.label.Text='Unoccupied habitat';row.fill.Transparency=1;row.beacon.Transparency=1
+   row.key=nil;row.label.Text='Unoccupied habitat';row.label.Parent:SetAttribute('TagPriority',0);row.fill.Transparency=1;row.beacon.Transparency=1
    for _,egg in ipairs(row.pile) do egg.Transparency=1 end
    row.pad.Transparency=.8;row.rim.Transparency=.8;row.branch.Transparency=.8;row.gauge.Transparency=.9
    for _,piece in ipairs(row.frame) do piece.Transparency=.9 end

@@ -20,6 +20,9 @@ FILES = [  # repo path, parent path from game, name, class
     ('mountain/world/HomePromenade.luau', 'ServerStorage.MountainWorld', 'HomePromenade', 'ModuleScript'),
     ('mountain/client/TycoonConveyors.client.luau', 'StarterPlayer.StarterPlayerScripts.MountainClient', 'TycoonConveyors', 'LocalScript'),
     ('mountain/client/TycoonFeel.client.luau', 'StarterPlayer.StarterPlayerScripts.MountainClient', 'TycoonFeel', 'LocalScript'),
+    # Review02: creature gait hook, home ambience.
+    ('mountain/client/CreatureMotion.client.luau', 'StarterPlayer.StarterPlayerScripts.MountainClient', 'CreatureMotion', 'LocalScript'),
+    ('mountain/client/HomeAmbience.client.luau', 'StarterPlayer.StarterPlayerScripts.MountainClient', 'HomeAmbience', 'LocalScript'),
 ]
 studio = sys.argv[1]
 only = set(sys.argv[2:])
