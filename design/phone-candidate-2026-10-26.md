@@ -1,8 +1,26 @@
 # Phone candidate prep — October 26, 2026 (Stage 4)
 
-Nothing published, uploaded, granted or spent. Stop point: owner approval in chat before any upload or publish.
+**Latest: PhoneCandidate02** (below). Nothing published, granted or spent. The 7 Mossbun clips were uploaded with owner approval. Stop point: owner approval in chat before any upload or publish.
 
-## File
+## PhoneCandidate02 — clips on asset ids
+
+`outputs/ClimbCollect.PhoneCandidate02.rbxl`, SHA256 `482deef4a17290961bd04448dd8aff445e951514fef2d9eaf9d5a1792026e017`. Candidate01 with only `OffspringAssets` patched (`package_free_climb.py --exclude …StudioTests`). 93/93 sources, terrain = Review02, no QA objects (`phonecandidate02-file-integrity.json`).
+
+Uploaded 2026-10-26 via Studio *Save to Roblox*, creator **Me** (owner account), off sale, local clips kept:
+
+| Clip | Asset id | Keyframes / length |
+|---|---|---|
+| Idle | 76817189963125 | 49 / 2.00 s |
+| Move | 126079378129091 | 25 / 1.00 s |
+| Run | 72223759322382 | 25 / 0.62 s |
+| Turn | 118799649097983 | 25 / 0.80 s |
+| Reveal | 82754906786976 | 37 / 1.50 s |
+| Carried | 118211324273081 | 49 / 2.00 s |
+| Happy | 88972364527437 | 6 / 1.25 s |
+
+Verified: each id downloads and matches its local clip's keyframe count and end time; in Studio Play a client loaded all 7 as tracks with matching lengths, no console errors. Not verified: playback in a published place (the place must be published under the same account for the animations to play).
+
+## Candidate01 file (superseded by 02)
 
 `outputs/ClimbCollect.PhoneCandidate01.rbxl`, SHA256 `a59a1d1d0ee617f950bba482df9ff703eba748220c68ece6826cb97d6283e470`. Built from the Review06 session: Studio Save As (`PhoneCandidate01.StudioSave.rbxl`), then Terrain `SmoothGrid` + `Materials` restored from Review02 with `mountain/tools/restore_terrain_payloads.py` (70/70 terrain properties exact; 1,796 other chunks untouched).
 
@@ -27,7 +45,7 @@ Differences from Review06:
 
 | # | Blocker | State | Next step |
 |---|---|---|---|
-| 1 | 7 Mossbun clips (Idle, Move, Run, Turn, Reveal, Carried, Happy) | Code ready for ids | Owner OK → upload each `Rig|<clip>` KeyframeSequence from `ReplicatedStorage.MountainAssets.Offspring.blossom-rabbit-creature` as an Animation asset owned by the **same creator as the place** (else it won't play), paste ids into `OffspringAssets.mossbun.clips`, re-package |
+| 1 | 7 Mossbun clips | **Done in Candidate02** | Owner OK → upload each `Rig|<clip>` KeyframeSequence from `ReplicatedStorage.MountainAssets.Offspring.blossom-rabbit-creature` as an Animation asset owned by the **same creator as the place** (else it won't play), paste ids into `OffspringAssets.mossbun.clips`, re-package |
 | 2 | Studio-only aids | Done | Forced nest, UIProbe, StudioTests gated/removed. Inert old generator modules remain in ServerStorage (never replicated) |
 | 3 | Real DataStore | Code path exists | `Profiles`/`Competition` use DataStore whenever not in Studio (`MountainEmpire_FirstDraft_v1`, `MountainEmpire_Defenses_v1`). Studio stays memory-only even when published. Only a hosted test proves it — see checklist |
 | 4 | MaxPlayers | File says 12; 8 homes | Read-only from scripts. Set **8** in Game Settings › Places at publish (owner) |
@@ -48,8 +66,8 @@ Differences from Review06:
 
 Do these yourself in Studio; ask me before step 3 if you want me to drive any of it.
 
-1. **Animations (optional before first test):** approve the 7-clip upload in chat. Without it Mossbun shows but doesn't animate.
-2. Open `outputs/ClimbCollect.PhoneCandidate01.rbxl` in Studio.
+1. Animations: done (Candidate02). Publish under **your own account** (not a group), or they won't play.
+2. Open `outputs/ClimbCollect.PhoneCandidate02.rbxl` in Studio.
 3. **Publish to a NEW private experience** (File › Publish to Roblox As › *Create new game*), name e.g. "Climb & Collect – Phone Candidate". Don't overwrite the October 22 playtest place `134979185642785` unless you prefer that — it holds older data. Use a fresh DataStore universe so saves start clean.
 4. Game Settings: Permissions → **Private**; Collaborators/access: you + your girlfriend's account only (friend her account, then add her with Play access). Places → Max Players **8**. Security → **Enable Studio Access to API Services: OFF** (not needed; Studio stays on memory saves). Monetization: nothing.
 5. **Device test**, both phones (iPhone 16 Pro, iPhone 18 Pro Max), Roblox app, signed in to each account:

@@ -145,12 +145,13 @@ def main():
     parser.add_argument('source', type=Path)
     parser.add_argument('destination', type=Path)
     parser.add_argument('--zstd-dll', type=Path, required=True)
+    parser.add_argument('--exclude', action='append', default=[], help='Runtime path removed from this build (e.g. StudioTests in a phone candidate)')
     args = parser.parse_args()
     assert args.source.resolve() != args.destination.resolve() and not args.destination.exists(), 'Use a new output filename'
     data = args.source.read_bytes()
     original = Place(data, args.zstd_dll)
     assert original.patch({})[0] == data, 'No-op roundtrip changed bytes'
-    sources = runtime_sources()
+    sources = {k: v for k, v in runtime_sources().items() if k not in args.exclude}
     result, changed = original.patch(sources)
     saved = Place(result, args.zstd_dll)
     actual = {saved.paths[r]: i['Source'] for r, i in saved.instances.items() if 'Source' in i}
