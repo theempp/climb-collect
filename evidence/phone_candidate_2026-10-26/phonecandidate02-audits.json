@@ -1,0 +1,30 @@
+{
+ "artifact": "outputs/ClimbCollect.PhoneCandidate02.rbxl",
+ "sha256": "482deef4a17290961bd04448dd8aff445e951514fef2d9eaf9d5a1792026e017",
+ "coldOpen": {"StudioAids": false, "StudioTests": false, "clipIdsPresent": true},
+ "hudAudit": {
+  "method": "Studio Device Emulator, cold Play, StudioAids=true in Edit for the session only (never saved), mountain/tools/phone_candidate_hud_audit.client.luau: 8 hubs, every tab via UIProbe; TextFits, >=44px touch targets, overlap with TouchGui thumbstick/jump, one MountainHUD, GuiService.SelectedObject after close",
+  "note": "27 screens per size (26 in Review02 + Shop > Bats added in Review05)",
+  "runs": [
+   {"device": "iPhone 13", "safeRoot": "749x330", "screens": 27, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"},
+   {"device": "Samsung Galaxy S25 Ultra", "safeRoot": "685x280", "screens": 27, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"},
+   {"device": "iPhone 16 Pro Max", "safeRoot": "830x381", "screens": 27, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"},
+   {"device": "iPad Air 5th Generation", "safeRoot": "1179x761", "screens": 27, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"},
+   {"device": "iPhone 16 Pro (owner phone)", "safeRoot": "750x343", "screens": 27, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"}
+  ]
+ },
+ "batTheftTwoClient": {
+  "method": "Test > Server and Clients + 2 Add Clients. Both walked from homes to Blossom nest raid:1:1 by server PathfindingService + Humanoid:MoveTo (25 s, 0 stuck). Player1: real UIRequest Strike x3 -> reveal -> Pickup. Player2: temporary QA LocalScript (session only) swings via UIRequest when Player1's CarryingCreature turns true, then tries the Grab ProximityPrompt.",
+  "cases": [
+   {"case": "hit drops the carried creature", "result": "PASS", "runs": 3, "hitAfterPickup_s": [0.2, 1.7, 1.8], "victimKnockedStuds": [10.7, 9.0, 18.5], "toasts": ["Hit! Grab the Mossbun before it escapes.", "Knocked! Your Mossbun dropped — grab it back!"]},
+   {"case": "nobody grabs -> returns to carrier", "result": "PASS", "returnedAfter_s": [3.0, 3.0, 2.9]},
+   {"case": "thief grabs and secures at gate", "result": "NOT VERIFIED", "why": "Grab prompt never showed on the Player2 client (PromptShown fired for no prompt at all, not even the nest) — the client window was in the background; a focused client window did show prompts. Server grab path unchanged since Review05, where it passed."}
+  ],
+  "observations": [
+   "Without a thief, the Floravelle guardian caught the carrier within ~2-7 s of reveal/pickup in every run (matches the known short theft window).",
+   "Session had StudioAids=true, so raid:1:1 forced Mossbun; live servers roll normally.",
+   "Each new UIRequest token counts as a UI session; a test client that uses many tokens hits 'Too many UI sessions'. Reuse one token with rising sequence numbers."
+  ]
+ },
+ "fileUnchangedAfterTests": true
+}

@@ -35,7 +35,14 @@ Differences from Review06:
 - CLI: 34 suites pass (combat_raids / run_persistence fail standalone exactly as before; their `.py` wrappers pass); 94/94 files compile.
 - Cold Play (session just before save): one `MountainHUD`, no `UIProbe`, `StudioAids=false`, console only the ready line + default control-script note.
 
-## Not re-run (same code as Review06 for these paths)
+
+## Candidate02 re-verification (Oct 26, late)
+
+`evidence/phone_candidate_2026-10-26/phonecandidate02-audits.json`. File hash unchanged after testing.
+- **HUD audit** (`mountain/tools/phone_candidate_hud_audit.client.luau`): iPhone 13, Galaxy S25 Ultra, iPhone 16 Pro Max, iPad Air, iPhone 16 Pro — 27 screens each (Shop › Bats is new), **0 errors**, one HUD, no focus left.
+- **Two-client bat theft:** both walked naturally to `raid:1:1`; 3 runs. Hit drops the carried creature (PASS); no grab → back to the carrier in 3.0 s (PASS). **Thief grab + secure NOT re-verified:** the background client window never showed any prompt. Grab code is unchanged since Review05's pass. Check it on phones (checklist 5e).
+
+## Not re-run at Candidate01 (since covered above)
 
 - 26-tab HUD audit on 4 emulator sizes: needs the UIProbe. To rerun, set `ReplicatedStorage.StudioAids=true` in Edit, audit, set it back to `false`, never save in between.
 - Two-client bat theft: bat code is unchanged since Review05's pass.
