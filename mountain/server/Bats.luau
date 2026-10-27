@@ -54,7 +54,7 @@ function Bats.new(context)
   local now=context.clock();local state=states[player] or {};states[player]=state
   if now<(state.readyAt or 0) then return false,'cooldown' end
   local stats=BatRules.equippedStats(p)
-  BatRules.recordSwing(state,now);swingVisual(player)
+  swingVisual(player)
   local best,bestDistance=nil,math.huge
   for _,other in ipairs(context.players()) do
    local orr=other~=player and context.root(other)
@@ -63,12 +63,12 @@ function Bats.new(context)
     if distance<bestDistance and distance<=stats.reach+1 then best=other;bestDistance=distance end
    end
   end
-  if not best then return true,'miss' end
+  if not best then BatRules.recordSwing(state,now);return true,'miss' end
   local orr=context.root(best);local offset=orr.Position-rr.Position
   local flat=Vector3.new(offset.X,0,offset.Z);local dir=if flat.Magnitude>.01 then flat.Unit else rr.CFrame.LookVector
   local ok,reason=BatRules.canHit(state,{now=now,distance=bestDistance,reach=stats.reach,facing=rr.CFrame.LookVector:Dot(dir),target=best.UserId,
    attackerSafeZone=context.safeZone(player),targetSafeZone=context.safeZone(best),targetProtected=context.protected(best)})
-  if not ok then return true,reason end
+  if not ok then BatRules.recordSwing(state,now);return true,reason end
   BatRules.recordHit(state,best.UserId,now)
   context.knock(best,dir*stats.knockback+Vector3.new(0,stats.knockback*BatRules.lift,0),BatRules.stunSeconds)
   local snapshot=context.raids.drop(best)

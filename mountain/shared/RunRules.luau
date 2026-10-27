@@ -53,7 +53,7 @@ end
 -- Bat theft: a carried, non-Trial creature leaves the carrier's hands as a snapshot (Trial rewards stay bound).
 function Run.drop(p)
  local r=p.run;if not r or r.phase~='carried' or r.trial then return nil end
- p.run=nil;return {species=r.species,section=r.section,from=r.id}
+ p.run=nil;return {species=r.species,section=r.section,from=r.id,eggId=r.eggId}
 end
 -- Whoever grabs a dropped creature (thief or original carrier) carries it under a fresh run id.
 function Run.receive(p,snapshot,runId,now)

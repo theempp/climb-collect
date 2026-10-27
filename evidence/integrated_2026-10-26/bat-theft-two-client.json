@@ -1,0 +1,14 @@
+{
+  "method": "Studio Test > Server and Clients, 2 clients (Player1 carrier, Player2 thief), scripted natural walking via Humanoid:MoveTo from home through the grand gate to Blossom nest raid:1:1; real UIRequest Strike/Pickup/Swing; real ProximityPrompt grab.",
+  "runs": [
+    {"build": "Review04 (pre-fix)", "result": "FAIL", "finding": "swing returned 'cooldown' on every hit: recordSwing ran before canHit. Fixed in Bats.swing."},
+    {"build": "Review04 + swing fix", "case": "hit and grab", "result": "PASS",
+     "thief": {"swing": "hit", "victimKnockedStuds": 16.8, "dropFound": true, "dropName": "Fernox", "grabbed": true, "thiefRun": ["carried", "fernox", "stolenFrom"]},
+     "carrierToasts": ["Floravelle heard your strike! Watch its approach.", "Fernox revealed — pick it up and escape!", "Knocked! Your Fernox dropped — grab it back!", "Your creature was taken. Unsecured creatures stay at risk until the sanctuary gate."],
+     "finding": "carrier kept the carry pose after the drop; fixed (CarryVisuals handles 'dropped', nest shell resets)."},
+    {"build": "same session", "case": "thief carries stolen creature home", "result": "PASS", "creaturesBefore": 3, "creaturesAfter": 4, "secured": "fernox", "toasts": ["Securing your creature… You are protected while saving.", "Safe! Fernox is yours. Carry it home."]},
+    {"build": "Review04 + all fixes (= Review05 code)", "case": "hit, nobody grabs", "result": "PASS",
+     "swing": "hit", "carrierPoseDuringDrop": false, "dropExpiredAfter3s": true, "carrierRunAfter": ["carried", "petalyn"], "carrierPoseAfter": true}
+  ],
+  "notCovered": "Guardian caught the carrier between separate MCP calls in the first attempt (designed loss); safe-zone, same-victim cooldown and reach rules covered by tests/bat_rules.luau only; touch input for Swing not exercised on a device; bat unlock by index set and coin upgrade only covered by CLI tests."
+}

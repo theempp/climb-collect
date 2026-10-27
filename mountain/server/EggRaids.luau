@@ -79,7 +79,7 @@ function E.new(context)
   if exits[player] then return nil end
   local p=P.get(player);if not p then return nil end
   local snapshot=Run.drop(p);if not snapshot then return nil end
-  release(player,false);present(player,{kind='dropped',species=snapshot.species});changed(player)
+  release(player,false);present(player,{kind='dropped',species=snapshot.species,eggId=snapshot.eggId});changed(player)
   return snapshot
  end
  function service.adopt(player,snapshot,position)

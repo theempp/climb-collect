@@ -37,11 +37,12 @@ function V.new(world,send)
  end
  function service.show(player,data)
   local character=player.Character;local rr=character and character:FindFirstChild('HumanoidRootPart')
-  if data.kind=='lost' then
+  if data.kind=='lost' or data.kind=='dropped' then
    clear(player)
    local shell=shells[data.eggId]
    if shell then shell.Transparency=0;shell:SetAttribute('Hits',0);for _,v in ipairs(shell:GetChildren()) do if v:IsA('BasePart') then v:Destroy() end end end
-   send(player,'toast','Unsecured '..C.byId[data.species].name..' lost. Try another egg.');return
+   if data.kind=='lost' then send(player,'toast','Unsecured '..C.byId[data.species].name..' lost. Try another egg.') end
+   return
   end
   if data.kind=='strike' then
    if character then character:SetAttribute('PickaxeStrikeAt',workspace:GetServerTimeNow()) end

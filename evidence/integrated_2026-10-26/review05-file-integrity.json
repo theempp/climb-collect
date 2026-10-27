@@ -1,0 +1,10 @@
+{
+  "file": "outputs/ClimbCollect.Integrated.Review05.rbxl",
+  "sha256": "d9184c14c4c6e78e23e14ca502bdad428bd6dbdf0ee03b87ee0fefb6d834cb76",
+  "runtime_sources": 88,
+  "source_mismatches": [],
+  "terrain_drift_vs_review02": [],
+  "qa_objects": [],
+  "workspace_count_diffs": {},
+  "instances": 10159
+}
