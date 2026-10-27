@@ -1,6 +1,20 @@
 # Integrated review — October 26, 2026
 
-## Latest: Review05 — bats and creature theft (stage 3, part 1)
+## Latest: Review06 — finished sample creature (stage 3, part 2)
+
+`C:/Users/HOME!/Desktop/climb-collect-integration/outputs/ClimbCollect.Integrated.Review06.rbxl`, SHA256 `b4a791844137fe478ad5b21db3cfd8e9ed24189eebd898329c51a98c1c0ba295`. Everything in Review05, plus the **Blossom Rabbit** (Floravelle family, Collection-v004) as the finished look for **Mossbun**. 93/93 sources match the repo. Terrain is byte-identical to Review02. HEAD `2013e9c`.
+
+- **Nest egg:** the first strike swaps the placeholder ball for the real rabbit egg. Each strike adds a crack on the side facing you and wobbles the egg. The final strike opens the real hatch shell: the lid pops off with a pink sparkle burst (Blossom's catalog accent colour), the base stays a few seconds, and the rabbit stands in front of it playing **Reveal**.
+- **Carry:** the real rabbit sits in your arms using the measured two-arm cradle (`OffspringCarryFit` + `CarryProfiles`, from the carry review) and plays **Carried**. Your bat is stowed while your arms are full. Securing at the gate plays **Happy**.
+- **Companion:** Mossbun in your team follows you and switches **Idle / Move / Run / Turn** by speed and turn rate. It plays Happy when it appears.
+- **Clips:** Idle, Move, Reveal and Carried are authored. Run, Turn and Happy are derived from them by `mountain/tools/author_offspring_clips.luau` (re-runnable).
+- **Studio only:** the first Blossom nest (`raid:1:1`) always holds Mossbun so you can see it every time. Live servers roll odds as normal.
+
+Verified (solo Studio Play): 15/15 checks: real egg, crack, hatch, Reveal, carry fit, Carried, bat stowed, secure 3 → 4, Happy, companion rendered, and the companion's Move/Run/Turn/Idle. Screenshots are `evidence/integrated_2026-10-26/offspring-0*.jpg`; results are in `offspring-sample-acceptance.json`. Fixed during testing: the placeholder showing through, the revealed rabbit hidden inside the shell, cracks on the far side, the bat blocking the carry view, and the companion being too small.
+
+Limits: clips play through Studio's local `KeyframeSequenceProvider`. A published build needs the 7 clips uploaded as Animation assets. The other 35 species still use procedural art. The incubator hatch and habitat views aren't converted (not in scope). There's no phone or multi-client check of the new visuals yet.
+
+## Review05 — bats and creature theft (stage 3, part 1)
 
 `C:/Users/HOME!/Desktop/climb-collect-integration/outputs/ClimbCollect.Integrated.Review05.rbxl`, SHA256 `d9184c14c4c6e78e23e14ca502bdad428bd6dbdf0ee03b87ee0fefb6d834cb76`. Same world as Review02 (terrain bytes identical, 88/88 sources match, no QA objects). Branch HEAD `731aa1e`.
 
