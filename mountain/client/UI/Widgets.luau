@@ -128,12 +128,11 @@ function W.tag(parent,label,pos,color)
  local t=W.text(f,label,UDim2.fromScale(1,1),nil,T.bold,11);t.TextXAlignment=Enum.TextXAlignment.Center
  return f
 end
--- Approved illustrated icons (Icons.luau ids); vector art below is the fallback while an id is 0.
-local Icons=require(script.Parent.Icons)
+-- Approved illustrated icons (Theme.icons ids); vector art below is the fallback while an id is 0.
 local iconFor={Creatures='creature',Discovery='egg',Mountain='map',Sanctuary='heart',Shop='chest',Profile='scroll',Social='bat',Settings='gear',Coin='coin',Gem='gem',Interact='climb',Bat='bat',Sprint='sprint',Jump='jump',Egg='egg',EggCracked='egg-cracked',Gift='gift',Calendar='calendar',Padlock='padlock',Chest='chest',Map='map',Scroll='scroll',Heart='heart'}
 function W.icon(parent,kind,size,pos)
  local f=W.frame(parent,'Icon'..kind,size,pos);f.BackgroundTransparency=1
- local id=Icons[iconFor[kind] or '']
+ local id=T.icons[iconFor[kind] or '']
  if id and id~=0 then W.new('ImageLabel',f,{Name='Image',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image='rbxassetid://'..id,ScaleType=Enum.ScaleType.Fit});return f end
  local function shape(name,x,y,w,h,color,round,rotation)
   local p=W.round(W.frame(f,name,UDim2.fromScale(w,h),UDim2.fromScale(x,y),color),round or 4)

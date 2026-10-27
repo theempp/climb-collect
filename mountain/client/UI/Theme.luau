@@ -20,6 +20,8 @@ local T={
  -- PROVISIONAL tier mapping (intel ladder; owner still picks tier count/names): Common/Uncommon blue, Rare golden, Epic royal, Mythic/Legendary prismatic.
  rarity={Common=rgb(58,139,238),Uncommon=rgb(58,139,238),Rare=rgb(247,162,27),Epic=rgb(138,75,230),Mythic=rgb(255,95,160),Legendary=rgb(255,201,60)},
  prismatic={Mythic=true,Legendary=true},
+ -- Approved icon set (design/hud-v2-icons, 512 px PNG) as Roblox image ids; 0 = not uploaded, Widgets falls back to vector art.
+ icons={bat=0,calendar=0,chest=0,climb=0,coin=0,creature=0,['egg-cracked']=0,egg=0,gear=0,gem=0,gift=0,heart=0,jump=0,map=0,padlock=0,scroll=0,sprint=0},
 }
 function T.configure(p) T.prefs=p or {} end
 function T.size(n) return n+(if T.prefs.largeText then 2 else 0) end
