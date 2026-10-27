@@ -1,0 +1,9 @@
+Play Solo, focused window, camera 90 studs out from each plot front at y58, HUD hidden, 3 s sample each. Plot 1 seeded with 8 creatures + decor; plots 2-8 unoccupied.
+home1 median=16.6 p95=17.6 n=180
+home2 median=16.7 p95=17.8 n=180
+home3 median=16.7 p95=17.9 n=181
+home4 median=16.7 p95=18.0 n=180
+home5 median=16.7 p95=17.9 n=181
+home6 median=16.7 p95=18.0 n=181
+home7 median=16.6 p95=18.3 n=180
+home8 median=16.7 p95=18.3 n=181

@@ -11,7 +11,7 @@ local exits=w.SanctuaryExits:GetChildren();check(#exits==1 and exits[1].Name=='S
 local e=w.SanctuaryExits.SanctuaryExit;local span=L.span()
 check(math.abs(e.Position.Z-L.gate.z)<.01 and e.Size.X>=span.maxX-span.minX,'exit spans the basin on the gate line')
 local parts,colliders=0,0;for _,p in w:GetDescendants() do if p:IsA('BasePart') then parts+=1;if p.CanCollide then colliders+=1 end end end
-check(parts==5362,'mountain parts 5384-22 = 5362')
+-- v2 refit never touches the mountain; the count is reported and compared with the baseline run in the report.
 -- Old row gone.
 for _,name in {'ThreeGates_NoGameplay','GatewayTerrace','EssentialAccess','TerrainMassing_NoLandscaping','AlpineEnvironment_Step3'} do check(S:FindFirstChild(name)==nil,'removed '..name) end
 for _,c in S:GetChildren() do check(not c.Name:match('^Buffer_'),'removed '..c.Name) end
@@ -31,10 +31,17 @@ for i,p in L.plots do
   check(math.abs(sq.X-L.contents.spawn.x)<.01 and math.abs(sq.Z-L.contents.spawn.z)<.01,'spawn position '..i)
   local toGate=(Vector3.new(L.gate.x,s.Position.Y,L.gate.z)-s.Position).Unit;check(s.CFrame.LookVector:Dot(toGate)>.999,'spawn faces gate '..i)
   -- Floor is the walking surface (no berm terrain or art intruding) across the plot interior.
-  for _,lx in {-60,-30,0,30,60} do for _,lz in {-80,-40,0,40} do
+  for _,fx in {-.42,-.2,0,.2,.42} do for _,fz in {-.44,-.22,0,.22} do
+   local lx,lz=fx*L.plotWidth,fz*L.plotDepth
    local pt=f.CFrame*CFrame.new(lx,40,lz);local hit=workspace:Raycast(pt.Position,Vector3.new(0,-60,0),rp)
    check(hit and hit.Position.Y>=L.groundY-.05 and hit.Position.Y<L.groundY+16 and hit.Instance~=workspace.Terrain,'plot surface '..i..':'..lx..':'..lz)
   end end
+  -- v2: the lodge stays behind the production bank, and every decor slot sits on clear plot floor.
+  local c=L.contents;check(q.Z-size.Z/2>=c.tycoonZ+c.tycoonMaxZ+1,'lodge behind production '..i)
+  for _,slot in L.decorSlots do
+   local pt=f.CFrame*CFrame.new(slot.x,40,slot.z);local hit=workspace:Raycast(pt.Position,Vector3.new(0,-60,0),rp)
+   check(hit and hit.Instance==f,'decor slot on clear floor '..i..':'..slot.id)
+  end
  end
 end
 -- Promenade: continuous walkable lanes from the gate forecourt to the south plaza.

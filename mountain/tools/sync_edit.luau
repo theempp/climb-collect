@@ -15,6 +15,7 @@ local manifest={
  {"ReplicatedStorage.MountainShared", "RunRules", "ModuleScript", "mountain/shared/RunRules.luau"},
  {"ReplicatedStorage.MountainShared", "TerrainProfile", "ModuleScript", "mountain/shared/TerrainProfile.luau"},
  {"ReplicatedStorage.MountainShared", "TraversalRules", "ModuleScript", "mountain/shared/TraversalRules.luau"},
+ {"ReplicatedStorage.MountainShared", "HomeDecor", "ModuleScript", "mountain/shared/HomeDecor.luau"},
  {"ReplicatedStorage.MountainShared", "Tycoon", "ModuleScript", "mountain/shared/Tycoon.luau"},
  {"ReplicatedStorage.MountainShared", "TycoonConfig", "ModuleScript", "mountain/shared/TycoonConfig.luau"},
  {"ReplicatedStorage.MountainShared", "UIPresentation", "ModuleScript", "mountain/shared/UIPresentation.luau"},

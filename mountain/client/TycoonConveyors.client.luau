@@ -29,7 +29,9 @@ local connection=Run.RenderStepped:Connect(function(dt)
   for i=1,count do
    if used>=max then break end;used+=1;local egg=pool[used]
    local phase=if reduced or (belt:GetAttribute('Automation') or 0)<1 then i/count else (workspace:GetServerTimeNow()*.08+i/count)%1
-   egg.CFrame=belt.CFrame*CFrame.new(if i%2==0 then 1.5 else -1.5,1.4,-46+phase*92)
+   -- Eggs ride the whole spine (its own length) from the first habitat row toward the production bank.
+   local half=belt.Size.Z/2-3
+   egg.CFrame=belt.CFrame*CFrame.new(if i%2==0 then 1.5 else -1.5,1.4,-half+phase*2*half)
    egg.Color=if (belt:GetAttribute('Automation') or 0)>=2 then Color3.fromRGB(246,211,137) else Color3.fromRGB(205,238,214)
    egg.Transparency=0
   end

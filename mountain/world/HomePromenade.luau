@@ -38,7 +38,10 @@ local function yawFrame(x,y,z,yaw) return CFrame.new(x,y,z)*CFrame.Angles(0,yaw,
 
 function H.apply(sanctuary,world)
  assert(sanctuary and world,'Sanctuary and mountain required')
- if sanctuary:GetAttribute('PromenadeVersion')==H.version then return false end
+ local baked=sanctuary:GetAttribute('PromenadeVersion')
+ if baked==H.version then return false end
+ -- v1 promenade (Review06) -> v2 compact homes: refit the existing art in place.
+ if baked==1 then return H.refit(sanctuary,world) end
  assert(sanctuary.SanctuaryPlots.Plot_01:FindFirstChild('Plot_180x220'),'Expected the Review02 home row')
  local env=sanctuary.AlpineEnvironment_Step3;local gy=L.groundY
  -- Prototypes from the existing boundary art, taken before the old row is cleared.
@@ -251,6 +254,122 @@ function H.apply(sanctuary,world)
  sanctuary:SetAttribute('FrontWalkingDepth',nil);sanctuary:SetAttribute('Revision2',nil)
  sanctuary:SetAttribute('PromenadeVersion',H.version);sanctuary:SetAttribute('PromenadeRemovedParts',report.removedParts)
  world:SetAttribute('PromenadeGateVersion',H.version)
+ return report
+end
+
+-- v1 numbers, frozen: the Review06 bake was built from these. Used only to locate the existing art.
+local V1={plotWidth=140,plotDepth=180,rowPitch=148,southZ=436,frontHalf=52,floorName='Plot_140x180'}
+V1.poolZ=V1.southZ+40;V1.groundZ1=V1.southZ+76
+local function v1Plot(i)
+ local p=L.plots[i];return L.axisX+p.side*(L.promenadeWidth/2+V1.plotDepth/2),L.firstZ+(p.row-1)*V1.rowPitch+V1.plotWidth/2
+end
+-- Refit the v1 promenade to the compact v2 layout (2026-10-27). Moves, trims and scales existing art only; no new palette.
+function H.refit(sanctuary,world)
+ local gy=L.groundY;local report={moved=0,trimmed=0,lodgeScale=0}
+ local plots=sanctuary.SanctuaryPlots;local root=sanctuary.HomePromenade
+ -- Lodges shrink uniformly to fit the 30x22 rear allowance (35x30 before).
+ local lodgeScale=math.min(L.contents.lodge.width/35,L.contents.lodge.depth/30);report.lodgeScale=lodgeScale
+ for i,p in L.plots do
+  local plot=plots[string.format('Plot_%02d',i)];local floor=plot[V1.floorName]
+  local ox,oz=v1Plot(i)
+  local oldCF,newCF=yawFrame(ox,gy-1,oz,p.yaw),yawFrame(p.x,gy-1,p.z,p.yaw)
+  local oldFp=plot.RearLodgeFootprint_35x30.CFrame;local fpRel=oldCF:ToObjectSpace(oldFp)
+  local newFp=newCF*CFrame.new(0,fpRel.Y,L.contents.lodge.z)*fpRel.Rotation
+  local lodge=sanctuary.EnchantedAlpineLodges[string.format('Lodge_%02d',i)]
+  local rel=oldFp:ToObjectSpace(lodge:GetPivot())
+  lodge:ScaleTo(lodge:GetScale()*lodgeScale)
+  lodge:PivotTo(newFp*CFrame.new(rel.Position*lodgeScale)*rel.Rotation)
+  for _,c in plot:GetChildren() do
+   if c.Name=='RearLodgeFootprint_35x30' or c.Name=='LodgeFootprintEdge' then
+    local r=oldFp:ToObjectSpace(c.CFrame)
+    c.Size=Vector3.new(if c.Size.X>1 then c.Size.X*lodgeScale else c.Size.X,c.Size.Y,if c.Size.Z>1 then c.Size.Z*lodgeScale else c.Size.Z)
+    c.CFrame=newFp*CFrame.new(r.X*lodgeScale,r.Y,r.Z*lodgeScale)*r.Rotation
+   elseif c.Name=='PlotEdge' then
+    local r=oldCF:ToObjectSpace(c.CFrame);c.Size=Vector3.new(c.Size.X,c.Size.Y,L.plotDepth)
+    c.CFrame=newCF*CFrame.new(math.sign(r.X)*(L.plotWidth/2-.25),r.Y,0)
+   elseif c.Name=='FrontEdge' or c.Name=='RearEdge' then
+    local r=oldCF:ToObjectSpace(c.CFrame);c.Size=Vector3.new(L.plotWidth,c.Size.Y,c.Size.Z)
+    c.CFrame=newCF*CFrame.new(0,r.Y,math.sign(r.Z)*(L.plotDepth/2-.25))
+   end
+  end
+  local s=L.contents.spawn;local sx,sz=L.toWorld(i,s.x,s.z)
+  plot.Spawn.CFrame=CFrame.lookAt(Vector3.new(sx,gy+.1,sz),Vector3.new(L.gate.x,gy+.1,L.gate.z))
+  floor.Size=Vector3.new(L.plotWidth,2,L.plotDepth);floor.CFrame=newCF;floor.Name=L.floorName
+  report.moved+=1
+ end
+ -- Plot fronts: each piece follows its plot; the dry-stone runs shorten to the 100 frontage.
+ for _,c in root.PlotFronts:GetDescendants() do
+  if c:IsA('BasePart') then
+   local best,bi,br=math.huge,1,CFrame.new()
+   for i,p in L.plots do
+    local x,z=v1Plot(i);local f=yawFrame(x,gy,z,p.yaw)*CFrame.new(0,0,-V1.plotDepth/2+1.6)
+    local r=f:ToObjectSpace(c.CFrame);if r.Position.Magnitude<best then best,bi,br=r.Position.Magnitude,i,r end
+   end
+   local p=L.plots[bi];local f=yawFrame(p.x,gy,p.z,p.yaw)*CFrame.new(0,0,-L.plotDepth/2+1.6)
+   local sgn=if br.X<0 then -1 else 1
+   if c.Name=='FrontDryStone' or c.Name=='FrontCoping' then
+    c.Size=Vector3.new(L.plotWidth/2-18+(if c.Name=='FrontCoping' then .5 else 0),c.Size.Y,c.Size.Z)
+    c.CFrame=f*CFrame.new(sgn*(L.plotWidth/2+18)/2,br.Y,br.Z)*br.Rotation
+   elseif c.Name=='CornerEndpost' then c.CFrame=f*CFrame.new(sgn*(L.plotWidth/2-.6),br.Y,br.Z)*br.Rotation
+   else c.CFrame=f*br end
+  end
+ end
+ -- Promenade lanes, kerbs, coping, water and guides: same cross-section, shorter run to the moved pool.
+ local dz=L.southZ-V1.southZ;local poolZ=L.southZ+40
+ local pz0=L.gate.z+L.gate.towerDepth/2+6;local pz1=poolZ-13;local plen=pz1-pz0;local pc=(pz0+pz1)/2
+ for _,c in root.Promenade:GetChildren() do
+  if c:IsA('BasePart') and c.Name~='ChannelHeadCoping' then c.Size=Vector3.new(c.Size.X,c.Size.Y,plen);c.Position=Vector3.new(c.Position.X,c.Position.Y,pc) end
+ end
+ for _,c in root.Ground:GetChildren() do
+  if c.Name=='ChannelBed' then c.Size=Vector3.new(c.Size.X,c.Size.Y,plen);c.Position=Vector3.new(c.Position.X,c.Position.Y,pc)
+  elseif c.Name=='GroundPlug' and c.Position.Z>0 then
+   local a,b=poolZ+13,V1.groundZ1;c.Size=Vector3.new(c.Size.X,c.Size.Y,b-a);c.Position=Vector3.new(c.Position.X,c.Position.Y,(a+b)/2)
+  end
+ end
+ -- South garden and its pool lanterns slide north with the shorter rows.
+ for _,c in root.SouthGarden:GetDescendants() do if c:IsA('BasePart') then c.CFrame+=Vector3.new(0,0,dz) end end
+ -- Lane lanterns: re-anchor every cluster to its new plot-front or divider position.
+ local anchors={}
+ for row=1,4 do
+  local zo=L.firstZ+(row-1)*V1.rowPitch+V1.plotWidth/2;local zn=L.firstZ+(row-1)*L.rowPitch+L.plotWidth/2;local fn=L.plotWidth/2-18
+  table.insert(anchors,{zo-V1.frontHalf,zn-fn});table.insert(anchors,{zo+V1.frontHalf,zn+fn});table.insert(anchors,{zo+V1.rowPitch/2,zn+L.rowPitch/2})
+ end
+ table.insert(anchors,{V1.poolZ+6,poolZ+6})
+ for _,c in root.Lanterns:GetDescendants() do
+  if c:IsA('BasePart') then
+   local best,to=math.huge,nil
+   for _,a in anchors do local d=math.abs(c.Position.Z-a[1]);if d<best then best,to=d,a end end
+   if to and best<6 then c.CFrame+=Vector3.new(0,0,to[2]-to[1]) end
+  end
+ end
+ -- Dividers: same hedges, moved to the new row lines and trimmed to the 130 depth.
+ local dividers=root.Dividers:GetChildren();table.sort(dividers,function(a,b) return a.Name<b.Name end)
+ for k,m in dividers do
+  local row,side=math.ceil(k/2),if k%2==1 then -1 else 1
+  local edge=L.axisX+side*L.promenadeWidth/2
+  local oldTo=yawFrame(edge,gy,L.firstZ+row*V1.rowPitch-L.buffer/2,side*math.pi/2)
+  local newTo=yawFrame(edge,gy,L.firstZ+row*L.rowPitch-L.buffer/2,side*math.pi/2)
+  for _,c in m:GetDescendants() do
+   if c:IsA('BasePart') then
+    local r=oldTo:ToObjectSpace(c.CFrame)
+    if r.Z>L.plotDepth+1 then c:Destroy();report.trimmed+=1 else c.CFrame=newTo*r end
+   end
+  end
+ end
+ -- Gate wing walls end where the narrower basin's berms begin.
+ local gate=sanctuary.GrandGate;local g=L.gate;local span=L.span()
+ for _,side in {-1,1} do
+  local inner=g.x+side*(g.opening/2+g.towerWidth);local outer=(if side<0 then span.minX else span.maxX)+side*70
+  local wl=math.abs(outer-inner);local wx=(inner+outer)/2
+  for _,c in gate:GetChildren() do
+   if c:IsA('BasePart') and math.sign(c.Position.X-g.x)==side then
+    if c.Name=='WingDryStone' or c.Name=='WingCoping' then c.Size=Vector3.new(wl,c.Size.Y,c.Size.Z);c.Position=Vector3.new(wx,c.Position.Y,c.Position.Z)
+    elseif c.Name=='WingEndpost' and math.abs(c.Position.X-g.x)>math.abs(outer-g.x) then c:Destroy() end
+   end
+  end
+ end
+ sanctuary:SetAttribute('PlotWidth',L.plotWidth);sanctuary:SetAttribute('PlotDepth',L.plotDepth)
+ sanctuary:SetAttribute('PromenadeVersion',H.version);world:SetAttribute('PromenadeGateVersion',H.version)
  return report
 end
 

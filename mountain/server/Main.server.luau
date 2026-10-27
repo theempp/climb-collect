@@ -298,7 +298,9 @@ game:GetService('ProximityPromptService').PromptTriggered:Connect(function(promp
  publish(player)
 end)
 local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Competition,clock=os.time,
- safe=safe,atHome=atHome,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
+ safe=safe,atHome=atHome,catalog=C,inSanctuary=function(player) local rr=root(player);return rr~=nil and home.inSanctuary(rr.Position) end,
+ profileAtPlot=function(plot) for _,other in ipairs(Players:GetPlayers()) do if home.plot(other)==plot then return P.get(other) end end end,
+ atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
  save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
  travel=journey.go,raids=raids,putDown=carryVisuals.clear,
  bats=bats,batRules=BatRules,equipBat=function(player) bats.equip(player) end,batSnapshot=function(p) return bats.snapshot(p) end,
@@ -313,6 +315,14 @@ local function handle(player,action,data,correlated)
  end
  return ok,message,result
 end
+-- Visitors tap a habitat or display: read-only inspection, short cooldown per player, answered as a toast.
+local inspectAt={}
+tycoonWorld.onInspect=function(visitor,plot,kind,key)
+ local now=os.clock();if (inspectAt[visitor] or 0)>now-.5 then return end;inspectAt[visitor]=now
+ local _,message=dispatch(visitor,'Inspect',{plot=plot,kind=kind,key=key})
+ if message then send(visitor,'toast',message) end
+end
+Players.PlayerRemoving:Connect(function(player) inspectAt[player]=nil end)
 uiService=UIRequests.new({handle=function(player,action,data) return handle(player,action,data,true) end,available=function(player) return P.get(player)~=nil end,
  busy=function(player) return busy[player]==true end,
  setBusy=function(player,value) busy[player]=if value then true else nil end,

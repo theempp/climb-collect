@@ -168,6 +168,23 @@ function U.actions(context)
    if ok and context.save then context.save(player) end
    return ok,message,{tycoon=T.snapshot(p)}
   end
+  if action=='Home' then
+   if not context.atHome or not context.atHome(player) or not p.tycoon then return false,'Use your own sanctuary plot.' end
+   local H=R.tycoon.home;local ok=false;local message='Action unavailable.'
+   if payload.op=='buy' then ok=H.buy(p,payload.item);message=if ok then 'Decor unlocked.' else 'Not enough coins or already owned.'
+   elseif payload.op=='place' then ok=H.place(p,payload.slot,payload.item);message=if ok then 'Placed.' else 'Own the item and pick a matching slot.'
+   elseif payload.op=='clear' then ok=H.clear(p,payload.slot);message=if ok then 'Cleared.' else 'Nothing to clear there.'
+   elseif payload.op=='showcase' then ok=H.showcase(p,payload.slot,payload.id);message=if ok then 'Display updated.' else 'Choose a display slot and a creature you own.' end
+   if ok and context.save then context.save(player) end
+   return ok,message,{home=p.tycoon.home}
+  end
+  -- Visitors: read-only. Reads another owner's minimal view, never mutates and never needs ownership.
+  if action=='Inspect' then
+   if not context.inSanctuary or not context.inSanctuary(player) or not context.profileAtPlot or not context.catalog then return false,'Inspect homes from inside the sanctuary.' end
+   local owner=context.profileAtPlot(payload.plot);if not owner or not owner.tycoon then return false,'That home is empty.' end
+   local H=R.tycoon.home;local view=H.visitorView(owner,R.tycoon,context.catalog)
+   return true,H.describe(view,payload.kind,payload.key),{view=view}
+  end
   if action=='Special' then
 
    local ok=context.combat.special(player,payload.slot,payload.ability)
