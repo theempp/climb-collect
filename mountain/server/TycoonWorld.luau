@@ -1,8 +1,9 @@
--- Additive dressing only. All offsets are inside the existing owned plot's 110x120 grid.
+-- Additive dressing only. All offsets are inside the owned plot's 110x120 grid (HomeLayout.contents).
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local T=require(game.ReplicatedStorage.MountainShared.Tycoon)
 local A=require(game.ServerStorage.MountainWorld.Art)
 local Tags=game:GetService('CollectionService')
+local L=require(game.ReplicatedStorage.MountainShared.HomeLayout)
 local W={}
 function W.new(home)
  local plots={}
@@ -18,9 +19,9 @@ function W.new(home)
   return textLabel
  end
  for slot=1,8 do
-  local model=home.model(slot);local floor=model:FindFirstChild('Plot_180x220')
+  local model=home.model(slot);local floor=model:FindFirstChild(L.floorName)
   local root=Instance.new('Model');root.Name='TycoonProduction';root.Parent=model
-  local cf=floor.CFrame*CFrame.new(0,floor.Size.Y/2+.15,-10)
+  local cf=floor.CFrame*CFrame.new(0,floor.Size.Y/2+.15,L.contents.tycoonZ)
   root:SetAttribute('Width',110);root:SetAttribute('Depth',120)
   local spine=part(root,'ConveyorSpine',Vector3.new(10,.4,100),cf,Color3.fromRGB(40,62,65),Enum.Material.Metal)
   spine:SetAttribute('SanctuarySlot',slot);spine:SetAttribute('ActiveHabitats',0);Tags:AddTag(spine,'TycoonConveyor')

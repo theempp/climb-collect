@@ -1,0 +1,19 @@
+{
+ "sanctuary": {
+  "presaveVsCold": true,
+  "review02VsCold": false
+ },
+ "landscape": {
+  "presaveVsCold": true,
+  "review02VsCold": true
+ },
+ "legacyMountain": {
+  "presaveVsCold": true,
+  "review02VsCold": true
+ },
+ "playable": {
+  "presaveVsCold": true,
+  "review02VsCold": true
+ },
+ "protectedSlabCold": true
+}

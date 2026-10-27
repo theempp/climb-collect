@@ -1,0 +1,10 @@
+{"scope":"Studio Play Solo on the clean promenade bake (pre-save), harness mountain/tools/promenade_raid.client.luau, ordinary Humanoid MoveTo with sprint toggle; plot 1 spawn","passed":true,"checks":122,"failures":0,"elapsed":258.0,"health":164.97,
+"keyChecks":[
+{"label":"home to gate (5 legs)","ok":true,"positions":["4074.2,19.19,-78.0","4076.1,19.19,-78.0","4075.0,19.19,-149.0","4089.8,19.09,-189.5","4090.9,19.65,-210.6"]},
+{"label":"left through the grand gate opening","ok":true,"position":"4090.9,19.65,-210.6"},
+{"label":"gate approach with cargo","ok":true,"position":"4090.0,19.09,-181.6"},
+{"label":"still carrying before the gate","ok":true,"run":{"phase":"carried","species":"moonlet","section":6,"eggId":"raid:6:1","hits":8}},
+{"label":"physical sanctuary return through the grand gate","ok":true,"position":"4090.0,19.34,-139.6"},
+{"label":"physical exit secures exactly one","ok":true,"before":3,"after":4}],
+"messages":[{"elapsed":48.58,"text":"Caeloryn heard your strike! Watch its approach."},{"elapsed":52.08,"text":"Moonlet revealed — pick it up and escape!"},{"elapsed":100.99,"text":"Securing your creature… You are protected while saving."},{"elapsed":100.99,"text":"Safe! Moonlet is yours. Carry it home."}],
+"summary":"24 section approaches, summit egg, 8 strikes, reveal-not-ownership, pickup, cargo speed 24.3, 24 cargo-descent legs + 24 cargo-retained checks, gate approach/still-carrying/return/secures-one, 6 hazards (approach, entry, damage+survival, escape) incl. sandstone drop + walk-only recovery: all ok"}

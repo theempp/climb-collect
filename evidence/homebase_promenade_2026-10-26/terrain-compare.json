@@ -1,0 +1,32 @@
+{
+ "sanctuary": {
+  "rows": 39,
+  "identical": 6,
+  "solidBefore": 4352,
+  "solidAfter": 396733
+ },
+ "landscape": {
+  "rows": 51,
+  "identical": 51,
+  "solidBefore": 6609274,
+  "solidAfter": 6609274
+ },
+ "legacyMountain": {
+  "rows": 40,
+  "identical": 40,
+  "solidBefore": 5584724,
+  "solidAfter": 5584724
+ },
+ "playable": {
+  "rows": 38,
+  "identical": 38,
+  "solidBefore": 1119288,
+  "solidAfter": 1119288
+ },
+ "protectedSlab": {
+  "hash": 2138336834,
+  "cells": 4400,
+  "review02Hash": 2138336834,
+  "match": true
+ }
+}

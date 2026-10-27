@@ -1,4 +1,5 @@
 local Sessions=require(script.Parent.SanctuarySessions)
+local L=require(game.ReplicatedStorage.MountainShared.HomeLayout)
 local S={}
 function S.new(model)
  assert(model and model:IsA('Model'),'Use the baked sanctuary integration review')
@@ -8,15 +9,16 @@ function S.new(model)
   local plot=assert(model.SanctuaryPlots:FindFirstChild(string.format('Plot_%02d',i)))
   local spawn=assert(plot:FindFirstChild('Spawn'))
   spawn.Enabled=false -- Main owns all character spawns, never random shared pads.
-  plots[i]={model=plot,spawn=spawn,floor=assert(plot:FindFirstChild('Plot_180x220'))}
+  plots[i]={model=plot,spawn=spawn,floor=assert(plot:FindFirstChild(L.floorName))}
  end
  local gates={}
- for _,gate in ipairs(model.ThreeGates_NoGameplay:GetChildren()) do
-  local cf=gate:GetBoundingBox()
+ -- One grand gate at the mountain end of the promenade is the only way out to the mountain.
+ do
+  local g=L.gate
   local marker=Instance.new('Part');marker.Name='EnterBlossom';marker.Size=Vector3.new(5,5,1)
-  marker.CFrame=CFrame.new(cf.X,19,cf.Z+6);marker.Anchored=true;marker.CanCollide=false;marker.CanTouch=false;marker.Transparency=1
+  marker.CFrame=CFrame.new(g.x,L.groundY+3,g.z+16);marker.Anchored=true;marker.CanCollide=false;marker.CanTouch=false;marker.Transparency=1
   local prompt=Instance.new('ProximityPrompt');prompt.ActionText='Enter Blossom';prompt.ObjectText='Impossible Mountain';prompt.HoldDuration=.35;prompt.MaxActivationDistance=12;prompt.RequiresLineOfSight=false;prompt.Parent=marker
-  marker.Parent=gate;gates[marker]=true
+  marker.Parent=assert(model:FindFirstChild('GrandGate'),'Promenade gate missing');gates[marker]=true
  end
  local service={}
  function service.model(index) return plots[index] and plots[index].model end
@@ -31,10 +33,9 @@ function S.new(model)
   return math.abs(q.X)<=floor.Size.X/2-1 and math.abs(q.Z)<=floor.Size.Z/2-1 and q.Y>=0 and q.Y<=45
  end
  function service.inSanctuary(pos)
-  local center=plots[4].floor.Position.X+94
   local mountain=workspace:FindFirstChild('ImpossibleMountain')
-  local north=if mountain and mountain:GetAttribute('FreeClimbVersion') then -157 else -1400
-  return math.abs(pos.X-center)<1250 and pos.Z>north and pos.Z<550
+  local north=if mountain and mountain:GetAttribute('FreeClimbVersion') then L.northZ else -1400
+  return L.inSanctuary(pos.X,pos.Z,north)
  end
  function service.nearGate(pos)
   for marker in pairs(gates) do if (marker.Position-pos).Magnitude<=15 then return true end end
@@ -57,9 +58,10 @@ function S.new(model)
   allocator.release(player.UserId,player)
  end
  for i,plot in ipairs(plots) do
-  for j,kind in ipairs({'Incubator','Training'}) do
-   local marker=Instance.new('Part');marker.Name=kind..'Service';marker.Size=Vector3.new(3,2,3)
-   marker.CFrame=plot.spawn.CFrame+Vector3.new(if j==1 then -8 else 8,1,-10)
+  for j,row in ipairs(L.contents.services) do
+   local kind=row.kind
+   local marker=Instance.new('Part');marker.Name=kind..'Service';marker.Size=Vector3.new(row.size,2,row.size)
+   marker.CFrame=plot.floor.CFrame*CFrame.new(row.x,plot.floor.Size.Y/2+1,row.z)
    marker.Anchored=true;marker.CanCollide=false;marker.CanTouch=false;marker.Material=Enum.Material.Wood
    marker.Color=if j==1 then Color3.fromRGB(133,187,177) else Color3.fromRGB(204,168,105)
    marker:SetAttribute('SanctuarySlot',i);marker:SetAttribute('Service',kind)

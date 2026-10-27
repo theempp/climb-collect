@@ -41,9 +41,9 @@ def regression(name):
         base['suites'].append({'suite':'quality_geometry.luau'})
     if (ROOT/'mountain/tests/alpine_profile.luau').exists():
         base['suites'].append({'suite':'alpine_profile.luau'})
-    for name in ('compact_geometry.luau','arrival_readiness.luau'):
-        if (ROOT/'mountain/tests'/name).exists():
-            base['suites'].append({'suite':name})
+    for suite in ('compact_geometry.luau','arrival_readiness.luau','home_layout.luau'):
+        if (ROOT/'mountain/tests'/suite).exists():
+            base['suites'].append({'suite':suite})
     for row in base['suites']:
         f=ROOT/'mountain/tests'/row['suite']
         result=subprocess.run([sys.executable if f.suffix=='.py' else str(CLI),str(f)],cwd=ROOT,text=True,capture_output=True)

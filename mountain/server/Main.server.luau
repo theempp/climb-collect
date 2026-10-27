@@ -11,6 +11,7 @@ local UIProtocol=require(RS.MountainShared.UIProtocol)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
+require(game.ServerStorage.MountainWorld.HomePromenade).apply(workspace:FindFirstChild('Sanctuary'),world)
 require(game.ServerStorage.MountainWorld.MountainEntrances).apply(world,workspace:FindFirstChild('Sanctuary'))
 local home=require(script.Parent.Sanctuary).new(workspace:FindFirstChild('Sanctuary'))
 local tycoonWorld=require(script.Parent.TycoonWorld).new(home)

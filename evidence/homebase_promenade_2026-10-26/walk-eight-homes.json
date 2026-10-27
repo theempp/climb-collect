@@ -1,0 +1,5 @@
+{"scope":"Studio Play Solo on the clean promenade bake (pre-save). Harness mountain/tools/promenade_walk.client.luau: ordinary Humanoid MoveTo at WalkSpeed 16, no sprint, no teleports. Natural spawn only at plot 1 (single player); homes 2-8 were reached by walking to their spawn pads through each plot-front opening. Each home: spawn -> front opening -> lane -> gate forecourt -> 24 studs beyond the gate (checked outside the sanctuary), then back to the spawn pad.",
+"passed":true,"legs":121,"failures":0,"elapsed":646.7,"walkSpeed":16,"naturalSpawnPlot1":"4054, 19.29, -78","finalPosition":"4137.5, 19.28, 366.0 (home 8 spawn)",
+"secondsHomeToBeyondGate":{"1":8.2,"2":8.2,"3":17.4,"4":17.5,"5":26.7,"6":26.7,"7":35.9,"8":36.0},
+"secondsBackHome":{"1":8.1,"2":8.2,"3":17.4,"4":17.4,"5":26.7,"6":26.7,"7":35.9,"8":36.0},
+"previousRowFarthestWalk":"~722 studs (~45 s at 16) per the approved plan"}

@@ -1,0 +1,12 @@
+{"scope":"Studio desktop Play Solo on the saved Review01, full residency, graphics quality Automatic, FOV 70, camera at each home spawn (eye height +6) looking at the mountain (4096,240,-820) through the gate. 120 RenderStepped frames per view. Focus verified by a 1 s foreground-window log; a first run (all ~66.7 ms = 15 FPS unfocused throttle) and homes 7-8 of the second run were discarded and re-sampled.",
+"views":[
+{"home":1,"medianMs":16.5,"p95Ms":18.1,"drawcalls":132,"triangles":266105},
+{"home":2,"medianMs":16.6,"p95Ms":18.1,"drawcalls":136,"triangles":246495},
+{"home":3,"medianMs":16.6,"p95Ms":18.0,"drawcalls":240,"triangles":202395},
+{"home":4,"medianMs":16.6,"p95Ms":17.9,"drawcalls":361,"triangles":310035},
+{"home":5,"medianMs":16.6,"p95Ms":17.5,"drawcalls":444,"triangles":467665},
+{"home":6,"medianMs":16.7,"p95Ms":17.9,"drawcalls":454,"triangles":485199},
+{"home":7,"medianMs":16.5,"p95Ms":17.8,"drawcalls":378,"triangles":77269},
+{"home":8,"medianMs":16.7,"p95Ms":17.8,"drawcalls":380,"triangles":80853}],
+"studioProcessMemoryMB":2906,
+"notes":"Triangle counts vary with Automatic quality ramping after focus changes (homes 7-8 sampled right after a refocus), so they are not a like-for-like comparison with Review02's 668k-722k. Desktop GPU only; not a device measurement."}

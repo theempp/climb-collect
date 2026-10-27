@@ -12,6 +12,8 @@ end
 function E.apply(world,sanctuary)
  assert(world:GetAttribute('FreeClimbVersion') and sanctuary,'Free-climb sanctuary only')
  if world:GetAttribute('EntranceVersion')==E.version then return end
+ -- The home-base promenade replaces this three-way frontage with one grand gate.
+ if sanctuary:GetAttribute('PromenadeVersion') then return end
  local previous=world:FindFirstChild('MountainApproaches');if previous then previous:Destroy() end
  for _,name in ipairs({'WestSanctuaryExit','EastSanctuaryExit'}) do local exit=world.SanctuaryExits:FindFirstChild(name);if exit then exit:Destroy() end end
  local A=require(script.Parent.Art)
