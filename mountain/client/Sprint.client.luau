@@ -4,17 +4,22 @@ local Input=game:GetService('UserInputService')
 local Run=game:GetService('RunService')
 local player=Players.LocalPlayer
 local remote=game.ReplicatedStorage:WaitForChild('MountainRemotes'):WaitForChild('SprintRequest')
+local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
+local W=require(script.Parent.UI.Widgets)
+local T=require(script.Parent.UI.Theme)
 local gui=Instance.new('ScreenGui');gui.Name='MountainSprint';gui.ResetOnSpawn=false;gui.DisplayOrder=15;gui.Parent=player:WaitForChild('PlayerGui')
-local button=Instance.new('TextButton');button.Name='SprintToggle';button.AnchorPoint=Vector2.new(1,1);button.Size=UDim2.fromOffset(100,50)
+gui.ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets;gui.ClipToDeviceSafeArea=true
+local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
+local button=W.button(root,'SprintToggle','Sprint',UDim2.fromOffset(94,48),nil,nil,'quiet')
 button.Position=UDim2.new(1,-22,1,-170);button.BackgroundColor3=Color3.fromRGB(34,67,60);button.TextColor3=Color3.fromRGB(248,244,216)
-button.Font=Enum.Font.GothamBold;button.TextSize=15;button.Parent=gui
-local corner=Instance.new('UICorner');corner.CornerRadius=UDim.new(0,14);corner.Parent=button
-local stroke=Instance.new('UIStroke');stroke.Color=Color3.fromRGB(160,205,169);stroke.Thickness=2;stroke.Parent=button
+button.Font=T.bold;button.TextSize=14
+local stroke=button.UIStroke;stroke.Color=T.sky
 local wanted=false;local held={};local toggle=false;local character,humanoid,track,animation
 local function label()
  button.Visible=Input.TouchEnabled
- button.Text=if wanted then 'SPRINT ON' else 'SPRINT'
- button.BackgroundColor3=if wanted then Color3.fromRGB(70,114,79) else Color3.fromRGB(34,67,60)
+ button.Text=if wanted then 'Sprint ON' else 'Sprint'
+ button.BackgroundColor3=if wanted then T.green else T.card
+ button.TextColor3=if wanted then T.navy else T.ink
 end
 local function set(value)
  if wanted~=value then wanted=value;remote:FireServer(value) end
@@ -54,5 +59,19 @@ Run.PreAnimation:Connect(function()
   if not track.IsPlaying then track:Play(.15) end
   track:AdjustSpeed(humanoid.WalkSpeed/(if humanoid.RigType==Enum.HumanoidRigType.R15 then 20 else 16))
  elseif track.IsPlaying then track:Stop(.15) end
+end)
+local age=0
+Run.Heartbeat:Connect(function(dt)
+ age+=dt;if age<.2 then return end;age=0
+ local hud=player.PlayerGui:FindFirstChild('MountainHUD');local safe=hud and hud:FindFirstChild('SafeRoot')
+ button.Visible=Input.TouchEnabled and safe~=nil and not safe:FindFirstChild('HubShade') and not safe:FindFirstChild('Confirmation') and not safe.Loading.Visible
+ if not button.Visible then return end
+ local obstacles={};local touch=player.PlayerGui:FindFirstChild('TouchGui')
+ for _,name in ipairs({'DynamicThumbstickFrame','ThumbstickFrame','JumpButton'}) do
+  local o=touch and touch:FindFirstChild(name,true)
+  if o and o.Visible then table.insert(obstacles,{x=o.AbsolutePosition.X-root.AbsolutePosition.X,y=o.AbsolutePosition.Y-root.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y}) end
+ end
+ local r=P.hudLayout(root.AbsoluteSize.X,root.AbsoluteSize.Y,obstacles).sprint
+ button.Position=UDim2.fromOffset(r.x,r.y)
 end)
 label()

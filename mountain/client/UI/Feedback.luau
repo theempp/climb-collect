@@ -5,7 +5,8 @@ local F={};F.__index=F
 function F.new(root)
  local self=setmetatable({root=root,queue={},serial=0,alive=true},F)
  self.host=W.panel(root,'Toast',UDim2.new(.6,0,0,58),UDim2.new(.2,0,0,68));self.host.ZIndex=40;self.host.Visible=false
- self.label=W.text(self.host,'',UDim2.new(1,-26,1,-12),UDim2.fromOffset(13,6),T.bold,14);self.label.ZIndex=41
+ local icon=W.icon(self.host,'Profile',UDim2.fromOffset(40,40),UDim2.fromOffset(8,8));icon.ZIndex=41
+ self.label=W.text(self.host,'',UDim2.new(1,-68,1,-12),UDim2.fromOffset(56,6),T.bold,14);self.label.ZIndex=41
  self.tooltip=W.panel(root,'Tooltip',UDim2.fromOffset(280,64),UDim2.new(.5,-140,0,124));self.tooltip.ZIndex=80;self.tooltip.Visible=false
  self.tooltipText=W.text(self.tooltip,'',UDim2.new(1,-24,1,-12),UDim2.fromOffset(12,6),nil,14);self.tooltipText.ZIndex=81
  local function attach(o)

@@ -93,7 +93,8 @@ function S:render(preserve)
  self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1),nil,T.navy);self.shade.BackgroundTransparency=.23;self.shade.ZIndex=20;self.shade.Active=true
  local f=W.panel(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.fromScale(.5,.5));f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=21
  local title=if self.detail then 'Creature details' else self.hub
- W.text(f,title,UDim2.new(1,-140,0,44),UDim2.fromOffset(18,5),T.display,24,T.ink)
+ W.icon(f,self.hub,UDim2.fromOffset(40,40),UDim2.fromOffset(12,7))
+ W.text(f,title,UDim2.new(1,-196,0,44),UDim2.fromOffset(62,5),T.display,24,T.ink)
  W.button(f,'Back',if self.detail then 'Back' else 'Close',UDim2.fromOffset(86,44),UDim2.new(1,-98,0,7),function() self:back() end,'quiet')
  local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.new(1,-24,0,48),Position=UDim2.fromOffset(12,57),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,ScrollBarThickness=0})
  W.list(tabScroll,8,true)
@@ -171,7 +172,7 @@ function S:creatures(data,width)
  local grid=W.frame(self.body,'CreatureGrid',UDim2.new(1,-8,0,math.ceil(math.min(12,#list-(self.page-1)*12)/columns)*(cardHeight+12)));grid.BackgroundTransparency=1
  W.new('UIGridLayout',grid,{CellSize=UDim2.new(1/columns,-8,0,cardHeight),CellPadding=UDim2.fromOffset(10,12),SortOrder=Enum.SortOrder.LayoutOrder})
  for index=(self.page-1)*12+1,math.min(#list,self.page*12) do
-  local c=list[index];local s=C.byId[c.species];local card=W.panel(grid,'Creature_'..c.id,nil,nil,T.card)
+  local c=list[index];local s=C.byId[c.species];local card=W.panel(grid,'Creature_'..c.id,nil,nil,T.card);card.UIStroke.Color=T.rarity[s.rarity]
   W.portrait(card,s,UDim2.fromOffset(if compact then 48 else 76,if compact then 48 else 76),UDim2.new(.5,if compact then -24 else -38,0,5))
   W.text(card,s.name,UDim2.new(1,-16,0,24),UDim2.fromOffset(8,if compact then 50 else 87),T.bold,16).TextXAlignment=Enum.TextXAlignment.Center
   W.text(card,'Lv '..c.level..' · '..s.rarity,UDim2.new(1,-16,0,24),UDim2.fromOffset(8,if compact then 72 else 114),nil,12,T.rarity[s.rarity]).TextXAlignment=Enum.TextXAlignment.Center

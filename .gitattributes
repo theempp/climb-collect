@@ -1,3 +1,5 @@
 # Preserve audited generated place bytes across Windows checkouts.
 evidence/mountain_2026-10-24/*.rbxlx binary
 evidence/mountain_2026-10-24/*.rbxl binary
+outputs/ClimbCollect.HUD.EB.*.rbxl binary
+outputs/ClimbCollect.HUD.EB.SourcePackage.rbxlx binary
