@@ -10,11 +10,11 @@ local Feedback=require(script.Parent.Feedback)
 local pg=player:WaitForChild('PlayerGui')
 if pg:FindFirstChild('MountainHUD') then return {} end
 local gui=W.new('ScreenGui',pg,{Name='MountainHUD',ResetOnSpawn=false,DisplayOrder=10,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets,ClipToDeviceSafeArea=true})
-gui:SetAttribute('BlueprintVersion',2);gui:SetAttribute('VisualSystem','E+B')
+gui:SetAttribute('BlueprintVersion',2);gui:SetAttribute('VisualSystem','HUDv2')
 local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
 local loading=W.frame(root,'Loading',UDim2.fromScale(1,1),nil,T.navy);loading.ZIndex=90
 local mountain=W.mountain(loading);mountain.Size=UDim2.fromScale(.7,.8);mountain.Position=UDim2.fromScale(.15,.1)
-local brand=W.text(loading,'CLIMB & COLLECT',UDim2.new(.9,0,0,58),UDim2.fromScale(.05,.26),T.display,32,T.ink);brand.TextXAlignment=Enum.TextXAlignment.Center
+local brand=W.text(loading,'CLIMB & COLLECT',UDim2.new(.9,0,0,58),UDim2.fromScale(.05,.26),T.title,40,T.ink);brand.TextXAlignment=Enum.TextXAlignment.Center
 W.text(loading,'MOUNTAIN EMPIRE',UDim2.new(.9,0,0,30),UDim2.fromScale(.05,.44),T.bold,15,T.gold).TextXAlignment=Enum.TextXAlignment.Center
 local loadStatus=W.text(loading,'Connecting to your expedition…',UDim2.new(.9,0,0,38),UDim2.fromScale(.05,.62),nil,15,T.muted);loadStatus.TextXAlignment=Enum.TextXAlignment.Center
 local feedback=Feedback.new(root)
@@ -36,22 +36,24 @@ local function connect(signal,fn) local c=signal:Connect(fn);table.insert(connec
 local click=W.new('Sound',gui,{Name='UIFeedback',SoundId='rbxasset://sounds/volume_slider.ogg',Volume=.15})
 local function sound() click.Volume=.16*(T.prefs.sfxVolume or .8);click:Play() end
 local function open(name) if ready then sound();screens:open(name) end end
-local top=W.panel(root,'Status',UDim2.fromOffset(320,48),UDim2.fromOffset(12,8))
-W.icon(top,'Coin',UDim2.fromOffset(32,32),UDim2.fromOffset(6,6))
-local coins=W.text(top,'—',UDim2.new(.55,-30,1,0),UDim2.fromOffset(42,0),T.display,19,T.gold)
+-- Currency pill (intel §4): navy pill, coin overlapping the left end, green + tile opening the Shop.
+local top=W.panel(root,'Status',UDim2.fromOffset(320,48),UDim2.fromOffset(12,8),T.navy);top.UICorner.CornerRadius=UDim.new(0,24);top.UIGradient.Enabled=false
+W.icon(top,'Coin',UDim2.fromOffset(40,40),UDim2.fromOffset(-6,4))
+local coins=W.text(top,'—',UDim2.new(.55,-30,1,0),UDim2.fromOffset(42,0),T.display,19,T.ink)
+local plus=W.button(top,'AddCoins','+',UDim2.fromOffset(34,34),UDim2.new(1,-40,.5,-17),function() open('Shop') end,'ok');plus.TextSize=T.size(20)
 local timer=W.text(top,'00:00',UDim2.new(.45,-16,1,0),UDim2.new(.55,0,0,0),T.bold,14,T.muted);timer.TextXAlignment=Enum.TextXAlignment.Right
-local progress=W.panel(root,'Journey',UDim2.fromOffset(292,80),UDim2.new(1,-304,0,8))
-local location=W.text(progress,'Blossom Gardens',UDim2.new(1,-20,0,25),UDim2.fromOffset(10,6),T.bold,14)
+local progress=W.panel(root,'Journey',UDim2.fromOffset(292,80),UDim2.new(1,-304,0,8),T.navy)
+local location=W.text(progress,'Blossom Gardens',UDim2.new(1,-20,0,25),UDim2.fromOffset(10,6),T.label,17)
 local heightLabel=W.text(progress,'0 studs',UDim2.new(1,-20,0,21),UDim2.fromOffset(10,31),nil,12,T.muted)
-local heightFill=W.progress(progress,0,UDim2.new(1,-20,0,7),UDim2.fromOffset(10,63),T.sky)
+local heightFill=W.progress(progress,0,UDim2.new(1,-20,0,7),UDim2.fromOffset(10,63),T.bar.fill)
 local quest=W.panel(root,'QuestTracker',UDim2.fromOffset(292,76),UDim2.new(1,-304,0,96))
 local questTitle=W.text(quest,'Explore the mountain',UDim2.new(1,-20,0,29),UDim2.fromOffset(10,5),T.bold,13,T.gold)
 local questDetail=W.text(quest,'',UDim2.new(1,-20,0,34),UDim2.fromOffset(10,34),nil,12,T.muted)
-local menu=W.tile(root,'Menu','Menu','Menu',UDim2.fromOffset(80,70),UDim2.fromOffset(12,60),function() expanded=not expanded;sound() end,T.gold)
-local sidebar=W.panel(root,'Navigation',UDim2.fromOffset(172,350),UDim2.fromOffset(12,120));sidebar.Visible=false
+local menu=W.tile(root,'Menu','Menu','Menu',UDim2.fromOffset(80,70),UDim2.fromOffset(12,60),function() expanded=not expanded;sound() end,T.navy)
+local sidebar=W.panel(root,'Navigation',UDim2.fromOffset(172,350),UDim2.fromOffset(12,120));sidebar.Visible=false;sidebar.BackgroundTransparency=1;sidebar.UIStroke.Enabled=false
 local nav=W.scroll(sidebar,'Items',UDim2.new(1,-12,1,-12),UDim2.fromOffset(6,6))
 local hubNames={'Creatures','Discovery','Sanctuary','Mountain','Social','Profile','Shop','Settings'}
-for i,name in ipairs(hubNames) do local b=W.tile(nav,'Nav'..name,name,name,UDim2.fromOffset(78,72),nil,function() expanded=false;open(name) end,({T.sky,T.purple,T.green,T.sky,T.purple,T.gold,T.gold,T.line})[i]);b.LayoutOrder=i end
+for i,name in ipairs(hubNames) do local b=W.tile(nav,'Nav'..name,name,name,UDim2.fromOffset(78,72),nil,function() expanded=false;open(name) end,({T.alt,T.tert,Color3.fromRGB(242,70,124),T.ok.base,T.alt,T.cta.base,T.cta.base,T.navy})[i]);b.LayoutOrder=i end
 local team=W.frame(root,'Team',UDim2.fromOffset(342,60),UDim2.new(.5,-171,1,-72));team.BackgroundTransparency=1
 local function selectedAbility(slot)
  local p=store.profile;local c=p and R.find(p.creatures,p.team[slot])
@@ -66,7 +68,7 @@ for i=1,3 do
  slotNames[i].TextXAlignment=Enum.TextXAlignment.Center
  slotStates[i]=W.text(slots[i],tostring(i),UDim2.new(1,-8,0,18),UDim2.new(0,4,1,-41),T.bold,11,T.gold)
  slotStates[i].TextXAlignment=Enum.TextXAlignment.Center
- slotStates[i].ZIndex=3;slotStates[i].BackgroundColor3=T.navy;slotStates[i].BackgroundTransparency=.1;W.round(slotStates[i],5)
+ slotStates[i].ZIndex=3;slotStates[i].BackgroundColor3=T.navy;slotStates[i].BackgroundTransparency=0;W.round(slotStates[i],9);W.stroke(slotStates[i],T.ink,1.5)
  slots[i]:SetAttribute('Tooltip','Open your collection, or activate this companion’s special during combat.')
 end
 local actionbar=W.frame(root,'Actions',UDim2.fromOffset(342,48),UDim2.new(.5,-171,1,-128))
@@ -75,24 +77,24 @@ local context=W.button(actionbar,'Context','Explore',UDim2.fromScale(1,1),UDim2.
  if run and run.phase=='revealed' then store:request('Pickup',run.id)
  elseif ui.nearestEgg and (not run or run.phase=='breaking') then store:request('Strike',ui.nearestEgg)
  elseif ui.atHome then open('Sanctuary')
- else open('Mountain') end end,'blue')
-local quickCreatures=W.tile(root,'QuickCreatures','Creatures','Creatures',UDim2.fromOffset(76,70),UDim2.fromOffset(100,60),function() open('Creatures') end,T.sky)
-local quickMountain=W.tile(root,'QuickMountain','Mountain','Mountain',UDim2.fromOffset(76,70),UDim2.fromOffset(184,60),function() open('Mountain') end,T.green)
-local quick=W.tile(root,'Quick','Settings','Settings',UDim2.fromOffset(68,70),UDim2.fromOffset(268,60),function() open('Settings');if screens.hub then screens.tab='Quick';screens:render(false) end end,T.line)
+ else open('Mountain') end end,'gold')
+local quickCreatures=W.tile(root,'QuickCreatures','Creatures','Creatures',UDim2.fromOffset(76,70),UDim2.fromOffset(100,60),function() open('Creatures') end,T.alt)
+local quickMountain=W.tile(root,'QuickMountain','Mountain','Mountain',UDim2.fromOffset(76,70),UDim2.fromOffset(184,60),function() open('Mountain') end,T.ok.base)
+local quick=W.tile(root,'Quick','Settings','Settings',UDim2.fromOffset(68,70),UDim2.fromOffset(268,60),function() open('Settings');if screens.hub then screens.tab='Quick';screens:render(false) end end,T.navy)
 local dodge=W.button(root,'Dodge','Dodge [Q]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),function() store:request('Dodge') end,'gold');dodge.Visible=false
 local swingReadyAt=0
 local function swingBat() if os.clock()<swingReadyAt then return end;swingReadyAt=os.clock()+1.5;store:request('Swing') end
-local swing=W.button(root,'Swing','Bat [F]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),swingBat,'gold');swing.Visible=false
+local swing=W.button(root,'Swing','Bat [F]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),swingBat,'blue');swing.Visible=false
  swing:SetAttribute('Tooltip','Whack a climber carrying an unsecured creature to knock it loose, then grab it.')
 local ability=W.button(root,'Ability','Ability 1',UDim2.fromOffset(122,44),UDim2.new(1,-148,1,-270),function() activeAbility=activeAbility%4+1;sound() end,'quiet');ability.Visible=false
  ability:SetAttribute('Tooltip','Choose a captured Guardian’s special. Regular companions use their role special.')
  dodge:SetAttribute('Tooltip','Dodge the highlighted danger. A successful clean dodge advances Trial mastery.')
 local battle=W.panel(root,'Battle',UDim2.fromOffset(410,100),UDim2.new(.5,-205,0,8));battle.Visible=false
-local boss=W.text(battle,'Guardian',UDim2.new(1,-24,0,28),UDim2.fromOffset(12,6),T.display,21,T.gold)
+local boss=W.text(battle,'Guardian',UDim2.new(1,-24,0,28),UDim2.fromOffset(12,6),T.label,24,T.ink)
 local hp=W.progress(battle,1,UDim2.new(1,-24,0,10),UDim2.fromOffset(12,38),T.coral)
  local combatText=W.text(battle,'',UDim2.new(1,-24,0,50),UDim2.fromOffset(12,53),nil,12,T.ink)
 local save=W.text(top,'Connecting…',UDim2.new(1,-16,0,14),UDim2.fromOffset(8,28),nil,9,T.muted);save.TextXAlignment=Enum.TextXAlignment.Center
-coins.Size=UDim2.new(.60,-35,0,29);timer.Size=UDim2.new(.40,-16,0,29);timer.Position=UDim2.new(.60,0,0,0)
+coins.Size=UDim2.new(.60,-35,0,29);timer.Size=UDim2.new(.40,-56,0,29);timer.Position=UDim2.new(.60,0,0,0)
 local hint=W.panel(root,'Hint',UDim2.fromOffset(320,64),UDim2.new(.5,-160,0,78));hint.Visible=false
 local hintText=W.text(hint,'',UDim2.new(1,-60,1,-12),UDim2.fromOffset(12,6),nil,13,T.ink)
 local dismissHint=false
@@ -264,9 +266,9 @@ connect(Run.Heartbeat,function(dt)
    slotNames[i].Text=if c then C.byId[c.species].name else 'Empty slot'
    slotStates[i].Text=if not c then tostring(i) elseif store.battle then (if remain>0 then remain..'s' else 'READY') else 'Lv '..c.level
    slotStates[i].TextColor3=if remain>0 then T.muted else T.gold
-   b.UIStroke.Color=if c then T.rarity[C.byId[c.species].rarity] else T.line;b.UIStroke.Thickness=2
+   -- HUD creature slot (intel §4): rarity-colour face, ink outline; cooling slots drop to off.base.
    W.enable(b,not store.battle or (c~=nil and remain==0))
-   b.BackgroundColor3=if remain>0 then T.panel else T.navy
+   b.BackgroundColor3=if remain>0 then T.off elseif c then T.rarity[C.byId[c.species].rarity] else T.navy
   end
   local dr=P.remaining(ui.dodgeReadyAt or 0,clock);W.enable(dodge,dr==0,if dr>0 then 'Dodge · '..dr..'s' else 'Dodge [Q]');ability.Text='Ability '..activeAbility
   local run=data.run

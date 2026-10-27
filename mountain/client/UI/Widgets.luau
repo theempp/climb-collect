@@ -8,38 +8,90 @@ end
 function W.round(o,r) W.new('UICorner',o,{CornerRadius=UDim.new(0,r or 14)});return o end
 function W.stroke(o,color,thickness)
  local base=thickness or 1
- local stroke=W.new('UIStroke',o,{ApplyStrokeMode=Enum.ApplyStrokeMode.Border,Color=color or T.line,Thickness=if T.prefs.highContrast then math.max(2,base) else base,Transparency=if T.prefs.highContrast then 0 else .15})
+ local stroke=W.new('UIStroke',o,{ApplyStrokeMode=Enum.ApplyStrokeMode.Border,Color=color or T.outline,Thickness=if T.prefs.highContrast then math.max(2,base) else base,Transparency=0,LineJoinMode=Enum.LineJoinMode.Round})
  stroke:SetAttribute('BaseThickness',base);return stroke
 end
 function W.frame(parent,name,size,pos,color)
  return W.new('Frame',parent,{Name=name,Size=size or UDim2.fromScale(1,1),Position=pos or UDim2.new(),BackgroundColor3=color or T.panel,BorderSizePixel=0})
 end
+-- Panel (intel §4): panel.blue body, ink outline, soft top-light gradient. Purple is for reward moments.
 function W.panel(parent,name,size,pos,color)
- local o=W.round(W.frame(parent,name,size,pos,color));W.stroke(o,nil,2)
- W.new('UIGradient',o,{Color=ColorSequence.new(Color3.fromRGB(255,255,255),Color3.fromRGB(173,202,222)),Rotation=90})
+ local o=W.round(W.frame(parent,name,size,pos,color),14);W.stroke(o,T.outline,3)
+ W.new('UIGradient',o,{Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(214,224,244)),Rotation=90})
  return o
+end
+-- Light text gets the ink text stroke (intel §3: about 13 % of the text size).
+function W.textStroke(label,n,color)
+ local c=label.TextColor3;if (c.R+c.G+c.B)/3<.55 then return end
+ local s=W.new('UIStroke',label,{ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,Color=color or T.outline,Thickness=math.max(1,math.floor((n or 15)*.13+.5)),LineJoinMode=Enum.LineJoinMode.Round})
+ s:SetAttribute('BaseThickness',s.Thickness);return s
 end
 function W.text(parent,content,size,pos,font,n,color)
  local label=W.new('TextLabel',parent,{Name='Text',Size=size or UDim2.new(1,0,0,26),Position=pos or UDim2.new(),BackgroundTransparency=1,Text=tostring(content),TextColor3=color or T.ink,Font=font or T.body,TextSize=T.size(n or 15),TextWrapped=true,TextXAlignment=Enum.TextXAlignment.Left,TextYAlignment=Enum.TextYAlignment.Center,RichText=false})
- label:SetAttribute('BaseTextSize',n or 15);return label
+ label:SetAttribute('BaseTextSize',n or 15);W.textStroke(label,n)
+ return label
+end
+-- Candy button (intel §2): ink outline, darker lip slab, gradient face, light rim, highlight band + gloss, slanted Bangers label.
+-- The TextButton itself is the lip; its Text is mirrored into Label so callers keep setting b.Text / b.BackgroundColor3.
+local black=Color3.new(0,0,0)
+local function candyColors(base)
+ if base==T.cta.base or base==T.gold then return T.cta.base,T.cta.shade,T.cta.lip,T.cta.ink end
+ if base==T.ok.base then return base,base:Lerp(black,.12),T.ok.lip,T.outline end
+ if base==T.no.base then return base,base:Lerp(black,.12),T.no.lip,T.outline end
+ return base,base:Lerp(black,.16),base:Lerp(black,.42),T.outline
+end
+local function paint(b)
+ local face,shade,lip,ink=candyColors(b:GetAttribute('FaceColor'))
+ b:SetAttribute('Painting',true);b.BackgroundColor3=lip;b:SetAttribute('Painting',false)
+ local f=b:FindFirstChild('Face');if f then f.UIGradient.Color=ColorSequence.new(face,shade);f.Rim.BackgroundColor3=face:Lerp(Color3.new(1,1,1),.35) end
+ local stroke=b:FindFirstChildOfClass('UIStroke');if stroke then stroke.Color=ink end
+ local label=b:FindFirstChild('Label');if label then label.UIStroke.Color=ink end
+end
+function W.candy(b,base)
+ b.BackgroundTransparency=0;b.TextTransparency=1;b.AutoButtonColor=false;b:SetAttribute('FaceColor',base)
+ local radius=b:FindFirstChildOfClass('UICorner').CornerRadius
+ W.stroke(b,T.outline,2.5)
+ local face=W.new('UICorner',W.frame(b,'Face',UDim2.new(1,0,1,-5),nil,Color3.new(1,1,1)),{CornerRadius=radius}).Parent;face.ZIndex=0
+ W.new('UIGradient',face,{Rotation=90})
+ local rim=W.round(W.frame(face,'Rim',UDim2.new(1,-12,0,2),UDim2.new(0,6,1,-3)),1);rim.BackgroundTransparency=.35;rim.ZIndex=0
+ local shine=W.new('UICorner',W.frame(face,'Shine',UDim2.new(1,-8,.42,0),UDim2.fromOffset(4,3),Color3.new(1,1,1)),{CornerRadius=radius}).Parent;shine.ZIndex=0
+ W.new('UIGradient',shine,{Rotation=90,Transparency=NumberSequence.new(.5,.92)})
+ local gloss=W.round(W.frame(face,'Gloss',UDim2.fromOffset(8,5),UDim2.new(1,-17,0,5),Color3.new(1,1,1)),3);gloss.BackgroundTransparency=.2;gloss.ZIndex=0
+ local label=W.new('TextLabel',b,{Name='Label',Size=UDim2.new(1,-10,1,-5),Position=UDim2.fromOffset(5,0),BackgroundTransparency=1,Text=b.Text,TextColor3=T.ink,Font=T.label,TextSize=b.TextSize+3,TextWrapped=true})
+ W.new('UIStroke',label,{ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,Color=T.outline,Thickness=2,LineJoinMode=Enum.LineJoinMode.Round}):SetAttribute('BaseThickness',2)
+ local function fit()
+  local h=b.AbsoluteSize.Y;if h<=0 then return end
+  local lip=math.clamp(math.floor(h*.14+.5),3,8);local down=if b:GetAttribute('Pressed') then lip else 0
+  face.Size=UDim2.new(1,0,1,-lip);face.Position=UDim2.fromOffset(0,down)
+  label.Size=UDim2.new(1,-10,1,-lip);label.Position=UDim2.fromOffset(5,down)
+ end
+ b:GetPropertyChangedSignal('AbsoluteSize'):Connect(fit)
+ b:GetPropertyChangedSignal('Text'):Connect(function() label.Text=b.Text end)
+ b:GetPropertyChangedSignal('TextSize'):Connect(function() label.TextSize=b.TextSize+3 end)
+ b:GetPropertyChangedSignal('TextTransparency'):Connect(function() if b.TextTransparency~=1 then b.TextTransparency=1 end end)
+ b:GetPropertyChangedSignal('BackgroundColor3'):Connect(function() if not b:GetAttribute('Painting') then b:SetAttribute('FaceColor',b.BackgroundColor3);paint(b) end end)
+ local function press(i,on) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then b:SetAttribute('Pressed',on and b:GetAttribute('Enabled')~=false);fit() end end
+ b.InputBegan:Connect(function(i) press(i,true) end);b.InputEnded:Connect(function(i) press(i,false) end)
+ b.MouseLeave:Connect(function() b:SetAttribute('Pressed',false);fit() end)
+ paint(b);fit();return b
 end
 function W.button(parent,name,label,size,pos,fn,variant,enabled)
  local isEnabled=enabled~=false
- local color=if variant=='gold' then T.gold elseif variant=='quiet' then T.card elseif variant=='danger' then T.coral else T.blue
- local b=W.round(W.new('TextButton',parent,{Name=name,Size=size or UDim2.new(1,0,0,44),Position=pos or UDim2.new(),BackgroundColor3=if isEnabled then color else T.panel,BorderSizePixel=0,Text=label,TextColor3=if not isEnabled then T.muted elseif variant=='gold' then T.navy else T.ink,TextSize=T.size(14),Font=T.bold,TextWrapped=true,AutoButtonColor=isEnabled,Active=isEnabled,Selectable=isEnabled}),10)
- W.stroke(b,if isEnabled then color:Lerp(T.ink,.45) else T.line,2)
- W.new('UIGradient',b,{Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(208,220,244)),Rotation=90})
- b:SetAttribute('ButtonColor',color);b:SetAttribute('ButtonInk',if variant=='gold' then T.navy else T.ink)
+ local color=if variant=='gold' then T.cta.base elseif variant=='quiet' then T.navy elseif variant=='danger' then T.no.base elseif variant=='ok' then T.ok.base elseif variant=='close' then T.close elseif variant=='tert' then T.tert else T.alt
+ local b=W.round(W.new('TextButton',parent,{Name=name,Size=size or UDim2.new(1,0,0,44),Position=pos or UDim2.new(),BackgroundColor3=color,BorderSizePixel=0,Text=label,TextColor3=T.ink,TextSize=T.size(14),Font=T.label,TextWrapped=true,AutoButtonColor=false,Active=isEnabled,Selectable=isEnabled}),10)
+ b:SetAttribute('ButtonColor',color);b:SetAttribute('ButtonInk',T.ink)
  b:SetAttribute('QAControl',true);b:SetAttribute('Enabled',isEnabled)
  b:SetAttribute('BaseTextSize',14)
+ W.candy(b,color);if not isEnabled then W.enable(b,false) end
  b.Activated:Connect(function() if b:GetAttribute('Enabled') and fn then fn() end end)
  return b
 end
+-- Disabled = off.base face, no highlight (intel §2 states).
 function W.enable(b,on,label)
- b:SetAttribute('Enabled',on);b.Active=on;b.Selectable=on;b.AutoButtonColor=on
- b.BackgroundColor3=if on then b:GetAttribute('ButtonColor') or T.blue else T.panel
- b.TextColor3=if on then b:GetAttribute('ButtonInk') or T.ink else T.muted
- b.TextTransparency=0;if label then b.Text=label end
+ b:SetAttribute('Enabled',on);b.Active=on;b.Selectable=on;b.AutoButtonColor=false
+ b.BackgroundColor3=if on then b:GetAttribute('ButtonColor') or T.alt else T.off
+ local face=b:FindFirstChild('Face');if face then face.Shine.Visible=on;face.Gloss.Visible=on end
+ if label then b.Text=label end
 end
 function W.padding(o,n) return W.new('UIPadding',o,{PaddingTop=UDim.new(0,n),PaddingBottom=UDim.new(0,n),PaddingLeft=UDim.new(0,n),PaddingRight=UDim.new(0,n)}) end
 function W.list(parent,gap,horizontal)
@@ -56,19 +108,33 @@ function W.row(parent,title,description,height,color)
  local accent=W.round(W.frame(f,'Accent',UDim2.new(0,4,1,-28),UDim2.fromOffset(0,14),T.sky),3)
  return f
 end
+-- Bar (intel §1/§4): navy track with ink outline, bar.fill / bar.ready / bar.max fills.
 function W.progress(parent,value,size,pos,color)
- local track=W.round(W.frame(parent,'Progress',size,pos,T.navy),5)
- local fill=W.round(W.frame(track,'Fill',UDim2.fromScale(math.clamp(value or 0,0,1),1),nil,color or T.sky),5)
+ local track=W.frame(parent,'Progress',size,pos,T.navy);W.new('UICorner',track,{CornerRadius=UDim.new(.5,0)});W.stroke(track,T.outline,1.5)
+ local fill=W.frame(track,'Fill',UDim2.fromScale(math.clamp(value or 0,0,1),1),nil,color or T.bar.fill);W.new('UICorner',fill,{CornerRadius=UDim.new(.5,0)})
+ W.new('UIGradient',fill,{Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(205,215,230)),Rotation=90})
  return fill
 end
+-- Notification dot (intel §4): 18 px circle over the top-right corner; alert red or ready green.
+function W.dot(parent,count,ready)
+ local d=parent:FindFirstChild('Dot') or W.frame(parent,'Dot',UDim2.fromOffset(18,18),UDim2.new(1,-12,0,-6))
+ d.ZIndex=4;d.BackgroundColor3=if ready then T.readyDot else T.alertDot
+ if not d:FindFirstChildOfClass('UICorner') then W.new('UICorner',d,{CornerRadius=UDim.new(.5,0)});W.stroke(d,Color3.new(1,1,1),2);local t=W.text(d,'',UDim2.fromScale(1,1),nil,T.display,11);t.Name='Count';t.ZIndex=5;t.TextXAlignment=Enum.TextXAlignment.Center end
+ d.Count.Text=if count and count>0 then tostring(count) else '';d.Visible=count~=nil and count~=0
+ return d
+end
 function W.tag(parent,label,pos,color)
- local f=W.round(W.frame(parent,'Tag',UDim2.fromOffset(100,24),pos,color or T.navy),7)
+ local f=W.frame(parent,'Tag',UDim2.fromOffset(100,24),pos,color or T.navy);W.new('UICorner',f,{CornerRadius=UDim.new(.5,0)});W.stroke(f,T.outline,1.5)
  local t=W.text(f,label,UDim2.fromScale(1,1),nil,T.bold,11);t.TextXAlignment=Enum.TextXAlignment.Center
  return f
 end
--- Local vector artwork: no external asset permissions or network loading dependency.
+-- Approved illustrated icons (Icons.luau ids); vector art below is the fallback while an id is 0.
+local Icons=require(script.Parent.Icons)
+local iconFor={Creatures='creature',Discovery='egg',Mountain='map',Sanctuary='heart',Shop='chest',Profile='scroll',Social='bat',Settings='gear',Coin='coin',Gem='gem',Interact='climb',Bat='bat',Sprint='sprint',Jump='jump',Egg='egg',EggCracked='egg-cracked',Gift='gift',Calendar='calendar',Padlock='padlock',Chest='chest',Map='map',Scroll='scroll',Heart='heart'}
 function W.icon(parent,kind,size,pos)
  local f=W.frame(parent,'Icon'..kind,size,pos);f.BackgroundTransparency=1
+ local id=Icons[iconFor[kind] or '']
+ if id and id~=0 then W.new('ImageLabel',f,{Name='Image',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image='rbxassetid://'..id,ScaleType=Enum.ScaleType.Fit});return f end
  local function shape(name,x,y,w,h,color,round,rotation)
   local p=W.round(W.frame(f,name,UDim2.fromScale(w,h),UDim2.fromScale(x,y),color),round or 4)
   p.Rotation=rotation or 0;return p
@@ -111,11 +177,11 @@ function W.icon(parent,kind,size,pos)
  end
  return f
 end
+-- Icon tile (intel §4): candy face in the hub colour, illustrated icon, caption inside the tile.
 function W.tile(parent,name,label,kind,size,pos,fn,color)
- local b=W.button(parent,name,'',size,pos,fn,'quiet');b.BackgroundColor3=T.navy
- b.UIStroke.Color=color or T.sky
+ local b=W.button(parent,name,'',size,pos,fn,'quiet');b:SetAttribute('ButtonColor',color or T.alt);b.BackgroundColor3=color or T.alt
  local icon=W.icon(b,kind,UDim2.fromOffset(42,42),UDim2.new(.5,-21,0,3))
- local caption=W.text(b,label,UDim2.new(1,-6,0,22),UDim2.new(0,3,1,-25),T.bold,12)
+ local caption=W.text(b,string.upper(label),UDim2.new(1,-6,0,22),UDim2.new(0,3,1,-25),T.label,14)
  caption.TextXAlignment=Enum.TextXAlignment.Center
  return b
 end
@@ -123,10 +189,12 @@ function W.portrait(parent,species,size,pos)
  local C=require(game.ReplicatedStorage.MountainShared.Catalog)
  local accent=Color3.fromRGB(table.unpack(C.kingdoms[species.kingdom].accent))
  local color=if species.kingdom==1 and species.shape=='rabbit' then T.green elseif species.kingdom==1 and species.shape=='fox' then T.gold else accent
- local f=W.round(W.frame(parent,'Portrait',size,pos,T.navy),12)
+ -- Rarity card fill (owner decision: creature cards coloured by rarity); prismatic tiers get the rainbow rim gradient.
+ local f=W.round(W.frame(parent,'Portrait',size,pos,T.rarity[species.rarity] or T.alt),12);W.stroke(f,T.outline,2)
+ if T.prismatic[species.rarity] then W.new('UIGradient',f,{Rotation=45,Color=ColorSequence.new({ColorSequenceKeypoint.new(0,Color3.fromRGB(255,95,160)),ColorSequenceKeypoint.new(.35,Color3.fromRGB(255,201,60)),ColorSequenceKeypoint.new(.7,Color3.fromRGB(79,216,240)),ColorSequenceKeypoint.new(1,Color3.fromRGB(154,92,240))})}) end
  -- Species silhouette badge stays legible even before 3D world streaming completes.
- local halo=W.round(W.frame(f,'Medallion',UDim2.fromScale(.70,.70),UDim2.fromScale(.15,.15),color),100)
- halo.BackgroundTransparency=.55
+ local halo=W.round(W.frame(f,'Medallion',UDim2.fromScale(.70,.70),UDim2.fromScale(.15,.15),Color3.new(1,1,1)),100)
+ halo.BackgroundTransparency=.7
  local shape=species.shape
  local tall=shape=='rabbit';local wing=shape=='moth' or shape=='bird'
  if shape=='deer' then

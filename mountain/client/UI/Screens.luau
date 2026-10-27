@@ -93,13 +93,17 @@ function S:render(preserve)
  self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1),nil,T.navy);self.shade.BackgroundTransparency=.23;self.shade.ZIndex=20;self.shade.Active=true
  local f=W.panel(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.fromScale(.5,.5));f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=21
  local title=if self.detail then 'Creature details' else self.hub
- W.icon(f,self.hub,UDim2.fromOffset(40,40),UDim2.fromOffset(12,7))
- W.text(f,title,UDim2.new(1,-196,0,44),UDim2.fromOffset(62,5),T.display,24,T.ink)
- W.button(f,'Back',if self.detail then 'Back' else 'Close',UDim2.fromOffset(86,44),UDim2.new(1,-98,0,7),function() self:back() end,'quiet')
+ -- Header (intel §4): orange CTA-recipe title ribbon over the top edge, red close-X square on the corner.
+ local ribbon=W.round(W.frame(f,'TitleRibbon',UDim2.fromOffset(math.min(300,width-150),44),UDim2.new(.5,0,0,-10),Color3.new(1,1,1)),12);ribbon.AnchorPoint=Vector2.new(.5,0);ribbon.ZIndex=2
+ W.stroke(ribbon,T.cta.ink,2.5);W.new('UIGradient',ribbon,{Color=ColorSequence.new(T.cta.base,T.cta.shade),Rotation=90})
+ W.icon(ribbon,self.hub,UDim2.fromOffset(40,40),UDim2.fromOffset(6,0)).ZIndex=3
+ local heading=W.text(ribbon,string.upper(title),UDim2.new(1,-56,1,0),UDim2.fromOffset(48,0),T.label,26,T.ink);heading.ZIndex=3;heading.TextXAlignment=Enum.TextXAlignment.Center;heading.UIStroke.Color=T.cta.ink
+ local back=W.button(f,'Back',if self.detail then 'Back' else 'X',if self.detail then UDim2.fromOffset(86,44) else UDim2.fromOffset(44,44),if self.detail then UDim2.new(1,-98,0,7) else UDim2.new(1,-30,0,-14),function() self:back() end,if self.detail then 'blue' else 'close');back.ZIndex=3
+ if not self.detail then back.TextSize=T.size(22) end
  local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.new(1,-24,0,48),Position=UDim2.fromOffset(12,57),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,ScrollBarThickness=0})
  W.list(tabScroll,8,true)
  for _,name in ipairs(tabs[self.hub]) do
-  W.button(tabScroll,'Tab'..name,name,UDim2.fromOffset(if #name>10 then 136 else 112,44),nil,function() self.tab=name;self.detail=nil;self.page=1;self:render(false) end,if name==self.tab then 'gold' else 'quiet')
+  W.button(tabScroll,'Tab'..name,name,UDim2.fromOffset(if #name>10 then 136 else 112,44),nil,function() self.tab=name;self.detail=nil;self.page=1;self:render(false) end,if name==self.tab then 'blue' else 'quiet')
  end
  self.body=W.scroll(f,'Content',UDim2.new(1,-24,1,-158),UDim2.fromOffset(12,108))
  self.status=W.text(f,'',UDim2.new(1,-124,0,38),UDim2.new(0,16,1,-44),nil,12,T.muted)
@@ -172,10 +176,10 @@ function S:creatures(data,width)
  local grid=W.frame(self.body,'CreatureGrid',UDim2.new(1,-8,0,math.ceil(math.min(12,#list-(self.page-1)*12)/columns)*(cardHeight+12)));grid.BackgroundTransparency=1
  W.new('UIGridLayout',grid,{CellSize=UDim2.new(1/columns,-8,0,cardHeight),CellPadding=UDim2.fromOffset(10,12),SortOrder=Enum.SortOrder.LayoutOrder})
  for index=(self.page-1)*12+1,math.min(#list,self.page*12) do
-  local c=list[index];local s=C.byId[c.species];local card=W.panel(grid,'Creature_'..c.id,nil,nil,T.card);card.UIStroke.Color=T.rarity[s.rarity]
+  local c=list[index];local s=C.byId[c.species];local card=W.panel(grid,'Creature_'..c.id,nil,nil,T.rarity[s.rarity])
   W.portrait(card,s,UDim2.fromOffset(if compact then 48 else 76,if compact then 48 else 76),UDim2.new(.5,if compact then -24 else -38,0,5))
   W.text(card,s.name,UDim2.new(1,-16,0,24),UDim2.fromOffset(8,if compact then 50 else 87),T.bold,16).TextXAlignment=Enum.TextXAlignment.Center
-  W.text(card,'Lv '..c.level..' · '..s.rarity,UDim2.new(1,-16,0,24),UDim2.fromOffset(8,if compact then 72 else 114),nil,12,T.rarity[s.rarity]).TextXAlignment=Enum.TextXAlignment.Center
+  W.text(card,'Lv '..c.level..' · '..s.rarity,UDim2.new(1,-16,0,24),UDim2.fromOffset(8,if compact then 72 else 114),nil,12,T.ink).TextXAlignment=Enum.TextXAlignment.Center
   local selected=table.find(self.selected,c.id)
   local label=if self.tab=='Team' then (if selected then 'Selected '..selected else 'Select') else 'Details'
   W.button(card,'Details_'..c.id,label,UDim2.new(1,-20,0,44),UDim2.new(0,10,1,-56),function()
