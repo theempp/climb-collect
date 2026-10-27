@@ -6,6 +6,7 @@ local Store=require(script.Parent.Store)
 local Http=game:GetService('HttpService')
 local Run=game:GetService('RunService')
 local Custody=R.run
+local function log(...) if not Run:IsStudio() then print('[CC-SAVE]',...) end end
 local function create(store,owner)
 local P={sessions={},mode=if Run:IsStudio() then 'Studio memory • resets when Play stops' else 'Live DataStore'}
 local function copy(t) return Http:JSONDecode(Http:JSONEncode(t)) end
@@ -58,7 +59,8 @@ function P.load(player)
   if not p.tycoon then R.settleIncome(p,now);R.tycoon.ensure(p,now) else R.tycoon.settle(p,now,true) end
   accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}
  end)
- if not ok or not accepted or not data or not valid(data.profile) then return nil,err or 'Profile unavailable or in use; no data overwritten.' end
+ if not ok or not accepted or not data or not valid(data.profile) then log('load FAIL',player.UserId,'ok',ok,'accepted',accepted,'err',err);return nil,err or 'Profile unavailable or in use; no data overwritten.' end
+ log('load OK',player.UserId,'coins',data.profile.coins,'creatures',#data.profile.creatures,'serial',data.profile.serial)
  data.profile.settings=UIProtocol.settings(nil,data.profile.settings);Bats.normalize(data.profile)
  local s={p=data.profile,busy=false,healthy=true,closing=false,lastSave=now,leaseUntil=now+180}
  P.sessions[player]=s;return s.p
@@ -124,12 +126,12 @@ function P.save(player,release)
  if not valid(s.p) then s.busy=false;s.healthy=false;return false end
  local copied,snapshot=pcall(copy,s.p)
  if not copied then s.busy=false;s.healthy=false;return false end
- local written=false
+ local written=false;local lastErr
  local writeId=Http:GenerateGUID(false)
  local leaseUntil=s.leaseUntil
  for attempt=1,3 do
   local now=os.time();local accepted=false
-  local ok=store:update('u'..player.UserId,function(old)
+  local ok,_,err=store:update('u'..player.UserId,function(old)
    accepted=false
    if old and old.writeId==writeId then accepted=true;return old end
    if not old or not old.lock or old.lock.owner~=owner or old.lock.expires<=now then return nil end
@@ -137,8 +139,10 @@ function P.save(player,release)
    accepted=true;return {profile=snapshot,writeId=writeId,lock=if release then nil else {owner=owner,expires=leaseUntil}}
   end)
   if ok and accepted then written=true;break end
+  lastErr=err or (if ok then 'lease_lost' else 'store_error')
   if attempt<3 then task.wait(attempt) end
  end
+ log(if written then 'save OK' else 'save FAIL',player.UserId,'release',release==true,'coins',snapshot.coins,'creatures',#snapshot.creatures,'err',lastErr)
  s.busy=false;s.healthy=written;s.lastSave=os.time();s.leaseUntil=leaseUntil
  if release and written then P.sessions[player]=nil
  elseif s.releaseRequested and not release then
