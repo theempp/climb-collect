@@ -115,6 +115,7 @@ end
 connect(workspace.DescendantAdded,function(o) if o:IsA('ParticleEmitter') and not o:FindFirstAncestor('Dynamics') then defaultEffects[o]=o.Enabled;if T.prefs.simplifiedVFX then o.Enabled=false end end end)
 connect(workspace.DescendantRemoving,function(o) defaultEffects[o]=nil end)
 local nativeWatched=setmetatable({},{__mode='k'})
+local crowdedNav=false
 local function layout()
  local v=root.AbsoluteSize;if v.X<=0 then return end
  local obstacles={}
@@ -132,6 +133,7 @@ local function layout()
   end
  end
  local l=P.hudLayout(v.X,v.Y,obstacles,UIS.TouchEnabled)
+ crowdedNav=l.crowdedNavigation
  local function place(o,r) o.Size=UDim2.fromOffset(r.w,r.h);o.Position=UDim2.fromOffset(r.x,r.y) end
  place(top,l.status);place(progress,l.journey);place(menu,l.menu);place(quickCreatures,l.quickCreatures);place(quickMountain,l.quickMountain);place(team,l.team);place(actionbar,l.context);place(dodge,l.dodge);place(ability,l.ability)
  quick.Position=UDim2.fromOffset(268,60);quick.Visible=not l.short
@@ -241,7 +243,7 @@ connect(Run.Heartbeat,function(dt)
  if not ready then loadStatus.Text=if data then 'Waiting for your character…' elseif store.status=='error' then 'Connection delayed. Retry when ready.' else 'Synchronizing your collection…' end
  sidebar.Visible=expanded and ready and not screens.hub and not store.battle;if store.battle then expanded=false end
  top.Visible=ready and not store.battle;progress.Visible=ready and not store.battle and not (expanded and P.horizontalNavigation(root.AbsoluteSize.Y,UIS.TouchEnabled));quest.Visible=ready and not store.battle and not expanded
- menu.Visible=ready and not screens.hub;quickCreatures.Visible=ready and not screens.hub and not expanded and not store.battle;quickMountain.Visible=quickCreatures.Visible;quick.Visible=ready and not screens.hub and not expanded and root.AbsoluteSize.Y>=400;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle and data~=nil and ((data.ui and data.ui.atHome) or (data.ui and data.ui.nearestEgg) or (data.run and data.run.phase=='revealed'))
+ menu.Visible=ready and not screens.hub;quickCreatures.Visible=ready and not screens.hub and not expanded and not store.battle and not crowdedNav;quickMountain.Visible=quickCreatures.Visible;quick.Visible=ready and not screens.hub and not expanded and root.AbsoluteSize.Y>=400;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle and data~=nil and ((data.ui and data.ui.atHome) or (data.ui and data.ui.nearestEgg) or (data.run and data.run.phase=='revealed'))
  dodge.Visible=P.combatVisible(store.battle,ready,screens.hub~=nil);ability.Visible=dodge.Visible;battle.Visible=dodge.Visible
  if data then
   local clock=store:clock();local ui=data.ui or {};local cooldowns=ui.cooldowns or {}
