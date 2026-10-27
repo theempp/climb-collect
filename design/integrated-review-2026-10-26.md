@@ -1,5 +1,21 @@
 # Integrated review — October 26, 2026
 
+## Latest: Review05 — bats and creature theft (stage 3, part 1)
+
+`C:/Users/HOME!/Desktop/climb-collect-integration/outputs/ClimbCollect.Integrated.Review05.rbxl`, SHA256 `d9184c14c4c6e78e23e14ca502bdad428bd6dbdf0ee03b87ee0fefb6d834cb76`. Same world as Review02 (terrain bytes identical, 88/88 sources match, no QA objects). Branch HEAD `731aa1e`.
+
+What's new (owner rules from 2026-10-26):
+- Every player holds a bat. Press **F** or tap **Bat** (the button appears outside the sanctuary and outside battles). A hit sends the target flying.
+- A hit on someone carrying an unsecured creature drops it for **3 s**. Anyone can grab it, the original carrier included. If nobody grabs it, it returns to the carrier. Once secured at the gate, a creature is safe for good.
+- Limits: no hits in the sanctuary or within 20 studs of rest points; no hits on a player who is securing; a carrier can't swing (both arms are busy); 1.5 s swing cooldown; 8 s before you can hit the same victim again; Trial-reward creatures can't be stolen.
+- **Shop → Bats**: the Trail Bat (starter) plus one bat per section. Completing a section's 6-creature index set unlocks its bat. Coins upgrade the equipped bat up to level 10 (cost 120 × level²), adding knockback and reach. Each bat takes its section's catalog colour, material and trail. All numbers are provisional.
+
+Verified: 34 CLI suites (new: 27 bat rule checks) and 88/88 compiles. A real two-client Studio session covered hit and grab, the thief securing the stolen creature at the gate (3 → 4), and hit with no grab (the creature returns to the carrier). It found and fixed two bugs: the swing cooldown order and a carry pose that stuck after a drop. Evidence: `evidence/integrated_2026-10-26/bat-theft-two-client.json`.
+
+Not yet done in stage 3: one fully finished sample creature (idle/walk/run/turn/reaction) and the egg break/hatch polish. Touch Swing hasn't been tried on a real phone. Bat swing art is simple (a two-part bat, an arm pose and a trail).
+
+## Review02 (stages 1–2)
+
 ## Open this file
 
 `C:/Users/HOME!/Desktop/climb-collect-integration/outputs/ClimbCollect.Integrated.Review02.rbxl`
