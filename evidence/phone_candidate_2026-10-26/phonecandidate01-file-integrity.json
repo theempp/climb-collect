@@ -1,0 +1,19 @@
+{
+  "file": "C:\\Users\\HOME!\\Desktop\\climb-collect-integration\\outputs\\ClimbCollect.PhoneCandidate01.rbxl",
+  "sha256": "a59a1d1d0ee617f950bba482df9ff703eba748220c68ece6826cb97d6283e470",
+  "bytes": 2691641,
+  "instances": 13707,
+  "runtime_sources": 93,
+  "source_mismatches": [],
+  "extra_sources": [
+    "ServerStorage.MountainWorld.EnvironmentFinish_Experiment11",
+    "ServerStorage.MountainWorld.EnvironmentIteration01",
+    "ServerStorage.MountainWorld.EnvironmentIteration02",
+    "ServerStorage.MountainWorld.EnvironmentIteration03",
+    "ServerStorage.MountainWorld.EnvironmentIteration04",
+    "ServerStorage.MountainWorld.SculptIteration06"
+  ],
+  "terrain_drift_vs_review02": [],
+  "qa_objects": [],
+  "studio_aids_attr_present": true
+}

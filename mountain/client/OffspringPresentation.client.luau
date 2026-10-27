@@ -15,10 +15,15 @@ local clipIds={}
 local function clipId(model,name)
  local key=model.Name..'|'..name
  if clipIds[key]==nil then
-  local source=library:FindFirstChild(model.Name);local seq=source and source:FindFirstChild('Rig|'..name,true)
-  -- Studio sessions register local clips; a published build needs uploaded Animation assets.
-  local ok,id=pcall(function() return seq and provider:RegisterKeyframeSequence(seq) end)
-  clipIds[key]=ok and id or false
+  local def;for _,d in pairs(Assets) do if type(d)=='table' and d.creature==model.Name then def=d end end
+  local asset=def and def.clips and def.clips[name]
+  if asset and asset~=0 then clipIds[key]='rbxassetid://'..asset
+  elseif Run:IsStudio() then
+   -- Studio fallback: register the local clip. Live servers can't, so the clip stays unplayed until uploaded.
+   local source=library:FindFirstChild(model.Name);local seq=source and source:FindFirstChild('Rig|'..name,true)
+   local ok,id=pcall(function() return seq and provider:RegisterKeyframeSequence(seq) end)
+   clipIds[key]=ok and id or false
+  else clipIds[key]=false end
  end
  return clipIds[key] or nil
 end

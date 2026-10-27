@@ -157,7 +157,7 @@ for _,part in ipairs(world.Interactions:GetChildren()) do
  if part:GetAttribute('Kind')=='Nest' then
   local id=part:GetAttribute('Id');local egg={id=id,section=part:GetAttribute('Kingdom'),position=part.Position,part=part}
   -- Studio-only review aid: the first Blossom nest always holds the finished sample offspring. Live servers roll normally.
-  if game:GetService('RunService'):IsStudio() and id=='raid:1:1' then egg.species='mossbun' end
+  if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() and id=='raid:1:1' then egg.species='mossbun' end
   raidEggs[id]=egg;carryVisuals.shell(egg);part.Transparency=1
   local prompt=part:FindFirstChildOfClass('ProximityPrompt');if prompt then prompt.ActionText='Strike egg';prompt.HoldDuration=0 end
  end

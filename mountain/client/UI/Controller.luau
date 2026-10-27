@@ -297,7 +297,7 @@ connect(gui.Destroying,function()
  disconnect();store:destroy();feedback:destroy();screens:destroy();for _,c in ipairs(connections) do c:Disconnect() end
  for o,value in pairs(defaultEffects) do if o.Parent then o.Enabled=value end end;for s,value in pairs(soundBases) do if s.Parent then s.Volume=value end end;GuiService.SelectedObject=nil
 end)
-if Run:IsStudio() then
+if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
  local probe=W.new('BindableFunction',gui,{Name='UIProbe'})
  probe.OnInvoke=function(action,value)
   if action=='open' and table.find(hubNames,value) then open(value)
