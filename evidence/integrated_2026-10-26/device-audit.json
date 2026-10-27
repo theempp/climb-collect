@@ -1,0 +1,16 @@
+{
+  "artifact": "outputs/ClimbCollect.Integrated.Review02.rbxl",
+  "sha256": "ba4e2a769376099011b4a9019ef60cdc09228ccaae1e852f8468d4cfabb38648",
+  "method": "Studio Device Emulator, cold Play, 8 hubs / 26 tabs via UIProbe; checks: TextFits, >=44px touch targets, overlap with TouchGui DynamicThumbstickFrame/JumpButton, top-level HUD panel overlap, GuiService.SelectedObject after close",
+  "runs": [
+    {"build": "Review01", "device": "iPhone 17 Pro", "safeRoot": "750x323", "screens": 26, "errors": []},
+    {"build": "Review01", "device": "iPhone 16", "safeRoot": "733x333", "screens": 26, "errors": []},
+    {"build": "Review01", "device": "Samsung Galaxy S25 Ultra", "safeRoot": "685x280", "screens": 26, "errors": ["native: Menu/DynamicThumbstickFrame", "native: QuickCreatures/DynamicThumbstickFrame", "native: QuickMountain/DynamicThumbstickFrame"], "note": "fixed in 4c0710e"},
+    {"build": "Review02", "device": "Samsung Galaxy S25 Ultra", "safeRoot": "685x280", "screens": 26, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"},
+    {"build": "Review02", "device": "iPhone 16 Pro Max", "safeRoot": "830x381", "screens": 26, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"},
+    {"build": "Review02", "device": "iPad Air 5th Generation", "safeRoot": "1179x761", "screens": 26, "errors": [], "hudRoots": 1, "focusAfterClose": "nil"},
+    {"build": "Review02", "device": "iPhone 13", "safeRoot": "749x330", "screens": 26, "errors": [], "hudRoots": 1, "focusAfterClose": "nil", "keyboardW_1_2s_studs": 19.1}
+  ],
+  "scene": {"Review01": "403/403", "Review02": "403/403 cold open"},
+  "notLargeText": "Large Text / High Contrast not re-run here; E+B Review05 passed them with identical text code. Crowded-nav change only moves/hides navigation buttons."
+}

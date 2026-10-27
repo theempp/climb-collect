@@ -1,0 +1,29 @@
+0 alpine_profile.luau :: PASS 4779 alpine profile checks
+0 arrival_readiness.luau :: PASS arrival readiness: real completion, bounded wait, failed asset retry
+1 combat_raids.luau :: 
+0 compact_geometry.luau :: PASS compact geometry: six connected sections, shorter route, preserved escape and hazard width
+0 egg_raids.luau :: PASS 21 egg raid checks
+0 entrances_cli.luau :: PASS 19 entrance geometry checks
+0 free_climb_geometry.luau :: PASS 62 free climb geometry checks
+0 guardian_rules.luau :: PASS 12 guardian state checks
+0 home_layout.luau :: PASS 105 home layout checks (farthest spawn-to-gate 534 studs)
+0 hud_layout.luau :: PASS 110 E+B layout checks
+0 journey.luau :: PASS 8 journey checks
+0 movement_cli.luau :: PASS 17 movement policy checks
+0 quality_geometry.luau :: PASS 98981 mountain surface geometry checks
+0 raid_hazards.luau :: PASS 30 authored hazard checks
+0 route_geometry.luau :: 
+0 rules.luau :: PASS 121 mountain rules checks
+0 run_journey.luau :: PASS 6 run journey checks
+1 run_persistence.luau :: 
+0 run_rules.luau :: PASS 23 run custody checks
+0 sanctuary_sessions.luau :: PASS 18 sanctuary reservation checks
+0 traversal.luau :: 
+0 tycoon.luau :: PASS 62 tycoon checks
+0 tycoon_economy.luau :: PASS 125 tycoon economy checks
+0 tycoon_progression.luau :: PASS 34 tycoon progression checks
+0 tycoon_requests.luau :: PASS 11 tycoon request checks
+0 ui_client_state.luau :: PASS 50 UI client state checks
+0 ui_presentation.luau :: PASS 46 UI presentation checks
+0 ui_protocol.luau :: PASS 42 UI protocol/request checks
+0 ui_server.luau :: PASS 25 server action checks
