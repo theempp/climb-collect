@@ -1,6 +1,6 @@
 -- Shared wire validation only; all ownership, proximity and costs remain server rules.
 local U={}
-local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true}
+local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true,Home=true,Inspect=true}
 local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true}
 local function finite(value) return type(value)=='number' and value==value and math.abs(value)<math.huge end
 local function text(value) return type(value)=='string' and #value>0 and #value<=80 end
@@ -52,6 +52,16 @@ function U.validate(id,action,payload)
    elseif payload.op=='cosmetic' then valid=fields(payload,{op=true,id=true}) and text(payload.id)
    elseif payload.op=='upgrade' then valid=fields(payload,{op=true,path=true,slot=true}) and table.find({'habitats','habitat','production','storage','bag','banking','automation'},payload.path)~=nil and (if payload.path=='habitat' then slot(payload.slot,false) else payload.slot==nil) end
   end
+ elseif action=='Home' then
+  if type(payload)=='table' then
+   if payload.op=='buy' then valid=fields(payload,{op=true,item=true}) and text(payload.item)
+   elseif payload.op=='place' then valid=fields(payload,{op=true,slot=true,item=true}) and text(payload.slot) and text(payload.item)
+   elseif payload.op=='clear' then valid=fields(payload,{op=true,slot=true}) and text(payload.slot)
+   elseif payload.op=='showcase' then valid=fields(payload,{op=true,slot=true,id=true}) and text(payload.slot) and (payload.id==nil or text(payload.id)) end
+  end
+ elseif action=='Inspect' then
+  valid=fields(payload,{plot=true,kind=true,key=true}) and finite(payload.plot) and payload.plot%1==0 and payload.plot>=1 and payload.plot<=8
+   and (payload.kind=='habitat' or payload.kind=='display') and ((payload.kind=='habitat' and finite(payload.key) and payload.key%1==0 and payload.key>=1 and payload.key<=8) or (payload.kind=='display' and text(payload.key)))
  elseif action=='Bat' then valid=fields(payload,{op=true,id=true}) and (payload.op=='equip' or payload.op=='upgrade') and text(payload.id)
  elseif action=='State' or action=='Swing' or action=='Dodge' or action=='CollectIncome' or action=='RegisterDefense' then valid=payload==nil
  elseif action=='Train' or action=='Incubate' or action=='Hatch' or action=='Travel' then valid=text(payload)

@@ -1,12 +1,14 @@
 local C=if script then require(script.Parent.Catalog) else require('./Catalog')
 local Config=if script then require(script.Parent.TycoonConfig) else require('./TycoonConfig')
-local T={config=Config}
+local Home=if script then require(script.Parent.HomeDecor) else require('./HomeDecor')
+local T={config=Config,home=Home}
 local function integer(v,lo,hi) return type(v)=='number' and v==v and v%1==0 and v>=lo and v<=hi end
 local function fraction(v) return type(v)=='number' and v==v and v>=0 and v<1 end
 local function find(p,id) for _,c in ipairs(p.creatures) do if c.id==id then return c end end end
 local function storeValid(s) return type(s)=='table' and integer(s.eggs,0,Config.maxCount) and integer(s.value,0,Config.maxCount*100) and ((s.eggs==0 and s.value==0) or (s.eggs>0 and s.value>=s.eggs)) end
 function T.valid(t)
  if type(t)~='table' or t.version~=1 or not integer(t.slots,2,8) or not integer(t.lastAt,0,9007199254740991) or not storeValid(t.bag) or not fraction(t.bankCarry) or not table.find(Config.cosmetics,t.cosmetic) then return false end
+ if t.home~=nil and not Home.valid(t.home) then return false end
  if type(t.levels)~='table' or type(t.habitats)~='table' or #t.habitats~=8 then return false end
  for k,v in pairs(t.habitats) do if not integer(k,1,8) then return false end end
  for _,key in ipairs({'production','storage','bag','banking','automation'}) do if not integer(t.levels[key],0,#Config.paths[key].costs) then return false end end
