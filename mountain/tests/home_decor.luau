@@ -53,5 +53,10 @@ check(H.describe(view,'display','D3'):find('on display') and H.describe(view,'di
 -- Visiting never mutates the owner's profile
 local before=p.coins+p.tycoon.bag.eggs+p.tycoon.habitats[1].eggs
 H.visitorView(p,T,C);check(before==p.coins+p.tycoon.bag.eggs+p.tycoon.habitats[1].eggs,'inspect is read-only')
+-- Economy (P5): decor is a small optional coin sink; it never buys production, storage or banking.
+local total=0;for _,item in H.items do total+=item.cost;check(item.kind=='decor' or item.kind=='display','decor kinds only') end
+local firstUpgrades=0;for _,path in T.config.paths do firstUpgrades+=path.costs[1] end
+check(total<=2*firstUpgrades,'all decor costs at most twice the first rank of every upgrade path ('..total..' vs '..firstUpgrades..')')
+local before=T.rate(p,1);H.buy(p,'wind_chime');H.place(p,'P6','wind_chime');check(T.rate(p,1)==before,'decor never changes production rate')
 check(#H.items==8 and #L.decorSlots==14,'catalog and slot counts')
 print('PASS '..n..' home decor checks')

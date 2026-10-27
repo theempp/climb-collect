@@ -4,6 +4,11 @@ import json, pathlib, subprocess, sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 FILES = [  # repo path, parent path from game, name, class
+    # Committed on the integration branch after Review06 (phone-candidate prep); synced so the place matches the branch.
+    ('mountain/shared/BuildFlags.luau', 'ReplicatedStorage.MountainShared', 'BuildFlags', 'ModuleScript'),
+    ('mountain/shared/OffspringAssets.luau', 'ReplicatedStorage.MountainShared', 'OffspringAssets', 'ModuleScript'),
+    ('mountain/client/OffspringPresentation.client.luau', 'StarterPlayer.StarterPlayerScripts.MountainClient', 'OffspringPresentation', 'LocalScript'),
+    ('mountain/client/UI/Controller.luau', 'StarterPlayer.StarterPlayerScripts.MountainClient.UI', 'Controller', 'ModuleScript'),
     ('mountain/shared/HomeLayout.luau', 'ReplicatedStorage.MountainShared', 'HomeLayout', 'ModuleScript'),
     ('mountain/shared/HomeDecor.luau', 'ReplicatedStorage.MountainShared', 'HomeDecor', 'ModuleScript'),
     ('mountain/shared/Tycoon.luau', 'ReplicatedStorage.MountainShared', 'Tycoon', 'ModuleScript'),

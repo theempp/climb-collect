@@ -107,7 +107,9 @@ function W.new(home)
    local gear=part(root,name..'Gear',Vector3.new(.5,2.6,2.6),machine.CFrame*CFrame.new(0,3.3,-1.6),bank.Color,Enum.Material.Metal)
    gear.Shape=Enum.PartType.Cylinder;gear:SetAttribute('Spin',0);Tags:AddTag(gear,'MachineGear')
    table.insert(pieces,gear)
-   machines[i]={part=machine,label=label(machine,name),pieces=pieces,gear=gear}
+   -- Compact grid: machine labels only up close so they never stack over the habitat labels.
+   local machineLabel=label(machine,name);machineLabel.Parent.MaxDistance=22
+   machines[i]={part=machine,label=machineLabel,pieces=pieces,gear=gear}
   end
   local base=floor.CFrame*CFrame.new(0,floor.Size.Y/2+.15,0)
   local decorSlots={}
