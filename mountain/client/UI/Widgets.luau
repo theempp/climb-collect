@@ -133,7 +133,7 @@ local iconFor={Creatures='creature',Discovery='egg',Mountain='map',Sanctuary='he
 function W.icon(parent,kind,size,pos)
  local f=W.frame(parent,'Icon'..kind,size,pos);f.BackgroundTransparency=1
  local id=T.icons[iconFor[kind] or '']
- if id and id~=0 then W.new('ImageLabel',f,{Name='Image',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image='rbxassetid://'..id,ScaleType=Enum.ScaleType.Fit});return f end
+ if id and id~=0 then W.new('ImageLabel',f,{Name='Image',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=if type(id)=='string' then id else 'rbxassetid://'..id,ScaleType=Enum.ScaleType.Fit});return f end
  local function shape(name,x,y,w,h,color,round,rotation)
   local p=W.round(W.frame(f,name,UDim2.fromScale(w,h),UDim2.fromScale(x,y),color),round or 4)
   p.Rotation=rotation or 0;return p

@@ -40,7 +40,7 @@ local function open(name) if ready then sound();screens:open(name) end end
 local top=W.panel(root,'Status',UDim2.fromOffset(320,48),UDim2.fromOffset(12,8),T.navy);top.UICorner.CornerRadius=UDim.new(0,24);top.UIGradient.Enabled=false
 W.icon(top,'Coin',UDim2.fromOffset(40,40),UDim2.fromOffset(-6,4))
 local coins=W.text(top,'—',UDim2.new(.55,-30,1,0),UDim2.fromOffset(42,0),T.display,19,T.ink)
-local plus=W.button(top,'AddCoins','+',UDim2.fromOffset(34,34),UDim2.new(1,-40,.5,-17),function() open('Shop') end,'ok');plus.TextSize=T.size(20)
+local plus=W.button(top,'AddCoins','+',UDim2.fromOffset(34,34),UDim2.new(1,-40,.5,-17),function() open('Shop') end,'ok');plus.Label.Font=T.display;plus.TextSize=T.size(22)
 local timer=W.text(top,'00:00',UDim2.new(.45,-16,1,0),UDim2.new(.55,0,0,0),T.bold,14,T.muted);timer.TextXAlignment=Enum.TextXAlignment.Right
 local progress=W.panel(root,'Journey',UDim2.fromOffset(292,80),UDim2.new(1,-304,0,8),T.navy)
 local location=W.text(progress,'Blossom Gardens',UDim2.new(1,-20,0,25),UDim2.fromOffset(10,6),T.label,17)
@@ -171,7 +171,7 @@ local function layout()
    for _,o in ipairs(b:GetChildren()) do
     if o:IsA('Frame') and o.Name:sub(1,4)=='Icon' then
      local small=l.short or (b.Parent==nav and v.Y<550)
-     o.Size=UDim2.fromOffset(if small then 26 else 42,if small then 26 else 42);o.Position=UDim2.new(.5,if small then -13 else -21,0,2)
+     o.Size=UDim2.fromOffset(if small then 34 else 46,if small then 34 else 46);o.Position=UDim2.new(.5,if small then -17 else -23,0,0)
      local caption=b:FindFirstChild('Text');if caption then caption.Size=UDim2.new(1,-6,0,if small then 18 else 22);caption.Position=UDim2.new(0,3,1,if small then -19 else -25) end
     end
    end
