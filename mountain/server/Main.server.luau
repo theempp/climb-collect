@@ -61,7 +61,7 @@ local function rebuildTeam(player)
   local c=R.find(p.creatures,id);if c then
    local m=A.creature(nil,C.byId[c.species],Vector3.new(0,-100,0),if C.byId[c.species].rarity=='Legendary' then 1.2 else .65,R.stage(c.level))
    -- Three companions per player: keep their anchored cosmetic parts available at upper camps.
-   m.ModelStreamingMode=Enum.ModelStreamingMode.Persistent;m:SetAttribute('Slot',i);m.Parent=f
+   m.ModelStreamingMode=Enum.ModelStreamingMode.Persistent;m:SetAttribute('Slot',i);m:SetAttribute('Species',c.species);m.Parent=f
   end
  end
  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
@@ -156,6 +156,8 @@ carryVisuals=require(script.Parent.CarryVisuals).new(world,send)
 for _,part in ipairs(world.Interactions:GetChildren()) do
  if part:GetAttribute('Kind')=='Nest' then
   local id=part:GetAttribute('Id');local egg={id=id,section=part:GetAttribute('Kingdom'),position=part.Position,part=part}
+  -- Studio-only review aid: the first Blossom nest always holds the finished sample offspring. Live servers roll normally.
+  if game:GetService('RunService'):IsStudio() and id=='raid:1:1' then egg.species='mossbun' end
   raidEggs[id]=egg;carryVisuals.shell(egg);part.Transparency=1
   local prompt=part:FindFirstChildOfClass('ProximityPrompt');if prompt then prompt.ActionText='Strike egg';prompt.HoldDuration=0 end
  end

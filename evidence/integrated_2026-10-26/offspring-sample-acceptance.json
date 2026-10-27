@@ -1,0 +1,21 @@
+{
+  "sample": "Blossom Rabbit (Floravelle family, Collection-v004) presents catalog species Mossbun",
+  "assets": "ReplicatedStorage.MountainAssets.Offspring: blossom-rabbit-creature (14 bones, uploaded mesh rbxassetid://82933528368444), blossom-rabbit-egg, blossom-rabbit-hatch; copied intact from ClimbCollect.OffspringRig.CarryReview03 (2632 descendants, 4 authored clips)",
+  "clips": {"authored": ["Idle 2.0s", "Move 1.0s", "Reveal 1.5s", "Carried 2.0s"], "derived_here": ["Run 0.62s (Move x1.3 rotation, x1.25 hop)", "Turn 0.8s (Move x0.55, small steps; code yaws)", "Happy 1.25s one-shot (double hop; Reveal head/ears, Carried tucked legs)"], "tool": "mountain/tools/author_offspring_clips.luau"},
+  "run": "Studio Play Solo, natural walking via Humanoid:MoveTo; Studio-only showcase nest raid:1:1 always holds Mossbun",
+  "checks": [
+    {"ok": true, "label": "real egg after first strike"},
+    {"ok": true, "label": "one crack after one strike (faces the viewer)"},
+    {"ok": true, "label": "hatch shell on reveal (lid pops, sparkle burst)"},
+    {"ok": true, "label": "revealed rabbit plays Reveal"},
+    {"ok": true, "label": "real rabbit attached by carry fit (OffspringCarryFit)"},
+    {"ok": true, "label": "carried rabbit plays Carried"},
+    {"ok": true, "label": "bat stowed while carrying"},
+    {"ok": true, "label": "secured one creature 3 -> 4"},
+    {"ok": true, "label": "Happy on secure", "clipHistory": "Reveal Carried Happy Carried"},
+    {"ok": true, "label": "Mossbun companion rendered"},
+    {"ok": true, "label": "companion plays Move / Run / Turn / Idle", "clipHistory": "Run Move ... Idle Turn Idle Turn Move Run Move Idle Turn Idle"}
+  ],
+  "fixedDuringTest": ["placeholder Mossbun reappeared (late-replicated parts / CreatureMotion reset visibility) -> enforce hidden each frame", "revealed rabbit hidden inside shell base -> stands 2.2 studs toward the player", "crack on far side -> faces viewer", "bat pointing up blocked carry view -> stowed while carrying", "companion small -> scale 0.9"],
+  "limits": ["Clips play through KeyframeSequenceProvider (Studio only); a published build needs the 7 clips uploaded as Animation assets", "Other 35 catalog species still use procedural art", "Incubator hatch/habitat not converted (owner scope)", "No phone or multi-client check of the new visuals"]
+}

@@ -1,0 +1,27 @@
+{
+  "file": "outputs/ClimbCollect.Integrated.Review06.rbxl",
+  "sha256": "b4a791844137fe478ad5b21db3cfd8e9ed24189eebd898329c51a98c1c0ba295",
+  "runtime_sources": 93,
+  "source_mismatches": [],
+  "terrain_drift_vs_review02": [],
+  "qa_objects": [],
+  "workspace_count_diffs": {},
+  "offspring_assets": [
+    "ReplicatedStorage.MountainAssets.Offspring.blossom-rabbit-creature",
+    "ReplicatedStorage.MountainAssets.Offspring.blossom-rabbit-egg",
+    "ReplicatedStorage.MountainAssets.Offspring.blossom-rabbit-hatch"
+  ],
+  "kfs": 7,
+  "instances": 13707,
+  "terrain_note": "Studio Save As rewrote SmoothGrid and the hidden Terrain Materials flag (19->23); both restored byte-exact from Review02.",
+  "cold_play": {
+    "hud_roots": 1,
+    "bat": true,
+    "offspring_companion": "Happy Idle",
+    "mesh_loaded": true,
+    "console": [
+      "Impossible Mountain ready",
+      "Player:Move called, but player currently has no character. (default control script during load)"
+    ]
+  }
+}

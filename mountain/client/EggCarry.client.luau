@@ -5,6 +5,7 @@ Run.PreSimulation:Connect(function()
  for _,player in ipairs(Players:GetPlayers()) do
   local c=player.Character
   if not c then continue end
+  if c:GetAttribute('OffspringCarry') then continue end
   local carry=c:GetAttribute('CarryingCreature')
   local t=workspace:GetServerTimeNow()-(c:GetAttribute('PickaxeStrikeAt') or -100)
   local b=workspace:GetServerTimeNow()-(c:GetAttribute('BatSwingAt') or -100)

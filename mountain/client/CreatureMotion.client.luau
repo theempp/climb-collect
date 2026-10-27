@@ -35,6 +35,7 @@ Run:BindToRenderStep('MountainCreatureMotion',Enum.RenderPriority.Camera.Value+1
  for model,parts in pairs(rigs) do
   local root=model.PrimaryPart
   if not model:IsDescendantOf(workspace) or not root then rigs[model]=nil;continue end
+  if model:GetAttribute('OffspringHidden') then continue end
   local distance=(root.Position-camera.CFrame.Position).Magnitude
   if model:GetAttribute('Slot') then
    -- Hide the whole companion before skipping updates; never leave frozen limbs visible.

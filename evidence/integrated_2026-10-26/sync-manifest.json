@@ -19,6 +19,18 @@
  ],
  [
   "ReplicatedStorage.MountainShared",
+  "CarryProfiles",
+  "ModuleScript",
+  "mountain/shared/CarryProfiles.luau"
+ ],
+ [
+  "ReplicatedStorage.MountainShared.CarrySurfaces",
+  "blossom-rabbit",
+  "ModuleScript",
+  "mountain/shared/CarrySurfaces/blossom-rabbit.luau"
+ ],
+ [
+  "ReplicatedStorage.MountainShared",
   "Catalog",
   "ModuleScript",
   "mountain/shared/Catalog.luau"
@@ -52,6 +64,18 @@
   "MovementRules",
   "ModuleScript",
   "mountain/shared/MovementRules.luau"
+ ],
+ [
+  "ReplicatedStorage.MountainShared",
+  "OffspringAssets",
+  "ModuleScript",
+  "mountain/shared/OffspringAssets.luau"
+ ],
+ [
+  "ReplicatedStorage.MountainShared",
+  "OffspringCarryFit",
+  "ModuleScript",
+  "mountain/shared/OffspringCarryFit.luau"
  ],
  [
   "ReplicatedStorage.MountainShared",
@@ -472,6 +496,12 @@
   "HUD",
   "LocalScript",
   "mountain/client/HUD.client.luau"
+ ],
+ [
+  "StarterPlayer.StarterPlayerScripts.MountainClient",
+  "OffspringPresentation",
+  "LocalScript",
+  "mountain/client/OffspringPresentation.client.luau"
  ],
  [
   "StarterPlayer.StarterPlayerScripts.MountainClient",

@@ -91,6 +91,11 @@ function Bats.new(context)
   return true
  end
  function service.tick(now)
+  -- Both arms cradle a carried creature, so the held bat is stowed (hidden) until hands are free.
+  for player,m in pairs(models) do
+   local stowed=player.Character~=nil and player.Character:GetAttribute('CarryingCreature')==true
+   if m.stowed~=stowed then m.stowed=stowed;for _,p in ipairs(m.model:GetDescendants()) do if p:IsA('BasePart') then p.Transparency=if stowed then 1 else 0 end end end
+  end
   for _,drop in pairs(drops) do
    if now>=drop.expires then
     local back=drop.from.Parent~=nil and context.alive(drop.from) and context.raids.adopt(drop.from,drop.snapshot,drop.part and drop.part.Position or Vector3.zero)

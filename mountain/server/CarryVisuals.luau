@@ -16,7 +16,7 @@ function V.new(world,send)
   -- Portable adults omit boss-only orbit/crest proportions. Existing boss art is untouched.
   if entry.rarity=='Legendary' then entry.rarity='Mythic';entry.variant=1 end
   local model=A.creature(folder,entry,position,.55,1)
-  model.Name='Carried_'..player.UserId;model:SetAttribute('CarryOwner',player.UserId)
+  model.Name='Carried_'..player.UserId;model:SetAttribute('CarryOwner',player.UserId);model:SetAttribute('Species',species)
   model.ModelStreamingMode=Enum.ModelStreamingMode.Persistent
   for _,part in ipairs(model:GetDescendants()) do
    if part:IsA('BasePart') then
@@ -40,7 +40,7 @@ function V.new(world,send)
   if data.kind=='lost' or data.kind=='dropped' then
    clear(player)
    local shell=shells[data.eggId]
-   if shell then shell.Transparency=0;shell:SetAttribute('Hits',0);for _,v in ipairs(shell:GetChildren()) do if v:IsA('BasePart') then v:Destroy() end end end
+   if shell then shell.Transparency=0;shell:SetAttribute('Hits',0);shell:SetAttribute('Species',nil);for _,v in ipairs(shell:GetChildren()) do if v:IsA('BasePart') then v:Destroy() end end end
    if data.kind=='lost' then send(player,'toast','Unsecured '..C.byId[data.species].name..' lost. Try another egg.') end
    return
   end
@@ -54,11 +54,11 @@ function V.new(world,send)
    end
    local shell=shells[data.egg.id]
    if shell then
-    shell:SetAttribute('Hits',data.run.hits);shell:SetAttribute('RequiredHits',data.hitsRequired)
+    shell:SetAttribute('Species',data.run.species);shell:SetAttribute('Hits',data.run.hits);shell:SetAttribute('RequiredHits',data.hitsRequired)
     local crack=A.part(shell,'Crack',Vector3.new(.08,1.7,.08),shell.CFrame*CFrame.new((data.run.hits-2)*.3,.1,-1.47)*CFrame.Angles(0,0,.35*(data.run.hits%2*2-1)),Color3.fromRGB(107,83,65),Enum.Material.Slate,nil,false)
     if data.run.phase=='revealed' then
      shell.Transparency=.8
-     task.delay(18,function() if shell.Parent then shell.Transparency=0;shell:SetAttribute('Hits',0);for _,v in ipairs(shell:GetChildren()) do if v:IsA('BasePart') then v:Destroy() end end end end)
+     task.delay(18,function() if shell.Parent then shell.Transparency=0;shell:SetAttribute('Hits',0);shell:SetAttribute('Species',nil);for _,v in ipairs(shell:GetChildren()) do if v:IsA('BasePart') then v:Destroy() end end end end)
     end
    end
    if data.run.phase=='revealed' then
