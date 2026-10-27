@@ -42,7 +42,7 @@ function W.new(home)
    for _,x in ipairs({-2.4,2.4}) do part(f,'ArchPost',Vector3.new(.7,5.5,.7),cf*CFrame.new(x,2.75,0),WOOD,Enum.Material.Wood) end
    part(f,'ArchTop',Vector3.new(6,.8,.8),cf*CFrame.new(0,5.6,0),WOOD,Enum.Material.Wood);part(f,'ArchVine',Vector3.new(5.6,.5,1),cf*CFrame.new(0,6.1,0),GRASS,Enum.Material.Grass)
   elseif item=='wind_chime' then
-   part(f,'Hook',Vector3.new(.4,6,.4),cf*CFrame.new(0,3,0),METAL,Enum.Material.Metal);part(f,'Arm',Vector3.new(3,.3,.3),cf*CFrame.new(1.4,6,0),METAL,Enum.Material.Metal)
+   part(f,'Hook',Vector3.new(.4,6,.4),cf*CFrame.new(0,3,0),METAL,Enum.Material.Metal);Tags:AddTag(part(f,'Arm',Vector3.new(3,.3,.3),cf*CFrame.new(1.4,6,0),METAL,Enum.Material.Metal),'WindChime')
    for k=0,2 do Tags:AddTag(part(f,'Tube',Vector3.new(.3,2+k*.4,.3),cf*CFrame.new(.4+k*1,4.4-k*.2,0),accent,Enum.Material.Neon),'DecorSway') end
   elseif item=='trophy_shelf' then
    part(f,'Back',Vector3.new(7,3.4,.3),cf*CFrame.new(0,2.5,-1),WOOD,Enum.Material.Wood);part(f,'Shelf',Vector3.new(7,.4,2),cf*CFrame.new(0,1.6,0),WOOD,Enum.Material.Wood)
