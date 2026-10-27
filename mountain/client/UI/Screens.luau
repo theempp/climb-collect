@@ -93,6 +93,7 @@ function S:render(preserve)
  self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1),nil,T.navy);self.shade.BackgroundTransparency=.23;self.shade.ZIndex=20;self.shade.Active=true
  local f=W.panel(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.fromScale(.5,.5));f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=21
  local title=if self.detail then 'Creature details' else self.hub
+ if self.hub=='Creatures' and not self.detail then local owned={};for _,c in ipairs(data.creatures) do owned[c.species]=true end;local n=0;for _ in pairs(owned) do n+=1 end;title='Creatures '..n..'/'..#C.species end
  -- Header (intel §4): orange CTA-recipe title ribbon over the top edge, red close-X square on the corner.
  local ribbon=W.round(W.frame(f,'TitleRibbon',UDim2.fromOffset(math.min(300,width-150),44),UDim2.new(.5,0,0,-10),Color3.new(1,1,1)),12);ribbon.AnchorPoint=Vector2.new(.5,0);ribbon.ZIndex=2
  W.stroke(ribbon,T.cta.ink,2.5);W.new('UIGradient',ribbon,{Color=ColorSequence.new(T.cta.base,T.cta.shade),Rotation=90})
@@ -100,12 +101,13 @@ function S:render(preserve)
  local heading=W.text(ribbon,string.upper(title),UDim2.new(1,-56,1,0),UDim2.fromOffset(48,0),T.label,26,T.ink);heading.ZIndex=3;heading.TextXAlignment=Enum.TextXAlignment.Center;heading.UIStroke.Color=T.cta.ink
  local back=W.button(f,'Back',if self.detail then 'Back' else 'X',if self.detail then UDim2.fromOffset(86,44) else UDim2.fromOffset(44,44),if self.detail then UDim2.new(1,-98,0,7) else UDim2.new(1,-30,0,-14),function() self:back() end,if self.detail then 'blue' else 'close');back.ZIndex=3
  if not self.detail then back.TextSize=T.size(22) end
- local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.new(1,-24,0,48),Position=UDim2.fromOffset(12,57),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,ScrollBarThickness=0})
+ local short=view.Y<390
+ local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.new(1,-24,0,48),Position=UDim2.fromOffset(12,if short then 42 else 57),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,ScrollBarThickness=0})
  W.list(tabScroll,8,true)
  for _,name in ipairs(tabs[self.hub]) do
   W.button(tabScroll,'Tab'..name,name,UDim2.fromOffset(if #name>10 then 136 else 112,44),nil,function() self.tab=name;self.detail=nil;self.page=1;self:render(false) end,if name==self.tab then 'blue' else 'quiet')
  end
- self.body=W.scroll(f,'Content',UDim2.new(1,-24,1,-158),UDim2.fromOffset(12,108))
+ self.body=W.scroll(f,'Content',if short then UDim2.new(1,-24,1,-132) else UDim2.new(1,-24,1,-158),UDim2.fromOffset(12,if short then 92 else 108))
  self.status=W.text(f,'',UDim2.new(1,-124,0,38),UDim2.new(0,16,1,-44),nil,12,T.muted)
  self.retry=W.button(f,'Retry','Retry',UDim2.fromOffset(88,44),UDim2.new(1,-100,1,-48),function() if self.retryId then self.store:retry(self.retryId) end end,'gold');self.retry.Visible=false
  if self.hub=='Creatures' then self:creatures(data,width)
@@ -165,9 +167,11 @@ function S:creatures(data,width)
  local rarityButton=W.button(filters,'Rarity','Rarity: '..self.rarity,UDim2.new(.6,-18,0,44),UDim2.fromOffset(12,62),function() self.rarity=rarities[(table.find(rarities,self.rarity) or 1)%#rarities+1];self.page=1;self:render(false) end,'quiet')
  local sortButton=W.button(filters,'Sort','Sort: '..self.sort,UDim2.new(.4,-18,0,44),UDim2.new(.6,6,0,62),function() self.sort=if self.sort=='Name' then 'Level' elseif self.sort=='Level' then 'Rarity' else 'Name';self:render(true) end,'quiet')
  if compact then
-  box.Size=UDim2.new(.4,-12,0,44);box.Position=UDim2.fromOffset(6,5);box.PlaceholderText='Search'
-  rarityButton.Size=UDim2.new(.3,-8,0,44);rarityButton.Position=UDim2.new(.4,0,0,5)
-  sortButton.Size=UDim2.new(.3,-8,0,44);sortButton.Position=UDim2.new(.7,0,0,5)
+  -- Short phones: filters ride in the tab row (scrolls horizontally) so the cards stay on screen.
+  filters.Parent=self.shade.Hub.Tabs;filters.Size=UDim2.fromOffset(330,44);filters.LayoutOrder=99;filters.BackgroundTransparency=1;filters.UIStroke.Enabled=false
+  box.Size=UDim2.new(.4,-12,0,44);box.Position=UDim2.fromOffset(6,0);box.PlaceholderText='Search'
+  rarityButton.Size=UDim2.new(.3,-8,0,44);rarityButton.Position=UDim2.new(.4,0,0,0)
+  sortButton.Size=UDim2.new(.3,-8,0,44);sortButton.Position=UDim2.new(.7,0,0,0)
  end
  local list=P.filterCreatures(data,self.query,self.rarity,self.sort)
  if #list==0 then self:note('No matching companions','Try another filter, or discover eggs on your next climb. Your collection stays safe.',108);return end
@@ -177,9 +181,19 @@ function S:creatures(data,width)
  W.new('UIGridLayout',grid,{CellSize=UDim2.new(1/columns,-8,0,cardHeight),CellPadding=UDim2.fromOffset(10,12),SortOrder=Enum.SortOrder.LayoutOrder})
  for index=(self.page-1)*12+1,math.min(#list,self.page*12) do
   local c=list[index];local s=C.byId[c.species];local card=W.panel(grid,'Creature_'..c.id,nil,nil,T.rarity[s.rarity])
-  W.portrait(card,s,UDim2.fromOffset(if compact then 48 else 76,if compact then 48 else 76),UDim2.new(.5,if compact then -24 else -38,0,5))
-  W.text(card,s.name,UDim2.new(1,-16,0,24),UDim2.fromOffset(8,if compact then 50 else 87),T.bold,16).TextXAlignment=Enum.TextXAlignment.Center
-  W.text(card,'Lv '..c.level..' · '..s.rarity,UDim2.new(1,-16,0,24),UDim2.fromOffset(8,if compact then 72 else 114),nil,12,T.ink).TextXAlignment=Enum.TextXAlignment.Center
+  -- Mock 3 card: level badge top-left, portrait, XP bar with n/max, darker name band (colour = rarity).
+  card.UIGradient.Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(190,200,225))
+  local art=if compact then 46 else 78
+  W.portrait(card,s,UDim2.fromOffset(art,art),UDim2.new(.5,-art/2,0,6))
+  local badge=W.text(card,tostring(c.level),UDim2.fromOffset(26,26),UDim2.fromOffset(6,6),T.display,14,T.ink);badge.Name='Level';badge.BackgroundColor3=T.navy;badge.BackgroundTransparency=0;badge.TextXAlignment=Enum.TextXAlignment.Center;badge.Rotation=0
+  W.new('UICorner',badge,{CornerRadius=UDim.new(0,7)});W.stroke(badge,T.outline,2)
+  local info=P.creature(c);local barY=if compact then 56 else 90
+  local maxed=info.xpRequired<=0
+  local bar=W.progress(card,if maxed then 1 else c.xp/info.xpRequired,UDim2.new(1,-24,0,14),UDim2.fromOffset(12,barY),if maxed then T.bar.max else T.bar.fill)
+  local xp=W.text(bar.Parent,if maxed then 'MAX' else c.xp..'/'..info.xpRequired,UDim2.fromScale(1,1),nil,T.display,10,T.ink);xp.TextXAlignment=Enum.TextXAlignment.Center;xp.ZIndex=2
+  local band=W.frame(card,'NameBand',UDim2.new(1,0,0,if compact then 20 else 26),UDim2.fromOffset(0,barY+18),T.rarity[s.rarity]:Lerp(Color3.new(0,0,0),.3));band.BackgroundTransparency=0
+  local name=W.text(band,string.upper(s.name),UDim2.fromScale(1,1),nil,T.label,if compact then 15 else 18,T.ink);name.Name='Name';name.TextXAlignment=Enum.TextXAlignment.Center
+  local tier=if compact then nil else W.text(card,s.rarity,UDim2.new(1,-16,0,14),UDim2.fromOffset(8,barY+(if compact then 40 else 44)),T.display,10,T.ink);if tier then tier.TextXAlignment=Enum.TextXAlignment.Center end
   local selected=table.find(self.selected,c.id)
   local label=if self.tab=='Team' then (if selected then 'Selected '..selected else 'Select') else 'Details'
   W.button(card,'Details_'..c.id,label,UDim2.new(1,-20,0,44),UDim2.new(0,10,1,-56),function()

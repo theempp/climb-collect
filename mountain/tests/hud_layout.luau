@@ -8,8 +8,9 @@ for _,v in ipairs({{666,316},{750,343},{844,339},{685,280},{1179,761},{1920,1021
   local w,h=table.unpack(v)
   local obstacles=if touch then {{x=-100,y=h/3,w=w*.55,h=h},{x=w-95,y=h-90,w=70,h=70}} else {}
   local l=P.hudLayout(w,h,obstacles)
-  if touch and h==280 then assert(l.crowdedNavigation,'Short phone must use crowded navigation') end
-  for _,key in ipairs({'status','journey','menu','quickCreatures','quickMountain','navigation','team','context','dodge','ability','sprint'}) do
+  -- HUD v2: the top strip carries navigation, so it must clear the status pill, gear and journey card.
+  for _,key in ipairs({'menu','quickCreatures','quickMountain','navigation'}) do for _,other in ipairs({'status','settings','journey'}) do if key~='navigation' or l.horizontalNavigation then assert(not overlap(l[key],l[other]),key..' overlaps '..other) end end end
+  for _,key in ipairs({'status','journey','menu','quickCreatures','quickMountain','navigation','settings','team','context','dodge','ability','sprint'}) do
    local r=l[key]
    if l.crowdedNavigation and (key=='quickCreatures' or key=='quickMountain') then continue end
    if l.crowdedNavigation and key~='status' and key~='journey' and key~='navigation' then assert(not overlap(r,l.status),key..' overlaps status') end

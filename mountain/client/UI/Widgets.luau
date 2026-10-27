@@ -181,6 +181,7 @@ function W.tile(parent,name,label,kind,size,pos,fn,color)
  local b=W.button(parent,name,'',size,pos,fn,'quiet');b:SetAttribute('ButtonColor',color or T.alt);b.BackgroundColor3=color or T.alt
  local icon=W.icon(b,kind,UDim2.fromOffset(42,42),UDim2.new(.5,-21,0,3))
  local caption=W.text(b,string.upper(label),UDim2.new(1,-6,0,22),UDim2.new(0,3,1,-25),T.label,14)
+ caption.TextScaled=true;W.new('UITextSizeConstraint',caption,{MaxTextSize=14,MinTextSize=8})
  caption.TextXAlignment=Enum.TextXAlignment.Center
  return b
 end

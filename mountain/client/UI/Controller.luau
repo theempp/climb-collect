@@ -65,10 +65,11 @@ for i=1,3 do
  slots[i]=W.button(team,'Slot'..i,'['..i..'] Empty slot',UDim2.new(1/3,-6,1,0),UDim2.new((i-1)/3,3,0,0),function() if store.battle then store:request('Special',{slot=index,ability=selectedAbility(index)}) else open('Creatures') end end,'quiet')
  slots[i].Text=''
  slotNames[i]=W.text(slots[i],'Empty slot',UDim2.new(1,-6,0,22),UDim2.new(0,3,1,-23),T.bold,11)
- slotNames[i].TextXAlignment=Enum.TextXAlignment.Center
- slotStates[i]=W.text(slots[i],tostring(i),UDim2.new(1,-8,0,18),UDim2.new(0,4,1,-41),T.bold,11,T.gold)
+ slotNames[i].TextXAlignment=Enum.TextXAlignment.Center;slotNames[i].Visible=false
+ -- Mock 1: number badge circle at the bottom centre of the portrait (cooldown seconds in combat).
+ slotStates[i]=W.text(slots[i],tostring(i),UDim2.fromOffset(26,22),UDim2.new(.5,-13,1,-26),T.display,13,T.ink)
  slotStates[i].TextXAlignment=Enum.TextXAlignment.Center
- slotStates[i].ZIndex=3;slotStates[i].BackgroundColor3=T.navy;slotStates[i].BackgroundTransparency=0;W.round(slotStates[i],9);W.stroke(slotStates[i],T.ink,1.5)
+ slotStates[i].ZIndex=3;slotStates[i].BackgroundColor3=T.navy;slotStates[i].BackgroundTransparency=0;W.new('UICorner',slotStates[i],{CornerRadius=UDim.new(.5,0)});W.stroke(slotStates[i],T.ink,2)
  slots[i]:SetAttribute('Tooltip','Open your collection, or activate this companion’s special during combat.')
 end
 local actionbar=W.frame(root,'Actions',UDim2.fromOffset(342,48),UDim2.new(.5,-171,1,-128))
@@ -93,8 +94,8 @@ local battle=W.panel(root,'Battle',UDim2.fromOffset(410,100),UDim2.new(.5,-205,0
 local boss=W.text(battle,'Guardian',UDim2.new(1,-24,0,28),UDim2.fromOffset(12,6),T.label,24,T.ink)
 local hp=W.progress(battle,1,UDim2.new(1,-24,0,10),UDim2.fromOffset(12,38),T.coral)
  local combatText=W.text(battle,'',UDim2.new(1,-24,0,50),UDim2.fromOffset(12,53),nil,12,T.ink)
-local save=W.text(top,'Connecting…',UDim2.new(1,-16,0,14),UDim2.fromOffset(8,28),nil,9,T.muted);save.TextXAlignment=Enum.TextXAlignment.Center
-coins.Size=UDim2.new(.60,-35,0,29);timer.Size=UDim2.new(.40,-56,0,29);timer.Position=UDim2.new(.60,0,0,0)
+local save=W.text(top,'Connecting…',UDim2.new(1,-16,0,14),UDim2.fromOffset(8,46),nil,10,T.ink);save.Visible=false;save.TextXAlignment=Enum.TextXAlignment.Center
+coins.Size=UDim2.new(.60,-35,1,0);timer.Size=UDim2.new(.40,-56,1,0);timer.Position=UDim2.new(.60,0,0,0)
 local hint=W.panel(root,'Hint',UDim2.fromOffset(320,64),UDim2.new(.5,-160,0,78));hint.Visible=false
 local hintText=W.text(hint,'',UDim2.new(1,-60,1,-12),UDim2.fromOffset(12,6),nil,13,T.ink)
 local dismissHint=false
@@ -142,7 +143,7 @@ local function layout()
  crowdedNav=l.crowdedNavigation
  local function place(o,r) o.Size=UDim2.fromOffset(r.w,r.h);o.Position=UDim2.fromOffset(r.x,r.y) end
  place(top,l.status);place(progress,l.journey);place(menu,l.menu);place(quickCreatures,l.quickCreatures);place(quickMountain,l.quickMountain);place(team,l.team);place(actionbar,l.context);place(dodge,l.dodge);place(swing,l.dodge);place(ability,l.ability)
- quick.Position=UDim2.fromOffset(268,60);quick.Visible=not l.short
+ place(quick,l.settings)
  -- One compact corner panel carries location, real height and the minimal objective.
  location.Size=UDim2.new(1,-20,0,22);location.Position=UDim2.fromOffset(10,3)
  heightLabel.Size=UDim2.new(1,-20,0,18);heightLabel.Position=UDim2.fromOffset(10,24)
@@ -178,7 +179,7 @@ local function layout()
   end
  end
  for _,b in ipairs(slots) do
-  local portrait=b:FindFirstChild('Portrait');if portrait then portrait.Size=UDim2.new(1,-14,1,-34);portrait.Position=UDim2.fromOffset(7,1) end
+  local portrait=b:FindFirstChild('Portrait');if portrait then portrait.Size=UDim2.new(1,-12,1,-20);portrait.Position=UDim2.fromOffset(6,3) end
  end
  hint.Size=UDim2.fromOffset(math.min(360,v.X-380),54);hint.Position=UDim2.new(.5,-hint.Size.X.Offset/2,0,66)
  battle.Size=UDim2.fromOffset(math.min(410,v.X-230),100);battle.Position=UDim2.new(.5,-battle.Size.X.Offset/2,0,8)
@@ -192,6 +193,7 @@ local function updateProfile()
  local prefs=data.ui and data.ui.settings or {};local stamp=game:GetService('HttpService'):JSONEncode(prefs)
  if stamp~=settingsStamp then settingsStamp=stamp;applyPreferences(prefs) end
  save.Text=if saveFailed then 'SAVING PAUSED · Progress actions unavailable' elseif tostring(data.saveMode):find('Studio') then 'STUDIO · Resets on Stop' else 'Profile synchronized'
+ save.Visible=saveFailed
  if previousProfile then
 
   for id in pairs(data.captures) do if not previousProfile.captures[id] then feedback:reveal('Guardian captured!',C.byId[id].name..' joins your collection. This Guardian can be captured once.',C.byId[id]) end end
@@ -226,7 +228,7 @@ local disconnect=store:subscribe(function(kind,payload)
   elseif not payload.ok then feedback:toast(payload.message or 'That action is unavailable.') end
  elseif kind=='timeout' then screens:pending();feedback:toast('Still waiting for the server. Open a menu to retry safely.')
  elseif kind=='pending' then screens:pending()
- elseif kind=='save' then saveFailed=not payload;save.Text=if not payload then 'SAVING PAUSED · Actions unavailable' elseif store.profile and tostring(store.profile.saveMode):find('Studio') then 'STUDIO · Resets on Stop' else 'Profile saved' end
+ elseif kind=='save' then saveFailed=not payload;save.Visible=saveFailed;save.Text=if not payload then 'SAVING PAUSED · Actions unavailable' elseif store.profile and tostring(store.profile.saveMode):find('Studio') then 'STUDIO · Resets on Stop' else 'Profile saved' end
 end)
 connect(UIS.InputBegan,function(input,processed)
  if processed or UIS:GetFocusedTextBox() then return end
@@ -250,7 +252,7 @@ connect(Run.Heartbeat,function(dt)
  if not ready then loadStatus.Text=if data then 'Waiting for your character…' elseif store.status=='error' then 'Connection delayed. Retry when ready.' else 'Synchronizing your collection…' end
  sidebar.Visible=expanded and ready and not screens.hub and not store.battle;if store.battle then expanded=false end
  top.Visible=ready and not store.battle;progress.Visible=ready and not store.battle and not (expanded and P.horizontalNavigation(root.AbsoluteSize.Y,UIS.TouchEnabled));quest.Visible=ready and not store.battle and not expanded
- menu.Visible=ready and not screens.hub;quickCreatures.Visible=ready and not screens.hub and not expanded and not store.battle and not crowdedNav;quickMountain.Visible=quickCreatures.Visible;quick.Visible=ready and not screens.hub and not expanded and root.AbsoluteSize.Y>=400;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle and data~=nil and ((data.ui and data.ui.atHome) or (data.ui and data.ui.nearestEgg) or (data.run and data.run.phase=='revealed'))
+ menu.Visible=ready and not screens.hub;quickCreatures.Visible=ready and not screens.hub and not expanded and not store.battle and not crowdedNav;quickMountain.Visible=quickCreatures.Visible;quick.Visible=ready and not screens.hub and not store.battle;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle and data~=nil and ((data.ui and data.ui.atHome) or (data.ui and data.ui.nearestEgg) or (data.run and data.run.phase=='revealed'))
  dodge.Visible=P.combatVisible(store.battle,ready,screens.hub~=nil);ability.Visible=dodge.Visible;battle.Visible=dodge.Visible
  swing.Visible=ready and not screens.hub and not expanded and not store.battle and data~=nil and data.ui~=nil and not data.ui.inSanctuary
  if swing.Visible then local wait=math.ceil(swingReadyAt-os.clock());W.enable(swing,wait<=0,if wait>0 then 'Bat · '..wait..'s' else (if UIS.TouchEnabled then 'Bat' else 'Bat [F]')) end
@@ -261,11 +263,11 @@ connect(Run.Heartbeat,function(dt)
    if slotSpecies[i]~=(c and c.species) then
     if slotPortraits[i] then slotPortraits[i]:Destroy();slotPortraits[i]=nil end
     slotSpecies[i]=c and c.species
-    if c then slotPortraits[i]=W.portrait(b,C.byId[c.species],UDim2.new(1,-14,1,-34),UDim2.fromOffset(7,1)) end
+    if c then slotPortraits[i]=W.portrait(b,C.byId[c.species],UDim2.new(1,-12,1,-20),UDim2.fromOffset(6,3)) end
    end
    slotNames[i].Text=if c then C.byId[c.species].name else 'Empty slot'
-   slotStates[i].Text=if not c then tostring(i) elseif store.battle then (if remain>0 then remain..'s' else 'READY') else 'Lv '..c.level
-   slotStates[i].TextColor3=if remain>0 then T.muted else T.gold
+   slotStates[i].Text=if c and store.battle then (if remain>0 then remain..'s' else 'GO') else tostring(i)
+   slotStates[i].Size=UDim2.fromOffset(if c and store.battle and remain>0 then 34 else 26,22);slotStates[i].Position=UDim2.new(.5,-slotStates[i].Size.X.Offset/2,1,-26)
    -- HUD creature slot (intel §4): rarity-colour face, ink outline; cooling slots drop to off.base.
    W.enable(b,not store.battle or (c~=nil and remain==0))
    b.BackgroundColor3=if remain>0 then T.off elseif c then T.rarity[C.byId[c.species].rarity] else T.navy
