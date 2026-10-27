@@ -57,7 +57,9 @@ function W.candy(b,base)
  local shine=W.new('UICorner',W.frame(face,'Shine',UDim2.new(1,-8,.42,0),UDim2.fromOffset(4,3),Color3.new(1,1,1)),{CornerRadius=radius}).Parent;shine.ZIndex=0
  W.new('UIGradient',shine,{Rotation=90,Transparency=NumberSequence.new(.5,.92)})
  local gloss=W.round(W.frame(face,'Gloss',UDim2.fromOffset(8,5),UDim2.new(1,-17,0,5),Color3.new(1,1,1)),3);gloss.BackgroundTransparency=.2;gloss.ZIndex=0
- local label=W.new('TextLabel',b,{Name='Label',Size=UDim2.new(1,-10,1,-5),Position=UDim2.fromOffset(5,0),BackgroundTransparency=1,Text=b.Text,TextColor3=T.ink,Font=T.label,TextSize=b.TextSize+3,TextWrapped=true})
+ local label=W.new('TextLabel',b,{Name='Label',Size=UDim2.new(1,-10,1,-5),Position=UDim2.fromOffset(5,0),BackgroundTransparency=1,Text=b.Text,TextColor3=T.ink,Font=T.label,TextSize=b.TextSize+3,TextWrapped=true,TextScaled=true})
+ -- Labels shrink (never spill) when a button is narrower than its text.
+ local cap=W.new('UITextSizeConstraint',label,{MaxTextSize=b.TextSize+3,MinTextSize=9})
  W.new('UIStroke',label,{ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,Color=T.outline,Thickness=2,LineJoinMode=Enum.LineJoinMode.Round}):SetAttribute('BaseThickness',2)
  local function fit()
   local h=b.AbsoluteSize.Y;if h<=0 then return end
@@ -67,7 +69,7 @@ function W.candy(b,base)
  end
  b:GetPropertyChangedSignal('AbsoluteSize'):Connect(fit)
  b:GetPropertyChangedSignal('Text'):Connect(function() label.Text=b.Text end)
- b:GetPropertyChangedSignal('TextSize'):Connect(function() label.TextSize=b.TextSize+3 end)
+ b:GetPropertyChangedSignal('TextSize'):Connect(function() label.TextSize=b.TextSize+3;cap.MaxTextSize=b.TextSize+3 end)
  b:GetPropertyChangedSignal('TextTransparency'):Connect(function() if b.TextTransparency~=1 then b.TextTransparency=1 end end)
  b:GetPropertyChangedSignal('BackgroundColor3'):Connect(function() if not b:GetAttribute('Painting') then b:SetAttribute('FaceColor',b.BackgroundColor3);paint(b) end end)
  local function press(i,on) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then b:SetAttribute('Pressed',on and b:GetAttribute('Enabled')~=false);fit() end end
@@ -129,7 +131,7 @@ function W.tag(parent,label,pos,color)
  return f
 end
 -- Approved illustrated icons (Theme.icons ids); vector art below is the fallback while an id is 0.
-local iconFor={Creatures='creature',Discovery='egg',Mountain='map',Sanctuary='heart',Shop='chest',Profile='scroll',Social='bat',Settings='gear',Coin='coin',Gem='gem',Interact='climb',Bat='bat',Sprint='sprint',Jump='jump',Egg='egg',EggCracked='egg-cracked',Gift='gift',Calendar='calendar',Padlock='padlock',Chest='chest',Map='map',Scroll='scroll',Heart='heart'}
+local iconFor={Creatures='creature',Discovery='egg',Mountain='map',Sanctuary='heart',Shop='chest',Profile='scroll',Social='bat',Settings='gear',Coin='coin',Gem='gem',Interact='climb',Bat='bat',Sprint='sprint',Jump='jump',Egg='egg',EggCracked='egg-cracked',Gift='gift',Calendar='calendar',Padlock='padlock',Chest='chest',Map='map',Scroll='scroll',Heart='heart',Gear='gear',Creature='creature',Climb='climb'}
 function W.icon(parent,kind,size,pos)
  local f=W.frame(parent,'Icon'..kind,size,pos);f.BackgroundTransparency=1
  local id=T.icons[iconFor[kind] or '']
@@ -225,6 +227,102 @@ function W.mountain(parent)
   local p=W.frame(f,'Peak'..i,UDim2.fromScale(v[3],v[3]*1.5),UDim2.fromScale(v[1],v[2]),v[4]);p.AnchorPoint=Vector2.new(.5,.5);p.Rotation=45
  end
  local star=W.text(f,'✦',UDim2.fromOffset(42,42),UDim2.fromScale(.49,.16),T.display,34,T.gold);star.AnchorPoint=Vector2.new(.5,.5)
+ return f
+end
+-- Hub kit (Review03). Values trace to design/hud-v2-intel.md §1–§4 and the cited pins.
+local center=Enum.TextXAlignment.Center
+-- Text that shrinks to its box instead of spilling (single line unless wrap).
+function W.fit(label,max,min,wrap)
+ label.TextScaled=true;label.TextWrapped=wrap==true
+ W.new('UITextSizeConstraint',label,{MaxTextSize=T.size(max),MinTextSize=min or 8});return label
+end
+function W.label(parent,content,size,pos,font,n,color,align,wrap)
+ local t=W.fit(W.text(parent,content,size,pos,font,n,color),n or 15,8,wrap);t.TextXAlignment=align or Enum.TextXAlignment.Left;return t
+end
+-- Offer/feature card (robloxf1-v2/07 boxes, finale-f1/01 shop tiles, cc/05 upgrade tiles): colour face, ink outline,
+-- top-light gradient (as the creature cards), panel.navy header strip with a Bangers title.
+function W.card(parent,name,size,pos,color,title)
+ local f=W.round(W.frame(parent,name,size,pos,color or T.alt),12);W.stroke(f,T.outline,3)
+ W.new('UIGradient',f,{Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(190,200,225)),Rotation=90})
+ if title then
+  local band=W.round(W.frame(f,'Header',UDim2.new(1,-10,0,24),UDim2.fromOffset(5,5),T.navy),8)
+  local t=W.label(band,string.upper(title),UDim2.new(1,-10,1,-2),UDim2.fromOffset(5,1),T.label,18,T.ink,center);t.Name='Title'
+ end
+ return f
+end
+-- Tag ribbon (robloxf1-v2/07 GUARANTEED / HIGH CHANCE strips).
+function W.chip(parent,label,color,size,pos)
+ local c=color or T.cta.base
+ local f=W.round(W.frame(parent,'Chip',size or UDim2.fromOffset(96,20),pos,c),6);W.stroke(f,T.outline,1.5)
+ local t=W.label(f,string.upper(label),UDim2.new(1,-8,1,0),UDim2.fromOffset(4,0),T.label,15,T.ink,center);t.Name='Label'
+ if c==T.cta.base then t.UIStroke.Color=T.cta.ink end
+ return f
+end
+-- Value pill (intel §4 currency pill): panel.navy pill, illustrated icon ~1.25x the pill height over the left end, white number.
+function W.pill(parent,kind,value,w,h,pos)
+ local f=W.frame(parent,'Pill',UDim2.fromOffset(w,h),pos,T.navy);W.new('UICorner',f,{CornerRadius=UDim.new(.5,0)});W.stroke(f,T.outline,1.5)
+ local x=8
+ if kind then local a=math.floor(h*1.25);local i=W.icon(f,kind,UDim2.fromOffset(a,a),UDim2.fromOffset(-2,math.floor((h-a)/2)));i:SetAttribute('Overhang',true);x=a end
+ local t=W.label(f,tostring(value),UDim2.new(1,-x-8,1,-2),UDim2.fromOffset(x,1),T.display,h-6,T.ink,center);t.Name='Value'
+ return f
+end
+-- Stat cell (cc/03, robloxf1-v2/19 stat rows): light panel.row cell, icon, small caps name over a dark value.
+function W.stat(parent,kind,name,value,w,h,pos)
+ local f=W.round(W.frame(parent,'Stat_'..name:gsub('[^%w]',''),UDim2.fromOffset(w,h),pos,T.row),8);W.stroke(f,T.outline,1.5)
+ local x=8;if kind then local a=math.min(h-10,40,math.floor(w*.28));W.icon(f,kind,UDim2.fromOffset(a,a),UDim2.fromOffset(5,math.floor((h-a)/2)));x=a+10 end
+ W.label(f,string.upper(name),UDim2.new(1,-x-6,.4,-2),UDim2.fromOffset(x,3),T.display,12,T.alt).Name='Name'
+ W.label(f,tostring(value),UDim2.new(1,-x-6,.6,-4),UDim2.new(0,x,.4,1),T.display,20,T.textDark).Name='Value'
+ return f
+end
+-- Spotlight banner (finale-f1/01 SPECIAL OFFER, robloxf1-v2/02 rays, cc/05 hero header): big illustrated icon on a ray
+-- burst, LuckiestGuy title, short line. Purple = reward/rare moments; alt blue elsewhere. `reserve` keeps the right side for a CTA.
+function W.spotlight(parent,name,height,kind,title,subtitle,color,reserve)
+ local f=W.round(W.frame(parent,name,UDim2.new(1,-8,0,height),nil,color or T.alt),14);W.stroke(f,T.outline,3);f.ClipsDescendants=true
+ W.new('UIGradient',f,{Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(190,200,225)),Rotation=90})
+ local art=height-14
+ local burst=W.frame(f,'Burst',UDim2.fromOffset(art*2.4,art*2.4),UDim2.fromOffset(7+art/2,height/2));burst.AnchorPoint=Vector2.new(.5,.5);burst.BackgroundTransparency=1;burst:SetAttribute('Decor',true)
+ for i=0,5 do local ray=W.frame(burst,'Ray',UDim2.new(0,math.floor(art*.3),1,0),UDim2.fromScale(.5,.5),Color3.new(1,1,1));ray.AnchorPoint=Vector2.new(.5,.5);ray.Rotation=i*30;ray.BackgroundTransparency=.88 end
+ local glow=W.round(W.frame(f,'Glow',UDim2.fromOffset(art,art),UDim2.fromOffset(7,7),Color3.new(1,1,1)),100);glow.BackgroundTransparency=.82
+ W.icon(f,kind,UDim2.fromOffset(art-6,art-6),UDim2.fromOffset(10,10))
+ local x=art+20;local r=(reserve or 0)+12
+ W.label(f,string.upper(title),UDim2.new(1,-x-r,0,math.floor(height*.40)),UDim2.fromOffset(x,6),T.title,32,T.ink).Name='Title'
+ if subtitle then local d=W.label(f,subtitle,UDim2.new(1,-x-r,1,-math.floor(height*.40)-12),UDim2.fromOffset(x,math.floor(height*.40)+6),T.body,14,T.ink,nil,true);d.Name='Subtitle';d.TextYAlignment=Enum.TextYAlignment.Top end
+ return f,x
+end
+-- Hero column (short phones): the same spotlight stood upright beside the content at full height, so the cards next to
+-- it keep their full height. Art + rays on top, LuckiestGuy title, short line; `slotH` px at the bottom for the CTA.
+function W.spotlightColumn(parent,name,w,h,kind,title,subtitle,color,slotH)
+ local f=W.round(W.frame(parent,name,UDim2.fromOffset(w,h),nil,color or T.alt),14);W.stroke(f,T.outline,3);f.ClipsDescendants=true
+ W.new('UIGradient',f,{Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(190,200,225)),Rotation=90})
+ local art=math.min(56,math.floor(h*.3))
+ local burst=W.frame(f,'Burst',UDim2.fromOffset(art*2.4,art*2.4),UDim2.fromOffset(w/2,8+art/2));burst.AnchorPoint=Vector2.new(.5,.5);burst.BackgroundTransparency=1;burst:SetAttribute('Decor',true)
+ for i=0,5 do local ray=W.frame(burst,'Ray',UDim2.new(0,math.floor(art*.3),1,0),UDim2.fromScale(.5,.5),Color3.new(1,1,1));ray.AnchorPoint=Vector2.new(.5,.5);ray.Rotation=i*30;ray.BackgroundTransparency=.88 end
+ local glow=W.round(W.frame(f,'Glow',UDim2.fromOffset(art,art),UDim2.fromOffset(w/2-art/2,8),Color3.new(1,1,1)),100);glow.BackgroundTransparency=.82
+ W.icon(f,kind,UDim2.fromOffset(art-6,art-6),UDim2.fromOffset(w/2-art/2+3,11))
+ local y=art+12;local free=h-y-(slotH or 0)-14
+ W.label(f,string.upper(title),UDim2.new(1,-16,0,math.min(40,free)),UDim2.fromOffset(8,y),T.title,22,T.ink,center,true).Name='Title'
+ if subtitle and free-44>=26 then local d=W.label(f,subtitle,UDim2.new(1,-16,0,free-44),UDim2.fromOffset(8,y+44),T.body,12,T.ink,center,true);d.Name='Subtitle';d.TextYAlignment=Enum.TextYAlignment.Top end
+ return f
+end
+-- Milestone track (robloxf1-v2/16 check nodes, cc2/05 node bar): nodes sit at cell centres so captions never leave the track.
+function W.track(parent,labels,done,size,pos,color)
+ local f=W.frame(parent,'Track',size,pos);f.BackgroundTransparency=1
+ local n=#labels;local last=0;for i=1,n do if done[i] then last=i end end
+ local bar=W.frame(f,'Bar',UDim2.new(1-1/n,0,0,8),UDim2.new(.5/n,0,0,11),T.navy);W.new('UICorner',bar,{CornerRadius=UDim.new(.5,0)});W.stroke(bar,T.outline,1.5)
+ local fill=W.frame(bar,'Fill',UDim2.fromScale(if n>1 then math.max(0,last-1)/(n-1) else 1,1),nil,color or T.bar.ready);W.new('UICorner',fill,{CornerRadius=UDim.new(.5,0)})
+ for i,l in ipairs(labels) do
+  local x=(i-.5)/n
+  local node=W.frame(f,'Node'..i,UDim2.fromOffset(28,28),UDim2.new(x,-14,0,1),if done[i] then T.readyDot else T.navy);W.new('UICorner',node,{CornerRadius=UDim.new(.5,0)});W.stroke(node,if done[i] then Color3.new(1,1,1) else T.outline,2)
+  W.label(node,if done[i] then '✓' else tostring(i),UDim2.fromScale(1,1),nil,T.display,16,T.ink,center)
+  W.label(f,l,UDim2.new(1/n,-4,1,-32),UDim2.new((i-1)/n,2,0,32),T.display,13,T.ink,center,true).Name='Caption'..i
+ end
+ return f
+end
+-- Rounded portrait slot for team/defense strips (layout E slot): rarity portrait, or an empty navy slot with a "+".
+function W.slot(parent,species,size,pos)
+ if species then return W.portrait(parent,species,size,pos) end
+ local f=W.round(W.frame(parent,'EmptySlot',size,pos,T.navy),12);W.stroke(f,T.outline,2)
+ W.label(f,'+',UDim2.fromScale(1,1),nil,T.display,30,T.row,center)
  return f
 end
 return W

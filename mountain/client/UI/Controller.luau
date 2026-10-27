@@ -95,7 +95,7 @@ local boss=W.text(battle,'Guardian',UDim2.new(1,-24,0,28),UDim2.fromOffset(12,6)
 local hp=W.progress(battle,1,UDim2.new(1,-24,0,10),UDim2.fromOffset(12,38),T.coral)
  local combatText=W.text(battle,'',UDim2.new(1,-24,0,50),UDim2.fromOffset(12,53),nil,12,T.ink)
 local save=W.text(top,'Connecting…',UDim2.new(1,-16,0,14),UDim2.fromOffset(8,46),nil,10,T.ink);save.Visible=false;save.TextXAlignment=Enum.TextXAlignment.Center
-coins.Size=UDim2.new(.60,-35,1,0);timer.Size=UDim2.new(.40,-56,1,0);timer.Position=UDim2.new(.60,0,0,0)
+coins.Size=UDim2.new(.48,-44,1,0);W.fit(coins,19,10);timer.Size=UDim2.new(.52,-60,1,0);timer.Position=UDim2.new(.48,0,0,0);W.fit(timer,14,9)
 local hint=W.panel(root,'Hint',UDim2.fromOffset(320,64),UDim2.new(.5,-160,0,78));hint.Visible=false
 local hintText=W.text(hint,'',UDim2.new(1,-60,1,-12),UDim2.fromOffset(12,6),nil,13,T.ink)
 local dismissHint=false
@@ -122,6 +122,15 @@ end
 connect(workspace.DescendantAdded,function(o) if o:IsA('ParticleEmitter') and not o:FindFirstAncestor('Dynamics') then defaultEffects[o]=o.Enabled;if T.prefs.simplifiedVFX then o.Enabled=false end end end)
 connect(workspace.DescendantRemoving,function(o) defaultEffects[o]=nil end)
 local nativeWatched=setmetatable({},{__mode='k'})
+-- Roblox topbar row (GuiService.TopbarInset) in SafeRoot coordinates: X shares the root's inset space; Y is measured
+-- from a full-screen (ScreenInsets.None) probe, so the row sits above the root (negative y).
+local screenProbe=W.new('ScreenGui',pg,{Name='MountainHUDScreenProbe',ResetOnSpawn=false,ScreenInsets=Enum.ScreenInsets.None})
+local screenOrigin=W.frame(screenProbe,'Origin',UDim2.fromOffset(1,1));screenOrigin.BackgroundTransparency=1
+local function topbarRect()
+ local tb=GuiService.TopbarInset;if tb.Height<44 or tb.Width<=0 then return nil end
+ local top=screenOrigin.AbsolutePosition.Y-root.AbsolutePosition.Y
+ return {x=tb.Min.X-root.AbsolutePosition.X,y=top+tb.Min.Y,w=tb.Width,h=tb.Height}
+end
 local crowdedNav=false
 local function layout()
  local v=root.AbsoluteSize;if v.X<=0 then return end
@@ -139,7 +148,7 @@ local function layout()
    end
   end
  end
- local l=P.hudLayout(v.X,v.Y,obstacles,UIS.TouchEnabled)
+ local l=P.hudLayout(v.X,v.Y,obstacles,UIS.TouchEnabled,topbarRect())
  crowdedNav=l.crowdedNavigation
  local function place(o,r) o.Size=UDim2.fromOffset(r.w,r.h);o.Position=UDim2.fromOffset(r.x,r.y) end
  place(top,l.status);place(progress,l.journey);place(menu,l.menu);place(quickCreatures,l.quickCreatures);place(quickMountain,l.quickMountain);place(team,l.team);place(actionbar,l.context);place(dodge,l.dodge);place(swing,l.dodge);place(ability,l.ability)
@@ -177,6 +186,12 @@ local function layout()
     end
    end
   end
+ end
+ -- In the topbar row the tiles are 44 px icon buttons like Roblox's own (no captions).
+ for _,b in ipairs({quick,menu,quickCreatures,quickMountain}) do
+  local icon=nil;for _,o in ipairs(b:GetChildren()) do if o:IsA('Frame') and o.Name:sub(1,4)=='Icon' then icon=o end end
+  local caption=b:FindFirstChild('Text');if caption then caption.Visible=not l.topbar end
+  if l.topbar and icon then icon.Size=UDim2.fromOffset(32,32);icon.Position=UDim2.new(.5,-16,0,3) end
  end
  for _,b in ipairs(slots) do
   local portrait=b:FindFirstChild('Portrait');if portrait then portrait.Size=UDim2.new(1,-12,1,-20);portrait.Position=UDim2.fromOffset(6,3) end
@@ -242,6 +257,7 @@ connect(UIS.InputBegan,function(input,processed)
  end
 end)
 connect(root:GetPropertyChangedSignal('AbsoluteSize'),layout)
+connect(GuiService:GetPropertyChangedSignal('TopbarInset'),function() task.defer(layout) end)
  connect(pg.DescendantAdded,function(o) if o.Name=='JumpButton' or o.Name=='DynamicThumbstickFrame' then task.defer(layout) end end)
  connect(UIS:GetPropertyChangedSignal('TouchEnabled'),layout)
 local start=os.clock()
@@ -298,7 +314,7 @@ connect(Run.Heartbeat,function(dt)
 end)
 layout()
 connect(gui.Destroying,function()
- disconnect();store:destroy();feedback:destroy();screens:destroy();for _,c in ipairs(connections) do c:Disconnect() end
+ screenProbe:Destroy();disconnect();store:destroy();feedback:destroy();screens:destroy();for _,c in ipairs(connections) do c:Disconnect() end
  for o,value in pairs(defaultEffects) do if o.Parent then o.Enabled=value end end;for s,value in pairs(soundBases) do if s.Parent then s.Volume=value end end;GuiService.SelectedObject=nil
 end)
 if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
@@ -306,6 +322,7 @@ if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
  probe.OnInvoke=function(action,value)
   if action=='open' and table.find(hubNames,value) then open(value)
   elseif action=='close' then screens:close()
+  elseif action=='detail' and screens.hub=='Creatures' and store.profile and store.profile.creatures[1] then screens.detail=value or store.profile.creatures[1].id;screens:render(false)
   elseif action=='tab' and screens.hub and screens.shade.Hub.Tabs:FindFirstChild('Tab'..tostring(value)) then screens.tab=value;screens.detail=nil;screens.page=1;screens:render(false) end
   return {ready=ready,hub=screens.hub,tab=screens.tab,view={root.AbsoluteSize.X,root.AbsoluteSize.Y},instances=#gui:GetDescendants(),pending=store.pending,status=store.status}
  end

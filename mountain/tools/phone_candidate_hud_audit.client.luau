@@ -28,7 +28,9 @@ local obstacles={}
 if touch then for _,name in ipairs({'DynamicThumbstickFrame','ThumbstickFrame','JumpButton'}) do local o=touch:FindFirstChild(name,true);if o and visible(o) then table.insert(obstacles,o) end end end
 local function overlap(a,b) local ap,bp=a.AbsolutePosition,b.AbsolutePosition;local as,bs=a.AbsoluteSize,b.AbsoluteSize return ap.X<bp.X+bs.X and bp.X<ap.X+as.X and ap.Y<bp.Y+bs.Y and bp.Y<ap.Y+as.Y end
 for _,o in ipairs(root:GetDescendants()) do
- if o:IsA('GuiButton') and visible(o) then for _,native in ipairs(obstacles) do if overlap(o,native) then table.insert(errors,'native: '..o.Name..'/'..native.Name) end end end
+ -- Owner 2026-10-27: the centred team slots + context button may sit over the dynamic joystick's gesture zone only.
+ local centred=o:IsDescendantOf(root:FindFirstChild('Team') or o) or o:IsDescendantOf(root:FindFirstChild('Actions') or o)
+ if o:IsA('GuiButton') and visible(o) then for _,native in ipairs(obstacles) do if overlap(o,native) and not (centred and native.Name=='DynamicThumbstickFrame') then table.insert(errors,'native: '..o.Name..'/'..native.Name) end end end
 end
 local huds=0 for _,g in pg:GetChildren() do if g.Name=='MountainHUD' then huds+=1 end end
 local sel=game:GetService('GuiService').SelectedObject

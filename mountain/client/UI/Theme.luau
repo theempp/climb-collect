@@ -20,8 +20,9 @@ local T={
  -- PROVISIONAL tier mapping (intel ladder; owner still picks tier count/names): Common/Uncommon blue, Rare golden, Epic royal, Mythic/Legendary prismatic.
  rarity={Common=rgb(58,139,238),Uncommon=rgb(58,139,238),Rare=rgb(247,162,27),Epic=rgb(138,75,230),Mythic=rgb(255,95,160),Legendary=rgb(255,201,60)},
  prismatic={Mythic=true,Legendary=true},
- -- Approved icon set (design/hud-v2-icons, 512 px PNG) as Roblox image ids; 0 = not uploaded, Widgets falls back to vector art.
- icons={bat=0,calendar=0,chest=0,climb=0,coin=0,creature=0,['egg-cracked']=0,egg=0,gear=0,gem=0,gift=0,heart=0,jump=0,map=0,padlock=0,scroll=0,sprint=0},
+ -- Approved icon set (design/hud-v2-icons, 512 px PNG), uploaded 2026-10-27 to the owner account (Asset Manager import, verified
+ -- by name/type/creator). 0 = not uploaded: Widgets falls back to vector art.
+ icons={bat=79489949621094,calendar=101408301548587,chest=93290064339576,climb=133883871347895,coin=101762154408109,creature=102205177846663,['egg-cracked']=72577063796540,egg=84031222220207,gear=83884046347131,gem=130750668923756,gift=96134676501853,heart=107212691032570,jump=117549058558428,map=95680349687396,padlock=81136570252405,scroll=130731564657582,sprint=120480218410073},
 }
 function T.configure(p) T.prefs=p or {} end
 function T.size(n) return n+(if T.prefs.largeText then 2 else 0) end
