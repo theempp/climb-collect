@@ -1,0 +1,41 @@
+local B=require('../shared/BatRules')
+local C=require('../shared/Catalog')
+local Run=require('../shared/RunRules')
+local n=0;local function check(v,m) assert(v,m);n+=1 end
+check(#B.bats==7 and B.byId.trail and B.byId.astral,'starter plus six section bats')
+local p={coins=0,creatures={}}
+local s=B.normalize(p);check(s.equipped=='trail' and s.levels.trail==1,'starter bat equipped')
+check(not B.unlocked(p,'blossom') and #B.grantUnlocks(p)==0,'no section bat without a set')
+for i=1,5 do table.insert(p.creatures,{id='c'..i,species=C.species[i].id,level=1,xp=0}) end
+table.insert(p.creatures,{id='dup',species=C.species[1].id,level=1,xp=0})
+check(select(1,B.setProgress(p,1))==5,'duplicates do not count')
+table.insert(p.creatures,{id='c6',species=C.species[6].id,level=1,xp=0})
+local granted=B.grantUnlocks(p);check(#granted==1 and granted[1]=='blossom' and p.bats.levels.blossom==1,'completing Blossom set unlocks its bat once')
+check(#B.grantUnlocks(p)==0,'unlock is idempotent')
+check(B.equip(p,'blossom') and not B.equip(p,'azure'),'equip only owned bats')
+check(not B.upgrade(p,'trail'),'only the equipped bat upgrades')
+check(not B.upgrade(p,'blossom'),'upgrade needs coins')
+p.coins=B.upgradeCost(1);local ok,cost=B.upgrade(p,'blossom');check(ok and cost==120 and p.coins==0 and p.bats.levels.blossom==2,'upgrade spends coins')
+local a,b=B.stats('trail',1),B.stats('blossom',2);check(b.knockback>a.knockback and b.reach>a.reach,'better bat hits farther and reaches farther')
+p.bats.levels.blossom=B.maxLevel;p.coins=1e9;check(not B.upgrade(p,'blossom'),'max level capped')
+local bad={bats={equipped='nope',levels={trail=1,nope=3,azure=99}}};B.normalize(bad);check(bad.bats.equipped=='trail' and bad.bats.levels.nope==nil and bad.bats.levels.azure==nil,'malformed bat data repaired')
+local st={};local base={now=10,distance=5,reach=7,facing=.9,target=1}
+check(B.canHit(st,base),'valid hit')
+check(not B.canHit(st,{now=10,distance=9,reach=7,facing=.9,target=1}),'reach enforced')
+check(not B.canHit(st,{now=10,distance=5,reach=7,facing=0,target=1}),'must face target')
+check(not B.canHit(st,{now=10,distance=5,reach=7,facing=.9,target=1,targetSafeZone=true}),'no hits in safe zones')
+check(not B.canHit(st,{now=10,distance=5,reach=7,facing=.9,target=1,targetProtected=true}),'securing carrier protected')
+B.recordHit(st,1,10)
+check(select(2,B.canHit(st,{now=10.5,distance=5,reach=7,facing=.9,target=2}))=='cooldown','swing cooldown')
+check(select(2,B.canHit(st,{now=12,distance=5,reach=7,facing=.9,target=1}))=='same_victim','same victim cooldown')
+check(B.canHit(st,{now=12,distance=5,reach=7,facing=.9,target=2}),'other victim allowed after cooldown')
+check(B.canHit(st,{now=18.5,distance=5,reach=7,facing=.9,target=1}),'same victim again after cooldown')
+-- custody transfer
+local victim={schema=2,run={id='r1',eggId='e',species=C.species[2].id,section=1,trial=false,phase='carried',hits=3,startedAt=0}}
+local thief={schema=2}
+local snap=Run.drop(victim);check(snap and victim.run==nil and snap.species==C.species[2].id,'carried creature drops')
+check(Run.drop({schema=2,run={phase='revealed'}})==nil,'only carried creatures drop')
+check(Run.drop({schema=2,run={phase='carried',trial=true,species=C.species[2].id}})==nil,'Trial rewards cannot be stolen')
+check(Run.receive(thief,snap,'r2',5) and thief.run.phase=='carried' and thief.run.id=='r2','thief carries under new run')
+check(not Run.receive(thief,snap,'r3',5),'one creature at a time')
+print('PASS '..n..' bat rules checks')

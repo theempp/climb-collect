@@ -80,6 +80,10 @@ local quickCreatures=W.tile(root,'QuickCreatures','Creatures','Creatures',UDim2.
 local quickMountain=W.tile(root,'QuickMountain','Mountain','Mountain',UDim2.fromOffset(76,70),UDim2.fromOffset(184,60),function() open('Mountain') end,T.green)
 local quick=W.tile(root,'Quick','Settings','Settings',UDim2.fromOffset(68,70),UDim2.fromOffset(268,60),function() open('Settings');if screens.hub then screens.tab='Quick';screens:render(false) end end,T.line)
 local dodge=W.button(root,'Dodge','Dodge [Q]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),function() store:request('Dodge') end,'gold');dodge.Visible=false
+local swingReadyAt=0
+local function swingBat() if os.clock()<swingReadyAt then return end;swingReadyAt=os.clock()+1.5;store:request('Swing') end
+local swing=W.button(root,'Swing','Bat [F]',UDim2.fromOffset(122,48),UDim2.new(1,-148,1,-218),swingBat,'gold');swing.Visible=false
+ swing:SetAttribute('Tooltip','Whack a climber carrying an unsecured creature to knock it loose, then grab it.')
 local ability=W.button(root,'Ability','Ability 1',UDim2.fromOffset(122,44),UDim2.new(1,-148,1,-270),function() activeAbility=activeAbility%4+1;sound() end,'quiet');ability.Visible=false
  ability:SetAttribute('Tooltip','Choose a captured Guardian’s special. Regular companions use their role special.')
  dodge:SetAttribute('Tooltip','Dodge the highlighted danger. A successful clean dodge advances Trial mastery.')
@@ -135,7 +139,7 @@ local function layout()
  local l=P.hudLayout(v.X,v.Y,obstacles,UIS.TouchEnabled)
  crowdedNav=l.crowdedNavigation
  local function place(o,r) o.Size=UDim2.fromOffset(r.w,r.h);o.Position=UDim2.fromOffset(r.x,r.y) end
- place(top,l.status);place(progress,l.journey);place(menu,l.menu);place(quickCreatures,l.quickCreatures);place(quickMountain,l.quickMountain);place(team,l.team);place(actionbar,l.context);place(dodge,l.dodge);place(ability,l.ability)
+ place(top,l.status);place(progress,l.journey);place(menu,l.menu);place(quickCreatures,l.quickCreatures);place(quickMountain,l.quickMountain);place(team,l.team);place(actionbar,l.context);place(dodge,l.dodge);place(swing,l.dodge);place(ability,l.ability)
  quick.Position=UDim2.fromOffset(268,60);quick.Visible=not l.short
  -- One compact corner panel carries location, real height and the minimal objective.
  location.Size=UDim2.new(1,-20,0,22);location.Position=UDim2.fromOffset(10,3)
@@ -229,7 +233,8 @@ connect(UIS.InputBegan,function(input,processed)
  elseif key==Enum.KeyCode.Escape or key==Enum.KeyCode.ButtonB then if not feedback:close() then screens:back() end
  elseif not screens.hub and not feedback.modal and ready then
   if key==Enum.KeyCode.One or key==Enum.KeyCode.Two or key==Enum.KeyCode.Three then local slot=({[Enum.KeyCode.One]=1,[Enum.KeyCode.Two]=2,[Enum.KeyCode.Three]=3})[key];store:request('Special',{slot=slot,ability=selectedAbility(slot)})
-  elseif (key==Enum.KeyCode.Q or key==Enum.KeyCode.ButtonY) and store.battle then store:request('Dodge') end
+  elseif (key==Enum.KeyCode.Q or key==Enum.KeyCode.ButtonY) and store.battle then store:request('Dodge')
+  elseif (key==Enum.KeyCode.F or key==Enum.KeyCode.ButtonX) and not store.battle then swingBat() end
  end
 end)
 connect(root:GetPropertyChangedSignal('AbsoluteSize'),layout)
@@ -245,6 +250,8 @@ connect(Run.Heartbeat,function(dt)
  top.Visible=ready and not store.battle;progress.Visible=ready and not store.battle and not (expanded and P.horizontalNavigation(root.AbsoluteSize.Y,UIS.TouchEnabled));quest.Visible=ready and not store.battle and not expanded
  menu.Visible=ready and not screens.hub;quickCreatures.Visible=ready and not screens.hub and not expanded and not store.battle and not crowdedNav;quickMountain.Visible=quickCreatures.Visible;quick.Visible=ready and not screens.hub and not expanded and root.AbsoluteSize.Y>=400;team.Visible=ready and not screens.hub;actionbar.Visible=ready and not screens.hub and not store.battle and data~=nil and ((data.ui and data.ui.atHome) or (data.ui and data.ui.nearestEgg) or (data.run and data.run.phase=='revealed'))
  dodge.Visible=P.combatVisible(store.battle,ready,screens.hub~=nil);ability.Visible=dodge.Visible;battle.Visible=dodge.Visible
+ swing.Visible=ready and not screens.hub and not expanded and not store.battle and data~=nil and data.ui~=nil and not data.ui.inSanctuary
+ if swing.Visible then local wait=math.ceil(swingReadyAt-os.clock());W.enable(swing,wait<=0,if wait>0 then 'Bat · '..wait..'s' else (if UIS.TouchEnabled then 'Bat' else 'Bat [F]')) end
  if data then
   local clock=store:clock();local ui=data.ui or {};local cooldowns=ui.cooldowns or {}
   for i,b in ipairs(slots) do

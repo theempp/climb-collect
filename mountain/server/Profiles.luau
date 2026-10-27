@@ -1,6 +1,7 @@
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
+local Bats=require(game.ReplicatedStorage.MountainShared.BatRules)
 local Store=require(script.Parent.Store)
 local Http=game:GetService('HttpService')
 local Run=game:GetService('RunService')
@@ -21,6 +22,10 @@ local function valid(p)
  if p.unlocked<1 or p.unlocked>6 then return false end
  if p.tycoon~=nil and not R.tycoon.valid(p.tycoon) then return false end
  if p.settings~=nil and not UIProtocol.settings(p.settings) then return false end
+ if p.bats~=nil then
+  if type(p.bats)~='table' or type(p.bats.equipped)~='string' or type(p.bats.levels)~='table' or not p.bats.levels[p.bats.equipped] then return false end
+  for id,n in pairs(p.bats.levels) do if not Bats.byId[id] or not finite(n) or n%1~=0 or n<1 or n>Bats.maxLevel then return false end end
+ end
  for _,key in ipairs({'creatures','team','cargo','eggs'}) do if not dense(p[key]) then return false end end
  local ids={}
  for _,c in ipairs(p.creatures) do
@@ -54,7 +59,7 @@ function P.load(player)
   accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}
  end)
  if not ok or not accepted or not data or not valid(data.profile) then return nil,err or 'Profile unavailable or in use; no data overwritten.' end
- data.profile.settings=UIProtocol.settings(nil,data.profile.settings)
+ data.profile.settings=UIProtocol.settings(nil,data.profile.settings);Bats.normalize(data.profile)
  local s={p=data.profile,busy=false,healthy=true,closing=false,lastSave=now,leaseUntil=now+180}
  P.sessions[player]=s;return s.p
 end

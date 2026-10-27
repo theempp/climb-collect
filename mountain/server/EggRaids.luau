@@ -74,6 +74,23 @@ function E.new(context)
   end
   return ok,reason
  end
+ -- Bat theft: release the carrier's custody without a loss message; the Bats service owns the dropped creature.
+ function service.drop(player)
+  if exits[player] then return nil end
+  local p=P.get(player);if not p then return nil end
+  local snapshot=Run.drop(p);if not snapshot then return nil end
+  release(player,false);present(player,{kind='dropped',species=snapshot.species});changed(player)
+  return snapshot
+ end
+ function service.adopt(player,snapshot,position)
+  local p=P.get(player)
+  if not p or exits[player] or not context.alive(player) then return false,'unavailable' end
+  local runId=context.guid()
+  local ok,reason=Run.receive(p,snapshot,runId,context.clock());if not ok then return false,reason end
+  owners[player]={player=player,runId=runId,egg={id='drop:'..runId,section=snapshot.section,position=position},species=snapshot.species}
+  present(player,{kind='carry',run=table.clone(p.run)});changed(player)
+  return true,runId
+ end
  -- Only a completed server-authoritative Trial calls this; clients cannot name species.
  function service.reward(player,section,species,position)
   local p=P.get(player)

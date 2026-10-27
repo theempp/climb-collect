@@ -8,6 +8,7 @@ local B=require(script.Parent.Combat)
 local Competition=require(script.Parent.Competition)
 local UIRequests=require(script.Parent.UIRequests)
 local UIProtocol=require(RS.MountainShared.UIProtocol)
+local BatRules=require(RS.MountainShared.BatRules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
@@ -30,7 +31,7 @@ local uiResult=Instance.new('RemoteEvent');uiResult.Name='UIResult';uiResult.Par
 local sprintRequest=Instance.new('RemoteEvent');sprintRequest.Name='SprintRequest';sprintRequest.Parent=remotes
 local movement=require(script.Parent.Movement).new(sprintRequest)
 local uiService
-local raids,guardians,carryVisuals,raidHazards
+local raids,guardians,carryVisuals,raidHazards,bats
 local raidEggs={}
 local state={}
 local contextSnapshots={}
@@ -87,10 +88,11 @@ local function nearestEgg(player)
 end
 local function publish(player,visual)
  local p=P.get(player);if not p then return end
+ for _,id in ipairs(BatRules.grantUnlocks(p)) do send(player,'toast','Index set complete! '..BatRules.byId[id].name..' unlocked.') end
  local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode
  local serverClock=workspace:GetServerTimeNow();local cooldowns,dodgeReadyAt=B.cooldowns(player,serverClock)
  tycoonWorld.update(player,p)
- s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings)}
+ s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings),bats=if bats then bats.snapshot(p) else nil}
  send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
@@ -119,7 +121,7 @@ local function onCharacter(player,character)
  local p=P.get(player);if not p then return end
  local pos=if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
- teleport(player,pos);rebuildTeam(player)
+ teleport(player,pos);rebuildTeam(player);if bats then bats.equip(player) end
  h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player) end;respawns[player]=os.clock()+3 end)
 end
 loadCharacter=function(player)
@@ -139,7 +141,7 @@ end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
- movement.clear(player)
+ movement.clear(player);if bats then bats.remove(player) end
  if raids then raids.remove(player) end;if guardians then guardians.remove(player) end;if raidHazards then raidHazards.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
@@ -198,6 +200,20 @@ B.connectRaids({guardians=guardians,raids=raids,manifest=function(k,center)
  for _,v in ipairs(m:GetDescendants()) do if v:IsA('BasePart') then v.Transparency=.38;v.Material=Enum.Material.Neon end end
  return m
 end})
+bats=require(script.Parent.Bats).new({profile=P.get,root=root,alive=living,clock=os.clock,players=function() return Players:GetPlayers() end,
+ guid=function() return game:GetService('HttpService'):GenerateGUID(false) end,raids=raids,protected=raids.protected,folder=world.Interactions,
+ safeZone=function(player)
+  local rr=root(player);if not rr then return true end
+  if home.inSanctuary(rr.Position) then return true end
+  for _,cp in ipairs(world.Checkpoints:GetChildren()) do if (cp.Position-rr.Position).Magnitude<=BatRules.checkpointRadius then return true end end
+  return false
+ end,
+ knock=function(target,velocity,stun)
+  local m=motion[target];if m then m.blockedUntil=os.clock()+stun+.6 end
+  send(target,'knock',{velocity=velocity,stun=stun})
+ end,
+ notify=function(player,text) send(player,'toast',text) end,
+ creatureModel=function(_,species,position) local def=C.byId[species];return def and A.creature(nil,def,position,.65,1) end})
 raidHazards=require(script.Parent.RaidHazards).new({world=world,players=function() return Players:GetPlayers() end,root=root,
  alive=function(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 and h end,
  protected=raids.protected,inSanctuary=home.inSanctuary,dodging=function(player,now) return now<(B.dodgeUntil[player] or 0) end})
@@ -233,6 +249,9 @@ local function interact(player,part)
   local rune=math.floor(workspace:GetServerTimeNow()/2)%3+1
   if rune~=s.puzzle[id] then s.puzzle[id]=0;send(player,'toast','Align runes in order: I → II → III. Wait for the matching rune.');return end
   if s.puzzle[id]>=3 then s.puzzle[id]=0;send(player,'toast','Three runes aligned. Find a guarded egg to discover a companion.') else send(player,'toast','Rune '..s.puzzle[id]..' / 3 aligned. Rotate again.') end
+ elseif kind=='DroppedCreature' then
+  local ok,reason=bats.grab(player,id)
+  if not ok then send(player,'toast',if reason=='full_hands' then 'Your hands are full: secure your creature first.' else 'Too late — it slipped away.') end
  elseif kind=='Recovery' then
   if part:GetAttribute('Owner')==player.UserId and R.recover(p,os.time()) then part:Destroy();recovering[player]=nil;send(player,'toast','Eggs recovered • extract them now.') end
  elseif kind=='Summit' then
@@ -280,12 +299,14 @@ local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Compe
  safe=safe,atHome=atHome,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
  save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
  travel=journey.go,raids=raids,putDown=carryVisuals.clear,
+ bats=bats,batRules=BatRules,equipBat=function(player) bats.equip(player) end,batSnapshot=function(p) return bats.snapshot(p) end,
 })
 local function handle(player,action,data,correlated)
  local ok,message,result=dispatch(player,action,data)
  if action=='Settings' then send(player,'save',ok) end
  if action~='State' then
-  if not correlated and (action~='Special' and action~='Dodge' or not ok) then send(player,'toast',message) end
+  if not correlated and action~='Swing' and (action~='Special' and action~='Dodge' or not ok) then send(player,'toast',message) end
+  if action=='Swing' and message then send(player,'toast',message) end
   publish(player)
  end
  return ok,message,result
@@ -317,7 +338,7 @@ end end
 local combatTick,checkTick,contextTick=0,0,0
 game:GetService('RunService').Heartbeat:Connect(function(dt)
  local now=os.clock()
- carryVisuals.tick();raids.tick(now);guardians.tick(now);raidHazards.tick(now)
+ carryVisuals.tick();raids.tick(now);bats.tick(now);guardians.tick(now);raidHazards.tick(now)
  for _,m in ipairs(moving) do
   local offset=(math.sin(now*.5)+1)*17
   local k=m.part:GetAttribute('Kingdom')

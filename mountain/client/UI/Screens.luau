@@ -8,7 +8,7 @@ local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
 local TycoonHub=require(script.Parent.TycoonHub)
 local S={};S.__index=S
-local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Cosmetics','Convenience'},Settings={'Accessibility','Audio','Quick'}}
+local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Bats','Cosmetics','Convenience'},Settings={'Accessibility','Audio','Quick'}}
 local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain',Competition='Social'}
 local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests',Competition='Challenges'}
 function S.new(root,store,feedback,onClose)
@@ -110,7 +110,7 @@ function S:render(preserve)
  elseif self.hub=='Mountain' then self:mountain(data)
  elseif self.hub=='Social' then self:social(data)
  elseif self.hub=='Profile' then self:profile(data)
- elseif self.hub=='Shop' then self:shop()
+ elseif self.hub=='Shop' then self:shop(data)
  elseif self.hub=='Settings' then self:settings(data) end
  self.body.CanvasPosition=scroll;tabScroll.CanvasPosition=tabScrollPosition;self:pending();self:tick()
  if UIS.GamepadEnabled and UIS:GetLastInputType()==Enum.UserInputType.Gamepad1 then
@@ -281,8 +281,19 @@ function S:profile(data)
   self:blocked('Badges & equipped titles','Badge awards and title selection need their platform/profile services. Earned mountain milestones remain visible in Achievements.','Title selection unavailable')
  end
 end
-function S:shop()
- if self.tab=='Cosmetics' then
+function S:shop(data)
+ if self.tab=='Bats' then
+  self:note('Bats','Whack a climber carrying an unsecured creature to knock it loose for 3 seconds, then grab it. No hits in the sanctuary or at rest points. Complete a section index set to unlock its bat; coins upgrade the equipped bat.',150)
+  for _,b in ipairs((data.ui and data.ui.bats) or {}) do
+   local status=if b.owned then 'Level '..b.level..(if b.equipped then ' · equipped' else '')..' · knockback '..b.knockback..' · reach '..b.reach else b.have..' / '..b.total..' '..(if b.kingdom>0 then 'creatures in the index set' else '')
+   local f=self:note(b.name,status,if b.owned then 168 else 112)
+   if b.owned then
+    local half=UDim2.new(.5,-20,0,44)
+    self:action(f,'Equip_'..b.id,if b.equipped then 'Equipped' else 'Equip','Bat',{op='equip',id=b.id},not b.equipped,UDim2.new(0,14,1,-56),half)
+    self:action(f,'Upgrade_'..b.id,if b.cost then 'Upgrade · '..b.cost..' coins' else 'Max level','Bat',{op='upgrade',id=b.id},b.equipped and b.cost~=nil and (data.coins or 0)>=b.cost,UDim2.new(.5,6,1,-56),half)
+   end
+  end
+ elseif self.tab=='Cosmetics' then
   local free=self:note('Sanctuary palettes','Your unlocked kingdom palettes are free. Personalize habitat trim and machines at your plot.',156)
   W.button(free,'FreePalettes','Open free palettes',UDim2.new(1,-28,0,44),UDim2.new(0,14,1,-56),function() self:open('Sanctuary');self.tab='Cosmetics';self:render(false) end,'gold')
   self:note('Make the mountain yours','Cosmetics and personal style belong here: appearances, decorations and visual effects. Your combat strength comes from play.',118)

@@ -128,7 +128,21 @@ function U.actions(context)
 
   end
 
+  if action=='Bat' then
+   local Bat=context.batRules;if not Bat then return false,'Bats are unavailable.' end
+   local ok,detail
+   if payload.op=='equip' then ok=Bat.equip(p,payload.id) else ok,detail=Bat.upgrade(p,payload.id) end
+   if ok then if context.equipBat then context.equipBat(player) end;if context.save then context.save(player) end end
+   local message=if ok then (if payload.op=='equip' then 'Bat equipped.' else 'Bat upgraded.') elseif detail=='coins' then 'Not enough coins for this upgrade.' elseif detail=='max' then 'This bat is at maximum level.' elseif detail=='not_equipped' then 'Equip this bat to upgrade it.' else 'Complete the section index set to unlock this bat.'
+   return ok==true,message,{bats=context.batSnapshot and context.batSnapshot(p)}
+  end
   if not context.safe(player) then return false,'Wait until your character is ready and movement is safe.' end
+  if action=='Swing' then
+   if not context.bats then return false,'Bats are unavailable.' end
+   local _,result=context.bats.swing(player)
+   local messages={safe_zone='No bat hits in the sanctuary or at rest points.',protected='That climber is securing a creature.',same_victim='Give that climber a moment before swinging again.',hands_full='Both arms are carrying your creature.'}
+   return result=='hit' or result=='miss',messages[result],{result=result}
+  end
 
   if action=='Strike' or action=='Pickup' or action=='PutDown' then
    if not context.raids then return false,'Mountain discovery is unavailable.' end

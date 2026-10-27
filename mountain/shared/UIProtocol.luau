@@ -1,6 +1,6 @@
 -- Shared wire validation only; all ownership, proximity and costs remain server rules.
 local U={}
-local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true}
+local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true}
 local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true}
 local function finite(value) return type(value)=='number' and value==value and math.abs(value)<math.huge end
 local function text(value) return type(value)=='string' and #value>0 and #value<=80 end
@@ -52,7 +52,8 @@ function U.validate(id,action,payload)
    elseif payload.op=='cosmetic' then valid=fields(payload,{op=true,id=true}) and text(payload.id)
    elseif payload.op=='upgrade' then valid=fields(payload,{op=true,path=true,slot=true}) and table.find({'habitats','habitat','production','storage','bag','banking','automation'},payload.path)~=nil and (if payload.path=='habitat' then slot(payload.slot,false) else payload.slot==nil) end
   end
- elseif action=='State' or action=='Dodge' or action=='CollectIncome' or action=='RegisterDefense' then valid=payload==nil
+ elseif action=='Bat' then valid=fields(payload,{op=true,id=true}) and (payload.op=='equip' or payload.op=='upgrade') and text(payload.id)
+ elseif action=='State' or action=='Swing' or action=='Dodge' or action=='CollectIncome' or action=='RegisterDefense' then valid=payload==nil
  elseif action=='Train' or action=='Incubate' or action=='Hatch' or action=='Travel' then valid=text(payload)
  elseif action=='ChallengeDefense' then valid=finite(payload) and payload%1==0 and payload>=0 and payload<=9007199254740991
  elseif action=='Settings' then valid=payload~=nil and U.settings(payload)~=nil

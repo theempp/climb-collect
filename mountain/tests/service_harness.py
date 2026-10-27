@@ -35,7 +35,8 @@ body += '\nlocal RaidConfig=' + module('mountain/shared/RaidConfig.luau')
 body += '\nlocal GuardianRules=' + module('mountain/shared/GuardianRules.luau', 'local script={Parent={RaidConfig=RaidConfig}}')
 body += '\nlocal Rules=' + module('mountain/shared/Rules.luau', 'local script={Parent={Catalog=Catalog,Tycoon=Tycoon,RunRules=RunRules}}')
 body += '\nlocal Protocol=' + module('mountain/shared/UIProtocol.luau')
-body += '\ngame.ReplicatedStorage={MountainShared={Catalog=Catalog,Rules=Rules,UIProtocol=Protocol,RaidConfig=RaidConfig,GuardianRules=GuardianRules}}'
+body += '\nlocal BatRules=' + module('mountain/shared/BatRules.luau', 'local script={Parent={Catalog=Catalog}}')
+body += '\ngame.ReplicatedStorage={MountainShared={Catalog=Catalog,Rules=Rules,UIProtocol=Protocol,BatRules=BatRules,RaidConfig=RaidConfig,GuardianRules=GuardianRules}}'
 body += '\nlocal Store=' + module('mountain/server/Store.luau')
 body += '\nlocal Profiles=' + module('mountain/server/Profiles.luau', 'local script={Parent={Store=Store}}')
 body += '\ngame.ServerStorage={MountainWorld={Art={}}}'
