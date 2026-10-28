@@ -73,15 +73,14 @@ local function rebuildTeam(player)
  if companions[player] then companions[player]:Destroy() end
  local p=P.get(player);if not p then return end
  local f=Instance.new('Folder');f.Name='Team_'..player.UserId;f.Parent=world.Encounters;companions[player]=f
- for i,id in ipairs(p.team) do
-  local c=R.find(p.creatures,id);if c then
-   local m=A.creature(nil,C.byId[c.species],Vector3.new(0,-100,0),if C.byId[c.species].rarity=='Legendary' then 1.2 else .65,R.stage(c.level))
-   -- Three companions per player: keep their anchored cosmetic parts available at upper camps.
-   m.ModelStreamingMode=Enum.ModelStreamingMode.Persistent;m:SetAttribute('Slot',i);m:SetAttribute('Species',c.species);m.Parent=f
-  end
+ -- Q8: followers and MaxHealth come from the battle team only; Robux creatures never follow.
+ for i,c in ipairs(R.battleTeam(p)) do
+  local m=A.creature(nil,C.byId[c.species],Vector3.new(0,-100,0),if C.byId[c.species].rarity=='Legendary' then 1.2 else .65,R.stage(c.level))
+  -- Three companions per player: keep their anchored cosmetic parts available at upper camps.
+  m.ModelStreamingMode=Enum.ModelStreamingMode.Persistent;m:SetAttribute('Slot',i);m:SetAttribute('Species',c.species);m.Parent=f
  end
  local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
- if h then local total=0;for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then total+=R.stats(c).health end end;h.MaxHealth=140+total*.15;h.Health=math.min(h.Health,h.MaxHealth) end
+ if h then local total=0;for _,c in ipairs(R.battleTeam(p)) do total+=R.stats(c).health end;h.MaxHealth=140+total*.15;h.Health=math.min(h.Health,h.MaxHealth) end
 end
 local function atHome(player) local rr=root(player);return rr~=nil and home.ownsPosition(player,rr.Position) end
 local function atRefuge(player) local rr=root(player);return rr~=nil and (home.ownsPosition(player,rr.Position) or (rr.Position-Vector3.new(0,17,560)).Magnitude<95) end
@@ -245,7 +244,7 @@ local function interact(player,part)
   p.checkpoint=id;local first=not p.discoveries[id];local before=Explorer.xp(p)
   p.discoveries[id]=true
   local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');if h then h.Health=h.MaxHealth end
-  if first then for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,40*k) end end end
+  if first then for _,c in ipairs(R.battleTeam(p)) do R.addXP(c,40*k) end end
   -- Rest-point player XP is derived from discoveries; the event only names its source.
   local gained=Explorer.xp(p)-before;if gained>0 then hud(player,'xp',{amount=gained,source='rest',level=Explorer.summary(p).level}) end
   send(player,'toast','Rest point saved. Unsecured creatures still need the sanctuary exit.');task.spawn(P.save,player,false)
@@ -255,7 +254,7 @@ local function interact(player,part)
   if not ok then send(player,'toast',if reason=='reserved' then 'Another climber is breaking this egg.' else 'Move closer or finish your current creature run.') end
  elseif kind=='Discovery' then
   if not p.discoveries[id] then p.discoveries[id]=true;p.resources[tostring(k)]=(p.resources[tostring(k)] or 0)+10;p.coins+=20
-   for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,60*k) end end
+   for _,c in ipairs(R.battleTeam(p)) do R.addXP(c,60*k) end
    send(player,'toast','Landmark discovered • +10 '..C.kingdoms[k].resource)
   else send(player,'toast','Landmark recorded in your expedition journal.') end
  elseif kind=='Shortcut' then

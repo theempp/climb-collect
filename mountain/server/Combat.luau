@@ -14,13 +14,13 @@ local function inArena(player,b)
 end
 local function power(p,targetElement)
  local damage=0
- for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then local st=R.stats(c);damage+=if targetElement then R.damage(st.element,targetElement,st.attack) else st.attack end end
+ for _,c in ipairs(R.battleTeam(p)) do local st=R.stats(c);damage+=if targetElement then R.damage(st.element,targetElement,st.attack) else st.attack end
  return damage
 end
 local function harm(player,amount)
  local p=profiles.get(player);local h=alive(player);if not p or not h then return end
  local guard=0
- for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then local st=R.stats(c);guard+=st.guard+(if st.role=='Tank' then .05 else 0) end end
+ for _,c in ipairs(R.battleTeam(p)) do local st=R.stats(c);guard+=st.guard+(if st.role=='Tank' then .05 else 0) end
  local buff=B.buffs[player]
  if buff and os.clock()<buff.untilTime and buff.shield then guard+=.25 end
  h:TakeDamage(amount*(1-math.min(.65,guard)))
@@ -73,7 +73,7 @@ function B.dodge(player)
 end
 function B.special(player,slot,ability)
  if type(slot)~='number' or slot%1~=0 or slot<1 or slot>3 then return false end
- local p=profiles.get(player);local c=p and R.find(p.creatures,p.team[slot]);if not c then return false end
+ local p=profiles.get(player);local c=p and R.find(p.creatures,p.team[slot]);if not c or not table.find(R.battleTeam(p),c) then return false end
  local s=C.byId[c.species];ability=if s.rarity=='Legendary' and type(ability)=='number' and ability%1==0 and ability>=1 and ability<=4 then ability else 1
  local key=tostring(player.UserId)..':'..c.id..':'..ability;local now=os.clock()
  if now<(B.specialAt[key] or 0) then return false end
@@ -181,7 +181,7 @@ function B.finish(b)
      send(player,'toast',C.guardians[k].name..' is resting. The section has a brief raid opening!')
      if gained>0 and hud then hud(player,'xp',{amount=gained,source='win',level=Explorer.summary(p).level}) end
     end
-    if awarded then for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,RaidConfig.section(k).companionXP) end end end
+    if awarded then for _,c in ipairs(R.battleTeam(p)) do R.addXP(c,RaidConfig.section(k).companionXP) end end
    else send(player,'toast','Victory, but mastery requires 3 clean dodges. Retry the Trial.') end
    changed(player);task.spawn(profiles.save,player,false)
   end
@@ -201,7 +201,7 @@ function B.tick()
    send(player,'battle',{name=C.byId[w.species].name,hp=math.max(0,w.hp),max=C.byId[w.species].health*2,trial=false,kingdom=C.byId[w.species].kingdom,resolved=0,objective=false,members={{userId=player.UserId,name=player.DisplayName}},captureOwned=false})
    if now>=w.nextAttack then w.nextAttack=now+4;if now>(B.dodgeUntil[player] or 0) then harm(player,8) end end
    if w.hp<=0 then
-    local collected=R.collect(p,w.species,'wild:'..w.species,os.time());for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,50) end end
+    local collected=R.collect(p,w.species,'wild:'..w.species,os.time());for _,c in ipairs(R.battleTeam(p)) do R.addXP(c,50) end
     B.wild[player]=nil;changed(player);send(player,'toast',if collected then 'Encounter won • egg collected. Extract at a checkpoint.' else 'Encounter won • cargo full. Extract eggs before trying again.');send(player,'battle',false)
    end
   end

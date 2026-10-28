@@ -59,6 +59,8 @@ function P.load(player)
   if old and old.lock and old.lock.owner~=owner and old.lock.expires>now then return nil end
   local p=if old then old.profile else R.newProfile(now)
   p=Custody.migrate(p);if not p or not valid(p) then return nil end
+  -- D8: Robux ids leave the team (freed slots refilled) and Robux eggs return home; persisted in this same write.
+  R.stripRobux(p)
   Explorer.ensure(p,Explorer.today(now))
   Custody.forfeit(p,'leave')
   if not p.tycoon then R.settleIncome(p,now);R.tycoon.ensure(p,now) else R.tycoon.settle(p,now,true) end

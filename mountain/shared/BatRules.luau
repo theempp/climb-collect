@@ -18,10 +18,10 @@ function B.normalize(p)
  p.bats={equipped=if type(s.equipped)=='string' and levels[s.equipped] then s.equipped else 'trail',levels=levels}
  return p.bats
 end
--- Index progress for one section: distinct owned species of that kingdom.
+-- Index progress for one section: distinct owned species of that kingdom. Robux creatures never count (D8: no paid power in theft).
 function B.setProgress(p,k)
  local seen,count={},0
- for _,c in ipairs(p.creatures or {}) do local s=C.byId[c.species];if s and s.kingdom==k and s.rarity~='Legendary' and not seen[s.id] then seen[s.id]=true;count+=1 end end
+ for _,c in ipairs(p.creatures or {}) do local s=C.byId[c.species];if s and c.origin~='robux' and s.kingdom==k and s.rarity~='Legendary' and not seen[s.id] then seen[s.id]=true;count+=1 end end
  local total=0;for _,s in ipairs(C.species) do if s.kingdom==k then total+=1 end end
  return count,total
 end

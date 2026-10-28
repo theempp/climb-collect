@@ -95,4 +95,21 @@ win(e,2,0,3);check(ExplorerRules.xp(pe)==300 and pe.explorer.repeats==5 and #xpH
 win(e,3,0,1);check(pe.wins['3'] and not pe.explorer.won['3'] and ExplorerRules.xp(pe)==300,'leech_first_win_elsewhere_pays_0')
 local legacyWin={UserId=205,DisplayName='F'};local pf=Rules.newProfile(100);pf.explorer=nil;pf.wins['4']=true;ps[legacyWin]=pf
 win(legacyWin,4,1,1);check(pf.explorer.won['4'] and pf.explorer.repeats==1 and ExplorerRules.xp(pf)==440,'unseeded_explorer_judges_prior_win_before_flag_is_set')
+-- D8 (C9): an injected Robux id adds no power, guard, special or companion XP; Competition snapshots skip it.
+local rp={UserId=206,DisplayName='R'};local pr=Rules.newProfile(100);ps[rp]=pr
+table.insert(pr.creatures,{id='rx',species='fernox',level=1,xp=0,origin='robux',specialization='Guard'});pr.team={'rx','c1'}
+local taken={};local rh={Health=140,MaxHealth=140,TakeDamage=function(_,n) table.insert(taken,n) end};local rroot={Position=v(0)}
+rp.Character={FindFirstChild=function() return rroot end,FindFirstChildOfClass=function() return rh end}
+local wildHp=1e6;Combat.wild[rp]={species='petalyn',part={Parent=true,Position=v(0)},hp=wildHp,nextAttack=0}
+Combat.tick()
+local st=Rules.stats(pr.creatures[1]);local guard=st.guard+(if st.role=='Tank' then .05 else 0)
+check(Combat.wild[rp].hp==wildHp-Rules.damage(st.element,Catalog.byId.petalyn.element,st.attack),'robux_adds_no_power')
+check(#taken==1 and taken[1]==8*(1-math.min(.65,guard)),'robux_adds_no_guard')
+check(not Combat.special(rp,1,1) and Combat.special(rp,2,1),'robux_slot_has_no_special')
+Combat.wild[rp].hp=0;Combat.tick()
+check(Combat.wild[rp]==nil and pr.creatures[1].xp+pr.creatures[1].level>1 and pr.creatures[4].xp==0 and pr.creatures[4].level==1,'robux_gets_no_wild_xp')
+local before=pr.creatures[1].xp+pr.creatures[1].level*1000;win(rp,1,2,0)
+check(pr.creatures[1].xp+pr.creatures[1].level*1000>before and pr.creatures[4].xp==0 and pr.creatures[4].level==1,'robux_gets_no_battle_xp')
+local snap=Competition.snapshot(pr,206)
+check(#snap.team==1 and snap.team[1].species=='mossbun','competition_snapshot_excludes_robux')
 print('PASS '..checks..' combat raid integration checks')

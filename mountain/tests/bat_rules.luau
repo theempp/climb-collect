@@ -38,4 +38,9 @@ check(Run.drop({schema=2,run={phase='revealed'}})==nil,'only carried creatures d
 check(Run.drop({schema=2,run={phase='carried',trial=true,species=C.species[2].id}})==nil,'Trial rewards cannot be stolen')
 check(Run.receive(thief,snap,'r2',5) and thief.run.phase=='carried' and thief.run.id=='r2','thief carries under new run')
 check(not Run.receive(thief,snap,'r3',5),'one creature at a time')
+-- D8 (C10): a Robux creature never counts toward a set, so it cannot unlock knockback 55+8k or reach 7+.5k.
+local paid={coins=0,creatures={}}
+for i=1,6 do table.insert(paid.creatures,{id='p'..i,species=C.species[6+i].id,level=1,xp=0,origin=if i==6 then 'robux' else nil}) end
+check(select(1,B.setProgress(paid,2))==5 and not B.unlocked(paid,'azure') and #B.grantUnlocks(paid)==0 and not paid.bats.levels.azure,'robux creature excluded from bat sets')
+paid.creatures[6].origin='coin';check(B.unlocked(paid,'azure') and B.grantUnlocks(paid)[1]=='azure','coin creature completes a set')
 print('PASS '..n..' bat rules checks')

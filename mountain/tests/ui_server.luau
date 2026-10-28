@@ -30,6 +30,9 @@ for i=1,4 do Rules.collect(p,'mossbun','incubator'..i,100);Rules.extract(p) end
 for i=1,3 do check(handle({},'Incubate',p.eggs[i].id),'three existing incubators fill') end
 check(not handle({},'Incubate',p.eggs[4].id),'fourth incubator rejects honestly')
 check(handle({},'Equip',{'c1','c2','c3'}) and #p.team==3,'valid three-slot equipment acknowledged')
+table.insert(p.creatures,{id='rx',species='bloomlet',level=1,xp=0,origin='robux'})
+ok,message=handle({},'Equip',{'c1','rx'})
+check(not ok and message=='Choose one to three distinct owned companions.' and #p.team==3 and not table.find(p.team,'rx'),'robux creature equip rejected with a message')
 p.creatures[2].level=25
 check(handle({},'Specialize',{id='c2',choice='Guard'}) and p.creatures[2].specialization=='Guard','eligible specialization acknowledged')
 check(not handle({},'Specialize',{id='c2',choice='Power'}),'permanent specialization replay rejected')

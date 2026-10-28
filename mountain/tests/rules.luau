@@ -86,4 +86,64 @@ for id,item in pairs(O.items) do
  end
 end
 check(shown==1 and O.display('meadow_egg').section==1 and O.display('mystery_egg')==nil and O.display('egg_luck')==nil and O.display('nope')==nil and O.display(nil)==nil,'only the meadow egg shows odds')
+-- Origin (C6-C11): nil earned, 'coin', 'robux'. Robux fixtures are inserted directly; production has no grant function.
+local shop=R.newProfile(1)
+table.insert(shop.creatures,{id='rx',species='bloomlet',level=40,xp=0,origin='robux'});table.insert(shop.creatures,{id='cx',species='thorncub',level=2,xp=0,origin='coin'})
+check(not R.equip(shop,{'rx'}) and not R.equip(shop,{'c1','rx'}) and shop.team[1]=='c1' and #shop.team==3,'equip rejects robux creatures')
+check(R.equip(shop,{'cx','c1'}) and shop.team[1]=='cx' and #shop.team==2,'coin creatures stay battle eligible')
+shop.team={'rx','c1','cx'}
+local bt=R.battleTeam(shop);check(#bt==2 and bt[1].id=='c1' and bt[2].id=='cx' and bt[1]==shop.creatures[1],'battleTeam skips robux and keeps order')
+for _,origin in ipairs({'coin','robux'}) do
+ local q=R.newProfile(1);q.eggs={{id='h',species='violette',readyAt=5,origin=origin}}
+ check(R.hatch(q,'h',5) and q.creatures[4].origin==origin and q.creatures[4].species=='violette','hatch copies origin '..origin)
+end
+-- Property: the four creature producers (secure also after a theft) copy origin from their source (hatch) or make an earned (nil) creature.
+local function last(q) return {q.creatures[#q.creatures]} end
+local produce={
+ starters=function() return R.newProfile(math.random(1,1e6)).creatures,nil end,
+ trial=function(origin,sp) local q=R.newProfile(1);q.schema=1;local k=math.random(1,6);q.wins[tostring(k)]=true;q.eggs={{id='x',species=sp,origin=origin}};assert(R.winGuardian(q,k,true));return last(q),nil end,
+ hatch=function(origin,sp) local q=R.newProfile(1);q.eggs={{id='x',species=sp,readyAt=0,origin=origin}};assert(R.hatch(q,'x',0));return last(q),origin end,
+ secure=function(origin,sp) local q=R.newProfile(1);assert(R.run.strike(q,{id='n',runId='r',species=sp,section=C.byId[sp].kingdom,hitsRequired=1,origin=origin},1) and R.run.pickup(q,'r') and R.run.secure(q,'r'));return last(q),nil end,
+ stolen=function(origin,sp) local q,t=R.newProfile(1),R.newProfile(1);assert(R.run.strike(q,{id='n',runId='r',species=sp,section=C.byId[sp].kingdom,hitsRequired=1,origin=origin},1) and R.run.pickup(q,'r'))
+  local snap=R.run.drop(q);snap.origin=origin;assert(R.run.receive(t,snap,'t',2) and R.run.secure(t,'t'));return last(t),nil end,
+}
+math.randomseed(2810)
+local held={}
+for _=1,200 do
+ local sp=C.species[math.random(#C.species)].id;local origin=({false,'coin','robux'})[math.random(1,3)] or nil
+ for name,fn in pairs(produce) do
+  local list,expect=fn(origin,sp);if held[name]==nil then held[name]=true end
+  for _,c in ipairs(list) do if c.origin~=expect or (name~='starters' and name~='trial' and c.species~=sp) then held[name]=false end end
+ end
+end
+local producers=0;for name,ok in pairs(held) do producers+=1;check(ok,'producer copies origin from its source: '..name) end
+check(producers==5,'every producer path exercised')
+-- Egg movers keep every field: extract, drop, recover and the schema-1 migration.
+for _,origin in ipairs({'coin','robux'}) do
+ local q=R.newProfile(1);table.insert(q.cargo,{id='m1',species='mossbun',origin=origin})
+ R.extract(q);local kept=q.eggs[1].origin==origin
+ table.insert(q.cargo,{id='m2',species='petalyn',origin=origin});R.drop(q,0);kept=kept and q.recovery.eggs[1].origin==origin
+ kept=kept and R.recover(q,1) and q.cargo[1].origin==origin
+ local legacy=R.newProfile(1);legacy.schema=1;legacy.cargo={{id='m3',species='fernox',origin=origin}};legacy=R.run.migrate(legacy)
+ check(kept and legacy and legacy.eggs[1].origin==origin,'egg movers keep origin '..origin)
+end
+-- C8 load normalize: freed slots take the highest-level battle-eligible creature (ties in collection order).
+local s=R.newProfile(1);s.creatures[2].level=5;s.creatures[3].level=5
+table.insert(s.creatures,{id='r1',species='bloomlet',level=50,xp=0,origin='robux'});table.insert(s.creatures,{id='r2',species='floramoth',level=50,xp=0,origin='robux'})
+table.insert(s.creatures,{id='k1',species='thorncub',level=9,xp=0,origin='coin'})
+s.team={'r1','c1','r2'}
+check(R.stripRobux(s)==2 and #s.team==3 and s.team[1]=='k1' and s.team[2]=='c1' and s.team[3]=='c2','strip refills freed slots by level')
+local lone={team={'r1','r2','r3'},cargo={},eggs={},creatures={{id='r1',species='mossbun',level=9,xp=0,origin='robux'},{id='r2',species='petalyn',level=9,xp=0,origin='robux'},{id='r3',species='fernox',level=9,xp=0,origin='robux'},{id='c1',species='bloomlet',level=1,xp=0}}}
+check(R.stripRobux(lone)==3 and #lone.team==1 and lone.team[1]=='c1','all-robux team refills with what is eligible')
+s.cargo={{id='ra',species='mossbun',origin='robux'},{id='ea',species='petalyn'}};s.recovery={eggs={{id='rb',species='fernox',origin='robux'}},expires=99}
+local freed,moved=R.stripRobux(s)
+check(freed==0 and moved==2 and #s.cargo==1 and s.cargo[1].id=='ea' and s.recovery==nil and R.find(s.eggs,'ra') and R.find(s.eggs,'rb').origin=='robux','robux eggs leave cargo and recovery for p.eggs')
+s.recovery={eggs={{id='rc',species='fernox',origin='robux'},{id='ec',species='mossbun'}},expires=99};R.stripRobux(s)
+check(#s.recovery.eggs==1 and s.recovery.eggs[1].id=='ec' and #s.eggs==3,'mixed recovery keeps earned eggs')
+freed,moved=R.stripRobux(s);check(freed==0 and moved==0 and s.team[1]=='k1' and #s.eggs==3,'strip is idempotent')
+-- Q3 legacy income: a Robux creature adds nothing; a coin creature still earns.
+local plain,paid,coined=R.newProfile(0),R.newProfile(0),R.newProfile(0)
+table.insert(paid.creatures,{id='rm',species='violette',level=1,xp=0,origin='robux'});table.insert(coined.creatures,{id='cm',species='violette',level=1,xp=0,origin='coin'})
+R.settleIncome(plain,3600);R.settleIncome(paid,3600);R.settleIncome(coined,3600)
+check(paid.coins==plain.coins and coined.coins>plain.coins,'robux creatures earn no legacy income')
 print('PASS '..count..' mountain rules checks')

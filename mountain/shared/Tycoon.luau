@@ -31,13 +31,14 @@ function T.capacity(p,index) return 30+30*p.tycoon.levels.storage+10*p.tycoon.ha
 function T.bagCapacity(p) return 20+20*p.tycoon.levels.bag end
 function T.rate(p,index)
  local t=p.tycoon;local h=t.habitats[index];local c=h.creature and find(p,h.creature)
- if not c then return 0,0,0 end
+ -- Q3: a Robux creature may sit in a habitat but earns 0 coins and gives no kin bonus.
+ if not c or c.origin=='robux' then return 0,0,0 end
  local species=C.byId[c.species];if not species then return 0,0,0 end
  local kin=0
  for i,other in ipairs(t.habitats) do
   local adjacent=(math.floor((i-1)/2)==math.floor((index-1)/2) and i~=index) or math.abs(i-index)==2
   local v=adjacent and i<=t.slots and other.creature and find(p,other.creature)
-  if v and C.byId[v.species].kingdom==species.kingdom then kin+=1 end
+  if v and v.origin~='robux' and C.byId[v.species].kingdom==species.kingdom then kin+=1 end
  end
  local bonus=(if species.kingdom==h.kingdom then .05 else 0)+math.min(kin,2)*.05
  local rarity=Config.rarity[species.rarity]

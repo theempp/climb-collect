@@ -57,13 +57,42 @@ end
 function R.hatch(p,id,now)
  local e,i=find(p.eggs,id)
  if not e or not e.readyAt or now<e.readyAt then return false end
- table.insert(p.creatures,{id=nextId(p,'c'),species=e.species,level=1,xp=0});table.remove(p.eggs,i);return true
+ -- origin (nil earned, 'coin', 'robux') follows the egg into the creature.
+ table.insert(p.creatures,{id=nextId(p,'c'),species=e.species,level=1,xp=0,origin=e.origin});table.remove(p.eggs,i);return true
 end
+-- D8: Robux creatures stay home; they never join the team.
 function R.equip(p,ids)
  if type(ids)~='table' or #ids<1 or #ids>3 then return false end
  for key in pairs(ids) do if type(key)~='number' or key%1~=0 or key<1 or key>#ids then return false end end
- local seen={};for _,id in ipairs(ids) do if type(id)~='string' or seen[id] or not find(p.creatures,id) then return false end;seen[id]=true end
+ local seen={};for _,id in ipairs(ids) do local c=type(id)=='string' and find(p.creatures,id);if not c or seen[id] or c.origin=='robux' then return false end;seen[id]=true end
  p.team={};for _,id in ipairs(ids) do table.insert(p.team,id) end;return true
+end
+-- D8: the team members that may fight, guard, heal, follow or earn companion XP (Robux creatures never do).
+function R.battleTeam(p)
+ local team={};for _,id in ipairs(p.team) do local c=find(p.creatures,id);if c and c.origin~='robux' then table.insert(team,c) end end
+ return team
+end
+-- D8 load normalize: Robux ids leave the team and each freed slot takes the highest-level battle-eligible
+-- creature not already on it (ties keep collection order); Robux eggs in cargo or recovery go back to p.eggs.
+function R.stripRobux(p)
+ local slots,freed,onTeam={},{},{}
+ for i,id in ipairs(p.team) do local c=find(p.creatures,id);if c and c.origin=='robux' then table.insert(freed,i) else slots[i]=id;onTeam[id]=true end end
+ if #freed>0 then
+  local pool={};for i,c in ipairs(p.creatures) do if c.origin~='robux' and not onTeam[c.id] then table.insert(pool,{c=c,i=i}) end end
+  table.sort(pool,function(a,b) if a.c.level~=b.c.level then return a.c.level>b.c.level end;return a.i<b.i end)
+  for n,i in ipairs(freed) do if pool[n] then slots[i]=pool[n].c.id end end
+  local size=#p.team;p.team={};for i=1,size do if slots[i] then table.insert(p.team,slots[i]) end end
+ end
+ local moved=0
+ local function home(list)
+  local i=1
+  while i<=#list do
+   local e=list[i]
+   if e.origin=='robux' then table.remove(list,i);moved+=1;if not find(p.eggs,e.id) then table.insert(p.eggs,e) end else i+=1 end
+  end
+ end
+ home(p.cargo);if p.recovery then home(p.recovery.eggs);if #p.recovery.eggs==0 then p.recovery=nil end end
+ return #freed,moved
 end
 function R.specialize(p,id,choice)
  local c=find(p.creatures,id)
@@ -94,7 +123,8 @@ function R.settleIncome(p,now)
  if p.tycoon then R.tycoon.settle(p,now,false);return 0 end
  local elapsed=math.clamp(now-p.lastIncome,0,8*3600)
  if elapsed<10 then return 0 end
- local rate=0;for _,c in ipairs(p.creatures) do rate+=({Common=6,Uncommon=12,Rare=24,Epic=48,Mythic=90,Legendary=150})[C.byId[c.species].rarity] end
+ -- Q3: Robux creatures earn no legacy income.
+ local rate=0;for _,c in ipairs(p.creatures) do if c.origin~='robux' then rate+=({Common=6,Uncommon=12,Rare=24,Epic=48,Mythic=90,Legendary=150})[C.byId[c.species].rarity] end end
  local accrued=elapsed*rate/3600+(p.incomeCarry or 0)
  local amount=math.floor(accrued+0.00000001);p.incomeCarry=math.max(0,accrued-amount);p.coins+=amount;p.lastIncome=now;return amount
 end

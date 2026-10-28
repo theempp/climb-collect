@@ -101,4 +101,13 @@ typed.explorer=nil;check(Profiles.valid(typed),'explorer_absent_valid')
 local xp=service.get(xpPlayer);xp.explorer={secures=-4,species='x',won=5,day=-1,repeatXp=-3};carry(xp,'xp-run')
 check(service.transact(xpPlayer,'xp-run',function(draft) local r=draft.run;local ok,why=RunRules.secure(draft,'xp-run');ExplorerRules.award(draft,'secure',r.section,20000,r.species);return ok,why end)
  and #service.get(xpPlayer).creatures==7 and not service.get(xpPlayer).run and service.get(xpPlayer).explorer.secures==1,'malformed_explorer_still_secures_once_through_transact')
+-- D8 (C8): an all-Robux team loads stripped and refilled in the load write (no kick); Robux eggs in cargo or recovery return to p.eggs.
+local paid=Rules.newProfile(100);paid.creatures[3].level=4
+for i=1,3 do table.insert(paid.creatures,{id='r'..i,species='bloomlet',level=30,xp=0,origin='robux'}) end
+paid.team={'r1','r2','r3'};paid.cargo={{id='re1',species='mossbun',origin='robux'},{id='e1',species='petalyn'}};paid.recovery={eggs={{id='re2',species='fernox',origin='robux'}},expires=os.time()+180}
+backend.backend.u120={profile=paid}
+local stripped=service.load({UserId=120});local saved=backend.backend.u120.profile
+check(stripped and #stripped.team==3 and stripped.team[1]=='c3' and stripped.team[2]=='c1' and stripped.team[3]=='c2','all_robux_team_loads_stripped_and_refilled')
+check(#saved.team==3 and saved.team[1]=='c3' and #saved.cargo==1 and saved.recovery==nil and #saved.eggs==2 and saved.eggs[1].origin=='robux','strip_persisted_in_load_write')
+check(Rules.find(stripped.creatures,'r1').origin=='robux' and #stripped.creatures==6,'robux creatures stay owned')
 print('PASS '..checks..' durable exit/migration checks (isolated adapter)')

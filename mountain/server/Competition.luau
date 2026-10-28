@@ -6,7 +6,7 @@ local S={}
 local db=if game:GetService('RunService'):IsStudio() then Store.memory() else Store.datastore('MountainEmpire_Defenses_v1')
 function S.snapshot(p,userId)
  local team={}
- for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then table.insert(team,{species=c.species,level=c.level,xp=0,specialization=c.specialization}) end end
+ for _,c in ipairs(R.battleTeam(p)) do table.insert(team,{species=c.species,level=c.level,xp=0,specialization=c.specialization}) end
  return {userId=userId,team=team,timestamp=os.time(),version=1}
 end
 function S.register(p,userId)
