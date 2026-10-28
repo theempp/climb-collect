@@ -128,7 +128,7 @@ function Hud.new(root,cb)
  local _,lv=lvBadge(cr,'1');e.level=lv
  W.hit(cr,44,Vector2.new(48,math.huge));W.bind(cr,function() cb.sound();cb.card() end);W.focus(cr);table.insert(self.hits,{cr,Vector2.new(48,math.huge)})
  e.dockButtons={Creatures=cr,Map=dockButton(self,row,'Map','Map',go('Mountain','Map'),2),Shop=dockButton(self,row,'Shop','Chest',go('Shop'),3),
-  -- Daily -> Shop > Free gifts (D2; D6 placeholder). Until P5 adds that tab, the Shop opens on its first tab.
+  -- Daily -> Shop › Free gifts (D2; D6 placeholder): Shop.luau registers the 'Free gifts' section key, so Screens lands there.
   Daily=dockButton(self,row,'Daily','Calendar',go('Shop','Free gifts'),4),Quests=dockButton(self,row,'Quests','Scroll',go('Mountain','Quests'),5)}
  -- Daily dot (L115): 13 circle danger + stroke 2 white at top -2 / right -2. D6 placeholder: shown as drawn.
  local dot=frame(e.dockButtons.Daily,'Dot',{Size=UDim2.fromOffset(13,13),Position=UDim2.fromOffset(42+2-13,-2),ZIndex=4});disc(dot,'Fill',13,T.s.glass,T.danger,0,T.text,0);e.dailyDot=dot

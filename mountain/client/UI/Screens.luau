@@ -9,14 +9,15 @@ local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
 local TycoonHub=require(script.Parent.TycoonHub)
+local Shop=require(script.Parent.Shop)
 local S={};S.__index=S
-local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Bats','Cosmetics','Convenience'},Settings={'Audio','Graphics','HUD','Controls','Account'}}
+local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Featured','Coins','Passes','Eggs','Skins'},Settings={'Audio','Graphics','HUD','Controls','Account'}}
 local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain',Competition='Social'}
 local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests',Competition='Challenges'}
--- Side-tab icons only where the board draws them (Collection All/Team/Index/Evolve, L630); every other tab has none.
-local tabIcons={Creatures={Collection='Creature',Team='Heart',Training='Scroll',Evolution='EggCracked'}}
--- Section-jump hubs (intel §2 per-menu): their tabs are sections of one scroll. Shop (task D) joins here.
-local sectionHubs={Settings=true}
+-- Side-tab icons only where the board draws them (Collection All/Team/Index/Evolve, L630; Shop gift/coin/gem/egg/bat, L631); others have none.
+local tabIcons={Creatures={Collection='Creature',Team='Heart',Training='Scroll',Evolution='EggCracked'},Shop={Featured='Gift',Coins='Coin',Passes='Gem',Eggs='Egg',Skins='Bat'}}
+-- Section-jump hubs (intel §2 per-menu): their tabs are sections of one scroll.
+local sectionHubs={Settings=true,Shop=true}
 function S.new(root,store,feedback,onClose)
  local self=setmetatable({root=root,store=store,feedback=feedback,onClose=onClose,selected={},query='',rarity='All',sort='Name',page=1,tickers={},actionButtons={},touches={},sections={},tabButtons={}},S)
  self.touchBegin=UIS.TouchStarted:Connect(function(input) self.touches[input]=true end)
@@ -35,7 +36,7 @@ function S:open(name,tab)
 end
 function S:close()
  if self.shade then self.shade:Destroy();self.shade=nil end
- self.hub=nil;self.detail=nil;self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.landKey=nil;GuiService.SelectedObject=nil
+ self.hub=nil;self.detail=nil;self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.landKey=nil;self.complete=nil;self.sectionsPending=nil;GuiService.SelectedObject=nil
  if self.onClose then self.onClose() end
 end
 function S:destroy()
@@ -115,9 +116,16 @@ function S:pending()
   self.status.Text=message or '';self.retry.Visible=retryId~=nil;self.retryId=retryId
   self.status.Size=UDim2.new(1,if retryId then -(88+12) else 0,1,0)
   self.statusStrip.Visible=h>0;self.statusStrip.Size=UDim2.fromOffset(self.scrollW,h);self.statusStrip.Position=UDim2.fromOffset(self.scrollX,26+self.bodyHeight-h)
-  self.holder.Size=UDim2.fromOffset(self.scrollW,self.bodyHeight-h)
+  self.statusH=h;self:placeHolder()
  end
 end
+-- Scroll holder box: below an optional fixed header (Shop hero, S:setScrollTop) and above the status strip.
+function S:placeHolder()
+ if not self.holder then return end
+ local top=self.scrollTop or 0
+ self.holder.Position=UDim2.fromOffset(self.scrollX,26+top);self.holder.Size=UDim2.fromOffset(self.scrollW,self.bodyHeight-top-(self.statusH or 0))
+end
+function S:setScrollTop(y) self.scrollTop=y;self:placeHolder() end
 -- Section-jump mode (intel §2 per-menu "Tab sync" / "Jump"; the hero is not in the scroll, P§2, so offsets 10 / 4). Content calls
 -- S:section(key, frame) for the frame that starts a section; keys that are not tabs (Shop 'Free gifts', 'Coins') are jump targets only.
 function S:section(key,frame,isTab)
@@ -137,7 +145,9 @@ function S:land()
  local y=if p.key then self:sectionOffset(p.key) else p.y
  if y then body.CanvasPosition=Vector2.new(0,math.max(0,if p.key then y-4 else y)) end
 end
+-- Progressive hubs (Shop) build later sections over the next frames; self.complete builds the rest now so a jump always lands.
 function S:jumpToSection(key)
+ if not self.sections[key] and self.complete then self.complete() end
  if not self.sections[key] then return false end
  self.landing={key=key};self:land();task.defer(function() self:land() end);return true
 end
@@ -146,7 +156,8 @@ function S:jumpTo(name)
  if not self.sectionMode then self.tab=name;self.detail=nil;self.page=1;self:render(false);return end
  self.tab=name;self:highlight(name);self:jumpToSection(name)
 end
--- Tab sync: a tab is active once its section's offset − 10 ≤ scroll; the last tab is active at the end of the canvas.
+-- Tab sync: a tab is active once its section's offset − 10 ≤ scroll; the last tab is active at the end of the canvas (not while a
+-- progressive hub is still adding sections: the partial canvas end is not the list end).
 function S:syncTab()
  local body=self.body
  if not self.sectionMode or not body or not body.Parent then return end
@@ -156,7 +167,7 @@ function S:syncTab()
   if s and s.tab then first=first or n;last=n;local o=self:sectionOffset(n);if o and o-10<=y then active=n end end
  end
  local canvas,window=body.AbsoluteCanvasSize.Y,body.AbsoluteWindowSize.Y
- if last and canvas>window+1 and y>=canvas-window-1 then active=last end
+ if last and not self.sectionsPending and canvas>window+1 and y>=canvas-window-1 then active=last end
  active=active or first
  if active and active~=self.tab then self.tab=active;self:highlight(active) end
 end
@@ -168,8 +179,9 @@ function S:sideFooter(label,fn)
  self.tabScroll.Size-=UDim2.fromOffset(0,36+5);self.footer=b;return b
 end
 -- Title plate (board .ttl, L180): W.cta look h 42, padX 20, LG 23, centred on the panel's top edge (top −21). Text only.
--- Hook: the Shop hub restyles its plate in task D by replacing this call for self.hub=='Shop'.
+-- The Shop hub uses its gold plate (Shop.titlePlate, L214-218).
 function S:titlePlate(f,text)
+ if self.hub=='Shop' and not self.detail then return Shop.titlePlate(f,text) end
  local p=W.ctaPlate(f,'TitleRibbon',text,UDim2.fromOffset(W.plateWidth(text,T.t.menuTitle,20),42),UDim2.new(.5,0,0,-21),T.t.menuTitle,20)
  p.AnchorPoint=Vector2.new(.5,0);p.ZIndex=2;p:SetAttribute('Overhang',true);return p
 end
@@ -195,6 +207,8 @@ function S:render(preserve)
  local scroll=if preserve and self.body then self.body.CanvasPosition else Vector2.zero
  if self.shade then self.shade:Destroy() end
  self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.footer=nil
+ -- Progressive content (Shop): restoreY = the scroll a refresh restores, so the content can build that view synchronously.
+ self.complete=nil;self.sectionsPending=nil;self.restoreY=if preserve then scroll.Y else nil
  local data=self.store.profile;local view=self.root.AbsoluteSize
  -- Glassbloom (intel §2 panel(), L177-181): mtint backdrop (no blur; the world shows through), glass panel r22 (shop: gold glass).
  self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1));W.tint(self.shade,T.gradMtint);self.shade.ZIndex=20;self.shade.Active=true
@@ -229,7 +243,7 @@ function S:render(preserve)
  -- Scroll area (L188-195, P§2). Normal hubs keep the 10 px gap their stacked rows rely on; section hubs use sectionHeader margins.
  local body,holder=W.scrollArea(f,'Content',UDim2.fromOffset(sw,sh),UDim2.fromOffset(sx,26))
  local layout=body:FindFirstChildOfClass('UIListLayout');if layout then layout.Padding=UDim.new(0,if self.sectionMode then 0 else 10) end
- self.body=body;self.holder=holder
+ self.body=body;self.holder=holder;self.scrollTop=0;self.statusH=0
  self.rowW=sw-3-10-8
  local strip=W.frame(f,'Status',UDim2.fromOffset(sw,0),UDim2.fromOffset(sx,26+sh));strip.BackgroundTransparency=1;strip.Visible=false;self.statusStrip=strip
  self.status=W.label(strip,'',UDim2.fromScale(1,1),nil,T.fontBody,T.t.small,T.lavText);self.status.Name='StatusText'
@@ -661,65 +675,8 @@ function S:profile(data)
   self:blocked('Badges & equipped titles','Badge awards and title selection need platform services. Milestones stay in Achievements.','Titles unavailable')
  end
 end
-function S:shop(data)
- local compact=self.compact
- if self.tab=='Bats' then
-  -- Featured offer banner (finale-f1/01 SPECIAL OFFER, purple) with the coin pill (intel §4).
-  local _,slot,sw=self:banner('Bat','Bats','Knock a carried creature loose for 3 s. No hits in the sanctuary or at rest points.',T.panelPurple,{w=138,h=40})
-  W.pill(slot,'Coin',tostring(data.coins or 0),sw-4,30,UDim2.fromOffset(4,5))
-  local bats=(data.ui and data.ui.bats) or {}
-  -- Offer cards (robloxf1-v2/07): equipped = gold "VIP" card, owned = blue, locked = grey with padlock.
-  local cardH=if compact then 160 else 214
-  local g,cw=self:grid('BatCards',#bats,200,cardH)
-  for i,bat in ipairs(bats) do
-   local card=W.card(g,'Bat_'..bat.id,nil,nil,if bat.equipped then T.cta.base elseif bat.owned then T.alt else T.off,bat.name);card.LayoutOrder=i
-   local a=if compact then 50 else 84
-   local art=W.round(W.frame(card,'Art',UDim2.fromOffset(a+12,a+12),UDim2.new(1,-a-22,0,34),T.navy),12);W.stroke(art,T.outline,2)
-   W.icon(art,'Bat',UDim2.fromOffset(a,a),UDim2.fromOffset(6,6))
-   local sideW=math.min(96,cw-a-40)
-   if bat.owned then
-    local lv=W.label(card,'Lv '..bat.level,UDim2.fromOffset(sideW,24),UDim2.fromOffset(10,36),T.display,14,T.ink,Enum.TextXAlignment.Center);lv.BackgroundTransparency=0;lv.BackgroundColor3=T.navy;W.round(lv,6);W.stroke(lv,T.outline,1.5)
-    if compact then
-     W.pill(card,nil,'Power '..bat.knockback,sideW,20,UDim2.fromOffset(10,62))
-     W.pill(card,nil,'Reach '..bat.reach,sideW,20,UDim2.fromOffset(10,84))
-    else
-     if bat.equipped then W.chip(card,'Equipped',T.ok.base,UDim2.fromOffset(sideW,22),UDim2.fromOffset(10,66)) end
-     local pw=math.floor((cw-30)/2)
-     W.pill(card,nil,'Power '..bat.knockback,pw,22,UDim2.new(0,10,1,-80))
-     W.pill(card,nil,'Reach '..bat.reach,pw,22,UDim2.new(0,20+pw,1,-80))
-    end
-    local half=UDim2.new(.5,-14,0,44)
-    self:action(card,'Equip_'..bat.id,if bat.equipped then 'Equipped' else 'Equip','Bat',{op='equip',id=bat.id},not bat.equipped,UDim2.new(0,10,1,-52),half,'blue')
-    self:action(card,'Upgrade_'..bat.id,if bat.cost then bat.cost..' coins' else 'Max level','Bat',{op='upgrade',id=bat.id},bat.equipped and bat.cost~=nil and (data.coins or 0)>=bat.cost,UDim2.new(.5,4,1,-52),half,'gold')
-   else
-    W.icon(card,'Padlock',UDim2.fromOffset(34,34),UDim2.fromOffset(10+math.floor((sideW-34)/2),34))
-    W.chip(card,'Locked',T.navy,UDim2.fromOffset(sideW,22),UDim2.fromOffset(10,72))
-    local kingdom=C.kingdoms[bat.kingdom]
-    local bar=W.progress(card,if bat.total>0 then bat.have/bat.total else 0,UDim2.new(1,-24,0,18),UDim2.new(0,12,1,-62),T.bar.fill)
-    W.label(bar.Parent,bat.have..' / '..bat.total,UDim2.fromScale(1,1),nil,T.display,12,T.ink,Enum.TextXAlignment.Center).ZIndex=2
-    W.label(card,if kingdom then 'Complete the '..kingdom.name..' index set' else 'Complete an index set',UDim2.new(1,-16,0,30),UDim2.new(0,8,1,-38),nil,12,T.ink,Enum.TextXAlignment.Center,true)
-   end
-  end
- elseif self.tab=='Cosmetics' then
-  local _,slot,sw=self:banner('Gift','Free palettes','Your unlocked kingdom palettes are free. Personalize habitat trim and machines at your plot.',T.panelPurple,{w=168,h=70})
-  W.chip(slot,'Free',T.ok.base,UDim2.fromOffset(80,22),UDim2.new(.5,-40,0,0))
-  W.button(slot,'FreePalettes','Open palettes',UDim2.fromOffset(sw,44),UDim2.fromOffset(0,26),function() self:open('Sanctuary');self.tab='Cosmetics';self:render(false) end,'gold')
-  self:info('Chest','Make the mountain yours','Appearances, decorations and visual effects. Your combat strength always comes from play.',64)
-  self:blocked('Cosmetic collection','No approved product catalog is connected. Items and prices appear when available.','Checkout unavailable')
- else
-  self:banner('Chest','Fair conveniences','Only noncompetitive convenience belongs here.',T.alt)
-  -- Promise tiles (cc/05 perk tiles).
-  local g=self:grid('Promises',3,180,if compact then 92 else 108)
-  for i,v in ipairs({{'Egg','True odds','Odds shown are the odds used'},{'Bat','No power','Strength comes from play'},{'Creature','Fair play','Robux creatures never battle or raid'}}) do
-   local card=W.card(g,'Promise'..i,nil,nil,T.navy);card.LayoutOrder=i
-   local a=if compact then 48 else 60
-   W.icon(card,v[1],UDim2.fromOffset(a,a),UDim2.new(0,10,.5,-a/2))
-   W.label(card,string.upper(v[2]),UDim2.new(1,-a-28,0,24),UDim2.new(0,a+18,.5,-24),T.label,19,T.ink).Name='Title'
-   W.label(card,v[3],UDim2.new(1,-a-28,.5,-6),UDim2.new(0,a+18,.5,2),nil,12,T.muted,nil,true).TextYAlignment=Enum.TextYAlignment.Top
-  end
-  self:blocked('Convenience catalog','No approved convenience products or receipt validation are connected.','Checkout unavailable')
- end
-end
+-- Shop (P5 task D): Shop.luau renders the section-jump list (hero, gifts, deal, coins, passes, boosts, eggs, skins, bats, note).
+function S:shop(data) Shop.render(self,data) end
 -- Settings (intel per-menu L642-646; row()/sl()/seg()/tog()/pbtn L311-323; plan D11): section-jump list, one row per pref. Values come
 -- from data.ui.settings (UIProtocol defaults fill gaps); every change sends one Settings patch, the confirmed re-render moves the controls.
 function S:settings(data)

@@ -46,7 +46,7 @@ local function check(where)
     local ref=if o:GetAttribute('Overhang') then p.Parent else p
     if ref and ref:IsA('GuiObject') and not ref:IsA('ScrollingFrame') and not inside(o,ref,1.5) then add(where,'spills: '..o:GetFullName():match('HubShade%.(.*)$')) end
    end
-   if (o:IsA('TextLabel') or o:IsA('TextButton')) and o.Text~='' and not o.TextFits then add(where,'text: '..o:GetFullName():match('HubShade%.(.*)$')) end
+   if (o:IsA('TextLabel') or o:IsA('TextButton')) and o.Text~='' and o.TextTransparency<.99 and not o.TextFits then add(where,'text: '..o:GetFullName():match('HubShade%.(.*)$')) end
    if o:IsA('GuiButton') and not o:FindFirstChild('Hit') and (o.AbsoluteSize.Y<44 or o.AbsoluteSize.X<44) then add(where,'touch: '..o.Name) end
   end
  end
@@ -61,7 +61,7 @@ local HUBS={'Creatures','Discovery','Sanctuary','Mountain','Social','Profile','S
 for _,size in ipairs(SIZES) do
  root.Size=UDim2.fromOffset(size[1],size[2]);task.wait(.15)
  for _,hub in ipairs(HUBS) do
-  probe:Invoke('open',hub);task.wait(.05)
+  probe:Invoke('open',hub);task.wait(.4) -- Shop builds later sections one per frame
   local tabs={};for _,o in ipairs(root.HubShade.Hub.Tabs:GetChildren()) do if o:IsA('TextButton') and o.Name:sub(1,3)=='Tab' then table.insert(tabs,o.Name:sub(4)) end end
   for _,tab in ipairs(tabs) do
    probe:Invoke('tab',tab);task.wait(.05);screens+=1

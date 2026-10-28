@@ -587,8 +587,9 @@ local function ctaCore(parent,name,label,size,pos,k)
   local sh=W.new('Frame',b,{Name='Shine',Size=UDim2.fromScale(.28,1.2),Position=UDim2.fromScale(-.4,-.1),Rotation=20,BackgroundColor3=T.text,BorderSizePixel=0})
   W.grad(sh,T.gradShine);sh:SetAttribute('Motion','buy.shine');sh:SetAttribute('Decor',true)
  end
+ local padL=k.padL or pad
  local function label_(name_,color,y,z)
-  local l=W.fit(gtext(o,name_,label,T.fontDisplay,k.n,color),k.n,8);l.Size=UDim2.new(1,-2*pad,1,0);l.Position=UDim2.fromOffset(pad,y);l.ZIndex=z;return l
+  local l=W.fit(gtext(o,name_,label,T.fontDisplay,k.n,color),k.n,8);l.Size=UDim2.new(1,-(padL+pad),1,0);l.Position=UDim2.fromOffset(padL,y);l.ZIndex=z;return l
  end
  local drop=if k.drop then label_('Drop',k.drop,2,1) else nil;if drop then drop:SetAttribute('Decor',true) end
  local l=label_('Label',k.ink or T.text,0,2)
@@ -597,9 +598,11 @@ local function ctaCore(parent,name,label,size,pos,k)
  W.hit(o);W.focus(o);return o
 end
 -- Title plate (panel() title, L180): the W.cta look as a non-interactive Frame (no GuiButton, so no 44 px rule). n default menuTitle 23;
--- padX (board .ttl 20) insets the label from the plate's border box.
-function W.ctaPlate(parent,name,label,size,pos,n,padX)
- return ctaCore(parent,name,label,size,pos,{plate=true,stroke=T.s.bold,grad=T.gradCta,gloss=true,glow=T.glowCta,lipY=6,lipColor=T.lip,drop=T.lip,n=n or T.t.menuTitle,padX=padX})
+-- padX (board .ttl 20) insets the label from the plate's border box. style (optional, Shop gold title L214): grad, glow, lip (lip and
+-- drop colour), padL (left label inset).
+function W.ctaPlate(parent,name,label,size,pos,n,padX,style)
+ style=style or {}
+ return ctaCore(parent,name,label,size,pos,{plate=true,stroke=T.s.bold,grad=style.grad or T.gradCta,gloss=true,glow=style.glow or T.glowCta,lipY=6,lipColor=style.lip or T.lip,drop=style.lip or T.lip,n=n or T.t.menuTitle,padX=padX,padL=style.padL})
 end
 -- Plate width that fits `label` on one line: text + 2 padX + 2 bold strokes (the CSS border sits inside the box).
 function W.plateWidth(label,n,padX)
@@ -647,25 +650,33 @@ function W.ghost(parent,name,label,size,pos,fn,opts)
  opts=opts or {}
  return W.bind(ctaCore(parent,name,label,size,pos,ghostSpec(opts.n or T.t.pbtn,opts.padX)),fn)
 end
+-- Disabled ghost (G15 "Coming soon", D6 placeholders, ×3): the kit's off look (ghost + label textDimT .25, as W.enable) drawn as a plain
+-- Frame: not tappable or selectable, so no Hit area, focus ring, glow or connections. Attribute Enabled=false; Active/Selectable false.
+function W.ghostOff(parent,name,label,size,pos,n,padX)
+ local k=ghostSpec(n or T.t.pbtn,padX);k.plate=true
+ local o=ctaCore(parent,name,label,size,pos,k)
+ o:SetAttribute('Enabled',false);o.Active=false;o.Selectable=false
+ for _,c in ipairs(o:GetChildren()) do if c:IsA('TextLabel') then c.TextTransparency=T.textDimT[5] end end
+ return o
+end
 -- buy() (§2, L242-246, L614): W.cta shape, stroke 2, LG 16, gloss + shine. Signature: (parent,name,price,currency,size,pos,fn,opts)
--- with opts {productId, short, onShort, n, padX}; `price` is the caller's formatted label (G22). Robux: id 0/nil -> disabled ghost
+-- with opts {productId, short, onShort, n, padX}; `price` is the caller's formatted label (G22). Robux: id 0/nil -> W.ghostOff (Frame)
 -- "Coming soon" (G15); else tap -> PromptProductPurchase (Roblox handles the top-up), then fn(). Coins: tap 1 -> "CONFIRM" 3 s,
--- tap 2 -> fn(); attribute Short (opts.short, settable later) -> label "Need <price>", taps call onShort.
+-- tap 2 -> fn(); attribute Short (opts.short, settable later) -> label "Need <price>" (or attribute ShortLabel, opts.shortLabel, e.g. the
+-- shortfall "Need 1,200"), taps call onShort.
 function W.buy(parent,name,price,currency,size,pos,fn,opts)
  opts=opts or {};local n=opts.n or T.t.buy;local pad=opts.padX or 12;local robux=currency=='robux';price=tostring(price)
- if robux and (opts.productId or 0)==0 then
-  local o=ctaCore(parent,name,'Coming soon',size,pos,ghostSpec(n,pad))
-  o:SetAttribute('Enabled',false);o:SetAttribute('Currency',currency);o.Active=false;o.Selectable=false;return o
- end
+ if robux and (opts.productId or 0)==0 then local o=W.ghostOff(parent,name,'Coming soon',size,pos,n,pad);o:SetAttribute('Currency',currency);return o end
  -- GAP: the coin lip height (L245) is not quoted in the intel (§2 names only gold.lip); the Robux lip 4 (L242) is used.
  local lipC=if robux then T.goLip else T.goldLip
  local o=ctaCore(parent,name,price,size,pos,{stroke=T.s.glass,grad=if robux then T.gradMint else T.gradCoinBuy,gloss=true,shine=true,glow=if robux then T.glowBuyRobux else T.glowBuyCoin,lipY=4,lipColor=lipC,drop=lipC,n=n,padX=pad})
  o:SetAttribute('Currency',currency)
  if robux then return W.bind(o,function() MarketplaceService:PromptProductPurchase(Players.LocalPlayer,opts.productId);if fn then fn() end end) end
  local armed,serial=false,0
- local function idle() armed=false;o.Text=if o:GetAttribute('Short') then 'Need '..price else price end
+ local function idle() armed=false;o.Text=if o:GetAttribute('Short') then (o:GetAttribute('ShortLabel') or 'Need '..price) else price end
+ if opts.shortLabel then o:SetAttribute('ShortLabel',opts.shortLabel) end
  o:SetAttribute('Short',opts.short==true);idle()
- o:GetAttributeChangedSignal('Short'):Connect(idle)
+ o:GetAttributeChangedSignal('Short'):Connect(idle);o:GetAttributeChangedSignal('ShortLabel'):Connect(idle)
  return W.bind(o,function()
   if o:GetAttribute('Short') then if opts.onShort then opts.onShort() end;return end
   if armed then idle();if fn then fn() end;return end
@@ -693,9 +704,14 @@ end
 function W.sectionHeader(parent,text,note,first)
  local f=W.new('Frame',parent,{Name='SectionHeader',Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,BorderSizePixel=0})
  W.new('UIPadding',f,{PaddingTop=UDim.new(0,if first then 2 else 14),PaddingBottom=UDim.new(0,7)})
- local function line(name,s,color,align) local l=inked(gtext(f,name,s,T.fontBody,T.t.small,color,align));l.Size=UDim2.fromScale(1,0);l.AutomaticSize=Enum.AutomaticSize.Y;return l end
- line('Title',string.upper(text),T.pinkText,Enum.TextXAlignment.Left)
- if note then line('Note',note,T.lavText,Enum.TextXAlignment.Right) end
+ local function line(name,s,color,align) local l=inked(gtext(f,name,s,T.fontBody,T.t.small,color,align));l.Size=UDim2.fromScale(1,0);l.AutomaticSize=Enum.AutomaticSize.Y;l.TextWrapped=true;return l end
+ local t=line('Title',string.upper(text),T.pinkText,Enum.TextXAlignment.Left)
+ if note then
+  -- .sh flex space-between, gap 8 (L193): the note keeps its text width on the right, the title takes the rest (no overlap).
+  local w=math.ceil(TextService:GetTextSize(note,T.size(T.t.small),T.fontBody,Vector2.new(1e4,1e4)).X)+1
+  local n=line('Note',note,T.lavText,Enum.TextXAlignment.Right);n.AnchorPoint=Vector2.new(1,0);n.Position=UDim2.fromScale(1,0);n.Size=UDim2.fromOffset(w,0)
+  t.Size=UDim2.new(1,-w-8,0,0)
+ end
  return f
 end
 -- Scroll area (§2, L188-195, P§2): ScrollingFrame Y, UIPadding 3/10/14/3, bar 6 solid pk over a night T.45 r4 track, block-flow
