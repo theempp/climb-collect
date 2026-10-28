@@ -293,3 +293,6 @@ P5 built in 6 component-builder tasks (A frame, B Collection, C Settings, D Shop
 - G19 scroll/hero: tab tap tweens the scroll 0.3 s ease-out (a touch cancels it); Shop hero full ↔ mini 0.2 s ease-out, scroll top follows.
 - G23 player card: **as rendered** — from (−115, +40) with fade, 0.2 s ease-out.
 - Reveal spin title **by tier**: board "SOMETHING RARE IS COMING..." for Rare and up, "SOMETHING IS COMING..." for Common/Uncommon.
+
+## 20. P6 result (2026-10-28) — STOP 4 approved
+P6 built by the motion specialist in tasks A (Motion.luau + HUD), B (menus/shop), C (reveal) + perf/budget fixes, commits `91d8b02`, `67a7fee`, `392b8d0`. All §4 P6 done-checks pass (handoff "P6 results"); Shop open +1.0 ms vs no motion. STOP 4 approved (popup): motion as captured; first tap on the faded chase dock only restores it. Copy saved after P6 (SHA256 249a2786…705a). Next: P7 design-reviewer (new chat).
