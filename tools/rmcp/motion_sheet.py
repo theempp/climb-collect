@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 d, demo, out = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3]
 n = int(sys.argv[4]) if len(sys.argv) > 4 else 12
 crop = [float(v) for v in sys.argv[5].split(',')] if len(sys.argv) > 5 else None
-frames = sorted(((float(re.search(r'_t([\d.]+)\.png$', f.name).group(1)), f) for f in d.glob(f'{demo}_*_t*.png')))
+frames = sorted(((float(re.search(r'_t(-?[\d.]+)\.png$', f.name).group(1)), f) for f in d.glob(f'{demo}_*_t*.png')))
 if not frames: raise SystemExit('no frames for ' + demo)
 end = frames[-1][0]; pick = []
 for i in range(n):

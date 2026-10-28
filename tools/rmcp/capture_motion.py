@@ -32,6 +32,8 @@ def shot(path):
     return False
 probe = "local pr=game.Players.LocalPlayer.PlayerGui.MountainHUD.UIProbe;"
 log = {}
+reduced = os.environ.get('REDUCED') == '1'  # Reduce effects comparison: local pref override, frames show the instant end states
+luau(probe + ("pr:Invoke('motionPrefs',{reducedMotion=true,simplifiedVFX=true})" if reduced else "pr:Invoke('motionPrefs',nil)") + " return 1")
 for demo in want:
     length, scale = DEMOS[demo]
     luau(probe + f"pr:Invoke('close');pr:Invoke('hudState','live');pr:Invoke('motionScale',{scale});task.wait(.3) return 1")
@@ -44,6 +46,6 @@ for demo in want:
         k += 1; f = out / f'{demo}_{k:02d}_t{real:.2f}.png'
         if shot(f): frames.append(f.name)
     log[demo] = frames; print(demo, len(frames), flush=True)
-luau(probe + "pr:Invoke('motionScale',1);pr:Invoke('close');pr:Invoke('hudState','live') return 1")
+luau(probe + "pr:Invoke('motionPrefs',nil);pr:Invoke('motionScale',1);pr:Invoke('close');pr:Invoke('hudState','live') return 1")
 (out / 'frames.json').write_text(json.dumps(log, indent=1))
 p.kill()
