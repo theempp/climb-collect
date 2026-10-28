@@ -2,6 +2,8 @@
 from service_harness import *
 SH = 'local script={Parent={}}'
 body += '\nlocal V1Products=' + module('mountain/shared/V1Products.luau')
+body += '\ngame.ReplicatedStorage.MountainShared.V1Products=V1Products'
+body += '\nlocal UIRequests=' + module('mountain/server/UIRequests.luau', 'local script={}')
 body += '\nlocal Receipts=' + module('mountain/server/Receipts.luau', SH)
 body += '\nlocal MockMarketplace=' + module('mountain/server/MockMarketplace.luau')
 extra = ['Dailies', 'PartyRules', 'OutpostRules', 'OutpostSim', 'Seasons', 'Recognition', 'CaelorynAbilities', 'V1Protocol']

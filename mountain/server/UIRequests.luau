@@ -62,7 +62,7 @@ function U.new(options)
 
   end
 
-  local valid,message=Protocol.validate(id,action,payload)
+  local valid,message=(options.validate or Protocol.validate)(id,action,payload) -- v1 services pass V1Protocol.validate
 
   if not valid then return finish(result(id,action,false,message)) end
 
