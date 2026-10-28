@@ -266,3 +266,11 @@ All Q1–Q8 recommendations in `design/hud-glassbloom-p2-proposal-2026-10-28.md`
 ## 14. P3 owner answers (popups, 2026-10-28)
 - G15: Robux = Roblox native purchase prompt (handles insufficient Robux top-up); product id 0 → disabled "Coming soon" (ghost). Coins = two-tap confirm (3 s); short → scroll to Coins, label "Need N".
 - Save of the copy: computer use granted on retry at the save step.
+
+## 15. P4 gap answers (popups, 2026-10-28)
+- G6 battle: kit sizes. 3 special orbs = sprint-orb 54 in the dock slot (dock glass r30, gap 6); Dodge = bat-orb 52 in the bat slot; Ability = glass chip h27 above the dock; boss bar = banner glass r24 in the tier-2 slot (top 62) with a 10 px `gradAction` bar.
+- G7 launcher: one row of 5 dock buttons (42, white T.9, icons 28, gap 6) under the player-card XP bar; card widens to fit (~262). Hit areas 44.
+- G8 pick-up orb = bat-orb recipe 52, 10 px above the bat orb (bottom −158). G19: edge arrow only while the safe gate is off screen.
+- G2 HUD scale S 0.85 / L 1.15 (one UIScale on the HUD root).
+- G9 rail: nodes 12 / summit 15; rail < 110 px tall → 10 / 13. Checkpoints are not nodes; label "Checkpoint n/18 · h m".
+- G5: knocked = tier-1 toast "Knocked loose!"; lost = tier-2 banner "LOST IT / <name> went home"; safe = tier-2 banner "SECURED / <name>" + dock restores; calm = vignette off + dock restores, no message.
