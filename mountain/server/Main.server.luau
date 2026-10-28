@@ -9,6 +9,7 @@ local Competition=require(script.Parent.Competition)
 local UIRequests=require(script.Parent.UIRequests)
 local UIProtocol=require(RS.MountainShared.UIProtocol)
 local BatRules=require(RS.MountainShared.BatRules)
+local EggOdds=require(RS.MountainShared.EggOdds)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
@@ -165,9 +166,7 @@ Players.PlayerRemoving:Connect(function(player)
  P.save(player,true);state[player]=nil;busy[player]=nil;limits[player]=nil;motion[player]=nil;companions[player]=nil;recovering[player]=nil
 end)
 local rng=Random.new()
-local function roll(k)
- local r=rng:NextNumber()*100;for i=1,6 do local s=C.species[(k-1)*6+i];r-=s.weight;if r<=0 then return s.id end end;return C.species[k*6].id
-end
+local function roll(k) return EggOdds.pick(k,rng:NextNumber()*100) end
 carryVisuals=require(script.Parent.CarryVisuals).new(world,send,hud)
 for _,part in ipairs(world.Interactions:GetChildren()) do
  if part:GetAttribute('Kind')=='Nest' then

@@ -56,4 +56,34 @@ check(not R.trialReady(5,4,{a={dodges=3}}),'fire trial requires interrupt')
 check(R.trialReady(5,4,{a={dodges=3,objective=true}}),'fire interrupt satisfies objective')
 check(not R.mastered(6,{dodges=3}),'astral capture requires constellation objective')
 check(R.mastered(6,{dodges=3,objective=true}),'astral objective and dodge capture')
+-- EggOdds (C19): the shared table replaces Main's roll with identical results; odds shown = odds used.
+local O=require('../shared/EggOdds')
+local function oldRoll(k,r) for i=1,6 do local s=C.species[(k-1)*6+i];r-=s.weight;if r<=0 then return s.id end end;return C.species[k*6].id end
+for k=1,6 do
+ local same=true;for i=0,199 do local r=i*.5;if O.pick(k,r)~=oldRoll(k,r) then same=false end end
+ check(same and O.pick(k,99.999999)==oldRoll(k,99.999999),'odds grid matches the old roll '..k)
+ local sum=0;for _,s in ipairs(O.table(k)) do sum+=s.weight end;check(sum==100,'odds table sums to 100 '..k)
+ local c=O.byColour(k)
+ check(#c==4 and c[1].colour=='Blue' and c[1].percent==68 and c[2].colour=='Gold' and c[2].percent==18 and c[3].colour=='Violet' and c[3].percent==10 and c[4].colour=='Prismatic' and c[4].percent==4,'colour sums 68/18/10/4 '..k)
+end
+check(O.table(0)==nil and O.table(7)==nil and O.table(1.5)==nil and O.table(0/0)==nil and O.table('1')==nil and O.pick(7,10)==nil and O.pick(1,nil)==nil and O.byColour(0)==nil,'invalid odds input')
+math.randomseed(241026)
+for k=1,6 do
+ local n=100000;local hits={}
+ for _=1,n do local c=O.colourOf[C.byId[O.pick(k,math.random()*100)].rarity];hits[c]=(hits[c] or 0)+1 end
+ local within=true;for _,c in ipairs(O.byColour(k)) do if math.abs((hits[c.colour] or 0)*100/n-c.percent)>1 then within=false end end
+ check(within,'100k picks within 1 pt '..k)
+end
+-- Shown = used: every displayed item's bars equal its rolled frequencies on an exact midpoint grid.
+local shown=0
+for id,item in pairs(O.items) do
+ local d=O.display(id)
+ if item.currency~='coin' then check(d==nil,'robux odds hidden '..id) else
+  shown+=1;local hits={}
+  for i=0,9999 do local c=O.colourOf[C.byId[O.pick(d.section,(i+.5)/100)].rarity];hits[c]=(hits[c] or 0)+1 end
+  local same=d.section==item.section;for _,c in ipairs(d.colours) do if hits[c.colour]~=c.percent*100 then same=false end end
+  check(same,'shown = used '..id)
+ end
+end
+check(shown==1 and O.display('meadow_egg').section==1 and O.display('mystery_egg')==nil and O.display('egg_luck')==nil and O.display('nope')==nil and O.display(nil)==nil,'only the meadow egg shows odds')
 print('PASS '..count..' mountain rules checks')
