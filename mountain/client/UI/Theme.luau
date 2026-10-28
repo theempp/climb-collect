@@ -96,7 +96,7 @@ local T={
  -- 1b tier map (owner decision 2026-10-27): Common/Uncommon blue, Rare gold, Epic violet, Mythic/Legendary prismatic.
  rarity={},
  prismatic={Mythic=true,Legendary=true},
- -- §5 upload sheet (U1–U6, U8–U11; U7 held). 0 = not uploaded yet.
+ -- §5 upload sheet (U1–U6, U8–U11; U7 held).
  -- U1-U6, U8-U11 uploaded 2026-10-28 to the owner account (MCP upload_image via localhost; verified type Image, creator, size, alpha).
  images={glow=93480268375740,rays=113155665058160,shieldFill=88476648878593,roundtopFill=89527446609971,ticketFill=136711511090816,ribbonTail=132053820424208,glossOrb=92309004506129,shieldLine=126633186000147,roundtopLine=137973034532962,ticketLine=95881953296728,radial=129945984441539},
  slice={glow=Rect.new(63,63,65,65),shieldFill=Rect.new(100,40,156,156),shieldLine=Rect.new(100,40,156,156),
