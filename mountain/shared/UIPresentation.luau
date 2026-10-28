@@ -172,9 +172,12 @@ function P.hudLayout(w,h,obstacles,touch,topbar,opts)
  local nodes={[7]=rect((22-summit)/2,0,summit,summit)};local ny=summit+gap
  for k=6,1,-1 do nodes[k]=rect((22-node)/2,ny,node,node);ny+=node+gap end
  -- B.dock (L110-115): AP(.5,1) (.5,0, 1,-10); glass border 2 + padding 6, 42 px buttons, gap 6 (5 = 250x58, chase 3 = 154x58).
- local function dockRect(n) local dw=2*8+n*42+(n-1)*6;return rect(W/2-dw/2,H-10-58,dw,58) end
+ -- Owner 2026-10-28 (HUD scale S): drawn buttons shrink with the scale but the on-screen pitch stays >= 48, so the 44 px hit
+ -- areas never trim below 44 (virtual gap = max(6, 48/s - 42)). Applies to the dock and the player-card launcher.
+ local dgap=math.max(6,48/s-42);local pitch=42+dgap
+ local function dockRect(n) local dw=2*8+n*42+(n-1)*dgap;return rect(W/2-dw/2,H-10-58,dw,58) end
  local dock,dockChase=dockRect(5),dockRect(3)
- local dockButtons={};for i=1,5 do dockButtons[i]=rect(dock.x+8+(i-1)*48,dock.y+8,42,42) end
+ local dockButtons={};for i=1,5 do dockButtons[i]=rect(dock.x+8+(i-1)*pitch,dock.y+8,42,42) end
  -- Orbs (L123-124): sprint 54 at AP(1,1) (1,-96, 1,-20); bat 52 at (1,-20, 1,-96). They cleared the board's 70 px jump orb by
  -- 10 px, so the same 10 px clearance moves them off a native jump/thumbstick (G10): sprint left, bat up.
  local sprint=rect(W-96-54,H-20-54,54,54);local bat=rect(W-20-52,H-96-52,52,52)
@@ -192,7 +195,7 @@ function P.hudLayout(w,h,obstacles,touch,topbar,opts)
  -- Where the chip would enter the keep-clear zone (short phones), it slides right of M on the same line.
  if over(ability,Z.M) then ability.x=Z.M.x+Z.M.w+6 end
  -- B.cp (L125-128): AP(0,1) (.5,134, 1,-10), 52x62. B.edge (L129): AP(1,0) (1,-8, .36,0), h36, w ~100 est.
- local portrait=rect(W/2+134,H-10-62,52,62)
+ local portrait=rect(dock.x+dock.w+9,H-10-62,52,62) -- = W/2+134 at the board pitch; follows the wider S-scale dock
  local ew=opts.edgeW or 100
  local edgeArrow=rect(W-8-ew,.36*H,ew,36)
  -- Transient slots (§4): tier 1 under the coin pill (board y 60 = row 7 + 53); tier 2 band (banner 62, pop-up 60); RUN! top
@@ -213,7 +216,7 @@ function P.hudLayout(w,h,obstacles,touch,topbar,opts)
   moment=rect(0,momentY,W,77),momentSub=rect(W/2,momentY+77+8,0,20),collect=rect(W/2-95,momentY+77+8+20+8,190,46),
   -- B.pcard (L170-174, G7): AP(0,1) (.5,-125, 1,-78); widened to the 5-button launcher row: 2+12+5x42+4x6+12+2 = 262; height
   -- 2+10+48 (ring row)+10 (gap)+42 (launcher)+10+2 = 124.
-  card=rect(W/2-125,H-78-124,262,124),
+  card=rect(W/2-125,H-78-124,2+12+5*42+4*dgap+12+2,124),dockGap=dgap,
   screen=scr,
  }
 end

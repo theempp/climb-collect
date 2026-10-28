@@ -119,7 +119,7 @@ function Hud.new(root,cb)
  dc:SetAttribute('Motion','dock.chaseFade');e.dockCanvas=dc
  local dock=tag(glass(dc,'Dock',UDim2.fromOffset(250,58),T.r.pill30),'permanent','dock');dock.Position=UDim2.fromOffset(18,18);e.dock=dock
  local row=frame(dock,'Buttons',{Size=UDim2.fromScale(1,1),ZIndex=1});W.padding(row,8)
- W.new('UIListLayout',row,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,VerticalAlignment=Enum.VerticalAlignment.Center})
+ e.dockList=W.new('UIListLayout',row,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder,VerticalAlignment=Enum.VerticalAlignment.Center})
  -- Creatures (D2): W.ring(42,3,pk,.84,deep) + lv badge; the ring tap opens the player card launcher.
  local cr=W.new('TextButton',row,{Name='Creatures',Size=UDim2.fromOffset(42,42),BackgroundTransparency=1,BorderSizePixel=0,Text='Creatures',TextTransparency=1,AutoButtonColor=false,LayoutOrder=1})
  cr:SetAttribute('QAControl',true);cr:SetAttribute('Enabled',true);cr:SetAttribute('CornerRadius',T.r.circle)
@@ -201,8 +201,8 @@ function Hud.new(root,cb)
  local meta=W.textStroke(label(card,'Meta','Player · Lv 1',T.fontBody,T.t.pcardMeta,T.text,left),nil).Parent;meta.Position=UDim2.fromOffset(72,12);meta.Size=UDim2.fromOffset(176,17);W.fit(meta,T.t.pcardMeta,8);e.cardMeta=meta
  e.cardXp=W.progress(card,0,UDim2.fromOffset(176,10),UDim2.fromOffset(72,12+17+4));e.cardXp.Parent.ZIndex=2
  local sub=W.textStroke(label(card,'Sub','',T.fontBody,T.t.smallHud,T.text,left),nil).Parent;sub.Position=UDim2.fromOffset(72,12+17+4+10+3);sub.Size=UDim2.fromOffset(176,13);sub.TextTransparency=T.textDimT[3];W.fit(sub,T.t.smallHud,8);e.cardSub=sub
- local lrow=frame(card,'Launcher',{Position=UDim2.fromOffset(14,70),Size=UDim2.fromOffset(234,42),ZIndex=2})
- W.new('UIListLayout',lrow,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder})
+ local lrow=frame(card,'Launcher',{Position=UDim2.fromOffset(14,70),Size=UDim2.fromOffset(234,42),ZIndex=2});e.launcher=lrow
+ e.launchList=W.new('UIListLayout',lrow,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder})
  for i,name in ipairs({'Creatures','Profile','Social','Discovery','Sanctuary'}) do
   dockButton(self,lrow,'Launch'..name,name,function() self.cardOpen=false;cb.sound();cb.open(name);self:render(self.view) end,i)
  end
@@ -247,7 +247,7 @@ function Hud:apply(l)
  e.ability.Position=UDim2.fromOffset(l.ability.x,l.ability.y)
  e.boss.Position=UDim2.fromOffset(l.boss.x,l.boss.y)
  place(e.portrait,l.portrait);e.edge.Position=UDim2.fromOffset(l.edge.x+l.edge.w,l.edge.y)
- place(e.card,l.card);place(e.vignette,l.screen)
+ place(e.card,l.card);local gap=UDim.new(0,l.dockGap or 6);e.dockList.Padding=gap;e.launchList.Padding=gap;e.launcher.Size=UDim2.fromOffset(l.card.w-28,42);place(e.vignette,l.screen)
  if self.view then self:render(self.view) end
 end
 -- Chase dock (L134): 3 buttons at group T .75; restored = all 5 at T 0. Motion owns the tap/focus restore timing (3 s).

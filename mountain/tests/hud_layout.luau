@@ -98,9 +98,9 @@ for _,v in ipairs(SIZES) do
   local function scaled(list) local o={};for i,r in ipairs(list) do o[i]=R(r,s) end;return o end
   -- G1 vs G2 conflict: at HUD scale S the 42 px dock buttons sit at a real pitch of 48 x .85 = 40.8 < 44, so neighbouring hit
   -- areas trim to the pitch. The floor is 44 at M/L and the dock pitch at S (flagged for the owner).
-  local floor=math.min(44,48*s)
+  local floor=44 -- owner 2026-10-28: the dock/launcher pitch stays 48 on screen at every HUD scale
   local db=l.dockButtons
-  local card=l.card;local launch={};for i=1,5 do launch[i]={x=card.x+14+(i-1)*48,y=card.y+70,w=42,h=42} end
+  local card=l.card;local launch={};for i=1,5 do launch[i]={x=card.x+14+(i-1)*(42+l.dockGap),y=card.y+70,w=42,h=42} end
   hitsOk(scaled({l.coin,l.gear,db[1],db[2],db[3],db[4],db[5],l.bat,l.pickup,l.sprint}),where..' rest',floor)
   hitsOk(scaled({l.coin,l.gear,db[1],db[2],db[3],l.bat,l.sprint}),where..' chase',floor)
   hitsOk(scaled({l.coin,l.gear,db[1],db[2],db[3],db[4],db[5],l.sprint,launch[1],launch[2],launch[3],launch[4],launch[5]}),where..' sanctuary',floor)

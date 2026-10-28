@@ -274,3 +274,7 @@ All Q1–Q8 recommendations in `design/hud-glassbloom-p2-proposal-2026-10-28.md`
 - G2 HUD scale S 0.85 / L 1.15 (one UIScale on the HUD root).
 - G9 rail: nodes 12 / summit 15; rail < 110 px tall → 10 / 13. Checkpoints are not nodes; label "Checkpoint n/18 · h m".
 - G5: knocked = tier-1 toast "Knocked loose!"; lost = tier-2 banner "LOST IT / <name> went home"; safe = tier-2 banner "SECURED / <name>" + dock restores; calm = vignette off + dock restores, no message.
+
+## 16. STOP 2 (owner popup, 2026-10-28)
+- HUD states approved as captured (`evidence/hud_glassbloom_2026-10-27/p4/stop2/`); next phase P5.
+- HUD scale S: drawn buttons shrink but the dock/launcher on-screen pitch stays ≥ 48 (virtual gap max(6, 48/s − 42)), so hit areas stay 44; the carry portrait follows the dock's right edge (+9).
