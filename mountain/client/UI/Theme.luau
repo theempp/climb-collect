@@ -97,7 +97,8 @@ local T={
  rarity={},
  prismatic={Mythic=true,Legendary=true},
  -- §5 upload sheet (U1–U6, U8–U11; U7 held). 0 = not uploaded yet.
- images={glow=0,rays=0,shieldFill=0,roundtopFill=0,ticketFill=0,ribbonTail=0,glossOrb=0,shieldLine=0,roundtopLine=0,ticketLine=0,radial=0},
+ -- U1-U6, U8-U11 uploaded 2026-10-28 to the owner account (MCP upload_image via localhost; verified type Image, creator, size, alpha).
+ images={glow=93480268375740,rays=113155665058160,shieldFill=88476648878593,roundtopFill=89527446609971,ticketFill=136711511090816,ribbonTail=132053820424208,glossOrb=92309004506129,shieldLine=126633186000147,roundtopLine=137973034532962,ticketLine=95881953296728,radial=129945984441539},
  slice={glow=Rect.new(63,63,65,65),shieldFill=Rect.new(100,40,156,156),shieldLine=Rect.new(100,40,156,156),
   roundtopFill=Rect.new(120,120,136,220),roundtopLine=Rect.new(120,120,136,220),ticketFill=Rect.new(32,0,96,148),ticketLine=Rect.new(32,0,96,148)},
  -- Approved icon set (design/hud-v2-icons, 512 px PNG), uploaded 2026-10-27 to the owner account (Asset Manager import, verified
