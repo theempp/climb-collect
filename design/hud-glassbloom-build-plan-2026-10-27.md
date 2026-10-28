@@ -262,3 +262,7 @@ Architect plan. No code in this doc. Target: the owner-approved board `C:\Users\
 
 ## 13. P2 owner answers (popups, 2026-10-28)
 All Q1–Q8 recommendations in `design/hud-glassbloom-p2-proposal-2026-10-28.md` §1 approved (see the answer note at its top). P2 implementation is unblocked.
+
+## 14. P3 owner answers (popups, 2026-10-28)
+- G15: Robux = Roblox native purchase prompt (handles insufficient Robux top-up); product id 0 → disabled "Coming soon" (ghost). Coins = two-tap confirm (3 s); short → scroll to Coins, label "Need N".
+- Save of the copy: computer use granted on retry at the save step.

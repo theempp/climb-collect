@@ -35,3 +35,12 @@ Plan: `design/hud-glassbloom-build-plan-2026-10-27.md` (§11 owner answers overr
 - Studio: synced with `python tools/rmcp/sync_hud.py <id> --changed 760510f` (27 sources, 4 created; StudioTests skipped). Live QA `evidence/hud_glassbloom_2026-10-27/p2_live_qa.json`: refusals correct, no debit, console clean. Overflow audit 6 sizes, 162 screens, **0 errors**. StudioAids reset false; copy **not saved** (all state reproducible from the repo).
 - Not live-verified (needs coins/fixtures): successful buy, XP awards, hud events, Robux enforcement. Covered by the integration suites above.
 - Next: P3 kit (component-builder): Theme → atlas tokens, `W.ring` spike, the 11 PNG uploads (Asset Manager, owner account), kit + reskin, then P4 → STOP. New-chat prompt: `design/hud-glassbloom-p3-new-chat-prompt-2026-10-28.md`.
+
+## P3 progress (2026-10-28)
+- Studio: same window, MCP id `6ca0e676-3401-41ad-a8ac-fc402096a2e5`, PlaceId 0; copy on disk still `2a3bff90…6343` at start.
+- T1 Theme (`7858718`): intel §1 tokens, legacy aliases per §1j. Builder notes: hero/cpk "gold radial" uses `gold` #FFD84A (intel names no hex); holo/conic/shine stops evenly spaced (CSS default).
+- Masters (`f7c75a6`): `tools/render_glassbloom_masters.py` → `design/glassbloom-masters/` (11 white PNGs, 4× supersampled).
+- Uploads (`5780f60`): computer use was denied, so the Asset Manager route was unavailable. `upload_image` refuses local paths but accepts `http://127.0.0.1:8765/<file>` (temporary `python -m http.server` in the masters folder). Same owner account (creator 11718983250, same as the 17 icons), type Image, no Robux. Asset names are auto ("Assistant_<hash>.png"), so ids are mapped by upload path and verified by `EditableImage` size + mean alpha vs each master (`evidence/hud_glassbloom_2026-10-27/p3/uploads_verify.json`).
+- Ring spike PASS (`p3/ring_spike_01*.png`): 0/25/50/75/100 % (+10/60/90) at 42/52/48/62. Math: HalfR Rotation = min(p,.5)·360, HalfL = 180+max(p−.5,0)·360, stroke gradient {0:0,.5:0,.501:1,1:1}. At p ≥ 1 draw a full circle (hairline seams at 12/6 o'clock otherwise). U7 stays held.
+- **G15 owner answers:** Robux buys go through Roblox's `PromptProductPurchase`, whose native flow tops up Robux when short (inert while product ids are 0; disabled "Coming soon" uses ghost tokens). Coin buys are two-tap (CONFIRM for 3 s); short on coins → the tap scrolls the Shop to Coins and the label reads "Need N".
+- Save: owner will grant computer use on retry for the Ctrl+S step.
