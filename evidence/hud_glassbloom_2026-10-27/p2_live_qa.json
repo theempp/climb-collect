@@ -1,0 +1,7 @@
+{"date":"2026-10-28","place":"outputs/ClimbCollect.Glassbloom.Review01.rbxl (PlaceId 0, unsaved; P2 sources synced with sync_hud.py --changed 760510f)",
+ "fresh_profile":{"coins":0,"explorer":{"level":1,"xp":0,"need":60,"cap":49980},"ui.exits":1,"ui.section":false,"new_settings_defaults":{"cameraShake":true,"altitudeRail":true,"hudScale":0.5,"effectsTier":1,"sprintMode":1}},
+ "requests":{"Buy meadow_egg (0 coins)":"refused: Not enough coins for this item.","Buy candy_swirl (0 coins)":"refused: Not enough coins for this item.","Buy mystery_egg":"refused: This item is not on sale yet.","Buy egg_luck":"refused: This item is not on sale yet.","Buy bad receipt 'x'":"refused: Invalid action payload.","Buy within 2 s":"refused: Please wait a moment before buying again.","Skin equip unowned":"refused: Buy this skin first.","Skin clear":"ok (no save when nothing changes)","Settings hudScale .25":"refused","Settings hudScale 1":"ok"},
+ "after":{"coins":0,"eggs":0,"receipts":0},
+ "console":"no errors or warnings",
+ "overflow_audit":"p2_overflow_audit.json: 6 sizes, 162 screens, 0 errors (P0 baseline had 1)",
+ "not_covered_live":"successful coin purchase, Robux-origin enforcement, XP awards and hud events need coins/fixtures; covered by shop_rules 234, run_ui_server 55, explorer_rules 111, egg_raids 36, run_combat_raids 58, run_raid_events 33, run_origin_gates 8"}

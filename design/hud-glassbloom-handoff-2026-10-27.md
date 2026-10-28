@@ -27,3 +27,11 @@ Plan: `design/hud-glassbloom-build-plan-2026-10-27.md` (§11 owner answers overr
 ## P2 release order (T0 / C1)
 - **A build containing T0 (`f92575b`, lenient `savedSettings`) must be live before any build that writes the new pref keys (T2 `b680955` onward).** Pre-T0 builds validate saved settings strictly and refuse (kick) any profile holding an unknown key. Publish a T0-only build first; the P2 branch carries T0 and T2 together.
 - Mitigation in P2: defaults are never stored. `p.settings` keeps only keys a player set (plus a newer build's unknown keys, preserved). A player who never changes a new pref still loads on a pre-T0 build; one who did set `cameraShake`/`altitudeRail`/`hudScale`/`effectsTier`/`sprintMode` does not. Roll back only to a T0-or-later build.
+
+## P2 results (2026-10-28)
+- Built T0–T11 in dependency order (commits `f92575b`…`3f52379`), T1 sync tool `a938b73`, review fixes `ba3a393`. 3 adversarial reviewers found 5 minor issues; all fixed with tests (mutation-checked).
+- New shared modules: `ExplorerRules`, `EggOdds`, `ShopRules`, `HudState`. Server: typed `hud` events (carry/regrab/knocked/lost/safe/alert/calm), `ui.exits` + `ui.section`, player XP (`ui.explorer`), Buy/Skin actions behind the sanctuary/no-run/no-battle/no-pending gate, Robux-origin enforcement (equip, battleTeam, load strip+refill, bat sets, 0 coins), Competition 5 coin wins/day, lenient saved settings + 5 new prefs.
+- Suites (all pass): 40 suites incl. new explorer_rules 111, shop_rules 234, hud_state 101, run_context 39, run_raid_events 33, run_origin_gates 8; rules 170, egg_raids 36, ui_protocol 95, ui_server 67, run_persistence 61, run_ui_server 55, run_combat_raids 58.
+- Studio: synced with `python tools/rmcp/sync_hud.py <id> --changed 760510f` (27 sources, 4 created; StudioTests skipped). Live QA `evidence/hud_glassbloom_2026-10-27/p2_live_qa.json`: refusals correct, no debit, console clean. Overflow audit 6 sizes, 162 screens, **0 errors**. StudioAids reset false; copy **not saved** (all state reproducible from the repo).
+- Not live-verified (needs coins/fixtures): successful buy, XP awards, hud events, Robux enforcement. Covered by the integration suites above.
+- Next: P3 kit (component-builder): Theme → atlas tokens, `W.glass` + `W.ring` spike, the 11 PNG uploads (Asset Manager, owner account).
