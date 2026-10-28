@@ -259,3 +259,6 @@ Architect plan. No code in this doc. Target: the owner-approved board `C:\Users\
 - D9 widened: **11 PNG uploads** (fallback ring held), one 20-ray image.
 - Touch targets: drawn sizes kept, invisible hit areas ≥ 44 px trimmed at neighbour midpoints; audits check hit areas.
 - Timing conflicts: board text wins (XP line 1.5 s, pop-up in at 0.35 s, rail hold 3 s); CSS = easing shape only.
+
+## 13. P2 owner answers (popups, 2026-10-28)
+All Q1–Q8 recommendations in `design/hud-glassbloom-p2-proposal-2026-10-28.md` §1 approved (see the answer note at its top). P2 implementation is unblocked.
