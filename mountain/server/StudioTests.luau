@@ -57,6 +57,10 @@ function T.run()
  local explorer=R.newProfile(100);explorer.discoveries['1:entrance']=true;X.award(explorer,'win',2,X.today());X.award(explorer,'secure',3,X.today(),'glimfox')
  local back=Http:JSONDecode(Http:JSONEncode(explorer));X.ensure(back,X.today())
  check('explorer JSON round trip',back.explorer.won['2']==true and back.explorer.species.glimfox==true and back.explorer.secures==1 and X.summary(back).xp==X.summary(explorer).xp and X.summary(back).xp==25+200+30+50)
+ local Shop=require(game.ReplicatedStorage.MountainShared.ShopRules)
+ local buyer=R.newProfile(100);buyer.coins=2600;Shop.buy(buyer,'meadow_egg','studio-receipt-1',50)
+ local bought=Http:JSONDecode(Http:JSONEncode(buyer))
+ check('shop JSON round trip',bought.coins==100 and #bought.eggs==1 and bought.eggs[1].origin=='coin' and bought.eggs[1].id==buyer.eggs[1].id and Shop.has(bought,'studio-receipt-1') and #bought.receipts==1)
  return {passed=#checks,checks=checks,scope='isolated memory profiles and snapshots; no live DataStore or actual player progression'}
 end
 return T

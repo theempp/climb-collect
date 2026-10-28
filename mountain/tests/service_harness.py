@@ -37,8 +37,11 @@ body += '\nlocal Rules=' + module('mountain/shared/Rules.luau', 'local script={P
 body += '\nlocal Protocol=' + module('mountain/shared/UIProtocol.luau')
 body += '\nlocal BatRules=' + module('mountain/shared/BatRules.luau', 'local script={Parent={Catalog=Catalog}}')
 body += '\nlocal ExplorerRules=' + module('mountain/shared/ExplorerRules.luau', 'local script={Parent={Catalog=Catalog}}')
-body += '\ngame.ReplicatedStorage={MountainShared={Catalog=Catalog,Rules=Rules,UIProtocol=Protocol,BatRules=BatRules,RaidConfig=RaidConfig,GuardianRules=GuardianRules,ExplorerRules=ExplorerRules}}'
+body += '\nlocal EggOdds=' + module('mountain/shared/EggOdds.luau', 'local script={Parent={Catalog=Catalog}}')
+body += '\nlocal ShopRules=' + module('mountain/shared/ShopRules.luau', 'local script={Parent={EggOdds=EggOdds}}')
+body += '\ngame.ReplicatedStorage={MountainShared={Catalog=Catalog,Rules=Rules,UIProtocol=Protocol,BatRules=BatRules,RaidConfig=RaidConfig,GuardianRules=GuardianRules,ExplorerRules=ExplorerRules,EggOdds=EggOdds,ShopRules=ShopRules}}'
 body += '\nlocal Store=' + module('mountain/server/Store.luau')
 body += '\nlocal Profiles=' + module('mountain/server/Profiles.luau', 'local script={Parent={Store=Store}}')
+body += '\nlocal UIRequests=' + module('mountain/server/UIRequests.luau', 'local script=true')
 body += '\ngame.ServerStorage={MountainWorld={Art={}}}'
 body += '\nlocal Combat=' + module('mountain/server/Combat.luau')

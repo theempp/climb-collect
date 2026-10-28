@@ -112,4 +112,22 @@ local before=pr.creatures[1].xp+pr.creatures[1].level*1000;win(rp,1,2,0)
 check(pr.creatures[1].xp+pr.creatures[1].level*1000>before and pr.creatures[4].xp==0 and pr.creatures[4].level==1,'robux_gets_no_battle_xp')
 local snap=Competition.snapshot(pr,206)
 check(#snap.team==1 and snap.team[1].species=='mossbun','competition_snapshot_excludes_robux')
+-- Q4 (C17): 5 coin-paying Competition wins per UTC day (practice and snapshot); trophies always count; the day only moves forward.
+do
+ local cp=Rules.newProfile(100);for _,c in ipairs(cp.creatures) do c.level=50 end
+ local function practice() cp.competitionAt=0;local ok,value=Competition.challenge(cp,301,0);assert(ok and value.won,'practice win');return value end
+ local today=math.floor(os.time()/86400)
+ for i=1,5 do local value=practice();check(value.coins==35 and cp.coins==35*i and cp.trophies==10*i and cp.competition.wins==i and cp.competition.day==today,'coin_win_'..i) end
+ local sixth=practice()
+ check(sixth.coins==0 and cp.coins==175 and cp.trophies==60 and cp.competition.wins==5,'sixth_coin_win_pays_zero_coins_keeps_trophies')
+ cp.competition={day=today-1,wins=5};check(practice().coins==35 and cp.competition.day==today and cp.competition.wins==1,'new_day_resets_once')
+ cp.competition={day=today+1,wins=5};check(practice().coins==0 and cp.competition.day==today+1,'day_never_moves_back')
+ cp.competition={day=today+40,wins=5};check(practice().coins==0 and cp.competition.day==today,'far_future_day_clamped_counter_kept')
+ for _,bad in ipairs({'junk',{day=0/0,wins=-3},{day=today,wins=math.huge},{day=-5,wins='x'}}) do
+  cp.competition=bad;local coins=cp.coins;local value=practice()
+  check(type(cp.competition)=='table' and cp.competition.wins>=1 and cp.competition.wins<=5 and cp.coins==coins+value.coins,'malformed_competition_normalized')
+ end
+ local weak=Rules.newProfile(100);weak.competitionAt=0;local ok,value=Competition.challenge(weak,302,0)
+ check(ok and not value.won and value.coins==0 and weak.competition==nil and weak.coins==0,'loss_pays_nothing_and_counts_nothing')
+end
 print('PASS '..checks..' combat raid integration checks')

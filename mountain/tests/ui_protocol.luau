@@ -73,6 +73,18 @@ check(concurrent.process(player,'inflight:1','State',nil)==nil and paid==1,'in-f
 local ok,done=coroutine.resume(thread)
 check(not sharedBusy,'correlated completion releases shared busy lock')
 check(ok and done.ok and concurrent.process(player,'inflight:1','State',nil)==done,'completed in-flight replay returns final result')
+-- C21: Buy{item,receipt} and Skin{op,id}; receipts are 8-64 of [%w-]; the legacy remote never reaches either.
+check(intent('shop:1','Buy',{item='meadow_egg',receipt='a1b2-c3d4'}),'buy accepted')
+check(intent('shop:1','Buy',{item='meadow_egg',receipt=string.rep('f',64)}),'buy 64-char receipt accepted')
+check(not intent('shop:1','Buy',nil),'buy without payload denied')
+for _,payload in ipairs({'meadow_egg',{item='meadow_egg'},{receipt='a1b2-c3d4'},{item='meadow_egg',receipt='short'},{item='meadow_egg',receipt=string.rep('f',65)},
+ {item='meadow_egg',receipt='has space1'},{item='meadow_egg',receipt='colon:1234'},{item='meadow_egg',receipt=12345678},{item='',receipt='a1b2-c3d4'},{item='meadow_egg',receipt='a1b2-c3d4',count=3}}) do
+ check(not intent('shop:1','Buy',payload),'malformed buy denied')
+end
+check(intent('shop:1','Skin',{op='equip',id='candy_swirl'}) and intent('shop:1','Skin',{op='clear'}),'skin equip and clear accepted')
+for _,payload in ipairs({{op='equip'},{op='clear',id='candy_swirl'},{op='buy',id='candy_swirl'},{op='equip',id='candy_swirl',extra=1},'candy_swirl'}) do check(not intent('shop:1','Skin',payload),'malformed skin denied') end
+check(not intent('legacy:1','Buy',{item='meadow_egg',receipt='a1b2-c3d4'}) and not intent('legacy:1','Skin',{op='clear'}),'legacy remote refuses shop actions')
+check(intent('legacy:1','Train','c1'),'legacy remote keeps other actions')
 check(intent('raid:1','Strike','1:egg1'),'strike server egg ID')
 check(intent('raid:2','Pickup','run-1'),'pickup server run ID')
 check(not intent('raid:3','Pickup',{species='floravelle'}),'cannot supply reward species')

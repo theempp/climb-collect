@@ -95,7 +95,7 @@ function P.capabilities()
   rankings={status='unavailable',reason='No server ranking service.'},
   badges={status='unavailable',reason='No badge award service for this mountain.'},
   titles={status='unavailable',reason='No title ownership or equip service.'},
-  shop={status='unavailable',reason='No approved product catalog, receipt or entitlement backend.'},
+  shop={status='partial',reason='Meadow Egg for coins with server receipts; Robux items stay disabled.'},
  }
 end
 function P.combatVisible(battle,ready,hubOpen)

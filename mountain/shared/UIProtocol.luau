@@ -1,6 +1,6 @@
 -- Shared wire validation only; all ownership, proximity and costs remain server rules.
 local U={}
-local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true}
+local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true,Buy=true,Skin=true}
 local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true,cameraShake=true,altitudeRail=true,hudScale=.5,effectsTier=1,sprintMode=1}
 -- Per-key enums (patch path strict; saved values snap to the nearest step, ties to the default, else the lower). sprintMode 0=HOLD, 1=TOGGLE.
 local steps={hudScale={0,.5,1},effectsTier={0,.5,1},sprintMode={0,1}}
@@ -71,6 +71,9 @@ function U.validate(id,action,payload)
    elseif payload.op=='upgrade' then valid=fields(payload,{op=true,path=true,slot=true}) and table.find({'habitats','habitat','production','storage','bag','banking','automation'},payload.path)~=nil and (if payload.path=='habitat' then slot(payload.slot,false) else payload.slot==nil) end
   end
  elseif action=='Bat' then valid=fields(payload,{op=true,id=true}) and (payload.op=='equip' or payload.op=='upgrade') and text(payload.id)
+ -- C21: shop actions are correlated only; the legacy remote (id 'legacy:1') never buys or equips a skin.
+ elseif action=='Buy' then valid=id~='legacy:1' and fields(payload,{item=true,receipt=true}) and text(payload.item) and type(payload.receipt)=='string' and #payload.receipt>=8 and #payload.receipt<=64 and payload.receipt:match('^[%w%-]+$')~=nil
+ elseif action=='Skin' then valid=id~='legacy:1' and fields(payload,{op=true,id=true}) and (if payload.op=='equip' then text(payload.id) else payload.op=='clear' and payload.id==nil)
  elseif action=='State' or action=='Swing' or action=='Dodge' or action=='CollectIncome' or action=='RegisterDefense' then valid=payload==nil
  elseif action=='Train' or action=='Incubate' or action=='Hatch' or action=='Travel' then valid=text(payload)
  elseif action=='ChallengeDefense' then valid=finite(payload) and payload%1==0 and payload>=0 and payload<=9007199254740991

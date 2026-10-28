@@ -110,4 +110,38 @@ local stripped=service.load({UserId=120});local saved=backend.backend.u120.profi
 check(stripped and #stripped.team==3 and stripped.team[1]=='c3' and stripped.team[2]=='c1' and stripped.team[3]=='c2','all_robux_team_loads_stripped_and_refilled')
 check(#saved.team==3 and saved.team[1]=='c3' and #saved.cargo==1 and saved.recovery==nil and #saved.eggs==2 and saved.eggs[1].origin=='robux','strip_persisted_in_load_write')
 check(Rules.find(stripped.creatures,'r1').origin=='robux' and #stripped.creatures==6,'robux creatures stay owned')
+-- T9 (C14/C15): Meadow Egg through the real dispatcher and Profiles. A known receipt never writes again.
+local shopBackend=Store.memory();local shops=Profiles.newForTests(shopBackend,'shop');local buyer={UserId=130}
+local tick=0;local live=shops.load(buyer);live.coins=6000
+check(live.receipts==nil,'legacy_profile_without_receipts_loads')
+local buy=UIRequests.actions({profiles=shops,rules=Rules,safe=function() return true end,shop=ShopRules,monotonic=function() return tick end,
+ rollOdds=function() return 50 end,inSanctuary=function() return true end,inBattle=function() return false end})
+local function order(receipt) return buy(buyer,'Buy',{item='meadow_egg',receipt=receipt}) end
+local function durable() return shopBackend.backend.u130.profile end
+local writes=shopBackend.calls.update
+local ok,message,data=order('receipt-a001')
+check(ok and data.egg.origin=='coin' and shopBackend.calls.update==writes+1 and durable().coins==3500 and #durable().eggs==1 and durable().receipts[1]=='receipt-a001','buy_commits_debit_grant_receipt_in_one_write')
+local okReplays=0
+for i=1,6 do tick+=1;if order('receipt-a001') then okReplays+=1 end end
+check(okReplays==3 and shopBackend.calls.update==writes+1 and shops.get(buyer).coins==3500 and #shops.get(buyer).eggs==1,'n_replays_of_one_receipt_write_exactly_once')
+tick+=2;writes=shopBackend.calls.update;ok,message=order('receipt-a001')
+check(ok and message=='Purchase already complete.' and shopBackend.calls.update==writes,'same_receipt_after_commit_no_write_returns_ok')
+-- failNext=3: every commit attempt fails, the draft stays pending (P.get nil, requests refused) until autosave commits it once.
+tick+=2;shopBackend.failNext=3;ok,message=order('receipt-a002')
+check(not ok and message=='Purchase is saving. It appears once saving resumes.' and shops.pending(buyer)=='buy:receipt-a002' and not shops.get(buyer),'failed_commit_stays_pending')
+check(durable().coins==3500 and #durable().eggs==1,'nothing_durable_before_commit')
+tick+=2;writes=shopBackend.calls.update;ok,message=order('receipt-a002')
+check(not ok and message=='Profile or saving unavailable.' and shopBackend.calls.update==writes,'pending_refuses_buy_without_write')
+check(shops.save(buyer,false) and not shops.pending(buyer),'autosave_commits_pending_buy')
+local after=shops.get(buyer)
+check(after.coins==1000 and #after.eggs==2 and #after.receipts==2 and durable().coins==1000 and #durable().eggs==2 and durable().receipts[2]=='receipt-a002','autosave_commits_exactly_one_debit_and_grant')
+tick+=2;writes=shopBackend.calls.update;ok=order('receipt-a002')
+check(ok and shopBackend.calls.update==writes and shops.get(buyer).coins==1000,'committed_pending_receipt_replays_without_write')
+-- failAfterCommit: the response is lost after the durable write; the retry reuses the same write id, so one debit.
+after.coins=4000;tick+=2;shopBackend.failAfterCommit=1;ok=order('receipt-a003')
+check(ok and shops.get(buyer).coins==1500 and #shops.get(buyer).eggs==3 and durable().coins==1500 and #durable().eggs==3,'fail_after_commit_single_debit')
+tick+=2;writes=shopBackend.calls.update;check(order('receipt-a003') and shopBackend.calls.update==writes and #durable().eggs==3,'fail_after_commit_replay_single')
+check(shops.save(buyer,true),'buyer_releases')
+local back=shops.load(buyer)
+check(back.coins==1500 and #back.eggs==3 and #back.receipts==3 and back.eggs[3].origin=='coin' and ShopRules.has(back,'receipt-a001'),'coins_eggs_receipts_survive_release_and_reload')
 print('PASS '..checks..' durable exit/migration checks (isolated adapter)')

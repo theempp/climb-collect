@@ -59,7 +59,7 @@ local function rebuildTeam() end
 local contextSnapshots={}
 '''
 body += '\n' + between('local function publish(player,visual)', 'B.init(')
-body += 'local function contextTick(player,p,rr,contextDue)\n' + between('  if p and contextDue then', '  if p and rr and h and h.Health>0 then') + 'end\n'
+body += 'local function contextTick(player,p,rr,contextDue)\n' + between('  if p and contextDue then', '  -- C13: movement correction') + 'end\n'
 body += r'''
 local function lastOf(player,kind) for i=#sent,1,-1 do if sent[i].player==player and sent[i].kind==kind then return sent[i].data end end;return nil end
 local function count(player,kind) local n=0;for _,e in ipairs(sent) do if e.player==player and e.kind==kind then n+=1 end end;return n end

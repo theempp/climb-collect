@@ -79,6 +79,54 @@ check(Combat.specialAt['123:c1:1']==nil and Combat.specialAt['124:c2:1']~=nil,'d
 Combat.wild[player]={part={Parent=true}}
 Combat.tick()
 check(Combat.wild[player]==nil and events[#events-1].kind=='battle' and events[#events-1].data==false,'wild cancellation explicitly clears battle UI')
+'''
+# T9 (C12/C13): a real pending buy refuses Buy, and Main's movement correction still runs on the session.
+main = (ROOT/'mountain/server/Main.server.luau').read_text(encoding='utf-8')
+guard = main[main.index('  -- C13: movement correction'):main.index('  if p and rr and h and h.Health>0 then')]
+body += r'''
+do
+ local pendingBackend=Store.memory();local PS=Profiles.newForTests(pendingBackend,'pending');local mover={UserId=140}
+ local mp=PS.load(mover);mp.coins=6000
+ local tick=0
+ local shop=UIRequests.actions({profiles=PS,rules=Rules,safe=function() return true end,shop=ShopRules,monotonic=function() return tick end,
+  rollOdds=function() return 10 end,inSanctuary=function() return true end,inBattle=function() return false end})
+ pendingBackend.failAll=true
+ local ok,message=shop(mover,'Buy',{item='meadow_egg',receipt='pending-0001'})
+ check(not ok and PS.pending(mover)=='buy:pending-0001' and not PS.get(mover),'buy commit fails and stays pending')
+ tick+=5;ok,message=shop(mover,'Buy',{item='meadow_egg',receipt='pending-0002'})
+ check(not ok and message=='Profile or saving unavailable.' and PS.pending(mover)=='buy:pending-0001','pending transaction refuses another buy')
+ local vector={}
+ local function v(x,y,z) return setmetatable({X=x,Y=y,Z=z},vector) end
+ vector.__sub=function(a,b) return v(a.X-b.X,a.Y-b.Y,a.Z-b.Z) end
+ vector.__index=function(a,key) if key=='Magnitude' then return math.sqrt(a.X*a.X+a.Y*a.Y+a.Z*a.Z) end end
+ local Enum={Material={Air='Air'}};local RS={MountainShared={RaidConfig=RaidConfig}}
+ local rr={Position=v(0,10,0)};local h={Health=100,FloorMaterial='Grass'}
+ local motion={};local teleports={};local toasts={};local areas={};local lost=0;local exits=0
+ local function teleport(player,pos) rr.Position=pos;table.insert(teleports,pos);motion[player]={pos=pos,time=0,blockedUntil=0,fallTop=pos.Y};return true end
+ local function send(_,kind,data) if kind=='toast' then table.insert(toasts,data) end end
+ local raids={protected=function() return false end,exit=function() exits+=1 end}
+ local function loseCargo() lost+=1 end
+ local home={inSanctuary=function() return true end,spawn=function() return v(0,10,0) end}
+ local function checkpoint() error('checkpoint needs a profile') end
+ local world={GetAttribute=function() return nil end}
+ local P=PS
+ local function tickMotion(player,p,now)
+''' + guard + r'''
+ end
+ motion[mover]={pos=v(0,10,0),time=0,blockedUntil=0,fallTop=10}
+ rr.Position=v(5,10,0);tickMotion(mover,PS.get(mover),.2)
+ check(#teleports==0 and motion[mover].pos.X==5,'pending session still tracks ordinary movement')
+ rr.Position=v(400,10,0);tickMotion(mover,PS.get(mover),.4)
+ check(#teleports==1 and teleports[1].X==5 and toasts[1]=='Movement corrected.' and rr.Position.X==5,'teleport during pending is corrected')
+ h.FloorMaterial='Air';rr.Position=v(5,90,0);tickMotion(mover,PS.get(mover),2);h.FloorMaterial='Grass';rr.Position=v(5,10,0);tickMotion(mover,PS.get(mover),4)
+ rr.Position=v(5,-40,0);motion[mover].pos=rr.Position;tickMotion(mover,PS.get(mover),5.2)
+ check(lost==0 and exits==0 and #teleports==1,'fall, void and exit checks wait for the profile')
+ pendingBackend.failAll=false;check(PS.save(mover,false) and PS.get(mover) and PS.get(mover).coins==3500 and #PS.get(mover).eggs==1 and ShopRules.has(PS.get(mover),'pending-0001'),'autosave commits the pending buy once')
+ tickMotion(mover,PS.get(mover),5.4)
+ check(lost==1 and #teleports==2 and rr.Position.Y==10,'void check resumes once the profile is back')
+ local gone={UserId=141};motion[gone]={pos=v(0,10,0),time=0,blockedUntil=0,fallTop=10};rr.Position=v(900,10,0);tickMotion(gone,nil,6)
+ check(#teleports==2,'no session, no correction')
+end
 print('PASS '..checks..' profile/combat adapter checks (service fixtures, no live DataStore)')
 '''
 with tempfile.TemporaryDirectory(prefix='hud-server-tests-') as directory:

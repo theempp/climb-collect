@@ -11,6 +11,7 @@ local UIProtocol=require(RS.MountainShared.UIProtocol)
 local BatRules=require(RS.MountainShared.BatRules)
 local EggOdds=require(RS.MountainShared.EggOdds)
 local Explorer=require(RS.MountainShared.ExplorerRules)
+local ShopRules=require(RS.MountainShared.ShopRules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
@@ -321,6 +322,7 @@ local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Compe
  save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
  travel=journey.go,raids=raids,putDown=carryVisuals.clear,
  bats=bats,batRules=BatRules,equipBat=function(player) bats.equip(player) end,batSnapshot=function(p) return bats.snapshot(p) end,
+ shop=ShopRules,rollOdds=function() return rng:NextNumber()*100 end,inBattle=inBattle,inSanctuary=function(player) local rr=root(player);return rr~=nil and home.inSanctuary(rr.Position) end,
 })
 local function handle(player,action,data,correlated)
  local ok,message,result=dispatch(player,action,data)
@@ -393,21 +395,24 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
     local context={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow(),section=section,exits=exitBoxes};contextSnapshots[player]=context;send(player,'context',context)
    end
   end
-  if p and rr and h and h.Health>0 then
+  -- C13: movement correction keys on the session, so a pending save (P.get nil) never suspends it; fall, void and exit checks need p.
+  if P.sessions[player] and rr and h and h.Health>0 then
    local m=motion[player]
    if m then
     local elapsed=now-m.time;local distance=(rr.Position-m.pos).Magnitude
     if distance>math.max(22,elapsed*75) and now>m.blockedUntil then teleport(player,m.pos);send(player,'toast','Movement corrected.');m=motion[player] end
     if h.FloorMaterial==Enum.Material.Air then m.fallTop=math.max(m.fallTop,rr.Position.Y)
     else
-     if m.fallTop-rr.Position.Y>require(RS.MountainShared.RaidConfig).seriousFall and not raids.protected(player) then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+     if p and m.fallTop-rr.Position.Y>require(RS.MountainShared.RaidConfig).seriousFall and not raids.protected(player) then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
      m.fallTop=rr.Position.Y
     end
-    if rr.Position.Y < -25 then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+    if p and rr.Position.Y < -25 then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
     m.pos=rr.Position;m.time=now
     if home.inSanctuary(rr.Position) then areas[player]='sanctuary' elseif world:GetAttribute('FreeClimbVersion') then areas[player]='mountain' end
-    if p.run and p.run.phase=='carried' and not raids.protected(player) then task.spawn(raids.exit,player,p.run.id) end
+    if p and p.run and p.run.phase=='carried' and not raids.protected(player) then task.spawn(raids.exit,player,p.run.id) end
    end
+  end
+  if p and rr and h and h.Health>0 then
    if p.recovery and os.time()>=p.recovery.expires then p.recovery=nil;if recovering[player] then recovering[player]:Destroy();recovering[player]=nil end;publish(player) end
    for _,hazard in ipairs(world.Dynamics:GetChildren()) do
     if hazard:GetAttribute('Kind')=='Hazard' then

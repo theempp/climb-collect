@@ -112,6 +112,19 @@ function U.actions(context)
 
  local function copyCreature(c) return if c then table.clone(c) else nil end
 
+ local monotonic=context.monotonic or os.clock
+
+ local buyAt=setmetatable({},{__mode='k'})
+
+ -- C12: Buy and Skin only in the sanctuary, empty-handed, out of battle and with nothing saving (a pending draft freezes P.get).
+ local function shopRefusal(player,p)
+  if P.pending and P.pending(player) then return 'Saving in progress. Try again shortly.' end
+  if p.run then return 'Finish your current creature run first.' end
+  if not context.inBattle or context.inBattle(player) then return 'Finish your fight before shopping.' end
+  if not context.inSanctuary or not context.inSanctuary(player) then return 'Shop from your sanctuary.' end
+  return nil
+ end
+
  return function(player,action,payload)
 
   local p=P.get(player)
@@ -137,6 +150,22 @@ function U.actions(context)
    return ok==true,message,{bats=context.batSnapshot and context.batSnapshot(p)}
   end
   if not context.safe(player) then return false,'Wait until your character is ready and movement is safe.' end
+  if action=='Buy' or action=='Skin' then
+   local refused=shopRefusal(player,p);if refused then return false,refused end
+   if action=='Skin' then return false,'Bat skins are unavailable.' end
+   local Shop=context.shop;if not Shop or not P.transact then return false,'The shop is unavailable.' end
+   -- C14: a 2 s cooldown, then a receipt already in the live profile is answered without a write.
+   local now=monotonic();if now<(buyAt[player] or -math.huge) then return false,'Please wait a moment before buying again.' end;buyAt[player]=now+Shop.cooldown
+   local receipt=payload.receipt
+   if Shop.has(p,receipt) then return true,'Purchase already complete.',{receipt=receipt} end
+   local r=if context.rollOdds then context.rollOdds() else math.random()*100;local egg
+   -- The mutate runs once per pending draft; a failed commit stays pending (P.get is nil) until autosave or release commits it.
+   local ok,reason=P.transact(player,'buy:'..receipt,function(draft) local done,why,granted=Shop.buy(draft,payload.item,receipt,r);egg=granted;return done,why end)
+   if ok or reason=='duplicate' then return true,if ok then 'Egg added to your collection.' else 'Purchase already complete.',{receipt=receipt,egg=if ok and egg then table.clone(egg) else nil} end
+   local messages={coins='Not enough coins for this item.',egg_cap='Egg storage is full (24). Hatch an egg first.',unavailable='This item is not on sale yet.',unknown='Unknown shop item.',
+    busy='Purchase is saving. It appears once saving resumes.',save_pending='Purchase is saving. It appears once saving resumes.'}
+   return false,messages[reason] or 'Purchase unavailable. No coins were spent.'
+  end
   if action=='Swing' then
    if not context.bats then return false,'Bats are unavailable.' end
    local _,result=context.bats.swing(player)
@@ -263,7 +292,7 @@ function U.actions(context)
 
    context.send(player,'competition',value);if context.save then context.save(player) end
 
-   return true,if value.won then 'Defense challenge won.' else 'Defense challenge complete.',value
+   return true,if value.won then (if value.coins==0 then 'Defense challenge won • daily coin wins used (5/day); trophies still count.' else 'Defense challenge won.') else 'Defense challenge complete.',value
 
   end
 
