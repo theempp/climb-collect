@@ -24,6 +24,7 @@ local second=Profiles.newForTests(backend,'second')
 local player={UserId=123,DisplayName='Fixture'}
 local p=first.load(player)
 check(p.settings.musicVolume==.7 and p.settings.hints,'legacy/default profile preferences')
+check(p.settings.sprintMode==1 and p.settings.hudScale==.5 and p.settings.effectsTier==1 and p.settings.cameraShake and p.settings.altitudeRail,'legacy profile gets new preference defaults')
 check(not first.setSettings(player,{coins=1000}) and p.coins==0,'settings cannot award currency')
 check(not first.setSettings(player,{musicVolume=0/0}),'settings cannot persist NaN')
 local ok,settings=first.setSettings(player,{largeText=true,musicVolume=.2})
@@ -50,6 +51,14 @@ check(not rejected and backend.backend.u999.profile.tycoon.bag.eggs==-1,'malform
 local malformed=Rules.newProfile(1);malformed.settings={sfxVolume=math.huge}
 check(not Profiles.valid(malformed),'malformed saved preferences rejected')
 malformed.settings=nil;check(Profiles.valid(malformed),'legacy saved profile without settings accepted')
+local legacyPrefs=Rules.newProfile(os.time());legacyPrefs.settings={largeText=true,musicVolume=.7,sfxVolume=.8};backend.backend.u321={profile=legacyPrefs}
+local prefsService=Profiles.newForTests(backend,'prefs');local prefsPlayer={UserId=321}
+local lp=prefsService.load(prefsPlayer)
+check(lp and lp.settings.largeText and lp.settings.sprintMode==1 and lp.settings.hudScale==.5,'legacy settings without new keys load with defaults')
+for _,v in ipairs({.7,.8,.95}) do
+ check(prefsService.setSettings(prefsPlayer,{musicVolume=v,sfxVolume=v,sprintMode=0}) and prefsService.save(prefsPlayer,true),'volume saved')
+ lp=prefsService.load(prefsPlayer);check(lp.settings.musicVolume==v and lp.settings.sfxVolume==v and lp.settings.sprintMode==0,'volume round-trips')
+end
 local events={}
 Combat.init(first,function(_,kind,data) table.insert(events,{kind=kind,data=data}) end,function() end)
 local now=os.clock();Combat.specialAt['123:c1:1']=now+12;Combat.specialAt['124:c2:1']=now+24

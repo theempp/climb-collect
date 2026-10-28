@@ -1,9 +1,9 @@
 -- Shared wire validation only; all ownership, proximity and costs remain server rules.
 local U={}
 local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true}
-local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true}
--- Per-key enums (patch path strict; saved values snap to the nearest step, ties to the default, else the lower).
-local steps={}
+local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true,cameraShake=true,altitudeRail=true,hudScale=.5,effectsTier=1,sprintMode=1}
+-- Per-key enums (patch path strict; saved values snap to the nearest step, ties to the default, else the lower). sprintMode 0=HOLD, 1=TOGGLE.
+local steps={hudScale={0,.5,1},effectsTier={0,.5,1},sprintMode={0,1}}
 local function finite(value) return type(value)=='number' and value==value and math.abs(value)<math.huge end
 local function text(value) return type(value)=='string' and #value>0 and #value<=80 end
 local function fields(value,allowed)

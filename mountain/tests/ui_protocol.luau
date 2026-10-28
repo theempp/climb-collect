@@ -21,6 +21,18 @@ check(saved and saved.largeText and saved.futurePref==nil and saved.musicVolume=
 check(not Protocol.settings({futurePref=3},settings),'patch with unknown key denied')
 for _,bad in ipairs({{hints=1},{sfxVolume=math.huge},{musicVolume=-.1},'junk'}) do check(not Protocol.savedSettings(bad),'saved known key still validated') end
 check(Protocol.settings(nil,{futurePref=3,largeText=true}).largeText,'saved merge ignores unknown key')
+-- C2: new preferences; enums strict per key on the patch path, volumes keep the 0-1 rule, saved values snap.
+check(settings.cameraShake==true and settings.altitudeRail==true and settings.hudScale==.5 and settings.effectsTier==1 and settings.sprintMode==1,'new preference defaults (sprint TOGGLE)')
+for _,key in ipairs({'hudScale','effectsTier'}) do
+ for _,v in ipairs({0,.5,1}) do check(Protocol.settings({[key]=v},settings)[key]==v,key..' step accepted') end
+ check(not Protocol.settings({[key]=.25},settings),key..' off-step denied')
+end
+for _,v in ipairs({0,1}) do check(Protocol.settings({sprintMode=v},settings).sprintMode==v,'sprintMode HOLD/TOGGLE accepted') end
+check(not Protocol.settings({sprintMode=.5},settings),'sprintMode off-step denied')
+for _,key in ipairs({'cameraShake','altitudeRail'}) do check(Protocol.settings({[key]=false},settings)[key]==false and not Protocol.settings({[key]=0},settings),key..' boolean only') end
+for _,v in ipairs({.25,.7,.75,.8,.95,1}) do check(Protocol.settings({musicVolume=v,sfxVolume=v},settings).sfxVolume==v,'volume keeps 0-1 rule') end
+local snapped=Protocol.savedSettings({hudScale=.25,effectsTier=.25,sprintMode=.5})
+check(snapped.hudScale==.5 and snapped.effectsTier==0 and snapped.sprintMode==1 and Protocol.settings(nil,{hudScale=.9}).hudScale==1,'saved off-step values snap on load')
 local now=10;local profile=Rules.newProfile(100);profile.coins=100;local healthy=true;local busy=false;local calls=0
 local requests=Requests.new({clock=function() return now end,available=function() return healthy end,busy=function() return busy end,handle=function(_,action,payload)
  calls+=1
