@@ -110,7 +110,7 @@ local function applyPreferences(prefs)
  T.configure(prefs);player:SetAttribute('MountainReducedMotion',prefs.reducedMotion==true)
  player:SetAttribute('MountainSimplifiedVFX',prefs.simplifiedVFX==true)
  for _,o in ipairs(root:GetDescendants()) do
-  if o:IsA('UIStroke') then local base=o:GetAttribute('BaseThickness') or 1;o.Transparency=if prefs.highContrast then 0 else .15;o.Thickness=if prefs.highContrast then math.max(2,base) else base
+  if o:IsA('UIStroke') then local base=o:GetAttribute('BaseThickness') or 1;local bt=o:GetAttribute('BaseTransparency');o.Transparency=if prefs.highContrast then math.min(bt or 0,.15) else (bt or .15);o.Thickness=if prefs.highContrast then math.max(2,base) else base
   elseif o:IsA('TextLabel') or o:IsA('TextButton') then local base=o:GetAttribute('BaseTextSize');if base then o.TextSize=T.size(base) end end
  end
  for _,o in ipairs(workspace:GetDescendants()) do

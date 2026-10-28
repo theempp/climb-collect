@@ -41,7 +41,7 @@ local function check(where)
  end
  for _,p in ipairs(root.HubShade:GetDescendants()) do
   if p:IsA('GuiObject') and visible(p) then
-   local kids={};for _,c in ipairs(p:GetChildren()) do if c:IsA('GuiObject') and visible(c) and texty(c) then table.insert(kids,c) end end
+   local kids={};for _,c in ipairs(p:GetChildren()) do if c:IsA('GuiObject') and visible(c) and texty(c) and not tagged(c,'Decor') then table.insert(kids,c) end end
    for i=1,#kids do for j=i+1,#kids do if overlap(kids[i],kids[j]) then add(where,'overlap: '..kids[i].Name..' / '..kids[j].Name..' in '..p.Name) end end end
   end
  end

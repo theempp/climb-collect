@@ -129,17 +129,18 @@ function S:render(preserve)
  local data=self.store.profile;local view=self.root.AbsoluteSize
  -- Margins keep the ribbon (10 px) and close-X (14 px) overhangs on screen.
  local width=math.min(850,view.X-40);local height=math.min(660,view.Y-20)
- self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1),nil,T.navy);self.shade.BackgroundTransparency=.23;self.shade.ZIndex=20;self.shade.Active=true
- local f=W.panel(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.new(.5,0,.5,6));f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=21
+ -- Glassbloom (intel §2 panel()): mtint backdrop (no blur; the world shows through), glass panel r22 (shop: gold glass variant).
+ self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1));W.tint(self.shade,T.gradMtint);self.shade.ZIndex=20;self.shade.Active=true
+ local shop=self.hub=='Shop'
+ local f=W.glass(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.new(.5,0,.5,6),{radius=T.r.panel,variant=if shop then 'shop' else nil,glow=if shop then nil else T.glowGlass});f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=21
  local title=if self.detail then 'Creature details' else self.hub
  if self.hub=='Creatures' and not self.detail then local owned={};for _,c in ipairs(data.creatures) do owned[c.species]=true end;local n=0;for _ in pairs(owned) do n+=1 end;title='Creatures '..n..'/'..#C.species end
- -- Header (intel §4): orange CTA-recipe title ribbon over the top edge, red close-X square on the corner.
- local ribbon=W.round(W.frame(f,'TitleRibbon',UDim2.fromOffset(math.min(300,width-170),44),UDim2.new(.5,0,0,-10),Color3.new(1,1,1)),12);ribbon.AnchorPoint=Vector2.new(.5,0);ribbon.ZIndex=2;ribbon:SetAttribute('Overhang',true)
- W.stroke(ribbon,T.cta.ink,2.5);W.new('UIGradient',ribbon,{Color=ColorSequence.new(T.cta.base,T.cta.shade),Rotation=90})
- W.icon(ribbon,self.hub,UDim2.fromOffset(40,40),UDim2.fromOffset(6,2)).ZIndex=3
- local heading=W.label(ribbon,string.upper(title),UDim2.new(1,-60,1,-4),UDim2.fromOffset(50,2),T.label,26,T.ink,Enum.TextXAlignment.Center);heading.ZIndex=3;heading.UIStroke.Color=T.cta.ink
- local back=W.button(f,'Back',if self.detail then 'Back' else 'X',if self.detail then UDim2.fromOffset(86,44) else UDim2.fromOffset(44,44),if self.detail then UDim2.new(1,-98,0,7) else UDim2.new(1,-30,0,-14),function() self:back() end,if self.detail then 'blue' else 'close');back.ZIndex=3
- if not self.detail then back.TextSize=T.size(22);back:SetAttribute('Overhang',true) end
+ -- Header (intel §2 panel()): W.cta-look title plate (LuckiestGuy 23, h 42) over the top edge; menu X (36 drawn in a 44 hit button).
+ local ribbon=W.ctaPlate(f,'TitleRibbon',string.upper(title),UDim2.fromOffset(math.min(300,width-170),42),UDim2.new(.5,0,0,-10));ribbon.AnchorPoint=Vector2.new(.5,0);ribbon.ZIndex=2;ribbon:SetAttribute('Overhang',true)
+ W.icon(ribbon,self.hub,UDim2.fromOffset(40,40),UDim2.fromOffset(6,1)).ZIndex=3
+ for _,n in ipairs({'Drop','Label'}) do local l=ribbon:FindFirstChild(n);if l then l.Size=UDim2.new(1,-60,1,0);l.Position=UDim2.fromOffset(50,if n=='Drop' then 2 else 0) end end
+ local back=if self.detail then W.button(f,'Back','Back',UDim2.fromOffset(86,44),UDim2.new(1,-98,0,7),function() self:back() end,'blue') else W.closeX(f,'Back',UDim2.new(1,-30,0,-14),function() self:back() end)
+ back.ZIndex=3;if not self.detail then back:SetAttribute('Overhang',true) end
  local short=view.Y<390;self.compact=short
  self.rowW=width-24-16
  -- Tabs share the row width (no sideways spill); on short phones the creature filters take the right end.
@@ -148,15 +149,19 @@ function S:render(preserve)
  local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.new(1,-24,0,48),Position=UDim2.fromOffset(12,if short then 40 else 54),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,ScrollBarThickness=0})
  W.list(tabScroll,8,true)
  for _,name in ipairs(names) do
-  W.button(tabScroll,'Tab'..name,name,UDim2.fromOffset(tabW,44),nil,function() self.tab=name;self.detail=nil;self.page=1;self:render(false) end,if name==self.tab then 'blue' else 'quiet')
+  W.tabButton(tabScroll,'Tab'..name,name,UDim2.fromOffset(tabW,44),name==self.tab,function() self.tab=name;self.detail=nil;self.page=1;self:render(false) end)
  end
  local top=if short then 90 else 106;local foot=if short then 24 else 40
  self.bodyHeight=height-top-foot
  self.body=W.scroll(f,'Content',UDim2.new(1,-24,0,self.bodyHeight),UDim2.fromOffset(12,top))
- -- Soft fade at the scroll edge (panel colour at the bottom of its top-light gradient) so a cut card reads as "scroll for more".
+ -- Bottom fade (intel §2 scroll area): 36 px to the panel tint, hidden at the end of the scroll.
+ -- GAP: "the panel tint" has no value in the intel; the glass bottom stop (glassTo T.38) is used, as in W.scrollArea.
  self.bodyInset=0
- local fade=W.frame(f,'ScrollFade',UDim2.new(1,-28,0,18),UDim2.fromOffset(12,top+self.bodyHeight-18),T.panel:Lerp(Color3.new(0,0,0),1-226/255));fade.ZIndex=5;fade.Active=false;fade:SetAttribute('Decor',true);self.fade=fade
- W.new('UIGradient',fade,{Rotation=90,Transparency=NumberSequence.new(1,0)})
+ local fh=36;local last=T.gradGlass.stops[#T.gradGlass.stops];local body=self.body
+ local fade=W.frame(f,'ScrollFade',UDim2.new(1,-28,0,fh),UDim2.fromOffset(12,top+self.bodyHeight-fh),last[2]);fade.ZIndex=5;fade.Active=false;fade:SetAttribute('Decor',true);self.fade=fade
+ W.new('UIGradient',fade,{Rotation=90,Transparency=NumberSequence.new(1,last[3])})
+ local function syncFade() fade.Visible=body.CanvasPosition.Y<body.AbsoluteCanvasSize.Y-body.AbsoluteWindowSize.Y-1 end
+ for _,prop in ipairs({'CanvasPosition','AbsoluteCanvasSize','AbsoluteWindowSize'}) do body:GetPropertyChangedSignal(prop):Connect(syncFade) end
  self.status=W.label(f,'',UDim2.new(1,-124,0,foot-8),UDim2.new(0,16,1,-foot+2),nil,12,T.muted)
  self.retry=W.button(f,'Retry','Retry',UDim2.fromOffset(88,44),UDim2.new(1,-100,1,-48),function() if self.retryId then self.store:retry(self.retryId) end end,'gold');self.retry.Visible=false
  if self.hub=='Creatures' then self:creatures(data,width)
