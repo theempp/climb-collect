@@ -1,0 +1,1182 @@
+{
+ "challenges": [
+  {
+   "problems": [
+    {
+     "where": "Draft T8 step 4 ('Bat sets: exclude Robux creatures in BatRules.setProgress, pending O8') and Owner decision O8",
+     "problem": "An owner rule that is already locked is presented as an open question. 'No paid power in raids or theft' is settled. Completed index sets unlock bats with more knockback and reach. If Robux creatures count toward a set, they give paid theft power. So this exclusion is required, not optional. The same applies to T8 step 5 / O9 wherever Train or Specialize would feed battle stats.",
+     "evidence": "Memory overhaul-plan-decisions.md:11 says 'no paid power in raids or theft'. Plan build-plan:251 (D8) says Robux-egg creatures 'never join battle teams or raids; enforce server-side'. BatRules.luau:22-31: setProgress counts every owned non-Legendary species and unlocked() needs have>=total. BatRules.luau:10: kingdom bats have knockback 55+k*8 and reach 7+k*.5, versus the trail bat at 55/7 (line 8). Draft step 4 says 'pending O8', and O8 recommends 'No'.",
+     "fix": "Make the setProgress exclusion of origin=='robux' mandatory in T8, with a bat_rules test. Remove O8 from the owner table, or restate it as already decided by D8 plus the memory rule. Keep O9 only for the part that has no raid effect: Train XP on a creature that can never battle is inert, so blocking it is optional."
+    },
+    {
+     "where": "Owner decision O10 ('Coin-egg creatures battle-eligible: Yes (D8 restricts only Robux)'), T9 and A1 'No XP' row",
+     "problem": "An owner decision is missing. Robux can turn into coins, and coins can turn into raid and theft power, so paid power leaks in indirectly. The approved board sells coins for Robux and sells tycoon coin passes. D8 makes Robux creatures tycoon-only, and they earn coins by rarity. D7 now makes coins buy real Meadow Eggs. Under O10 those eggs give battle-team creatures, and they also count toward bat index sets. Coins already buy bat level (knockback and reach) and Train XP. Once Robux is enabled, every one of these is paid raid or theft power. The draft itself treats coins as purchasable in the A1 row ('Coin→XP would make level purchasable'), but it never applies that reasoning to O10. The Screens copy 'combat strength always comes from play' would then be false.",
+     "evidence": "Board climb&collect/design/hud-board-v3/index.html:635: Robux coin packs R$25–450. index.html:636-637: '2× Coins' pass and 'Coin Rush' boost. index.html:639 note: 'Bat level, reach and knockback are earned with coins and never sold'. Tycoon.luau:43-44: rate depends on rarity. BatRules.luau:44-53: a coin upgrade raises knockback and reach. UIRequests.luau:221-225: Train is 15 coins for +80 XP. BatRules.luau:24: set progress counts any owned creature. Screens.luau:548: 'Your combat strength always comes from play.' Memory overhaul-plan-decisions.md:11.",
+     "fix": "Add an explicit owner decision before T9 ships. Option 1: coin-origin creatures, and creatures bought with coins that came from Robux, are excluded from battle teams and bat sets just like Robux ones. Option 2: the owner accepts coins as an earned-only currency and removes Robux coin packs and coin-multiplier passes from the board. Option 3: the owner explicitly accepts the leak. Until then, recommend that Meadow Egg creatures not count toward bat sets. Note that bat upgrades and Train already rely on the same assumption."
+    },
+    {
+     "where": "T9 ('new branch after the safe gate (:139, pending O13)') and O13 ('After the safe gate; block in battle')",
+     "problem": "A Buy can change raid and theft outcomes. Buy goes through P.transact. While a transaction is pending, P.get returns nil for that player. During that window a carrier cannot be robbed by a bat, cannot lose the creature to a catch or a fall, and fall and exit checks are skipped. The 'safe gate' only checks movement and being alive; it is not a sanctuary check. So a purchase made mid-carry or mid-chase gives temporary theft and loss immunity. That is a raid/theft rule change, which plan:94 forbids. The window is longer under the draft's retry design: the pending draft persists after a failed commit until the client retries.",
+     "evidence": "Profiles.luau:66: P.get returns nil when s.transacting or s.pending. Profiles.luau:90: s.healthy=written. Profiles.luau:110: it waits up to 12 s behind an autosave. EggRaids.luau:50: forfeit returns 'save_pending' while P.pending. EggRaids.luau:80: drop needs P.get. Bats.luau:74-75: with a nil snapshot there is no drop. Main.server.luau:197: catch forfeits only 'if p and p.run'. Main.server.luau:369,384,390: fall loss and exit need p. UIRequests.luau:139 and Main.server.luau:44: safe() checks only blockedUntil and living. Plan build-plan:94: 'No change to raid, theft or save rules.'",
+     "fix": "Make it a hard rule, not an owner recommendation: refuse Buy (and Skin equip if it uses transact) when p.run~=nil, inBattle, or the player is not in the sanctuary (ui.inSanctuary/atHome). Add a test that a Buy cannot start while p.run.phase=='carried'. Rewrite O13 to 'sanctuary only, no active run' (recommended) instead of 'after the safe gate'."
+    },
+    {
+     "where": "T7 EggOdds, O5, and the missing decision for Robux egg and Egg Luck odds",
+     "problem": "T7 only builds per-section tables for the Meadow Egg. Plan P5 (build-plan:137) will draw the Mystery Egg, the Golden Egg and the Egg Luck boost with odds bars 'from the real roll table'. No code table matches the board's 70/22/7/1 or 0/70/25/5. All six sections share identical weights, so every section is 68/18/10/4 by colour and no section can produce the Golden Egg's 0/70/25/5. Egg Luck changes odds, and EggOdds has no modifier for it. Without a decision, P5 either shows placeholder odds (shown ≠ used) or invents tables.",
+     "evidence": "Catalog.luau:34,36: rarity by variant j and weight {20,20,28,18,10,4} for every kingdom. Intel climb&collect/design/hud-glassbloom-intel.md:90-98: Common+Uncommon is blue, so 40+28=68/18/10/4. index.html:638: Mystery [70,22,7,1] and Golden [0,70,25,5]. index.html:637: 'Egg Luck … odds shown first'. build-plan:137 and :229. Memory overhaul-plan-decisions.md:11: 'show odds on paid random items'.",
+     "fix": "Add an owner decision. For each Robux egg, either define a real server table in EggOdds now (still disabled, id 0) or hide its odds bars and show 'Odds TBD · Coming soon' until a table exists. For Egg Luck, require that the displayed odds come from the same modified table EggOdds uses. Add a rules test that the shown percentages equal the table for every displayed egg."
+    },
+    {
+     "where": "T11 ('Replace No paid odds / No capture edge') new copy",
+     "problem": "The new copy is not fully authorized. D8 authorizes replacing only the 'No paid odds' and 'No capture edge' tiles. The proposed three new lines replace the whole grid, so the middle 'No power / Strength comes from play' promise disappears. That promise matches the owner rule and the approved board note. The 'Odds shown are odds used' line is also only true once the Robux-egg finding above is settled.",
+     "evidence": "Screens.luau:554: three tiles {'No paid odds'}, {'No power','Strength comes from play'}, {'No capture edge'}. build-plan:251: D8 says 'replace the \"No paid odds / No capture edge\" copy'. index.html:639: 'Bat level, reach and knockback are earned with coins and never sold.'",
+     "fix": "Keep tile 2 ('No power: strength comes from play') unchanged. Replace only tiles 1 and 3. Keep the replacement copy PROPOSED for owner approval. Re-check the line-548 'combat strength always comes from play' copy against the coin-economy decision above."
+    },
+    {
+     "where": "T8 'Producer: ShopRules.grantRobuxEgg is used only in tests'",
+     "problem": "This ships a live grant path for Robux items with no receipt and no MarketplaceService. It sits in a shared module that will be synced into the place (T1 adds new shared modules). That conflicts with the spirit of 'no Robux, every Robux item disabled, product id 0', and a later caller could wire it up by mistake.",
+     "evidence": "build-plan:10 ('No products … no Robux. Every Robux button has product id 0 and stays disabled'). Draft T1 syncs 'the new shared modules → ReplicatedStorage.MountainShared.*'.",
+     "fix": "Do not add a Robux grant function. In tests, build fixtures directly, e.g. insert {id=..., species=..., origin='robux'} into p.creatures or p.eggs. Add a grep check that no production code path sets origin='robux'."
+    },
+    {
+     "where": "T9 and T10 (no approval gate) versus O4–O7",
+     "problem": "T5 is correctly gated with 'implement only after the owner approves §A'. T9 and T10 have no such gate, yet they hardcode a Meadow Egg price, odds table, grant form, egg cap, Candy Swirl price and bat look, all of which are still open. Board prices are proposals, and the plan forbids treating them as set.",
+     "evidence": "build-plan:10 ('Prices on the board are proposals'). Memory hud-revision-decisions.md:15 ('Shop prices remain proposals'). Draft O4/O5/O6/O7 are open. T9: catalog {…price…}.",
+     "fix": "Add 'implement only after the owner answers O4–O7 (and O13)' to T9 and T10, as T5 has. Until then, T9's tests can use a test-only catalog, and the shipped catalog keeps buy disabled."
+    },
+    {
+     "where": "A1 'Egg secured (raid)' and 'New species secured' rows",
+     "problem": "A missing owner decision. The thief, not the original carrier, secures a stolen creature, and the draft pays secure XP plus +50 new-species XP for it. In effect that rewards theft. The draft's own A1 row lists 'No XP for knock/theft/regrab' and gives alt-farming as the reason, but secure XP brings the same incentive back. It is still capped at 20 secures per day, but the theft reward exists.",
+     "evidence": "RunRules.luau:61: receive keeps the section and sets stolenFrom on the thief's new run. Bats.luau:87-90: the thief adopts the creature. Draft A1 'No XP' row cites Bats.luau:83-92 as farmable by alts.",
+     "fix": "Add an owner decision with this recommendation: securing a creature whose run.stolenFrom is not the player's own earlier run gives no player XP, or reduced XP, and no new-species bonus. A regrab by the original carrier still pays. Track the original carrier in the drop snapshot (Run.drop at RunRules.luau:56) so the check is server-side."
+    },
+    {
+     "where": "Draft scope note ('Raid and theft rules stay unchanged. The only save-rule changes are the additive optional fields')",
+     "problem": "The scope claim is inaccurate, so plan:94 ('No change to raid, theft or save rules') is not met as stated. The draft does change raid, theft and save rules: Combat power and guard, specials, companion MaxHealth and Competition snapshots (T8.3); bat set progress (T8.4); a team strip on load and again before every save (T8.2); a per-key enum check inside the validator that Profiles.valid calls (T2); relaxed settings validation (O12); a new unhatched-egg cap (O6); and daily XP caps. Most are required by D1, D7 or D8, but the owner should see them listed, not hear 'unchanged'. The pre-save strip is redundant once Equip rejects Robux ids and load strips them.",
+     "evidence": "Profiles.luau:24 (settings validation inside valid). Profiles.luau:124 (save validates s.p). Combat.luau:16,22,75. Main.server.luau:68. Competition.luau:9. BatRules.luau:24. build-plan:94.",
+     "fix": "Replace the note with an explicit list of every rule and save change and the D-item that requires it. Ask the owner to confirm the list as 'required by P2'. Drop the pre-save strip, keeping the load strip and the Equip rejection."
+    },
+    {
+     "where": "T2 versus O12 ordering (saved unknown settings keys)",
+     "problem": "T2 adds new settings keys before O12 is decided. The validator rejects unknown keys in a saved profile. Once a new build saves the new prefs, any older build reading the same DataStore rejects that profile on load and kicks the player. The risk becomes real on any publish into the universe that already holds the published review place and phone candidates, so it is a save-rule decision that has to come before T2.",
+     "evidence": "UIProtocol.luau:30-33 (an unknown key, default==nil, returns nil). Profiles.luau:24 and :53 (valid on the old save). Main.server.luau:136 (kick). build-plan:8 (window linked to PlaceId 112921656767061). Handoff design/hud-glassbloom-handoff-2026-10-27.md:8 (PhoneCandidate place).",
+     "fix": "Make O12 a prerequisite of T2 in the dependency order. Recommend relaxing the check to 'known keys type-checked, unknown keys ignored' in a build shipped before any build that writes new keys."
+    },
+    {
+     "where": "O11 sprintMode ('0 = today's device behaviour') and T2 three-value enum",
+     "problem": "This conflicts with approved settings. The approved board draws Sprint as a two-option control, HOLD/TOGGLE, with TOGGLE selected. D11 and STOP 1 approved the settings rows as drawn. The draft adds a third 'device default' value and makes it the default, which the owner never saw. The other defaults (cameraShake true, HUD size M=.5, altitude rail true, graphics HIGH=1) do match the board.",
+     "evidence": "index.html:645: row('Sprint','Hold or tap to toggle',seg(['HOLD','TOGGLE'],1)). build-plan:254 (D11 as recommended). build-plan:258 (intel approved as written).",
+     "fix": "Either follow the board (two values HOLD/TOGGLE with default TOGGLE, mapped to 0/1) or list the 'device default' option explicitly as a change to the approved board for owner sign-off."
+    },
+    {
+     "where": "T8 enforcement versus D8 'cosmetic/tycoon-only' (Main.server.luau:56-66 follower models)",
+     "problem": "A small owner ambiguity is resolved without asking. D8 calls Robux creatures 'cosmetic'. The draft removes them from p.team entirely, which also stops them appearing as visual companions that follow the player, because follower models are built from p.team. Whether they may follow as stat-free cosmetic pets has not been decided.",
+     "evidence": "Main.server.luau:59-65: companion models come from p.team. Main.server.luau:68: MaxHealth comes from the same list. build-plan:251.",
+     "fix": "Add a one-line owner question: may Robux creatures follow as cosmetic-only companions? If yes, split cosmetic followers from battleTeam so MaxHealth, power, guard, specials and XP still exclude them."
+    },
+    {
+     "where": "A5 migration ('50 for each distinct owned non-Legendary, non-starter species')",
+     "problem": "The migration rule does not match the A1 rule. A1 pays new-species XP only at a raid secure. The migration pays for any owned species, whatever its origin, including future coin- or Robux-origin creatures. If migration or a later re-run ever happens after purchases exist, paid creatures grant player XP.",
+     "evidence": "Draft A1 (new species 'Same mutate, EggRaids.luau:69'). Draft A5. Rules.luau:60 (hatched creatures).",
+     "fix": "Make the migration count only creatures with origin==nil (earned), matching T8's origin tag. Add an explorer_rules test with a coin- or Robux-origin species."
+    },
+    {
+     "where": "Plan citations throughout the draft",
+     "problem": "Several plan line citations are off by one, and one points to the wrong line. The task requires accurate file:line references for owner review.",
+     "evidence": "build-plan:244 is D1, not 245. D7 is :250 and D8 is :251, not 251-252. 'No rule changes' is :60, not :59. The §1 player-XP row is :16, not :15. The HudState 'XP gain diff' is :89, not :91 (:91 is context.exits). The classifier defaulting to tier 1 is :205, not :206.",
+     "fix": "Correct the citations to: D1 :244, D7 :250, D8 :251, §3 server scope :60, §1 row :16, P2 HudState :89, risk 6 :205."
+    }
+   ]
+  },
+  {
+   "problems": [
+    {
+     "where": "T9 (Buy retry path)",
+     "problem": "The proposed retry, a new request id with the same receipt resuming the pending commit, can never reach P.transact. While a draft is pending, P.get returns nil. Both the UI service and the dispatcher reject the request before the handler runs.",
+     "evidence": "Profiles.luau:66 P.get returns nil when s.pending is set (also when healthy is false or the session is transacting). Main.server.luau:316 available() is P.get(player)~=nil, and UIRequests.luau:77 rejects with 'Profile or saving unavailable'. UIRequests.luau:117-119 rejects again. After a failed commit, Profiles.luau:90 sets healthy=false and s.pending stays set. The only things that resume a stranded pending draft are P.save → commitPending (Profiles.luau:122), via the 45 s autosave (Main.server.luau:422-426) or a release on leave (Main.server.luau:149).",
+     "fix": "Don't rely on the client retry. Document that autosave/release commits the pending buy, and that the receipt ledger keeps the replay safe. Or add a Buy-only path that calls P.transact('buy:'..receipt) when P.pending(player)=='buy:'..receipt, bypassing available/P.get. Test with Store failNext≥3 (all 3 commit attempts fail, Profiles.luau:73-84) and with failAfterCommit, then advance to autosave."
+    },
+    {
+     "where": "T9 claim 'The mutate runs once per transaction id (Profiles.luau:99-104)'",
+     "problem": "This is false. The mutate is skipped only while a pending draft with that id exists. After commit, s.pending is cleared, so the same transaction id runs the mutate again. A rejected mutate is not recorded either. Only the receipt ledger prevents a double grant.",
+     "evidence": "Profiles.luau:88 sets s.pending=nil on commit. Profiles.luau:99-104 then runs the mutate whenever there is no pending draft, with no committed-id ledger.",
+     "fix": "Reword: 'runs once per pending draft'. Add a shop test where the same receipt is sent after a successful commit: no debit, no grant, returns true."
+    },
+    {
+     "where": "A2/A3 'The first level arrives within section 1: 3 rest points (60) plus a first secure (10+50)'",
+     "problem": "Most section-1 secures are starter species, which never earn the +50 new-species bonus. So the first secure usually gives 10, and 60+10=70 is below the 100 needed for L2. The A3 rows that assume +50 per early secure are overstated too.",
+     "evidence": "Section-1 species are mossbun/petalyn/fernox/bloomlet/thorncub/floramoth with weights 20/20/28/18/10/4 (Catalog.luau:11,34,36). The starters are the first three (Rules.luau:8), which is 68% of rolls. The Studio aid forces raid:1:1 to mossbun (Main.server.luau:160).",
+     "fix": "Restate the expectation as about 32% for +50 on a section-1 secure. Or retune: e.g. L1→2 = 60 XP, or rest points at 25×k, so 'first level in section 1' actually holds."
+    },
+    {
+     "where": "A0 pacing facts (section shape, nests, loop estimate)",
+     "problem": "The geometry numbers come from the pre-compact layout. The built world is scaled by 0.85. Sections are 170 deep and rise 54.4. The section-1 nests sit at z≈-357.9, so the carry to the exit is about 183-192 studs, not about 220. The 35-45 s loop estimate is therefore inflated: the carry is about 8 s at 27×0.9=24.3 sprint.",
+     "evidence": "CompactGeometry.luau:3 sets scale=.85, and :5 maps z=-210+(z+210)*.85. FreeClimb.luau:118 applies CompactMountain, which moves Interactions/Checkpoints at CompactMountain.luau:30-36 and keeps exits unscaled at :39. The exit is at gate z=-166 (HomeLayout.luau:7), resized by HomePromenade.luau:96-97. MovementRules.luau:2.",
+     "fix": "Cite CompactGeometry and recompute the distances: depth 170, rise 54.4, carry about 185. Redo the uncapped-XP/h figure (it is higher than 900 at k=1), which strengthens the case for the 20/day cap."
+    },
+    {
+     "where": "T6 'preferring the server section over the client X/Z test (… vs Main.server.luau:182-186)'",
+     "problem": "No server section reaches the client. Main:182-186 is guardianInside, a server-only test used for guardian ground and targeting. The state/context payloads carry no section field.",
+     "evidence": "Main.server.luau:182-186 defines guardianInside, passed only as inside= to Guardians (Main.server.luau:188; Guardians.luau:37,49). The publish ui (Main.server.luau:95) and context (Main.server.luau:374) have no section. The client computes its own section (Controller.luau:302-305).",
+     "fix": "Either add a server-computed section (from the GuardianBounds boxes) to state.ui and context in T4, and to the diff at :373, or drop the 'prefer server section' claim. Then only alert{section} gives a server section, and only during a chase."
+    },
+    {
+     "where": "T3 'calm' emit point",
+     "problem": "Diffing state.threats before and after Rules.step, plus in normalWin, misses threats removed outside step. A catch, death or leave calls guardians.remove, which deletes the threat directly. The next step never sees that change, so no calm is sent and the client's chase state sticks.",
+     "evidence": "Guardians.luau:23-25 has service.remove clearing state.threats[userId]. It is called at Main.server.luau:197 (catch), :125 (Died) and :145 (PlayerRemoving). Threats also expire inside step (GuardianRules.luau:13-16), which the diff does catch.",
+     "fix": "Emit calm in service.remove when a threat existed for that user (or diff each tick against the previous tick's threat set). Add a combat_raids test: alert → catch → calm sent once."
+    },
+    {
+     "where": "A1 'New species secured' row and the trial secure",
+     "problem": "The rule as written ('any species not owned before') does not exclude Legendary guardians, but the pool counts only 33 species. A trial secure goes through the same Run.secure mutate, so it would also earn +50 new species and possibly the 10×k egg-secure XP and a daily-cap slot. That contradicts the 8,160 total and A5's 'non-Legendary'.",
+     "evidence": "A trial run's species is the guardian id, which is Legendary (EggRaids.luau:96-99 reward; Catalog.luau:49-50). RunRules.luau:68-71 secures trial runs in the same function. A5 says non-Legendary.",
+     "fix": "State explicitly: new species = non-Legendary only. A trial secure earns only the 150×k trial XP; it gets no egg-secure XP and uses no daily-cap slot (or say otherwise and recompute the pool)."
+    },
+    {
+     "where": "Plan citations throughout (build-plan:15, :59, :91, :206, :245, :251, :251-252)",
+     "problem": "Several plan line numbers are off by one or point to a different item.",
+     "evidence": "build-plan.md:16 is the §1 'section entry' row (line 15 is the table separator). Line 60 is the §3 'Server (P2…) No rule changes' line (59 is tests/hud_state). Line 89 is the HudState 'XP gain diff' (91 is context.exits). Line 205 is risk 6, 'defaults unknown text to tier 1' (206 is accidental publish). Line 244 is D1 (245 is D2). Line 250 is D7 'real odds table' and line 251 is D8 (252 is D9).",
+     "fix": "Replace with build-plan:16, :60, :89, :205, :244, :250 and :250-251."
+    },
+    {
+     "where": "A0 'Landmark, Summit and Wild rewards can't be reached in FreeClimb (Main.server.luau:13-16,236-261)'",
+     "problem": "The cited lines don't show that. Main:13-16 only builds or applies the world, and 236-261 are the handlers. The evidence is which prompt kinds FreeClimb creates. The claim also holds only for a baked world that has FreeClimbVersion.",
+     "evidence": "FreeClimb.build creates only Guardian/Trial (FreeClimb.luau:89-95), Checkpoint (:107-110) and Nest (:111-114) prompts. Discovery/Shortcut/Wild/Summit exist only in the legacy World.luau:152,157,170,210, which is used when FreeClimbVersion is missing (Main.server.luau:21-25).",
+     "fix": "Cite FreeClimb.luau:89-114 and World.luau:152-210, and add the condition 'world:GetAttribute(FreeClimbVersion) is set'."
+    },
+    {
+     "where": "A1 Trial row 'Losing a trial run lets a player re-run the Trial (Combat.luau:174)'",
+     "problem": "The cited line is wrong. Combat:174 is the reward creation call. Re-runs are possible because Combat.start blocks a Trial only after capture.",
+     "evidence": "Combat.luau:38-40 gates the Trial on p.wins and on 'not p.captures[guardian]'. RunRules.luau:38 checks the same at strike, and RunRules.luau:55 keeps trial runs non-droppable.",
+     "fix": "Cite Combat.luau:38-40 and RunRules.luau:38,71."
+    },
+    {
+     "where": "T8 enforcement point 2 (strip Robux ids from p.team on load/save)",
+     "problem": "Stripping can leave an empty team. valid() accepts that, but R.equip needs 1-3 members, so the player fights with zero power and base MaxHealth until they re-equip.",
+     "evidence": "Profiles.luau:35 only checks the team ids that are present (an empty team passes). Rules.luau:63 makes R.equip reject #ids<1. Combat.luau:16 power and Main.server.luau:68 MaxHealth read p.team.",
+     "fix": "After stripping, refill with up to 3 battle-eligible creatures (e.g. the starters/earned ones) and test the 'all-Robux team' case in run_persistence."
+    },
+    {
+     "where": "O4 'One Common habitat makes 60 coins/h (TycoonConfig.luau:4)… about 42 single-habitat hours'",
+     "problem": "rate=60 is eggs/h, each worth 1, plus a bonus egg per 10 and a banking multiplier. Habitat storage of 30 caps unattended production, and new tycoons start with 2 habitats. So 2,500 coins takes about 38 h of continuous collecting, not 42 passive hours.",
+     "evidence": "TycoonConfig.luau:4 sets the rate/value. Tycoon.luau:83 adds a bonus egg per 10, Tycoon.luau:67 applies the banking multiplier, Tycoon.luau:30 sets capacity 30+…, and Tycoon.luau:27 sets slots=2.",
+     "fix": "Restate as about 66 coins/h per Common habitat while it is collected at least every 30 min, so 2,500 coins ≈ 38 habitat-hours."
+    },
+    {
+     "where": "T2 'The volume rows step by 0.25 … saved .25/.75 volumes survive'",
+     "problem": "Saved volumes are not limited to the 0.25 grid. The defaults are 0.7/0.8, and the Adjust button adds 0.25, giving 0.95 and then 1. The test values miss the values real profiles hold.",
+     "evidence": "UIProtocol.luau:4 has musicVolume=.7 and sfxVolume=.8. Screens.luau:592 sets value>=1→0 else min(1,value+.25), so the sequence is .7→.95→1→0→.25….",
+     "fix": "Test that .7, .8 and .95 volumes still load and save, and apply the per-key 0/.5/1 enum only to hudScale, effectsTier and sprintMode."
+    },
+    {
+     "where": "O9 'tycoon rate depends only on rarity (Tycoon.luau:32-45)'",
+     "problem": "Overstated. T.rate also depends on the production level, the habitat level and the kingdom/kin bonus. The relevant fact is that it never reads creature level or specialization.",
+     "evidence": "Tycoon.luau:42-44: bonus from kingdom match and kin; rate*(1+production*.15+habitat*.1)*(1+bonus).",
+     "fix": "Reword: 'tycoon rate ignores creature level/specialization (Tycoon.luau:32-45), so Train/Specialize gives Robux creatures no tycoon edge'."
+    }
+   ]
+  },
+  {
+   "problems": [
+    {
+     "where": "T9 ShopRules.buy / UIRequests Buy branch (draft: 'If the receipt is already in the ledger it returns true with no debit and no grant')",
+     "problem": "A replayed receipt costs nothing but still triggers a full durable write. When the mutate returns ok, P.transact always sets s.pending and calls commitPending. A client can therefore resend the same receipt every 0.12 s with fresh request ids and force unlimited UpdateAsync writes. That drains the server's DataStore budget, so secures and autosaves stall for all 8 players. It also makes the abuse in the next row free.",
+     "evidence": "Profiles.luau:99-104 (successful mutate → s.pending={...}), :113 (commitPending), :69-93 (store:update with retries, task.wait(attempt) at :83). Store.luau:102-111 (_budget waits up to 20×0.5 s when budget is exhausted), :125-129. UIRequests.luau:17 (minInterval .12) and :73-75 (only rate limit). UIRequests caches by request id only (:37,:55-61), so a new id bypasses the cache.",
+     "fix": "Check the receipt against the live profile (P.get(player).receipts) before calling P.transact, and return the cached outcome with no write. Inside the mutate, return false,'duplicate' (no pending) instead of true. Add a per-player Buy cooldown of at least 2 s, separate from the UI interval. Add a test: N replays of one receipt → store.calls.update increases by exactly 1."
+    },
+    {
+     "where": "T9 Buy gating ('new branch after the safe gate (:139, pending O13)'; O13 'After the safe gate; block in battle')",
+     "problem": "Any pending transaction makes P.get(player) return nil. Several server checks keyed on P.get then silently skip that player: movement/teleport correction, fall and void cargo loss, guardian targeting/catch, and bat theft. A buy started while carrying on the mountain gives an invulnerable, unvalidated window. With duplicate-receipt spam the window becomes near-continuous. A player can teleport while it is open. When it closes, the correction check compares against the old m.time, so elapsed*75 is already large and the jump is never corrected. A buy pending at battle end also drops the player from the contributors list.",
+     "evidence": "Profiles.luau:66 (P.get returns nil when s.pending or s.transacting). Main.server.luau:369,377-391: movement correction :381, fall loss :384, void :387 and auto-exit :390 all sit inside `if p and rr and h`. Guardians.luau:33-34 (no observation without a profile) → GuardianRules.luau:13-16 (threat dropped). EggRaids.luau:78-80 (drop needs P.get, so bats can't steal). Combat.luau:162,169 (contributors need profiles.get). Today only EggRaids.exit (EggRaids.luau:69) creates pending, once per run; Buy would be the first client-repeatable source.",
+     "fix": "Allow Buy and Skin only when p.run==nil and atHome/atRefuge (the sanctuary), and never in battle. Do not leave this to O13. Also make the Heartbeat movement, fall and void checks use the session's existence, not P.get. Or keep m.pos/m.time updated while pending, so pending can never suspend anti-cheat."
+    },
+    {
+     "where": "T5 secure hook ('Inside the P.transact mutate at EggRaids.luau:69') + A4 validation",
+     "problem": "The secure mutate gains new ways to fail. If the XP code throws, or leaves explorer data that valid(draft) rejects, P.transact returns false before any pending is created. EggRaids.exit keeps exits[player] set and retries every 5 s forever, with a fresh mutate each time. The player stays `protected` (immune to guardian catch, bats and falls) and is soft-locked: forfeit and drop both refuse while an exit is pending. Losing XP must never block custody.",
+     "evidence": "Profiles.luau:102-103 (a pcall failure or invalid draft returns before pending is set). EggRaids.luau:64-70 (pending exit stays, retryAt), :118-122 (tick retries forever), :124 (protected), :50 (forfeit refused while an exit is pending), :79 (drop refused). Main.server.luau:195 and :384 skip protected players. BatRules.luau:61.",
+     "fix": "Make the XP add total: pcall-wrap it, clamp every field, normalize any malformed explorer table to defaults, and never return false. Validate explorer in Profiles.valid by type only, which the draft already proposes. Add a test: a malformed draft.explorer still secures the creature exactly once. Consider a bounded give-up on the exit retry loop."
+    },
+    {
+     "where": "A1 'New species secured +50 … Starters never qualify' vs A5 retro '50 for each distinct owned non-Legendary, non-starter species'",
+     "problem": "The live rule and the migration disagree, and the live rule depends on current ownership. Trial captures go through the same Run.secure as eggs, and their species is a Legendary Guardian id, so the live rule pays +50 for each Guardian. The migration doesn't, so a pre-P2 capture earns 0 and a post-P2 capture earns 50. The real pool is 39×50, not 33×50. The 'not owned before' check is bounded only because no code path removes creatures today. Any future release, trade, fuse or sell path makes +50 farmable: remove the species, secure it again.",
+     "evidence": "RunRules.luau:68-71 (a trial secure inserts a creature with species = Guardian id). Catalog.luau:50 (Guardians are in byId with rarity 'Legendary'). The only inserts into p.creatures are RunRules.luau:70 and Rules.luau:8,33,60; grep finds no removal path.",
+     "fix": "Keep a persistent per-species ledger (explorer.species[id]=true) and pay only on first insert, not 'not currently owned'. Apply the same Legendary rule in both the live award and the migration; recommend excluding Legendary since the Trial row already pays 150×k. Fix the pool total in A1."
+    },
+    {
+     "where": "A4/A5 accumulated xp + `v`-guarded retro migration; T5 rest-point hook at Main.server.luau:230",
+     "problem": "Each one-time milestone is paid by two code paths: the live award and the one-shot retro migration. That is idempotent only while both agree and the profile is never touched by a build without P2. Rolling back to an older build, or old and new servers running side by side, records discoveries and wins with no XP; v is already set, so those milestones are never paid. The live rest-point award is not filtered by id pattern, but the retro is (`^[1-6]:(entrance|recovery|guardian)$`). The legacy world path can create other Checkpoint ids that get paid live but never retroactively, so the pool isn't bounded at 18.",
+     "evidence": "Main.server.luau:21-25 (non-FreeClimb world path still exists). Main.server.luau:226-230 (pays on any Checkpoint-kind part id). Draft A5 guard 'only when explorer is nil or v is missing'. Profiles.valid ignores unknown top-level keys (Profiles.luau:18-48), so old builds keep explorer but never update it.",
+     "fix": "Store only repeatable XP (explorer.repeatXp plus the daily counters). Compute one-time XP on each read from the durable flags: discoveries matching the 18 ids, wins, captures, and the species ledger. That makes it idempotent by construction, removes the retro migration and its double- or missed-pay risk, and tolerates rollback. If accumulation is kept, gate the live rest-point award by the same id pattern as the retro."
+    },
+    {
+     "where": "A4 daily caps (`day=floor(os.time()/86400)`, secures 20/day, repeats 5/day)",
+     "problem": "The draft never says how a rollover is detected. If the counters reset on `day ~= today`, a profile moved between servers whose clocks disagree around UTC midnight resets twice and gets about two caps. A stored `day` in the future (only `negative` is rejected) would block resets forever under a `>` rule. The daily cap is the only real rate limiter on secure XP: server movement checks tolerate 75 studs/s against a 27 studs/s sprint, so speed exploits are bounded only by the cap.",
+     "evidence": "Main.server.luau:381 (correction threshold max(22, elapsed*75)). MovementRules.luau:2-4 (sprint 27). Draft A4 validation rejects only non-integer, NaN or negative values.",
+     "fix": "Reset only when today > explorer.day; never decrease day. On load, clamp day to at most today+1. Increment and check the counters inside the same mutate (secure) or live block (wins) as the XP add, as the draft already does. Add a test: day goes D+1 → D → D+1 and counters reset once."
+    },
+    {
+     "where": "T8/D8 Robux enforcement + T9 coin shop + T11 copy 'Never in battle or raids'",
+     "problem": "Robux spend can be laundered into raid power through coins. D8 lets Robux creatures into tycoon habitats. Habitats produce coins scaled by rarity, so Robux eggs (likely high rarity) mean more coins. Before P2, coins bought only tycoon upgrades, Train and bat upgrades. Bat upgrades already raise knockback and reach in raids. T9 adds coin-bought, battle-eligible Meadow Egg creatures (O10). So Robux → coins → bat level and battle creatures, which breaks the promise text.",
+     "evidence": "Tycoon.luau:32-45 (rate by rarity), TycoonConfig.luau:4 (Mythic 132/h ×3 vs Common 60 ×1), Tycoon.luau:65-72 (bank → p.coins). Rules.luau:93-99 (legacy income counts every creature). BatRules.luau:43-54 (coin upgrade → knockback/reach), used in raids at Bats.luau:56-74. UIRequests.luau:131-138 (Bat upgrade).",
+     "fix": "Add an owner decision: either Robux-origin creatures earn no coins in habitats or legacy income (filter by origin in T.rate and settleIncome), or coins earned from Robux creatures are tracked separately and can't buy bat upgrades or eggs. Otherwise the T11 copy must not claim 'Never in battle or raids'. Add a test: a Robux creature assigned to a habitat adds 0 to p.coins."
+    },
+    {
+     "where": "T9 / O4 Meadow Egg pricing ('One Common habitat makes 60 coins/h … about 42 single-habitat hours')",
+     "problem": "The price analysis misses an existing coin farm that the shop turns into a creature farm. Competition practice (target 0) has no daily cap and needs only atRefuge. It pays +35 coins every 120 s for beating a fixed level-3 starter team, about 1,050 coins/h (an ESTIMATE). At 2,500 coins that is one Meadow Egg about every 2.4 h of idle repetition, with the real 4% Mythic odds and battle eligibility, and no raid needed.",
+     "evidence": "Competition.luau:21-27 (practice defense team fixed at level 3), :39-40 (competitionAt=now+120; win → +35 coins). UIRequests.luau:256-266 (ChallengeDefense only requires atRefuge). Draft A1 already calls practice 'farmable every 120 s' but excludes it only from XP.",
+     "fix": "Before coins can buy creatures: make practice pay 0 coins, or add a small daily cap on practice coin wins. Then price O4 against the true coins-per-hour from every source: tycoon, practice, Summit and Discovery."
+    },
+    {
+     "where": "T8 origin tag ('nil = earned'; 'every listed consumer is grep-verified')",
+     "problem": "The tag fails open, and only consumers are listed for audit, not producers. Any code path that creates a creature from a Robux egg without copying `origin` turns it into an earned, battle-eligible creature. Copying in R.hatch is planned. Other creature producers, and any future egg-to-cargo, recovery or offspring path, are not covered.",
+     "evidence": "Creature producers: RunRules.luau:70, Rules.luau:8, Rules.luau:33, Rules.luau:60, plus the new ShopRules grant. Eggs move between lists at Rules.luau:45-48 (extract), :73-84 (drop/recover). RunRules.migrate copies egg tables (RunRules.luau:29,32).",
+     "fix": "List and test every producer: a property test that each creature-creating function copies origin from its source. Assert that Robux-origin eggs can never enter cargo, recovery or p.run (reject in Profiles.valid and RunRules.eggs). Add a grep gate in the T8 Done criteria for `table.insert(%w+.creatures`."
+    },
+    {
+     "where": "A1 'Egg secured (raid) 10×k … Only when Run.secure returns secured' vs 'Trial Guardian captured 150×k … Mutate at EggRaids.luau:69'",
+     "problem": "The rules are ambiguous about trial secures. A trial run is secured by the same exit mutate and returns the same 'secured' reason. As written, one trial secure pays the egg row (10×k, and it counts toward the 20/day cap), the Trial row (150×k) and the new-species row (+50). This doesn't match the stated one-time pool.",
+     "evidence": "RunRules.luau:64-74 (one code path; returns 'secured' for both trial and non-trial runs; captures set at :71). EggRaids.luau:69.",
+     "fix": "In the mutate, branch on draft.run.trial, read before Run.secure clears it. Trial pays only the Trial row (plus the species ledger if kept). Non-trial pays the egg row. Add test assertions for both."
+    },
+    {
+     "where": "T3 hud emits at Bats.luau:89 (carry{stolen}/regrab) inside the grab path",
+     "problem": "A dropped creature is consumed only after adopt returns, because clearDrop runs after it. Today the adopt → present → publish chain doesn't yield, so only one grabber can claim a drop. T3 adds event and publish work inside that window. Any future yield there would let two grabbers both adopt the same snapshot, duplicating the creature and its secure and new-species XP.",
+     "evidence": "Bats.luau:83-89 (adopt at :87, clearDrop at :89). EggRaids.luau:85-93 (adopt calls present + changed=publish). Bats.luau:101 (the expiry auto-return uses the same pattern).",
+     "fix": "Mark the drop consumed (drops[id]=nil or drop.taken=true) before calling adopt, and restore it only if adopt fails. Emit hud events after clearDrop. Add a test: two grabs of one drop in the same frame → exactly one carrier."
+    },
+    {
+     "where": "A1 'First normal Guardian win 100×k … each eligible contributor (≥3% damage)'",
+     "problem": "The contribution bar is trivial, so first-win XP (2,100 total) and the 5/day repeat XP can be leeched. A joiner's team power adds to m.damage every second they are in the arena. A starter team (about 48 attack/s) reaches 3% of a 1,250-HP section-1 Guardian in about 1 s. Joining is allowed until the Guardian drops below 75% HP. It's capped, so not a double grant, but XP is earned without play.",
+     "evidence": "Combat.luau:217-219 (per-second power added to m.damage), :50 (join allowed while hp ≥ 75% of max), :162 (≥ contributionFraction). RaidConfig.luau:6 (contributionFraction=.03, normalHealth 950+300k).",
+     "fix": "For player XP (not the existing win flag), require engagement too: for example, at least N resolved patterns while engaged (m.dodges+m.hits ≥ 2) or a minimum time in the arena. Leave the D-approved win and unlock rules unchanged."
+    }
+   ]
+  }
+ ],
+ "maps": [
+  {
+   "summary": "I read the code only and edited nothing. Repo C:\\Users\\HOME!\\Desktop\\climb-collect-integration, branch codex/hud-glassbloom @5442a43. All paths below are under mountain/. Creature records have no origin or source field today. A creature is {id,species,level,xp,specialization?} and an egg is {id,species,readyAt?}. Nothing in the code buys anything yet: grep finds no MarketplaceService, ProcessReceipt, product or robux code, and UIProtocol has no shop action. So the rule has no producer yet. A new field has to be set at the grant point, carried from egg to creature through R.hatch, and checked by Profiles.valid.\n\np.team (up to 3 creature ids) is the one battle loadout. Guardian raids, wild encounters, special-ability slots 1-3, mountain MaxHealth, companion XP and the async defense snapshot all read it. There are no separate defense slots: 'defense' means the Competition snapshot built from p.team. Only two code paths write p.team: R.newProfile (starter seed) and R.equip (the UI 'Equip' action). There is no team swap op and no team auto-fill. Tycoon assign/swap only touch habitats.\n\nWhere the rule must be enforced:\n(1) R.equip — the main gate.\n(2) Profile load — strip paid creatures from existing teams. No team pass exists there today, and Profiles.valid would accept a paid id in the team.\n(3) Profiles.valid — so a transaction draft or a save cannot reintroduce one.\n(4) Competition.snapshot — covers both register-defense and the challenger's own attack team. Stored snapshots are already version 1 and keep no ids or origin.\n(5) Defensive filters in every combat/stat consumer: Combat power/harm/special/finish/wild XP, Main rebuildTeam MaxHealth and companions, and the Main checkpoint/landmark XP.\n\nThe egg-raid carry/theft loop cannot touch a hatched creature: runs carry only rolled species, and Run.drop/receive snapshots carry only species and section.",
+   "facts": [
+    {
+     "claim": "Creature record shape is {id,species,level,xp} (+ optional specialization); no origin/source field exists. Starter creatures are created here and auto-seeded into p.team (the only 'auto-fill').",
+     "cite": "mountain/shared/Rules.luau:7-8"
+    },
+    {
+     "claim": "Hatch builds the creature from the egg with only id/species/level/xp — any egg origin would be dropped unless R.hatch copies it.",
+     "cite": "mountain/shared/Rules.luau:57-61"
+    },
+    {
+     "claim": "Egg records are {id,species} (readyAt added on incubate); no origin field.",
+     "cite": "mountain/shared/Rules.luau:42, mountain/shared/Rules.luau:55"
+    },
+    {
+     "claim": "Legacy schema-1 trial capture inserts a creature without origin.",
+     "cite": "mountain/shared/Rules.luau:33"
+    },
+    {
+     "claim": "Mountain capture (exit to sanctuary) creates the creature without origin; this is the earned-creature path.",
+     "cite": "mountain/shared/RunRules.luau:64-75"
+    },
+    {
+     "claim": "R.equip is the only player-driven team write: it checks 1-3 dense, distinct, owned ids, then replaces p.team. It has no origin check today.",
+     "cite": "mountain/shared/Rules.luau:62-67"
+    },
+    {
+     "claim": "The UI 'Equip' action calls R.equip and then rebuildTeam. This is the server assign/swap entry point; no other team op exists.",
+     "cite": "mountain/server/UIRequests.luau:185-189"
+    },
+    {
+     "claim": "Equip wire validation only checks a dense list of 1-3 distinct strings.",
+     "cite": "mountain/shared/UIProtocol.luau:62-68"
+    },
+    {
+     "claim": "Only Rules.luau:8 and Rules.luau:66 write p.team (grep for team inserts/assignments across mountain/).",
+     "cite": "mountain/shared/Rules.luau:8, mountain/shared/Rules.luau:66"
+    },
+    {
+     "claim": "Profiles.valid checks creature fields but does not reject unknown fields, so an additive origin field would pass unvalidated. The team check only requires owned, unique ids.",
+     "cite": "mountain/server/Profiles.luau:31-35"
+    },
+    {
+     "claim": "Egg/cargo validation does not look at an origin field.",
+     "cite": "mountain/server/Profiles.luau:36"
+    },
+    {
+     "claim": "Profile load runs Custody.migrate (schema 1→2 only) and valid() inside the update callback. There is no pass that sanitizes the team on load.",
+     "cite": "mountain/server/Profiles.luau:49-65"
+    },
+    {
+     "claim": "Run.migrate only converts schema 1 to 2 and returns schema-2 profiles untouched. Cloned eggs would keep extra fields.",
+     "cite": "mountain/shared/RunRules.luau:14-35"
+    },
+    {
+     "claim": "Every transaction draft is re-validated with valid(draft), so a team rule placed in valid() also covers transact writes.",
+     "cite": "mountain/server/Profiles.luau:94-104"
+    },
+    {
+     "claim": "A failed load kicks the player. A team rule written as a hard rejection in valid() would lock out such profiles; stripping the paid ids is safer.",
+     "cite": "mountain/server/Main.server.luau:135-136"
+    },
+    {
+     "claim": "Guardian/wild damage sums every p.team creature's attack.",
+     "cite": "mountain/server/Combat.luau:14-18"
+    },
+    {
+     "claim": "Damage reduction (guard) sums every p.team creature's guard and Tank role.",
+     "cite": "mountain/server/Combat.luau:19-26"
+    },
+    {
+     "claim": "Battle specials resolve p.team[slot] for slots 1-3 (keys 1/2/3, HUD Slot1-3).",
+     "cite": "mountain/server/Combat.luau:73-75"
+    },
+    {
+     "claim": "Guardian battle entry (normal raid and Trial) does not inspect the team.",
+     "cite": "mountain/server/Combat.luau:37-60"
+    },
+    {
+     "claim": "Normal guardian wins grant companion XP to every p.team creature after the raid-respite effects.",
+     "cite": "mountain/server/Combat.luau:164-180"
+    },
+    {
+     "claim": "Per-tick guardian damage uses power(p,...) from p.team.",
+     "cite": "mountain/server/Combat.luau:217-219"
+    },
+    {
+     "claim": "Wild encounters damage with power(p,...) and give +50 XP to the team on a win.",
+     "cite": "mountain/server/Combat.luau:196, mountain/server/Combat.luau:200"
+    },
+    {
+     "claim": "Per-section raid companionXP=200*k is defined in RaidConfig.",
+     "cite": "mountain/shared/RaidConfig.luau:6"
+    },
+    {
+     "claim": "Guardian normalWin returns effects.xp, the list of contributor ids who get XP.",
+     "cite": "mountain/shared/GuardianRules.luau:37-41"
+    },
+    {
+     "claim": "rebuildTeam spawns p.team companion models and sets the player's MaxHealth from team health, a mountain stat advantage. It runs on every spawn.",
+     "cite": "mountain/server/Main.server.luau:56-69, mountain/server/Main.server.luau:124"
+    },
+    {
+     "claim": "First-visit checkpoints and landmark discoveries give XP to p.team.",
+     "cite": "mountain/server/Main.server.luau:230, mountain/server/Main.server.luau:238"
+    },
+    {
+     "claim": "Async defense snapshot is built from p.team, keeping only species/level/specialization: no id or origin, so it cannot be filtered later.",
+     "cite": "mountain/server/Competition.luau:7-11"
+    },
+    {
+     "claim": "RegisterDefense stores that snapshot; ChallengeDefense builds the attacker's team from the same S.snapshot.",
+     "cite": "mountain/server/UIRequests.luau:248-266, mountain/server/Competition.luau:34"
+    },
+    {
+     "claim": "Stored defenses are accepted only at version==1; bumping the version would invalidate old snapshots.",
+     "cite": "mountain/server/Competition.luau:30"
+    },
+    {
+     "claim": "Egg-raid runs carry only server-rolled species; theft drop and receive snapshots carry only species/section/from. Secured collection creatures never enter a run.",
+     "cite": "mountain/server/EggRaids.luau:30-31, mountain/shared/RunRules.luau:54-63"
+    },
+    {
+     "claim": "Tycoon habitat assign/swap accept any owned creature. This is the allowed path for Robux-egg creatures, and it does not touch p.team.",
+     "cite": "mountain/shared/Tycoon.luau:101-123, mountain/server/UIRequests.luau:163-164"
+    },
+    {
+     "claim": "Bat index-set progress counts all owned non-Legendary creatures and auto-grants bats in publish(), so purchased creatures would count toward bat unlocks.",
+     "cite": "mountain/shared/BatRules.luau:22-37, mountain/server/Main.server.luau:91"
+    },
+    {
+     "claim": "Client team picker (selection, TeamSlot1-3, Save team → Equip) and the HUD slot specials read profile.team/creatures. Only the UI should filter here; the server stays the authority.",
+     "cite": "mountain/client/UI/Screens.luau:24, mountain/client/UI/Screens.luau:245-249, mountain/client/UI/Screens.luau:293-301, mountain/client/UI/Controller.luau:59-65, mountain/client/UI/Controller.luau:278"
+    },
+    {
+     "claim": "UIPresentation sorts creatures by team slot in 'team' mode.",
+     "cite": "mountain/shared/UIPresentation.luau:34-48"
+    },
+    {
+     "claim": "The shop copy that D8 replaces ('No paid odds / No capture edge') is in Screens.",
+     "cite": "mountain/client/UI/Screens.luau:554"
+    },
+    {
+     "claim": "No purchase or product path exists: UIProtocol has no shop or purchase action, and the mountain/ grep for robux/purchase/product/marketplace finds no server code.",
+     "cite": "mountain/shared/UIProtocol.luau:3"
+    },
+    {
+     "claim": "Hatch result data returns a table.clone of the new creature, so an origin field would reach the client automatically.",
+     "cite": "mountain/server/UIRequests.luau:113, mountain/server/UIRequests.luau:199"
+    },
+    {
+     "claim": "Existing tests that touch equip/team and will need new cases: rules ownership/duplicate/invalid, ui_server equip, Studio dictionary-team.",
+     "cite": "mountain/tests/rules.luau:33-52, mountain/tests/ui_server.luau:32, mountain/server/StudioTests.luau:20"
+    }
+   ],
+   "risks": [
+    "The rule has no producer yet: Robux products stay id 0 and no purchase code exists. An origin field (e.g. origin='robux') must be added to the egg at grant time, copied to the creature in R.hatch (Rules.luau:60), and checked by Profiles.valid. Otherwise the rule silently does nothing.",
+    "If the team rule goes into Profiles.valid as a hard reject, an affected profile fails to load and the player is kicked (Main.server.luau:136). Strip the paid ids from p.team during load (Profiles.luau ~56, after Custody.migrate) and keep valid() as the backstop.",
+    "Stripping can leave p.team empty. valid() allows an empty team, R.equip requires at least 1, and combat power is 0 with an empty team. There is no auto-fill today, so an owner decision or an explicit refill rule is needed.",
+    "Defense snapshots keep no ids or origin (Competition.luau:9). Filtering must happen in S.snapshot. Old version-1 snapshots cannot be cleaned after the fact; they are safe only because no paid creatures exist yet.",
+    "Combat/stat consumers read p.team directly (Combat.luau:16,22,75,180,200; Main.server.luau:60-68,230,238). Without one shared helper such as R.battleTeam(p), a future write path that skips R.equip would leak paid creatures into raids.",
+    "Purchased creatures would count toward bat index sets (BatRules.luau:22-37) and unlock PvP bats used in egg raids, an indirect raid edge. Owner decision needed on whether paid creatures count.",
+    "D7 coin-bought Meadow Eggs are not Robux. Under D8 as written they are battle-eligible, but the origin field must still tell them apart from Robux eggs. Needs owner confirmation.",
+    "Paid creatures can still be specialized or trained (UIRequests.luau:205-227). That is harmless if they are excluded everywhere in battle, but it wastes coins if the UI does not say so."
+   ]
+  },
+  {
+   "summary": "Profile persistence lives in mountain/server/Profiles.luau (validation, load and migration hook, lease lock, save, durable transact) and mountain/server/Store.luau (the DataStore adapter plus a JSON round-trip memory mock). The pure defaults and migration live in mountain/shared/Rules.luau (newProfile) and mountain/shared/RunRules.luau (Run.migrate, schema 1 to 2). The current schema is 2. Load accepts only schema 1 or 2. An unknown schema is refused and left untouched. The house pattern for additive data has no version bump: an optional field is nil-tolerated in valid() and filled on load (settings, bats, tycoon). valid() is a whitelist of required keys and never rejects unknown keys. It runs on the saved profile BEFORE migration and again before every save and transaction. So a new field that is made required, or that the code can push out of range, either locks every existing player out or freezes their saves.\n\nTo add player XP/level, purchase receipts, owned skins and a creature origin tag safely, each item needs these steps:\n(1) default in R.newProfile;\n(2) an optional `x==nil or valid(x)` check in Profiles.valid;\n(3) a fill/normalize step inside the load transform after Custody.migrate, so it persists on first save;\n(4) bounded, JSON-safe shapes: string-keyed sets or dense capped arrays, like securedRunIds (cap 128);\n(5) mutations through P.transact, with a profile-stored idempotency ledger that mutate checks first;\n(6) tests in run_persistence.luau and run_ui_server.py (legacy profile without the field loads and persists; malformed field fails closed with no overwrite; replay grants once), plus StudioTests for real HttpService JSON.\n\nPurchases also need a new UIProtocol action and a UIRequests branch. Today no request id reaches the dispatcher, so the id has to be passed through, or a nonce carried in the payload. The egg roll currently lives in a local function in Main and must move to shared so the odds shown are the odds used. The skin cannot be stored under p.bats, because BatRules.normalize rebuilds that table and drops unknown keys. The origin tag must survive hatching: R.hatch copies only the species today. It must also be enforced in R.equip, in the valid() team check and in Competition.snapshot. Server files are not in sync_hud.py's manifest, so P2 server edits will not reach Studio until that is extended. Baseline (run read-only now): run_persistence 28, run_ui_server 25, run_lifecycle 8, run_rules 23, rules 121, ui_protocol 42, all PASS.",
+   "facts": [
+    {
+     "claim": "R.newProfile creates schema=2 with fields legacyEntitlements, securedRunIds, serial=3, unlocked=1, wins, captures, cargo, eggs, creatures, team, checkpoint='1:entrance', discoveries, claims, shortcuts, resources, coins=0, trophies=0, lastIncome=now, competitionAt=0; no player xp/level, purchases, or owned cosmetics exist",
+     "cite": "mountain/shared/Rules.luau:6-7"
+    },
+    {
+     "claim": "Starter creatures are {id='c1..c3',species,level=1,xp=0} placed in team; creature entries carry no origin field",
+     "cite": "mountain/shared/Rules.luau:8"
+    },
+    {
+     "claim": "Only per-creature XP exists: R.addXP with level cap 50 and level*40 curve",
+     "cite": "mountain/shared/Rules.luau:21-25"
+    },
+    {
+     "claim": "Creature creation sites (all need an origin tag): newProfile starters, legacy trial winGuardian, hatch, and Run.secure",
+     "cite": "mountain/shared/Rules.luau:8,33,60; mountain/shared/RunRules.luau:70"
+    },
+    {
+     "claim": "R.hatch builds the creature from e.species only, so any egg-level origin tag would be lost unless copied",
+     "cite": "mountain/shared/Rules.luau:57-61"
+    },
+    {
+     "claim": "Eggs are created by R.collect as {id,species}; incubation adds readyAt",
+     "cite": "mountain/shared/Rules.luau:42,55"
+    },
+    {
+     "claim": "R.equip validates 1-3 distinct owned creature ids but has no origin check (D8 enforcement point)",
+     "cite": "mountain/shared/Rules.luau:62-67"
+    },
+    {
+     "claim": "Profiles.valid rejects any schema other than 1 or 2",
+     "cite": "mountain/server/Profiles.luau:19"
+    },
+    {
+     "claim": "Profiles.valid requires table keys creatures, team, cargo, eggs, wins, captures, discoveries, claims, shortcuts, resources and finite numeric keys serial, unlocked, coins, trophies, lastIncome, competitionAt; it never rejects unknown keys",
+     "cite": "mountain/server/Profiles.luau:20-21"
+    },
+    {
+     "claim": "Optional sub-objects are validated only when non-nil: tycoon via R.tycoon.valid, settings via UIProtocol.settings, bats shape and levels (the established additive-field pattern)",
+     "cite": "mountain/server/Profiles.luau:23-28"
+    },
+    {
+     "claim": "Creature validation checks species in catalog, unique non-empty string id, integer level 1-50 and finite xp>=0; team ids must be owned and unique; eggs/cargo checked for species, non-Legendary, string id, numeric readyAt",
+     "cite": "mountain/server/Profiles.luau:30-36"
+    },
+    {
+     "claim": "Schema-2-only checks: legacyEntitlements table, securedRunIds dense with at most 128 entries, each id a string of at most 128 chars, and the run shape",
+     "cite": "mountain/server/Profiles.luau:41-46"
+    },
+    {
+     "claim": "P.load validates the OLD saved profile before migration and cancels the write (returns nil) if invalid, so a newly required field would reject every existing save",
+     "cite": "mountain/server/Profiles.luau:53"
+    },
+    {
+     "claim": "Session lock: load refuses when another owner's lock has not expired; a successful load writes lock {owner,expires=now+180}",
+     "cite": "mountain/server/Profiles.luau:54,59"
+    },
+    {
+     "claim": "Load pipeline inside the UpdateAsync transform: newProfile when no save exists, then Custody.migrate, valid, forfeit any unsecured run, then income settle and tycoon ensure (persisted in the same write)",
+     "cite": "mountain/server/Profiles.luau:55-59"
+    },
+    {
+     "claim": "Settings and bats are normalized after the load write (in memory only until the next save)",
+     "cite": "mountain/server/Profiles.luau:62"
+    },
+    {
+     "claim": "Session lease is 180 s; P.get returns nil when the session is unhealthy, closing, transacting, has a pending write, or the lease has expired",
+     "cite": "mountain/server/Profiles.luau:63,66"
+    },
+    {
+     "claim": "P.transact JSON-copies the live profile, runs mutate(draft) once, requires mutate to return truthy and the draft to pass valid(), stores the draft as pending with a writeId, and blocks other transaction ids while pending",
+     "cite": "mountain/server/Profiles.luau:94-105"
+    },
+    {
+     "claim": "commitPending retries up to 3 times, needs a matching unexpired lock, treats an equal writeId as already committed (uncertain-response replay), then copies the draft into the same top-level s.p table",
+     "cite": "mountain/server/Profiles.luau:69-93"
+    },
+    {
+     "claim": "After commit, a retry with the same transaction id re-runs mutate (pending is cleared), so durable idempotency needs a profile-stored ledger that mutate checks, as Run.secure does with securedRunIds",
+     "cite": "mountain/server/Profiles.luau:99-105; mountain/shared/RunRules.luau:65,72-73"
+    },
+    {
+     "claim": "P.save re-validates; an invalid profile or failed serialization marks the session unhealthy, which freezes P.get. A field the code can drive invalid locks all progress until repaired",
+     "cite": "mountain/server/Profiles.luau:124-126,142"
+    },
+    {
+     "claim": "P.save uses a fresh writeId and lock check; release clears the lock and drops the session",
+     "cite": "mountain/server/Profiles.luau:128-146"
+    },
+    {
+     "claim": "Settings writes go through UIProtocol.settings merge and then a synchronous P.save",
+     "cite": "mountain/server/Profiles.luau:149-155"
+    },
+    {
+     "claim": "Studio uses Store.memory; live uses the DataStore 'MountainEmpire_FirstDraft_v1' with owner = JobId..GUID; newForTests is exposed in Studio only",
+     "cite": "mountain/server/Profiles.luau:159-160"
+    },
+    {
+     "claim": "The real DataStore path is marked UNVERIFIED (unpublished place)",
+     "cite": "mountain/server/Store.luau:7"
+    },
+    {
+     "claim": "The memory mock JSON-encodes via HttpService and supports failNext, failAll, latency, conflicts (runs the transform twice) and failAfterCommit (lost response after a durable write)",
+     "cite": "mountain/server/Store.luau:19-31,59-90"
+    },
+    {
+     "claim": "DS:update wraps UpdateAsync; a nil transform result means cancelled",
+     "cite": "mountain/server/Store.luau:125-140"
+    },
+    {
+     "claim": "Run.migrate is the only migration: schema 2 passes through unchanged; schema 1 moves cargo and recovery eggs into eggs as legacyEntitlements, clears run/cargo/recovery, sets securedRunIds={} and schema=2; any conflict returns nil (no overwrite)",
+     "cite": "mountain/shared/RunRules.luau:14-35"
+    },
+    {
+     "claim": "Hard-coded schema==2 gates that a schema bump would have to update: Run.migrate, Run.strike, Run.receive, R.winGuardian, UIPresentation.quest",
+     "cite": "mountain/shared/RunRules.luau:15-16,37,60; mountain/shared/Rules.luau:30; mountain/shared/UIPresentation.luau:58"
+    },
+    {
+     "claim": "Tests that assert schema 2: rules 'additive schema', run_persistence 'schema2 loads', StudioTests 'new schema loads', and unknown schema 99 retained without overwrite",
+     "cite": "mountain/tests/rules.luau:47; mountain/tests/run_persistence.luau:7; mountain/server/StudioTests.luau:9,25-27"
+    },
+    {
+     "claim": "UIProtocol settings defaults are 7 keys; values must match the default's type, and numbers must be finite in 0-1 (a 0/.5/1 enum is not enforced); a patch with an unknown key returns nil",
+     "cite": "mountain/shared/UIProtocol.luau:4,20-36"
+    },
+    {
+     "claim": "Profiles.valid calls UIProtocol.settings(p.settings) with the saved settings as the PATCH, so saved unknown pref keys make the whole profile invalid (an older server would refuse new prefs)",
+     "cite": "mountain/server/Profiles.luau:24; mountain/shared/UIProtocol.luau:30-33"
+    },
+    {
+     "claim": "UIProtocol.settings(nil,current) keeps only known default keys, so normalization on load drops unknown prefs",
+     "cite": "mountain/shared/UIProtocol.luau:22-28; mountain/server/Profiles.luau:62"
+    },
+    {
+     "claim": "UIProtocol action whitelist has no purchase/shop action; validate has no branch for one",
+     "cite": "mountain/shared/UIProtocol.luau:3,37-70"
+    },
+    {
+     "claim": "BatRules.normalize rebuilds p.bats as {equipped,levels} only, so any new key under p.bats (e.g. skins) is discarded; normalize runs on load and via grantUnlocks on every publish",
+     "cite": "mountain/shared/BatRules.luau:14-20,34-35; mountain/server/Main.server.luau:91; mountain/server/Profiles.luau:62"
+    },
+    {
+     "claim": "Tycoon has its own sub-version (version=1) and the 'cosmetic' is a free palette from a fixed list (no ownership ledger); T.valid requires cosmetic in Config.cosmetics",
+     "cite": "mountain/shared/Tycoon.luau:9,27,151-153; mountain/shared/TycoonConfig.luau:15"
+    },
+    {
+     "claim": "The egg roll is a local server function in Main that uses Catalog species weights with an unseeded server Random; it is not shared, so the shop cannot display the same table without moving it",
+     "cite": "mountain/server/Main.server.luau:151-154; mountain/shared/Catalog.luau:36"
+    },
+    {
+     "claim": "publish sends a shallow clone of the whole profile to the client, so any new saved field (including a receipt ledger) ships to the client on every publish",
+     "cite": "mountain/server/Main.server.luau:92-96"
+    },
+    {
+     "claim": "Candidate player-XP sources (currently creature-team XP or coin awards): first checkpoint touch, landmark discovery, summit, guardian/trial win, wild win, training (coins), raid secure",
+     "cite": "mountain/server/Main.server.luau:230,237-238,260; mountain/server/Combat.luau:180,200; mountain/server/UIRequests.luau:225; mountain/shared/RunRules.luau:64-74"
+    },
+    {
+     "claim": "Most actions mutate the live profile directly and save asynchronously (task.spawn P.save); only the raid exit uses P.transact",
+     "cite": "mountain/server/UIRequests.luau:168,201; mountain/server/Main.server.luau:231,302; mountain/server/EggRaids.luau:69"
+    },
+    {
+     "claim": "Coin debits are inline checks (BatRules upgrade, Train, Tycoon upgrade); there is no purchase or idempotency ledger",
+     "cite": "mountain/shared/BatRules.luau:48-49; mountain/server/UIRequests.luau:221-225; mountain/shared/Tycoon.luau:147"
+    },
+    {
+     "claim": "The UI request id is validated and cached per connection (max 128, in memory, removed on leave) but is NOT passed to the handler: handle(player,action,payload)",
+     "cite": "mountain/server/UIRequests.luau:13,37,43,57-59,83,101; mountain/server/Main.server.luau:306,316"
+    },
+    {
+     "claim": "The legacy remote validates with the fixed id 'legacy:1', so purchases there would have no idempotency key",
+     "cite": "mountain/server/Main.server.luau:326-331"
+    },
+    {
+     "claim": "Battle-team consumers that D8 must filter: companions built from p.team, team XP, and the Competition defense snapshot built from p.team",
+     "cite": "mountain/server/Main.server.luau:56-69; mountain/server/Combat.luau:180; mountain/server/Competition.luau:7-11"
+    },
+    {
+     "claim": "Autosave runs every 45 s; BindToClose releases all sessions with a 25 s bound; PlayerRemoving releases",
+     "cite": "mountain/server/Main.server.luau:422-434,149"
+    },
+    {
+     "claim": "service_harness loads the real Catalog, Tycoon, RunRules, Rules, UIProtocol, BatRules, Store, Profiles and Combat with stub services. Any new shared module must be added here and to the MountainShared map",
+     "cite": "mountain/tests/service_harness.py:30-43"
+    },
+    {
+     "claim": "The harness replaces HttpService JSONEncode/Decode with a deep copy (rejects NaN, functions and cycles only), so the CLI tests do NOT catch real-JSON problems such as sparse arrays or mixed keys; task.wait is a no-op",
+     "cite": "mountain/tests/service_harness.py:16-25"
+    },
+    {
+     "claim": "run_persistence covers: failed save with no ack, pending blocks other transactions, uncertain-commit replay, no duplicate, disconnect race, stale lock, schema-1 migration on load, invalid profile not overwritten, unsafe run forfeited, malformed/sparse/duplicate/conflicting entries preserved",
+     "cite": "mountain/tests/run_persistence.luau:1-83"
+    },
+    {
+     "claim": "run_ui_server covers: legacy profile gains tycoon without losing coins, settings default/merge/reject/persist, expired lease and takeover, malformed tycoon fails closed, malformed settings rejected, and a legacy profile without settings accepted (template for new optional fields)",
+     "cite": "mountain/tests/run_ui_server.py:4-52"
+    },
+    {
+     "claim": "StudioTests exercises real Store.memory with real HttpService JSON: contention, reconnect, failure freeze, uncertain retry, serialization failure, unknown schema retained, slow autosave release",
+     "cite": "mountain/server/StudioTests.luau:3-44"
+    },
+    {
+     "claim": "sync_hud.py FILES contains only client UI plus UIPresentation, UIProtocol and HudState; no server modules or Rules/RunRules/BatRules/Catalog; it creates only ModuleScript or LocalScript (no Script class for Main.server.luau)",
+     "cite": "tools/rmcp/sync_hud.py:8-22,36"
+    },
+    {
+     "claim": "P2 scope from owner answers: new server player-XP system (save fields, migration, validation, tests, stop for curve review); real idempotent coin purchases (Meadow Egg, Candy Swirl skin) with odds shown = odds used; Robux-egg creatures never join battle teams or raids, enforced server-side; plan §7 keeps remotes/request actions stable",
+     "cite": "design/hud-glassbloom-build-plan-2026-10-27.md:87-94,244,250-251,193-195"
+    }
+   ],
+   "risks": [
+    "Making any new field required in Profiles.valid (or adding it to the required numeric/table loops at Profiles.luau:20-21) rejects every existing save at load (valid runs on the old profile before migrate, Profiles.luau:53). Players get kicked with 'Safe load stopped' (Main.server.luau:136). New fields must be `nil or valid`.",
+    "A validator that is stricter than what the code produces (for example an xp overflow, or a ledger growing past its cap) makes P.save/transact fail. The session is then marked unhealthy, P.get returns nil and all progress freezes ('Saving paused', Main.server.luau:426).",
+    "Bumping schema to 3 without updating every schema==2 gate (RunRules.luau:15-16,37,60; Rules.luau:30; UIPresentation.luau:58; Profiles.luau:19,41; tests rules.luau:47, run_persistence.luau:7, StudioTests.luau:9) breaks custody, strikes, theft re-grab and quests. Keeping schema 2 with additive optional fields matches the existing pattern, but an older server version then silently accepts new profiles.",
+    "Rollback/mixed-version hazard: an older server rejects profiles holding new settings keys (Profiles.luau:24 via UIProtocol.luau:30-33), so those players are locked out. Settings normalization on load also strips unknown prefs (UIProtocol.luau:22-28).",
+    "Storing purchased bat skins under p.bats loses them: BatRules.normalize rebuilds p.bats with only equipped/levels (BatRules.luau:14-20), and it runs on load and on every publish (Main.server.luau:91).",
+    "Double-grant on purchase retry: P.transact only dedupes while a pending draft exists. After commit, the same id re-runs mutate (Profiles.luau:99-105). The purchase ledger must be checked inside mutate, like Run.secure (RunRules.luau:65).",
+    "No request id reaches the dispatcher (UIRequests.luau:83; Main.server.luau:306,316), and the legacy remote uses a fixed id (Main.server.luau:327). An idempotency key needs new plumbing or a payload nonce, and purchase actions should be excluded from the legacy remote.",
+    "The receipt ledger and the full profile are sent to the client on every publish (Main.server.luau:92-96). An unbounded ledger, or unbounded p.eggs from coin eggs, grows the replication payload and the DataStore key size; cap the ledger like securedRunIds (Profiles.luau:42; RunRules.luau:73).",
+    "Odds mismatch: the roll lives in a local function in Main (Main.server.luau:152-154). If the shop shows a separately transcribed table, the odds shown can drift from the odds used. Move the roll to a shared module that both the server and the shop read. Roll inside mutate (the draft is prepared once), never inside the store:update transform, which can run more than once (Store.luau:64-65).",
+    "Origin tag lost on hatch (Rules.luau:60). Unless egg entries carry origin and hatch copies it, Robux-egg creatures become indistinguishable, and the D8 team/raid ban can't be enforced. The ban must cover R.equip (Rules.luau:62-67), the valid() team check (Profiles.luau:35) and Competition.snapshot (Competition.luau:9).",
+    "CLI tests use a deep-copy JSON stub (service_harness.py:16-25), so sparse arrays or mixed-key tables in new fields pass the CLI tests but can fail or change under real HttpService/DataStore. Verify with StudioTests (real JSON) and use string-keyed sets or dense arrays.",
+    "Real DataStore behaviour is unverified (Store.luau:7). Studio always uses the memory store (Profiles.luau:159), so migration and lock behaviour against live DataStores is untested.",
+    "P2 server edits won't reach the Studio copy through sync_hud.py: its manifest has no server or rules modules, and it can't create a Script class (sync_hud.py:8-22,36). It needs extending, or another sync path, before Studio verification.",
+    "P.transact copies the draft back into s.p (Profiles.luau:87). Code holding an older reference to p and writing to it during a pending purchase could have its write overwritten. Keep purchase mutations inside the draft only."
+   ]
+  },
+  {
+   "summary": "I read the HUD signal subsystem in C:\\Users\\HOME!\\Desktop\\climb-collect-integration\\mountain without changing anything.\n\n**The one server-to-client channel.** All HUD signals reach the client through `ReplicatedStorage.MountainRemotes.Event` (Main.server.luau:28), sent by `send(player,kind,data)` (Main.server.luau:40). That helper skips players who have left. There are 40 server lines that send toasts: CarryVisuals 4, Combat 10, Main 26. Bats sends 4 more through `context.notify`, which Main maps to toast at line 217.\n\n**Message kinds on Event:**\n- `state`: the whole profile clone plus `ui` (Main:92-96)\n- `context`: a 0.5 s proximity update, sent only when a value changed (Main:371-375)\n- `production`, `battle`, `open`, `toast`, `save`\n- `knock`, `dodge`, `competition`\n\nThe client store (ClientState.luau:64) passes on only state, production, battle, context, open, toast and save. It drops everything else. `knock` still works because BatClient listens to Event directly (BatClient.client.luau:5-6). A new `hud` kind must be added to the list at ClientState:64 and handled in Controller's subscriber (Controller:219-247).\n\n**Proposed insertion points.** All are additive, and every existing toast stays.\n- **Helper:** after Main:40, add `local function hud(player,kind,data) data=data or {};data.kind=kind;data.at=workspace:GetServerTimeNow();send(player,'hud',data) end`. CarryVisuals already holds `send` (CarryVisuals:5). Bats and Guardians get callbacks next to their existing ones (Main:217 and Main:193).\n- **carry:** in CarryVisuals.show, the `kind=='carry'` branch (lines 69-72). Emit only when `data.run.stolenFrom==nil`, which is a fresh pickup from EggRaids:46. Payload: `{species,section,runId,trial}`.\n- **regrab:** in Bats.grab after `clearDrop` (Bats:89) when `player==drop.from`, and in Bats.tick when the auto-return `back` succeeds (Bats:101, with auto=true). In the same Bats:89 spot, a thief (`player~=drop.from`) gets `carry` with `stolen=true`. This way the shared `carry` present from EggRaids.adopt (EggRaids:91) never fires twice.\n- **knocked:** in Bats.swing next to the victim notify (Bats:78). Payload: `{species,dropId=drop.id,expiresAt=GetServerTimeNow()+BatRules.dropSeconds,by=player.UserId}`. `drop.expires` uses server `os.clock` and is useless to the client.\n- **lost:** three places:\n  - CarryVisuals:44, using data.reason: fall, catch, leave, abandoned or travel.\n  - Bats:90, reason `stolen`, sent to drop.from.\n  - Bats:102, reason `escaped`.\n  - Not EggRaids `dropped` (EggRaids:82), which is not a loss.\n- **safe:** CarryVisuals:74-76. Payload: `{species,runId}`. Optionally also send a `securing` event at line 73.\n- **alert{guardian,section}:** in the `warning` callback (Main:193). Payload: `{guardian=C.guardians[k].name,guardianId=C.guardians[k].id,section=k,sectionName=C.kingdoms[k].name}`. Recommend that Guardians.alert (Guardians:15) also pass `eggId` to `warning`. Joining a normal Guardian battle (Combat:58) alerts with eggId=nil, so today it also shows \"heard your strike!\".\n- **calm:** add a new `calm(userId,k,reason)` callback to the Guardians context at Main:187-199.\n  - In Guardians.tick, copy the `state.threats` keys before `Rules.step` (Guardians:41). After it, call calm for each removed id. A threat is removed on timeout, leaving bounds, death, or being protected while securing (GuardianRules:13-16, Guardians:34).\n  - Do the same diff in `service.normalWin` (Guardians:19-22), which clears threats at GuardianRules:40 (reason `respite`).\n- **context.exits:** build an exits list once, right after Main:16. HomePromenade and MountainEntrances change the SanctuaryExits folder at lines 15-16, so build it after them. Each entry is `{cframe,size}` for a child of `world.SanctuaryExits`. Add `exits=` to the state `ui` table at Main:95 and to the context table at Main:374, but leave it out of the change check at Main:373. ClientState:60-61 merges context into ui, so the exits survive context refreshes.\n\n**Prefs in UIProtocol.** `UIProtocol.settings` (UIProtocol:20-36) takes its types from the `defaults` table (line 4). It rejects any unknown key, wrong type, or number that is not finite within 0–1. New prefs go in `defaults`. Any 0/.5/1 enum needs its own per-key check at lines 25 and 32. A global step rule would break the volume rows, which move in 0.25 steps (Screens:592).",
+   "facts": [
+    {
+     "claim": "Four RemoteEvents are created under ReplicatedStorage.MountainRemotes: Request (legacy), Event (server-to-client messages), UIRequest and UIResult (correlated requests), SprintRequest. No new remote is needed for hud events.",
+     "cite": "mountain/server/Main.server.luau:26-31"
+    },
+    {
+     "claim": "The only server-to-client message helper is send(player,kind,data). It fires Event only while player.Parent==Players.",
+     "cite": "mountain/server/Main.server.luau:40"
+    },
+    {
+     "claim": "Message kinds on Event: 'state' (Main:96), 'context' (Main:374), 'production' (Main:416), 'open' (Main:263, Main:297), 'save' (Main:302, Main:308, Main:426), 'knock' (Main:215), 'battle' (Combat:184/197/215/222/253), 'dodge' (UIRequests:181), 'competition' (UIRequests:264), 'toast' (many).",
+     "cite": "mountain/server/Main.server.luau:96,215,263,297,302,308,374,416,426; mountain/server/Combat.luau:184,197,215,222,253; mountain/server/UIRequests.luau:181,264"
+    },
+    {
+     "claim": "The client store's receiver handles state, production, battle and context, forwards open, toast and save, and silently drops every other kind (knock, dodge, competition, and any new 'hud'). 'hud' must be added here.",
+     "cite": "mountain/client/UI/ClientState.luau:42-66"
+    },
+    {
+     "claim": "BatClient listens to Event directly and handles only 'knock' (PlatformStand plus velocity). It does not depend on ClientState.",
+     "cite": "mountain/client/BatClient.client.luau:3-16"
+    },
+    {
+     "claim": "The Controller subscriber is where a 'hud' branch would go. Today it handles state/context/production (updateProfile), battle, open, toast, result, timeout, pending and save. Toast priority is a substring check for 'golden heart' or 'constellation stones' during battle.",
+     "cite": "mountain/client/UI/Controller.luau:219-247 (toast at 231)"
+    },
+    {
+     "claim": "Feedback:toast keeps a queue of at most 4 messages, removes duplicates, and shows each for 4 s. Priority clears the queue.",
+     "cite": "mountain/client/UI/Feedback.luau:25-42"
+    },
+    {
+     "claim": "The 'state' payload is a clone of the whole profile (so it includes p.run, p.checkpoint, p.discoveries and so on) plus serverNow, saveMode and a ui table: nearestEgg, atHome, sanctuaryConnected, plot, inSanctuary, atRefuge, nearCheckpoint, serverClock, cooldowns, dodgeReadyAt, settings, bats.",
+     "cite": "mountain/server/Main.server.luau:89-98"
+    },
+    {
+     "claim": "The 'context' payload is a subset of ui: nearestEgg, atHome, sanctuaryConnected, plot, inSanctuary, atRefuge, nearCheckpoint, serverClock. It is checked every 0.5 s and sent only when atHome, atRefuge, nearCheckpoint, inSanctuary or nearestEgg changed. p.checkpoint is NOT in context; it arrives only through 'state'.",
+     "cite": "mountain/server/Main.server.luau:363-375"
+    },
+    {
+     "claim": "ClientState merges context keys into profile.ui and keeps keys it does not receive. So exits sent once in state.ui survive later context refreshes.",
+     "cite": "mountain/client/UI/ClientState.luau:58-63"
+    },
+    {
+     "claim": "p.checkpoint is set when the player interacts with a Checkpoint. The same interaction sends the toast 'Rest point saved. Unsecured creatures still need the sanctuary exit.', and publish then re-sends state.",
+     "cite": "mountain/server/Main.server.luau:226-231,265"
+    },
+    {
+     "claim": "nearCheckpoint is true within 20 studs of a discovered, enterable checkpoint, or within 25 studs of the summit once it is discovered. atHome is home.ownsPosition. inSanctuary is home.inSanctuary(root.Position).",
+     "cite": "mountain/server/Main.server.luau:70,77-82; mountain/server/Sanctuary.luau:30,35-38"
+    },
+    {
+     "claim": "CarryVisuals.show toasts. lost: 'Unsecured <name> lost. Try another egg.' (line 44). strike, when revealed: '<name> revealed — pick it up and escape!' (line 66). securing: 'Securing your creature… You are protected while saving.' (line 73). safe: 'Safe! <name> is yours. Carry it home.' (line 76). The 'carry', 'reveal' and 'dropped' kinds send no toast.",
+     "cite": "mountain/server/CarryVisuals.luau:38-78"
+    },
+    {
+     "claim": "CarryVisuals.new already receives send. Main passes data into it through the raids present callback, which also sets areas to 'sanctuary' when securing.",
+     "cite": "mountain/server/CarryVisuals.luau:5; mountain/server/Main.server.luau:155,174"
+    },
+    {
+     "claim": "The EggRaids present kinds come from the raid lifecycle: strike (line 38), carry on pickup (line 46), lost with reason from forfeit (line 55), securing (line 66), safe (line 73), dropped on bat theft with no loss message (line 82), carry on adopt, i.e. a re-grab or theft (line 91), reveal for a Trial reward (line 103).",
+     "cite": "mountain/server/EggRaids.luau:38,46,55,66,73,82,91,103"
+    },
+    {
+     "claim": "Forfeit reasons that reach the 'lost' present: 'fall' (Main:113), 'catch' (Main:197), 'travel' (Journey:14), 'leave' (EggRaids:107), 'abandoned' after the reservation expires (EggRaids:116).",
+     "cite": "mountain/server/Main.server.luau:113,197; mountain/server/Journey.luau:14; mountain/server/EggRaids.luau:107,116"
+    },
+    {
+     "claim": "RunRules.drop clears p.run and returns snapshot {species,section,from=r.id,eggId}. Trial or non-carried runs return nil. RunRules.receive makes a fresh carried run with stolenFrom=snapshot.from (the original carrier's run id) and eggId='drop:'..runId.",
+     "cite": "mountain/shared/RunRules.luau:53-63"
+    },
+    {
+     "claim": "Run phases are 'breaking', then 'revealed' at the hit threshold (strike), then 'carried' (pickup). Secure records the run id in securedRunIds and clears run.",
+     "cite": "mountain/shared/RunRules.luau:36-48,64-75"
+    },
+    {
+     "claim": "Bats.swing knocks back every valid hit through context.knock. It sends notify toasts only when cargo dropped: victim 'Knocked! Your <name> dropped — grab it back!' (line 78), attacker 'Hit! Grab the <name> before it escapes.' (line 79). The drop expiry is os.clock()+dropSeconds (3 s), a server-only clock.",
+     "cite": "mountain/server/Bats.luau:72-80; mountain/shared/BatRules.luau:5"
+    },
+    {
+     "claim": "Bats.grab calls raids.adopt. When the grabber is not the original carrier, the original gets 'Your creature was taken. Unsecured creatures stay at risk until the sanctuary gate.' Bats.tick automatically returns an expired drop to drop.from; if that fails it sends 'Your dropped creature escaped.'",
+     "cite": "mountain/server/Bats.luau:83-92,99-105"
+    },
+    {
+     "claim": "Main wires Bats with knock (blocks motion checks and sends 'knock' {velocity,stun}) and notify(player,text) = send(player,'toast',text).",
+     "cite": "mountain/server/Main.server.luau:213-217"
+    },
+    {
+     "claim": "The Guardian alert path: EggRaids.strike calls context.alert on the first strike of an egg. Main forwards to guardians.alert. Guardians.alert calls Rules.alert, then context.warning(userId,k). Main's warning sends the toast '<Guardian> heard your strike! Watch its approach.'",
+     "cite": "mountain/server/EggRaids.luau:37; mountain/server/Main.server.luau:173,193; mountain/server/Guardians.luau:12-16"
+    },
+    {
+     "claim": "Combat also calls guardians.alert(k,userId,nil,...) when a player joins a normal Guardian battle. The 'heard your strike' toast therefore fires with no egg strike. The eggId is dropped before warning is called.",
+     "cite": "mountain/server/Combat.luau:58; mountain/server/Guardians.luau:15"
+    },
+    {
+     "claim": "Guardian threats are removed in GuardianRules.step when the observation is missing, the player is dead, outside bounds, or the threat is older than threatSeconds (70 s). They are all cleared by normalWin (respite 24 s) and by Guardians.remove. Protected (securing) players get no observation, so their threat drops. These removals are where a 'calm' event belongs.",
+     "cite": "mountain/shared/GuardianRules.luau:11-17,37-44; mountain/server/Guardians.luau:19-25,33-41; mountain/shared/RaidConfig.luau:6"
+    },
+    {
+     "claim": "Guardians.tick writes the model attributes GuardianState (defending/approaching/pursuing/resting), TargetUserId, RestUntil and TellUntil. A catch calls context.catch, which forfeits the run with reason 'catch', teleports the player and calls guardians.remove.",
+     "cite": "mountain/server/Guardians.luau:54-57; mountain/server/Main.server.luau:194-199"
+    },
+    {
+     "claim": "Combat toasts: 59 (battle start, Trial or normal text), 97 'Regeneration interrupted!', 114 golden heart, 128 constellation stones, 175 Trial won / reward unavailable, 178 '<Guardian> is resting. The section has a brief raid opening!', 181 mastery needs 3 clean dodges, 194 'Wild encounter ended.', 201 wild win, egg collected or cargo full, 226 'Encounter ended • challenge again at the altar.'",
+     "cite": "mountain/server/Combat.luau:59,97,114,128,175,178,181,194,201,226"
+    },
+    {
+     "claim": "Main toasts: 91 Index set complete / bat unlocked; 109 recoverable eggs for 3 min; 193 heard your strike; 225 'Defeat the previous Guardian first.'; 231 rest point saved; 235 egg reserved or move closer; 239/240 landmark discovered or recorded; 242 abandon via map before travel; 243/244 shortcut use or attune; 245 wild hint; 248 B.start failure message; 252/253 rune puzzle; 256 hands full or 'Too late — it slipped away.'; 258 eggs recovered; 261 'IMPOSSIBLE MOUNTAIN CONQUERED • Sovereign Explorer!'; 296 Blossom welcome or travel unavailable; 310/311 legacy-remote dispatch message echo; 330 'Action unavailable. Your saved data is preserved.'; 381 'Movement corrected.'; 426 saving paused.",
+     "cite": "mountain/server/Main.server.luau:91,109,193,225,231,235,239,240,242,243,244,245,248,252,253,256,258,261,296,310,311,330,381,426"
+    },
+    {
+     "claim": "There are also client-made toasts: ClientState emits 'Mountain UI service unavailable…' (lines 107, 149). Controller toasts confirmed result messages (line 239), failed results (243) and timeouts (244).",
+     "cite": "mountain/client/UI/ClientState.luau:107,149; mountain/client/UI/Controller.luau:239,243,244"
+    },
+    {
+     "claim": "Studio tools record toast text from Event (compact_raid, promenade_raid). Existing toasts must keep firing for backward compatibility.",
+     "cite": "mountain/tools/compact_raid.client.luau:7; mountain/tools/promenade_raid.client.luau:8"
+    },
+    {
+     "claim": "SanctuaryExits: FreeClimb creates one SanctuaryExit part (180x24x18 at 4096,24,-166, transparent). HomePromenade deletes the West/East exits and resizes SanctuaryExit to span the basin (44 tall). MountainEntrances adds West/East exits only when PromenadeVersion is absent. The free-climb acceptance tool expects 3; the promenade check expects 1.",
+     "cite": "mountain/world/FreeClimb.luau:5,29,52; mountain/world/HomePromenade.luau:93-97; mountain/world/MountainEntrances.luau:15-18,72-73; mountain/tools/free_climb_acceptance.client.luau:10; mountain/tools/promenade_scene_check.luau:10"
+    },
+    {
+     "claim": "The server tests exits with an oriented-box containment check on each SanctuaryExits child (atExit), re-reading the folder on every call. FreeClimb builds at Main:13 and HomePromenade/MountainEntrances apply at Main:15-16, so a cached exits list built after line 16 matches what atExit checks.",
+     "cite": "mountain/server/Main.server.luau:13-16,168-172"
+    },
+    {
+     "claim": "The client finds the section every second from root Y. Fallback k=floor((Y-16)/64)+1 for free-climb (136 otherwise), clamped to 1-6. Then the first GuardianBounds child whose box contains the player in X and Z only (Y ignored) sets k=tonumber(name). Location shows 'Sanctuary · Plot n' when ui.inSanctuary is true.",
+     "cite": "mountain/client/UI/Controller.luau:301-308"
+    },
+    {
+     "claim": "The server's guardianInside uses a full X/Y/Z box test on GuardianBounds[k], with a Y-band fallback. That is stricter than the client's X/Z-only test.",
+     "cite": "mountain/server/Main.server.luau:182-186"
+    },
+    {
+     "claim": "GuardianBounds boxes are Z-separated: section k spans minZ=z-198..maxZ=z-2 with z=-210-(k-1)*200, and Y from y-20 to y+100 with y=16+(k-1)*64. A 4-stud Z gap between sections falls back to the client's Y estimate.",
+     "cite": "mountain/world/FreeClimb.luau:6-8,87"
+    },
+    {
+     "claim": "UIProtocol.settings: defaults are reducedMotion, largeText, highContrast, simplifiedVFX (bool false), musicVolume .7, sfxVolume .8, hints true. Merging current values keeps only known keys of the default's type, with numbers finite in [0,1]. A patch is rejected (nil) on any unknown key, wrong type, or number that is NaN/inf or outside [0,1]. No enum or step check exists.",
+     "cite": "mountain/shared/UIProtocol.luau:4-5,20-36"
+    },
+    {
+     "claim": "The Settings action is validated by UIProtocol.validate (payload~=nil and settings(payload)~=nil). It is applied by Profiles.setSettings (merge, then save) and confirmed with 'Settings saved.'. Main also sends 'save' after Settings.",
+     "cite": "mountain/shared/UIProtocol.luau:59; mountain/server/UIRequests.luau:123-127; mountain/server/Profiles.luau:149-155; mountain/server/Main.server.luau:308"
+    },
+    {
+     "claim": "Profile validation calls UIProtocol.settings(p.settings) as a patch. A saved settings table with a key this build does not know makes the profile invalid and stops the load. On load, settings are normalized.",
+     "cite": "mountain/server/Profiles.luau:24,59-62; mountain/server/Main.server.luau:135-136"
+    },
+    {
+     "claim": "The Settings UI toggles booleans with {[key]=not value} and steps volume in 0.25 increments, wrapping at 1 to 0. A global 0/.5/1 restriction would reject the current volume steps.",
+     "cite": "mountain/client/UI/Screens.luau:581,592"
+    },
+    {
+     "claim": "Client prefs apply through T.configure and the player attributes MountainReducedMotion and MountainSimplifiedVFX. simplifiedVFX disables ParticleEmitters outside Dynamics, which overlaps a proposed effectsTier.",
+     "cite": "mountain/client/UI/Controller.luau:109-122; mountain/client/UI/Theme.luau:27-28"
+    },
+    {
+     "claim": "Existing tests to extend: ui_protocol checks defaults and invalid-pref denial; ui_client_state checks context merging and that open/toast/save are forwarded (add 'hud').",
+     "cite": "mountain/tests/ui_protocol.luau:14-17; mountain/tests/ui_client_state.luau:91-97"
+    },
+    {
+     "claim": "The plan's P2 asks for these hud kinds on the existing remote, plus context.exits and new prefs (bool or 0/.5/1). Its done criteria require existing toasts to keep firing and no change to raid, theft or save rules.",
+     "cite": "design/hud-glassbloom-build-plan-2026-10-27.md:87-95"
+    }
+   ],
+   "risks": [
+    "The 'carry' present from EggRaids.adopt (EggRaids:91) fires for a fresh adopt and for a re-grab alike. If CarryVisuals emits hud 'carry' for every carry present while Bats also emits 'regrab', the original carrier gets both. Gate the CarryVisuals emission on data.run.stolenFrom==nil, or emit only from Bats for adopted runs.",
+    "Profiles.valid (Profiles:24) rejects saved settings with unknown keys. After a build that saves the new prefs (cameraShake, hudScale, altitudeRail, sprintMode, effectsTier), rolling back to an older build stops those profiles from loading and kicks the player (Main:136). Either relax valid() to ignore unknown settings keys, or treat new prefs as no-rollback.",
+    "UIProtocol.settings accepts any finite number in 0–1, and volume uses 0.25 steps. The 0/.5/1 enum prefs need an explicit per-key value set. Changing the shared number rule would break the volume rows and existing saves holding .25 or .75.",
+    "Combat:58 alerts a Guardian with eggId=nil when a player joins a normal battle. A hud 'alert' wired at the warning callback (Main:193) would also start the chase UI when a battle starts, unless eggId or the source is passed through Guardians.alert (Guardians:15).",
+    "Drop expiry (Bats:76) and threat timing use server os.clock (context.clock=os.clock at Main:165/187/205). Any expiry sent to the client must be converted to workspace:GetServerTimeNow(), which ClientState anchors via ui.serverClock.",
+    "A 'calm' derived only from GuardianState/TargetUserId on the client misses threats that persist while another player is targeted. A threat-set diff in Guardians.tick and normalWin is more reliable. Guardians.remove (death, leave, catch) also clears threats without a callback.",
+    "The context diff (Main:373) leaves exits out on purpose. If exits are added only to the context table and not to state.ui (Main:95), clients that join after the first context send never receive them.",
+    "The client's section test ignores Y and the server's uses full X/Y/Z (Controller:304-305 vs Main:182-186). A HUD alert{section} from the server can disagree with the client-computed section at Z gaps or vertical edges. Prefer the server-sent section for chase UI.",
+    "'leave' forfeits (EggRaids:107 via Main:145) present 'lost' to a departing player. send() already skips such players (Main:40), so this is harmless but produces no HUD event.",
+    "Tools and tests match exact toast strings (compact_raid, promenade_raid record toasts; Controller:231 matches priority substrings). Changing toast text while adding typed events would break them."
+   ]
+  },
+  {
+   "summary": "Branch codex/hud-glassbloom (HEAD 5442a43). No player XP, level or quest reward exists anywhere on the server. The only progression is per-creature XP:\n- **Curve:** Rules.addXP uses a linear curve of level*40 XP per level, capped at 50. Excess XP is discarded at the cap. Reaching L15 takes 4,200 XP total, L25 12,000, L35 23,800 and L50 49,000. Stage thresholds are 15 and 35; specialization unlocks at 25.\n- **Sources that work in the current FreeClimb world (4):**\n  1. First-time rest-point (checkpoint) prompt: 40*k XP to each team creature. Once per checkpoint id; 18 checkpoints, 2,520 XP per creature in total.\n  2. Normal Guardian win: 200*k per team creature for each contributor (≥3% of max damage). **Repeatable.** The only limit is the 24 s respite, so it is farmable.\n  3. Trial win: 200*k on reward creation. Repeatable until the trial creature is actually secured.\n  4. Train: 15 coins → 80 XP, unlimited (coin sink).\n- **Dead or legacy-world only:** wild battle (+50 XP), landmark Discovery (+60*k XP, +20 coins), Summit (+1000 coins, +100 trophies), Shortcut and Puzzle (no rewards). Combat.startWild is never called. FreeClimb creates no Discovery, Summit, Shortcut, Puzzle or Wild prompts, and Main asserts FreeClimb through MountainEntrances.\n- **Correction to plan §1:** there is no \"section entry\" award. Team XP fires on the first trigger of any of the 3 rest-point ProximityPrompts per section (entrance/recovery/guardian), not on a Touched event or a bounds crossing.\n- **Events with no XP or coin reward:** egg strike/reveal, pickup, carry, secure (only grants a new level-1 creature), theft/regrab, raid hazards, hatching, tycoon assign/collect/attune/swap, Guardian alert.\n- **Quests and daily:** no server system. P.quest is client-derived and read-only; dailyRewards is marked unavailable.\n- **Coin economy, for reference:**\n  - Sources: tycoon banking (passive production), Competition wins (+35 coins, +10 trophies, 120 s cooldown, farmable against practice target 0).\n  - Legacy-world sources: Discovery and Summit.\n  - Sinks: Train (15), bat upgrades (120*n²), tycoon upgrades (18,820 coins in total across 59 finite purchases).\n- **P2 player-XP hooks:** the profile has a number-key validator, an atomic P.transact, and existing first-time flags in p.discoveries, p.wins and p.captures, which are the natural hooks.",
+   "facts": [
+    {
+     "claim": "Creature XP curve: addXP floors and clamps negative to 0, levels up while level<50 and xp>=level*40 (subtracting level*40 each step); at level 50 xp is forced to 0 (overflow discarded). Cumulative XP: L15=4,200, L25=12,000, L35=23,800, L50=49,000 (sum of 40*L).",
+     "cite": "mountain/shared/Rules.luau:21-25"
+    },
+    {
+     "claim": "Level stages: stage 3 at level>=35, stage 2 at >=15, else 1; specialization requires level>=25 and no prior choice (Power/Guard/Vitality).",
+     "cite": "mountain/shared/Rules.luau:13, 68-72; mountain/shared/Catalog.luau:37 (levelCap=50, evolution={15,35}, specialization=25)"
+    },
+    {
+     "claim": "Stat scaling with level: factor 1+(level-1)*.065 on species attack/health; Power x1.2 attack, Vitality x1.25 health, Guard .15.",
+     "cite": "mountain/shared/Rules.luau:89-92"
+    },
+    {
+     "claim": "Client presentation already exposes xpRequired=level*40 (0 at 50) per creature.",
+     "cite": "mountain/shared/UIPresentation.luau:24-27"
+    },
+    {
+     "claim": "No player-level/XP field exists. New profile fields: schema=2, coins=0, trophies=0, unlocked=1, wins, captures, discoveries, claims, shortcuts, resources, team of 3 starter creatures (mossbun/petalyn/fernox, level 1, xp 0).",
+     "cite": "mountain/shared/Rules.luau:6-10"
+    },
+    {
+     "claim": "Profile validator: numeric top-level keys are an explicit list (serial, unlocked, coins, trophies, lastIncome, competitionAt); creature level must be integer 1-50 and xp finite >=0. Any new player-XP save field must be added here or loads/saves are rejected.",
+     "cite": "mountain/server/Profiles.luau:18-48 (esp. 21, 32)"
+    },
+    {
+     "claim": "Profile load path: new or migrated profile, Custody.migrate, then valid(); P.transact gives an atomic draft-commit with writeId idempotency, used today by secure.",
+     "cite": "mountain/server/Profiles.luau:49-65, 94-114"
+    },
+    {
+     "claim": "Checkpoint (rest point) XP: on the 'Checkpoint' prompt the server sets p.checkpoint, sets first = not p.discoveries[id], then marks it discovered and heals. On first touch only, every team creature gets R.addXP(40*k); the profile is then saved. No coins.",
+     "cite": "mountain/server/Main.server.luau:226-231"
+    },
+    {
+     "claim": "The current world has 3 rest points per section (k:entrance, k:recovery, k:guardian), 18 in total. Each prompt's Kingdom attribute = section, so XP per creature is 120*k per section and 2,520 for all 18 (x3 team members = 7,560 team XP).",
+     "cite": "mountain/world/FreeClimb.luau:12, 107-110"
+    },
+    {
+     "claim": "There is no separate 'section entered' trigger on the server. The section-entry signal is effectively the first trigger of the k:entrance checkpoint prompt (ProximityPrompt 'Rest here', not Touched); the client quest counts discoveries[k..':entrance'].",
+     "cite": "mountain/server/Main.server.luau:226-228; mountain/world/FreeClimb.luau:109; mountain/shared/UIPresentation.luau:60-61"
+    },
+    {
+     "claim": "Anti-abuse on all world prompts:\n- per-player 0.35 s limiter and busy check;\n- interact requires safe(player) (not inside the post-teleport block window) and being within 15 studs;\n- R.canEnter is always true for sections 1-6, so there is no gating.",
+     "cite": "mountain/server/Main.server.luau:222-225, 267-272, 44; mountain/shared/Rules.luau:12"
+    },
+    {
+     "claim": "Landmark/Discovery: on first discovery only, +10 kingdom resource, +20 coins and 60*k XP per team creature. Otherwise a 'recorded' toast. These prompts exist only in the legacy World.luau (2 per kingdom, id k:branchN); FreeClimb creates none.",
+     "cite": "mountain/server/Main.server.luau:236-240; mountain/world/World.luau:141,152; mountain/world/FreeClimb.luau:107-114"
+    },
+    {
+     "claim": "The current world must be FreeClimb: Main builds FreeClimb if absent, and MountainEntrances.apply asserts FreeClimbVersion. Discovery, Summit, Shortcut, Puzzle and Wild handlers are therefore unreachable in the review place.",
+     "cite": "mountain/server/Main.server.luau:13-16; mountain/world/MountainEntrances.luau:13"
+    },
+    {
+     "claim": "Summit (legacy only): first time +1000 coins, +100 trophies, no XP. Shortcut: no reward (teleport only). Puzzle: no reward. 'Wild' prompt: only a toast.",
+     "cite": "mountain/server/Main.server.luau:241-245, 249-253, 259-261"
+    },
+    {
+     "claim": "Wild battles are dead code: B.startWild is defined but never called anywhere. If it ran, a win would call R.collect (cargo egg, 180 s claim cooldown per 'wild:species') and give +50 XP per team creature.",
+     "cite": "mountain/server/Combat.luau:61-68, 199-202 (grep of mountain/ shows no caller)"
+    },
+    {
+     "claim": "Normal Guardian win:\n- A contributor needs damage >= 3% of the battle max HP.\n- guardians.normalWin returns an XP list only if the guardian is not resting, then starts a 24 s respite.\n- Each eligible player gets R.winGuardian (sets wins[k], unlocked) plus companionXP=200*k per team creature, followed by a save.\n- Repeatable after every respite: there is no first-time flag on the XP.",
+     "cite": "mountain/server/Combat.luau:159-183; mountain/shared/GuardianRules.luau:37-44; mountain/shared/RaidConfig.luau:6"
+    },
+    {
+     "claim": "Normal-win guards:\n- B.start refuses while the guardian rests, while a run is held, during a wild encounter or another battle, and joins once HP < 75%.\n- finish runs once per battle object.\n- Tests confirm normal_win_xp_once and respite_nonstacking.\n- The battle times out after 300 s.",
+     "cite": "mountain/server/Combat.luau:37-60, 160, 225-227; mountain/tests/combat_raids.luau:21-22; mountain/tests/guardian_rules.luau:20-22"
+    },
+    {
+     "claim": "Guardian balance numbers (marked provisional):\n- normalHealth 950+300k, trialHealthMultiplier 1.6, joinHealth 350+80k\n- respiteSeconds 24, companionXP 200*k, contributionFraction .03\n- patterns every 5 s, auto damage ticks every 1 s",
+     "cite": "mountain/shared/RaidConfig.luau:1-6; mountain/server/Combat.luau:217-219,235; mountain/server/Main.server.luau:365"
+    },
+    {
+     "claim": "Trial win:\n- Requires a prior normal win, no held run and no existing capture.\n- On a mastered win (dodges>=3, plus the objective for k5/k6), raids.reward creates a trial run, and the same 200*k companion XP is granted at that moment, before securing.\n- p.captures is set only on secure, so a lost trial run allows another Trial and more XP.",
+     "cite": "mountain/server/Combat.luau:38-40, 171-180; mountain/shared/Rules.luau:20; mountain/server/EggRaids.luau:95-105; mountain/shared/RunRules.luau:64-74"
+    },
+    {
+     "claim": "Egg strike/reveal (egg broken): no XP or coins.\n- hits needed = 2+k, strike cadence .45 s, reservation 55 s.\n- After release the egg rests 18 s.\n- The first strike alerts the guardian.\n- 12 nests (2 per section) in FreeClimb.",
+     "cite": "mountain/server/EggRaids.luau:18-40, 10-17; mountain/shared/RaidConfig.luau:2,6; mountain/world/FreeClimb.luau:10, 111-114"
+    },
+    {
+     "claim": "Pickup and carry: no reward (phase revealed→carried, present 'carry').",
+     "cite": "mountain/server/EggRaids.luau:41-48; mountain/shared/RunRules.luau:45-48"
+    },
+    {
+     "claim": "Secure at a sanctuary exit:\n- P.transact runs Run.secure, which adds one new level-1 creature and records the runId in securedRunIds (idempotent, last 128 kept).\n- No XP or coins.\n- Unlimited: every successful carry yields another creature.",
+     "cite": "mountain/server/EggRaids.luau:58-76; mountain/shared/RunRules.luau:64-74"
+    },
+    {
+     "claim": "Theft and regrab:\n- A bat hit on a carrier (non-trial) drops a snapshot for 3 s.\n- Whoever grabs it gets a fresh run via Run.receive with stolenFrom=the dropped run's id (equal to the original carrier's previous run id).\n- On expiry it auto-returns to the original carrier.\n- No XP or coins at any step.",
+     "cite": "mountain/server/Bats.luau:50-81, 83-92, 99-105; mountain/shared/RunRules.luau:54-63"
+    },
+    {
+     "claim": "Bat hit anti-abuse: swingCooldown 1.5 s; victimCooldown 8 s per attacker-victim pair; no hits in the sanctuary or within 20 studs of a checkpoint, or on a target that is securing; facing and reach checks; attacker cannot swing while carrying.",
+     "cite": "mountain/shared/BatRules.luau:5-6, 59-73; mountain/server/Bats.luau:53-55, 69-72; mountain/server/Main.server.luau:207-212"
+    },
+    {
+     "claim": "Loss events (forfeit on catch, fall, death, travel abandon, abandon timeout) send present kind 'lost' and a toast; nothing is awarded or deducted beyond the run.",
+     "cite": "mountain/server/EggRaids.luau:49-57, 116; mountain/server/CarryVisuals.luau:40-45; mountain/server/Main.server.luau:112-116, 194-199, 384"
+    },
+    {
+     "claim": "Raids and hazards: raid hazards only deal damage (12+5k); the raid opening is the 24 s guardian respite. No reward.",
+     "cite": "mountain/server/RaidHazards.luau:35; mountain/shared/RaidConfig.luau:6"
+    },
+    {
+     "claim": "Hatching: Incubate/Hatch at the refuge or own plot; max 3 incubating; incubation 30/120/300/600/1200 s (Common to Mythic); the hatch adds a level-1 creature with no XP or coins. In schema 2, p.eggs only receive eggs from legacy migration or R.extract (schema 1 Journey path), so hatching is legacy-only today.",
+     "cite": "mountain/server/UIRequests.luau:191-203; mountain/shared/Rules.luau:45-61; mountain/shared/Catalog.luau:1; mountain/shared/RunRules.luau:14-35; mountain/server/Journey.luau:22"
+    },
+    {
+     "claim": "Train: at the refuge or own plot, requires level<50 and 15 coins; deducts 15 coins and gives +80 XP to one creature. Unlimited apart from coins. UI requests are limited to one per .12 s, busy-locked, max 4 tokens.",
+     "cite": "mountain/server/UIRequests.luau:211-227, 15-17, 69-75"
+    },
+    {
+     "claim": "Tycoon actions (assign, swap, attune, collect, bank, upgrade, cosmetic) require the own sanctuary plot and give no XP. Assign, swap and attune are free and infinitely repeatable. Bank converts bag value to coins. Upgrades are finite: 59 purchases totalling 18,820 coins.",
+     "cite": "mountain/server/UIRequests.luau:156-170; mountain/shared/Tycoon.luau:46-72, 101-150; mountain/shared/TycoonConfig.luau:5-13"
+    },
+    {
+     "claim": "Tycoon coin income:\n- per-habitat egg rate (eggs/hour): Common 60, Uncommon 72, Rare 90, Epic 108, Mythic 132, Legendary 156\n- coin value per egg: 1, 1, 2, 2, 3, 4\n- multipliers: production +15%/level, habitat comfort +10%/level, attune and kin bonuses 5% each, every 10th egg as a bonus, automation level 2 adds +5%\n- banking adds +2.5%/level\n- offline catch-up capped at 8 h; automation 4-5 auto-collects and auto-banks",
+     "cite": "mountain/shared/TycoonConfig.luau:3-4; mountain/shared/Tycoon.luau:32-45, 65-100"
+    },
+    {
+     "claim": "Legacy settleIncome (6/12/24/48/90/150 coins per hour per creature) is inactive once p.tycoon exists, and Profiles.load always ensures a tycoon.",
+     "cite": "mountain/shared/Rules.luau:93-100; mountain/server/Profiles.luau:58"
+    },
+    {
+     "claim": "Competition (async defense): win gives +10 trophies and +35 coins; 120 s cooldown; target 0 = practice against a fixed level-3 starter team, which is farmable every 120 s. No XP. Snapshot XP is stored as 0.",
+     "cite": "mountain/server/Competition.luau:7-11, 21-42"
+    },
+    {
+     "claim": "Bat progression:\n- A set unlock (own all 6 species of a kingdom; Legendary excluded) grants that bat at level 1, once each, with a toast from publish.\n- Upgrade costs 120*n² coins (max level 10, 34,200 per bat).\n- No XP.",
+     "cite": "mountain/shared/BatRules.luau:5, 22-38, 43-50; mountain/server/Main.server.luau:91"
+    },
+    {
+     "claim": "Quests and daily: no server system. P.quest derives title/progress from discoveries and wins on the client; the capability table marks quests read-only ('no claimable quest reward service') and dailyRewards unavailable.",
+     "cite": "mountain/shared/UIPresentation.luau:56-76, 89, 94"
+    },
+    {
+     "claim": "Team XP is applied to each creature in p.team (1-3). The team can be re-equipped freely, which redistributes but does not multiply XP.",
+     "cite": "mountain/server/Main.server.luau:230,238; mountain/server/Combat.luau:180; mountain/server/UIRequests.luau:185-189; mountain/shared/Rules.luau:62-67"
+    },
+    {
+     "claim": "Save cadence: checkpoint and combat-finish awards save immediately; everything else relies on the 45 s autosave or explicit saves (Train does not call save).",
+     "cite": "mountain/server/Main.server.luau:231, 422-429; mountain/server/Combat.luau:182; mountain/server/UIRequests.luau:211-227"
+    },
+    {
+     "claim": "Trophies already exist as a durable player-level stat (Competition +10, Summit +100), separate from creature XP.",
+     "cite": "mountain/shared/Rules.luau:7; mountain/server/Competition.luau:40; mountain/server/Main.server.luau:260"
+    }
+   ],
+   "risks": [
+    "Plan §1 says 'team XP on section entry and landmarks'. In reality it is the first trigger of any of 18 rest-point prompts, and landmark XP is unreachable in the FreeClimb world. A player-XP design that counts on landmarks/Summit/Discovery/Wild sources would award nothing in the review place.",
+    "Normal Guardian wins are repeatable every ~24 s respite plus fight time with no first-time flag (200*k per creature). If player XP mirrors this, it is the dominant farm loop; k=6 gives 1,200 per creature per win. A cap or diminishing returns is needed (e.g. first win per section full XP, repeats reduced or daily-capped).",
+    "Trial XP is granted on reward creation, not on secure; captures are set only at secure. Losing the trial run lets a player re-run the Trial and re-earn XP until captured.",
+    "Train converts coins to XP without limit (15 coins → 80 XP), and coins come passively from tycoon banking (offline up to 8 h). Mirroring Train into player XP would make player level purchasable and passive.",
+    "Secure is unlimited (each carry gives a new level-1 creature). Player XP per secure needs a per-section or per-time cooldown or a diminishing curve. Run ids are server GUIDs and securedRunIds dedupe retries, so the transaction itself is safe.",
+    "Theft and regrab XP can be farmed by colluding alts: the same creature can be passed back and forth, limited only by the 8 s per-pair victim cooldown, 1.5 s swing cooldown and safe zones. The automatic return on expiry should not count as a player-earned regrab.",
+    "Free, repeatable tycoon actions (assign, swap, attune, cosmetic) must not award XP. Collect and bank are bounded by production. Only the 59 finite upgrades are safe one-time sources.",
+    "Competition practice (target 0) can be won every 120 s against a fixed level-3 team. Any XP there is farmable.",
+    "Profiles.valid lists numeric keys explicitly and rejects unknown shapes. New player-XP fields need validator, migration (schema 1/2, Custody.migrate) and default handling, or existing saves fail to load. That would hit the live 'MountainEmpire_FirstDraft_v1' store if ever published.",
+    "Checkpoint XP fires on the first trigger of any rest point. Fast travel goes only to already-discovered checkpoints and grants nothing, so there is no travel exploit. R.canEnter never gates, so all 18 are claimable from the start. The 'Defeat the previous Guardian first' branch is dead.",
+    "Train and other awards outside checkpoint and combat finish do not force a save. XP can be lost on a crash for up to 45 s, a consistency concern if player XP is added without P.transact.",
+    "Hatching only applies to legacy eggs in schema 2, so it is not a meaningful ongoing XP source unless the egg flow changes (D7 coin-purchased Meadow Egg would create a new hatch path).",
+    "All RaidConfig, BatRules and TycoonConfig numbers are marked provisional, so a player-XP curve tuned against them may need retuning."
+   ]
+  },
+  {
+   "summary": "Read-only audit of commerce and eggs in C:\\Users\\HOME!\\Desktop\\climb-collect-integration (branch codex/hud-glassbloom, HEAD 5442a43). No files were edited. I ran the relevant tests and they pass: ui_server 25, ui_protocol 42, bat_rules 27, tycoon_requests 11, ui_presentation 46, egg_raids 21.\n\n**What exists today**\n- The only real coin purchase is the bat flow (BatRules.equip/upgrade, called through the UIRequests 'Bat' action). It debits coins in memory and then saves in the background. It does not use P.transact.\n- There is no MarketplaceService, product id or receipt code anywhere under mountain/. The only commerce code is legacy fairground code in src/core, which mountain.project.json does not map.\n- There are no Meadow Egg or Candy Swirl definitions in code. Both names exist only on the board and in the plan or prompt. There is no bat-skin data model at all. The only \"cosmetics\" are the free tycoon palettes.\n\n**The real odds table**\n- Each species has a weight in Catalog.luau. Per section the weights are 20/20/28/18/10/4 over Common, Common, Uncommon, Rare, Epic, Mythic, which sums to 100. Legendary never rolls.\n- The roll is a local function in Main.server.luau, so it cannot be tested. EggRaids calls it once, at the first strike on a nest.\n- In the board's 4 colours this is Blue 68 / Gold 18 / Violet 10 / Prismatic 4. The board's Meadow Egg shows 80/18/2/0, so it does not match.\n\n**How creatures and eggs are granted**\n- Creatures are added in four places: Rules.newProfile (starters), RunRules.secure (raid custody), Rules.hatch (from p.eggs) and Rules.winGuardian.\n- Eggs are {id, species, readyAt?}. The species is fixed when the egg is created; incubate/hatch only add a timer.\n\n**How request actions are checked on the server**\n- UIRequests.process runs these gates in order: id parse; a reply cache of 128 entries plus a per-token high-water mark (a replay returns the stored result and an evicted id never runs again); UIProtocol.validate; one action at a time per player; a 0.12 s rate limit; profile availability; then the dispatcher, wrapped in pcall.\n- Coverage is split. ui_protocol.luau tests process and validate. ui_server.luau tests the dispatcher directly. Neither tests the Bat action.\n\n**The copy to replace**\n- The \"No paid odds / No capture edge\" promise tiles are in Screens.luau:554. They are the cause of the one P0 overflow-audit error.",
+   "facts": [
+    {
+     "claim": "Bat purchase entry point: UIRequests action 'Bat' runs before the context.safe movement gate. op=='equip' calls BatRules.equip; any other op calls BatRules.upgrade. On success it calls equipBat and save. It returns a message and {bats=snapshot} whether it succeeds or fails.",
+     "cite": "mountain/server/UIRequests.luau:131-139"
+    },
+    {
+     "claim": "Wire validation for Bat: payload may only have the fields {op,id}, op must be 'equip' or 'upgrade', and id must be a 1-80 char string. 'Bat' is in the protocol action allowlist.",
+     "cite": "mountain/shared/UIProtocol.luau:3,6,7-11,55"
+    },
+    {
+     "claim": "The client action allowlist also includes Bat. A new action, such as a purchase, must be added both here and to the UIProtocol actions table, or Store:request returns nil.",
+     "cite": "mountain/client/UI/ClientState.luau:6-7,145-147"
+    },
+    {
+     "claim": "BatRules.upgrade only allows the equipped bat ('not_equipped'). It stops at maxLevel 10 ('max'), costs upgradeBase*n*n = 120*n^2 coins ('coins' if short), then debits p.coins and raises the level in place, returning true,cost.",
+     "cite": "mountain/shared/BatRules.luau:5-6,43-50"
+    },
+    {
+     "claim": "BatRules.equip only succeeds for a bat that has a level entry, i.e. an owned bat. Re-equipping the current bat returns true and saves again.",
+     "cite": "mountain/shared/BatRules.luau:39-42"
+    },
+    {
+     "claim": "BatRules.normalize rebuilds p.bats as exactly {equipped, levels}, so any other field stored under p.bats (for example a skin) is erased. normalize runs on load, on every snapshot, equip, upgrade and grantUnlocks, and grantUnlocks runs on every publish.",
+     "cite": "mountain/shared/BatRules.luau:14-20,34-38; mountain/server/Profiles.luau:62; mountain/server/Bats.luau:113; mountain/server/Main.server.luau:91"
+    },
+    {
+     "claim": "The held bat's look comes only from the BatRules def: barrel color, material and trail color. There is no skin override field.",
+     "cite": "mountain/server/Bats.luau:12-28; mountain/shared/BatRules.luau:8-11"
+    },
+    {
+     "claim": "The bat snapshot sent to the client has id, name, kingdom, level, owned, equipped, have, total, knockback, reach and cost (nil at max level). It is published in state.ui.bats.",
+     "cite": "mountain/server/Bats.luau:112-121; mountain/server/Main.server.luau:95"
+    },
+    {
+     "claim": "Profile validation for bats: equipped must be a string with a levels entry, and every level id must exist in Bats.byId and be an integer from 1 to maxLevel.",
+     "cite": "mountain/server/Profiles.luau:25-28"
+    },
+    {
+     "claim": "The bat dispatcher's save is fire-and-forget: task.spawn(P.save), then a 'save' event. The coin debit is already in live memory before the save is durable. P.transact is not used.",
+     "cite": "mountain/server/Main.server.luau:302; mountain/server/UIRequests.luau:135"
+    },
+    {
+     "claim": "P.transact is the existing durable, idempotent mutation path. It copies the profile, mutates the draft, rejects the draft if valid() fails, keys the write by transactionId (1-128 chars), and freezes P.get while the write is pending. Only the raid exit uses it (Run.secure).",
+     "cite": "mountain/server/Profiles.luau:66,69-93,94-114; mountain/server/EggRaids.luau:69"
+    },
+    {
+     "claim": "Profiles.valid checks only the fields it lists. Extra top-level keys and extra keys on creatures or eggs pass unchecked. Eggs must have a non-Legendary species, a string id and a numeric readyAt if present.",
+     "cite": "mountain/server/Profiles.luau:18-48 (eggs at 36, creatures at 31-34)"
+    },
+    {
+     "claim": "The real odds table: each Catalog species has rarity ({'Common','Common','Uncommon','Rare','Epic','Mythic'})[j] and weight ({20,20,28,18,10,4})[j]. That is 6 species per kingdom and the weights sum to 100. Guardians (Legendary) are not in C.species.",
+     "cite": "mountain/shared/Catalog.luau:31-40 (rarity 34, weight 36), 41-51"
+    },
+    {
+     "claim": "The egg roll is a local function in Main: an unseeded Random.new(), r=NextNumber()*100, subtracting the weights of C.species[(k-1)*6+i] until r<=0. The Mythic fallback cannot be reached while the weights sum to 100. It is not exported and no test covers it.",
+     "cite": "mountain/server/Main.server.luau:151-154; grep: no 'roll' in mountain/tests"
+    },
+    {
+     "claim": "The roll is injected into EggRaids and used once, at the first strike on a nest: species=egg.species or context.roll(egg.section).",
+     "cite": "mountain/server/Main.server.luau:165-166; mountain/server/EggRaids.luau:31"
+    },
+    {
+     "claim": "Studio review aid: when studioAids() is on, nest raid:1:1 is forced to mossbun, which bypasses the roll.",
+     "cite": "mountain/server/Main.server.luau:159-160; mountain/shared/BuildFlags.luau:4-6"
+    },
+    {
+     "claim": "Board egg placeholders: Meadow Egg [80,18,2,0] for 2,500 coins, Mystery Egg R$49, Golden Egg R$149. The odds labels are Blue/Gold/Violet/Prismatic. The real per-section table in those 4 colours (intel §1b) is 68/18/10/4, so the board numbers do not match the odds used.",
+     "cite": "C:/Users/HOME!/Desktop/climb&collect/design/hud-board-v3/index.html:613,618,638; C:/Users/HOME!/Desktop/climb&collect/design/hud-glassbloom-intel.md:90-98"
+    },
+    {
+     "claim": "Candy Swirl appears only on the board, as a bat skin for 5,000 coins with the note that skins change looks only. Meadow Egg and Candy Swirl have no definition anywhere in mountain/ code.",
+     "cite": "C:/Users/HOME!/Desktop/climb&collect/design/hud-board-v3/index.html:619,639; grep of mountain/ (no matches)"
+    },
+    {
+     "claim": "Egg lifecycle: Rules.collect adds {id,species} to cargo (cargo cap 3, claim cooldown 180 s). extract moves cargo into p.eggs. incubate sets readyAt=now+C.incubation[rarity] with at most 3 active. hatch inserts a new creature {id,species,level=1,xp=0} and removes the egg.",
+     "cite": "mountain/shared/Rules.luau:39-61; mountain/shared/Catalog.luau:1"
+    },
+    {
+     "claim": "Creature grant sites: newProfile starters, winGuardian Trial, hatch, and RunRules.secure. All of them write only {id,species,level,xp}, so any provenance flag on an egg would be lost at hatch.",
+     "cite": "mountain/shared/Rules.luau:6-10,26-38,57-61; mountain/shared/RunRules.luau:64-75"
+    },
+    {
+     "claim": "Hatch and Incubate requests: allowed only at the refuge or own plot (atRefuge), save on success, and Hatch returns the last creature in p.creatures.",
+     "cite": "mountain/server/UIRequests.luau:191-203"
+    },
+    {
+     "claim": "Train is the in-dispatcher coin-debit pattern: refuge check, level cap, coins>=15, p.coins-=15. Tests confirm that invalid, out-of-range or insufficient requests never spend coins.",
+     "cite": "mountain/server/UIRequests.luau:211-227; mountain/tests/ui_server.luau:13-18"
+    },
+    {
+     "claim": "The battle team is set only by R.equip: 1-3 distinct owned creature ids. The team then feeds combat damage, guard and specials, companion health, Guardian XP and defense snapshots. R.equip is the natural place to enforce D8.",
+     "cite": "mountain/shared/Rules.luau:62-67; mountain/server/Combat.luau:16,22,75,180; mountain/server/Main.server.luau:56-69; mountain/server/Competition.luau:7-11"
+    },
+    {
+     "claim": "Section bat unlocks count every owned creature of that kingdom (distinct, non-Legendary). A creature from a Robux egg would therefore count toward a set and could unlock a stronger bat (more knockback and reach), which is paid power in raids.",
+     "cite": "mountain/shared/BatRules.luau:22-27,28-38,8-11"
+    },
+    {
+     "claim": "Tycoon assignment accepts any owned creature, and production rate and value depend on rarity. This is consistent with the 'tycoon-only' rule. Tycoon production eggs are deterministic: a bonus every tenth egg, no random roll, and they cannot hatch.",
+     "cite": "mountain/shared/Tycoon.luau:32-45,73-100,101-108; mountain/shared/TycoonConfig.luau:4; mountain/client/UI/TycoonHub.luau:130,138"
+    },
+    {
+     "claim": "The only existing cosmetics are free tycoon palettes. Config.cosmetics has 6 kingdom names, T.cosmetic sets p.tycoon.cosmetic, the request is Tycoon {op='cosmetic',id}, and the hub shows them in Sanctuary › Cosmetics.",
+     "cite": "mountain/shared/TycoonConfig.luau:15; mountain/shared/Tycoon.luau:9,151-154; mountain/shared/UIProtocol.luau:52; mountain/server/UIRequests.luau:167; mountain/client/UI/TycoonHub.luau:97-110"
+    },
+    {
+     "claim": "Shop tabs are Bats, Cosmetics and Convenience. Cosmetics has a FreePalettes jump plus a blocked 'Cosmetic collection' card. Convenience has three promise tiles plus a blocked 'Convenience catalog' card. There is no convenience data model.",
+     "cite": "mountain/client/UI/Screens.luau:11,505-563 (blocked 549,561)"
+    },
+    {
+     "claim": "The 'No paid odds / No capture edge' copy is the Promise tile table, inside the 'Fair conveniences' banner.",
+     "cite": "mountain/client/UI/Screens.luau:551-560 (copy at 554)"
+    },
+    {
+     "claim": "P0 recorded that copy as the only overflow-audit error (844x390 Shop/Convenience), to be removed under D8.",
+     "cite": "design/hud-glassbloom-handoff-2026-10-27.md:12"
+    },
+    {
+     "claim": "The Bat upgrade and equip buttons send {op='equip'|'upgrade',id}. The upgrade button is enabled only for the equipped bat with a cost and enough coins.",
+     "cite": "mountain/client/UI/Screens.luau:533-534"
+    },
+    {
+     "claim": "Capabilities mark the shop 'unavailable', and a test asserts that, so D7 has to update both.",
+     "cite": "mountain/shared/UIPresentation.luau:98; mountain/tests/ui_presentation.luau:49"
+    },
+    {
+     "claim": "There is no MarketplaceService, ProcessReceipt or product-id code in mountain/. The only commerce code is legacy src/core (CommerceUI, which shows 'Checkout unavailable' for platformId==0), and mountain.project.json maps only mountain/ folders.",
+     "cite": "src/core/client/CommerceUI.luau:2,9,56,131-132; mountain.project.json:5-9"
+    },
+    {
+     "claim": "UIRequests.process gate order: parseId; cache hit returns the stored result; an in-flight duplicate returns nil; sequence <= token high-water gives 'Request expired'; more than 4 tokens is refused; Protocol.validate; running/busy; 0.12 s interval; available(); setBusy plus a pcall'd handler; result cached (128 max).",
+     "cite": "mountain/server/UIRequests.luau:7-99"
+    },
+    {
+     "claim": "Request id format is '<token ≤48 [%w_-]>:<sequence 1..2^53-1, no leading zero>', 64 chars max.",
+     "cite": "mountain/shared/UIProtocol.luau:12-19"
+    },
+    {
+     "claim": "Main wires UIRequests: available = P.get(player)~=nil, busy and setBusy share the legacy busy lock, and correlated replies come back on UIResult. After every non-State action the server publishes full state.",
+     "cite": "mountain/server/Main.server.luau:306-324"
+    },
+    {
+     "claim": "The legacy Request remote still runs every action, validated with a fixed id 'legacy:1', with no reply cache and only a 0.12 s limit plus the busy flag. A purchase sent that way would skip correlated-id idempotency.",
+     "cite": "mountain/server/Main.server.luau:325-331"
+    },
+    {
+     "claim": "The client resends the same id on retry after an 8 s timeout, so the server cache returns the original outcome. Only one request per action can be pending at a time.",
+     "cite": "mountain/client/UI/ClientState.luau:130-163"
+    },
+    {
+     "claim": "ui_protocol tests cover: malformed ids; a replay returning the original outcome without mutation; rate-limited, unhealthy and busy requests never charging; an evicted duplicate never running; in-flight duplicates; and clients being unable to supply a reward species.",
+     "cite": "mountain/tests/ui_protocol.luau:8,33-38,44,50-57,60"
+    },
+    {
+     "claim": "ui_server tests call U.actions directly, without Protocol or process, and cover Train, Incubate/Hatch, Equip, Specialize, CollectIncome, Travel, the safe gate and Settings. No test covers the Bat action through UIRequests, only BatRules directly.",
+     "cite": "mountain/tests/ui_server.luau:1-45; mountain/tests/bat_rules.luau:15-20"
+    },
+    {
+     "claim": "Settings prefs must be bool, or a number in 0-1 that matches the default's type. Unknown keys reject the whole patch.",
+     "cite": "mountain/shared/UIProtocol.luau:4,20-36"
+    }
+   ],
+   "risks": [
+    "Odds compliance (D7): the board's Meadow Egg odds (80/18/2/0) do not match the real roll (68/18/10/4 in board colours, 40/28/18/10/4 by rarity). The roll is also an untestable local in Main.server.luau:151-154. To make 'odds shown = odds used' testable, the roll should move into a shared module that both the server and the shop UI read.",
+    "Which section the Meadow Egg rolls from (Blossom, k=1?) is not defined anywhere. The species list and odds depend on k (Main.server.luau:153), so this is an open decision.",
+    "Skin storage: anything put under p.bats is wiped by BatRules.normalize (BatRules.luau:14-20), so a Candy Swirl entitlement needs a separate profile field or a normalize change. Profiles.valid only checks listed fields (Profiles.luau:18-48), so it would not check a new cosmetics or purchases field unless one is added.",
+    "Durability: the bat upgrade debits coins in memory and saves later (Main.server.luau:302). If a coin purchase copies that pattern instead of P.transact (Profiles.luau:94-114), a failed save leaves a debit and grant that are not durable, and the profile is frozen as unhealthy.",
+    "Idempotency gap: the legacy Request remote (Main.server.luau:326-331) accepts any allowlisted action under the fixed id 'legacy:1' with no reply cache. A new purchase action should be refused on that path, or carry its own transaction id.",
+    "D8 leak: BatRules.setProgress and grantUnlocks count every owned creature (BatRules.luau:22-38). A Robux-egg creature could complete an index set and unlock a stronger bat, which is paid raid power. Blocking R.equip alone (Rules.luau:62-67) is not enough.",
+    "D8 provenance: hatch and secure write only {id,species,level,xp} (Rules.luau:60, RunRules.luau:70). A 'paid' flag has to be carried from egg to creature. Existing saved teams need migration so flagged creatures cannot stay on a team, and Competition.snapshot copies the team (Competition.luau:9).",
+    "An existing test asserts the shop capability is 'unavailable' (ui_presentation.luau:49 with UIPresentation.luau:98), so implementing D7 breaks it unless it is updated deliberately.",
+    "No test covers the Bat action through UIRequests (ui_server.luau and ui_protocol.luau). The 'real bat upgrade flow must survive' requirement in plan §1 has no regression guard at the request layer.",
+    "The Bat action is not movement-gated (UIRequests.luau:131 runs before the safe gate at :139). A purchase action placed in the same spot could run mid-chase; whether it should is unspecified.",
+    "Board items with no backing system: Egg Luck ('tycoon rolls'), while tycoon production has no randomness (Tycoon.luau:73-100); Incubator +1, while the 3-incubator limit is hard-coded (Rules.luau:54); and the ×3 egg buy button (board index.html:618).",
+    "Tangential: mountain.project.json:5 sets StreamingEnabled=true, while Arrival.client.luau:25 asserts streaming is off. The plan's assumption that the client can read guardians and exits relies on the place file, not the project file."
+   ]
+  }
+ ]
+}
