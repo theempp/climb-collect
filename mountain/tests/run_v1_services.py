@@ -7,7 +7,7 @@ body += '\nlocal MockMarketplace=' + module('mountain/server/MockMarketplace.lua
 extra = ['Dailies', 'PartyRules', 'OutpostRules', 'OutpostSim', 'Seasons', 'Recognition', 'CaelorynAbilities', 'V1Protocol']
 for name in extra:
     if (ROOT / f'mountain/shared/{name}.luau').exists():
-        body += f'\nlocal {name}=' + module(f'mountain/shared/{name}.luau', SH)
+        body += f'\nlocal {name}=' + module(f'mountain/shared/{name}.luau', 'local script={Parent=game.ReplicatedStorage.MountainShared}')
         body += f'\ngame.ReplicatedStorage.MountainShared.{name}={name}'
 for name in ['PartyService', 'OutpostService', 'V1Services']:
     if (ROOT / f'mountain/server/{name}.luau').exists():
