@@ -1,0 +1,731 @@
+[
+ {
+  "docLine": 129,
+  "token": "r.4",
+  "docValue": "XP line, odds bar, scrollbar | L116, L190, L308",
+  "kind": "wrong-citation",
+  "boardEvidence": "L190 `.g .scroll::-webkit-scrollbar{width:6px}` has no radius. The radius 4 is at L191 `...-track{background:rgba(10,2,40,.55);border-radius:4px}` and L192 `...-thumb{...border-radius:4px}`",
+  "fix": "Change citation L190 to L191–192.",
+  "section": null
+ },
+ {
+  "docLine": 129,
+  "token": "r.4 (XP line)",
+  "docValue": "XP line = 4 (L116), but recipe line 288 says 'track Frame r3'",
+  "kind": "contradiction",
+  "boardEvidence": "L116 `.g .xpl{...width:236px;height:6px;...border-radius:4px;background:rgba(10,2,40,.7)...}`",
+  "fix": "Set line 288 XP line track to r4 (`r.4`) to match the board and the token table.",
+  "section": null
+ },
+ {
+  "docLine": 128,
+  "token": "r.* (missing small radii)",
+  "docValue": "table jumps 4 → 6 → 7; no 2, 3 or 5",
+  "kind": "missing",
+  "boardEvidence": "L52 `.g .xp i{...border-radius:5px}` and L316 `.g .sl i{...border-radius:5px}` (XP/slider fill); L102 `.g .alt .line{...width:4px;border-radius:3px}` (rail line, used as 'r3' in recipe line 285); L248 `.g .ladder::before{...height:4px;border-radius:2px}`; L310 `.g .oddl i{...width:8px;height:8px;border-radius:2px}` (used as 'swatch 8 r2' in recipe line 318)",
+  "fix": "Add r.5 (XP/slider fill, L52/L316), r.3 (rail line, L102), r.2 (ladder track, odds swatch, L248/L310) so recipes use declared tokens.",
+  "section": null
+ },
+ {
+  "docLine": 114,
+  "token": "r.circle",
+  "docValue": "nodes, cpic, egg plinth listed; cites L49, L53–55, L100, L111, L181, L274",
+  "kind": "wrong-citation",
+  "boardEvidence": "L104 `.g .nd{width:12px;height:12px;border-radius:50%...}` (nodes); L157 `.g .cpic{...border-radius:50%...}`; L292 `.g .plat{...height:20px;border-radius:50%...}` (plinth) are not cited. L53–54 are `.dockb` (Not to build per line 327) rather than the built `.db` (L111, cited).",
+  "fix": "Add L104, L157, L292 to the citations; L53–54 can be dropped since .dockb is not built.",
+  "section": null
+ },
+ {
+  "docLine": 137,
+  "token": "s.thin",
+  "docValue": "elements include rail label, beacon, awake; citations omit their lines",
+  "kind": "wrong-citation",
+  "boardEvidence": "L108 `.g .raillab{...border:1.5px solid var(--pk)...}`; L133 `.g .beacon .bl{...border:1.5px solid var(--go)}`; L164 `.g .awake{...border:1.5px solid #ff7aa0...}`",
+  "fix": "Add L108, L133, L164 to the s.thin citations.",
+  "section": null
+ },
+ {
+  "docLine": 138,
+  "token": "s.glass",
+  "docValue": "wallet \"+\" listed; L221 not cited",
+  "kind": "wrong-citation",
+  "boardEvidence": "L221 `.g .wallet .plus{width:22px;height:22px;border-radius:7px;...border:2px solid #fff...}`",
+  "fix": "Add L221 to the s.glass citations.",
+  "section": null
+ },
+ {
+  "docLine": 139,
+  "token": "s.bold",
+  "docValue": "porb, egg listed; cites L55, L56, L156, L181, L200, L273, L297, L329, L331",
+  "kind": "wrong-citation",
+  "boardEvidence": "L274 `.g .porb{...border:3px solid #fff...}`; L290 `.g .egg{...border:3px solid #fff...}`; also L157 `.g .cpic{...border:3px solid #fff...}` (carry portrait, stroke 3 in recipe line 298) is neither listed nor cited",
+  "fix": "Add L274, L290 and L157 (cpic) to s.bold.",
+  "section": null
+ },
+ {
+  "docLine": 141,
+  "token": "s.ring6 / ring thickness",
+  "docValue": "stroke table has no ring-track widths and no 2nd halo ring",
+  "kind": "missing",
+  "boardEvidence": "L49 `.g .ring{...padding:3px}` and L112 `.g .db.xpr{...padding:3px}` (ring t3); L126 `.g .cpr{...padding:4px...}` and L283 `.g .bring{...padding:4px...}` (ring t4, used by W.ring(52,4…)/W.ring(62,4…)); L335 `.rvhalo.h2{border-color:#ffd0f0;border-width:3px}`",
+  "fix": "Add s.ring3 (L49, L112) and s.ring4 (L126, L283) for the UIStroke ring thickness, and list the 2nd reveal halo (L335) under s.bold 3. Plan §5 line 78 requires the stroke-width table to be complete.",
+  "section": null
+ },
+ {
+  "docLine": 101,
+  "token": "pill.T / well.T",
+  "docValue": "pill.T lists only rail label/distance/moment sub/forever; well.T omits trail preview and ghost",
+  "kind": "missing",
+  "boardEvidence": "L133 `.g .beacon .bl{...background:rgba(6,40,30,.78)...}` (→T.22, used in recipe line 294); L164 `.g .awake{...background:rgba(60,6,30,.85)...}` (→T.15, recipe line 299); L298 `.g .trail{...background:rgba(10,2,40,.65)...}` (→T.35, recipe line 319); L57 `.g .btn.ghost{background:rgba(20,6,60,.7);border-color:rgba(255,255,255,.4);box-shadow:0 5px 0 rgba(10,2,40,.7)}` (→ fill T.3, rim T.6, lip T.3, recipe line 277; used at L646 Reset)",
+  "fix": "Add .78→.22 beacon label and .85→.15 awake to pill.T, .65→.35 trail to well.T, and a ghost entry (fill .7→.3, rim .4→.6, lip .7→.3, L57) so the recipes use declared tokens.",
+  "section": null
+ },
+ {
+  "docLine": 277,
+  "token": "W.ghost stroke",
+  "docValue": "UIStroke 3 white T.6",
+  "kind": "wrong-value",
+  "boardEvidence": "The only ghost button is L646 `<button class=\"btn ghost pbtn\">Reset</button>`, and L307 `.g .pbtn{height:30px;padding:0 12px;font-size:15px;border-width:2px;...}` overrides `.btn` border:3px (L56)",
+  "fix": "Use UIStroke 2 for the ghost/Reset button (s.glass), or note that a 3 px ghost has no board instance.",
+  "section": null
+ },
+ {
+  "docLine": 26,
+  "token": "ctaHi",
+  "docValue": "#FF8FE0, cited L54–56, L184, L320",
+  "kind": "wrong-citation",
+  "boardEvidence": "L54 `.g .dockb.on{background:linear-gradient(180deg,#FF9BDD,var(--vi));...}`. L54 holds #FF9BDD, not #FF8FE0, and it is the old 'Before' dock button (doc L327: not to build). #ff8fe0 appears only at L55 (`.orb ... linear-gradient(180deg,#ff8fe0,var(--vi))`), L56 (`.btn`), L184 (`.tab.on`) and L320 (`.seg span.on`).",
+  "fix": "Change the citation to L55–56, L184, L320. Optionally add #FF9BDD to the board-only / do-not-build row as the old dockb.on top stop.",
+  "section": null
+ },
+ {
+  "docLine": 27,
+  "token": "flare / sparkle glow",
+  "docValue": "#7BD8FF = 'sparkle glow' (only sparkle colour listed)",
+  "kind": "missing",
+  "boardEvidence": "L41 `.tw{...filter:drop-shadow(0 0 8px #f78ad0)}.tw.d2{...filter:drop-shadow(0 0 8px #7bd8ff)}.tw.d3{animation-delay:1.3s}`. The reveal strip (L548) uses `fl tw`, `fl tw d2`, `fl tw d3`, so two of its three sparkles glow #F78AD0 and only one glows #7BD8FF. #F78AD0 is not in the doc anywhere.",
+  "fix": "Add token `sparkle.pink` #F78AD0 (L41: default sparkle glow, sparkles 1 and 3 on the reveal strip, L548). Keep flare #7BD8FF for the .d2 sparkle only.",
+  "section": null
+ },
+ {
+  "docLine": 36,
+  "token": "glass.from / glass.to / glass.rim",
+  "docValue": "#8246DC / #32146E / #FFD2FF (from CSS L47)",
+  "kind": "contradiction",
+  "boardEvidence": "The board's own token table gives different values. L567 `Glass body ... #2B1757 → #4B2A9A, 60% opacity, blur 6`. L568 `Glass edge ... #6E45C8, 2 px`. L572 `Reward gold ... #FFD84A → #F59A00` (no CSS gradient uses this pair; CSS gold title L214 is #ffe07a→#f59a00). L570 `Danger #FF4D7D ... RUN!, edge vignette` (CSS vignette L139 is rgba(255,60,120) = #FF3C78). The doc follows the CSS, which is correct because the table says 'Value (est.)', but it never mentions the conflict. It does mention the parallel font conflict (L575 vs CSS, D12).",
+  "fix": "Add a note under 1a: the L566–575 token table is marked est. and conflicts with the CSS (glass #2B1757→#4B2A9A / edge #6E45C8, gold #FFD84A→#F59A00, danger as vignette). The CSS values win, as they do for the font conflict D12. List #2B1757, #4B2A9A and #6E45C8 under board-only so nobody picks them up from the table.",
+  "section": null
+ },
+ {
+  "docLine": 80,
+  "token": "Board-only, do not build",
+  "docValue": "#5DFFC0/#FF6B88 (pass/fail chrome) listed as do-not-build",
+  "kind": "contradiction",
+  "boardEvidence": "L3 `--pass:#5DFFC0` is board chrome, but the same hex is a built game colour: L123 `.sprint{...box-shadow:0 0 14px #5dffc0,...}`, L242 `rgba(93,255,192,.5)`, L251, L282. The doc itself defines `go.glow` = #5DFFC0 at doc L54.",
+  "fix": "Remove #5DFFC0 from the do-not-build row (keep #FF6B88), or reword it as '--pass/--fail variables are chrome; #5DFFC0 itself is go.glow'. That way a hex grep doesn't flag a real token as forbidden.",
+  "section": null
+ },
+ {
+  "docLine": 83,
+  "token": "rarity tier mapping",
+  "docValue": "'The tier mapping is provisional ... still list tier count and names as an owner decision ... confirm it at STOP 1'",
+  "kind": "contradiction",
+  "boardEvidence": "The board only says L573 `Rarity | blue · gold · violet · prismatic | ... (6 tiers mapped to 4 colours)`. The owner already decided the assignment: climb-collect-integration/design/hud-v2-handoff-2026-10-27.md L9 `Owner decisions this session: ... rarity = keep 6 tiers mapped to 4 colours (Common/Uncommon blue, Rare gold, Epic purple, Mythic/Legendary prismatic)`. Theme.luau L20 'PROVISIONAL' predates that record. The doc's per-tier rows (L86–89) match the decision, but the source column cites only board lines, which carry no tier names.",
+  "fix": "Cite hud-v2-handoff-2026-10-27.md L9 (owner decision, 2026-10-27) as the source for the tier→colour assignment and board L573 for '6→4'. Drop 'provisional / confirm at STOP 1', or downgrade it to 'verify the tier names match the server roll table'.",
+  "section": null
+ },
+ {
+  "docLine": 359,
+  "token": "dock gap 6 → needs a 2 px overlap",
+  "docValue": "Cost: neighbouring hit areas can overlap (dock gap 6 → needs a 2 px overlap, or a 44 hit with gap 4)",
+  "kind": "contradiction",
+  "boardEvidence": "L110 `.g .dock{...display:flex;gap:6px;padding:6px...}` + L111 `.g .db{width:42px;height:42px...}` → pitch 48, so 44 hit frames leave a 4 px gap and never overlap. Real overlaps are elsewhere: L182 `.g .side{...gap:5px...}` + L183 `.g .tab{height:34px...}` → pitch 39 (5 px overlap at 44); L196 `.g .chips{...gap:6px...}` + L197 chip 27 tall → pitch 33 (11 px overlap)",
+  "fix": "Drop the '2 px overlap' clause for the dock: 44 hit frames fit with a 4 px gap. Name the cases that really overlap: side tabs (pitch 39, 5 px) and filter chips (pitch 33, 11 px), and seg options (no gap, L319–320).",
+  "section": null
+ },
+ {
+  "docLine": 359,
+  "token": "seg ≈33 est.",
+  "docValue": "seg ≈33 est.",
+  "kind": "wrong-value",
+  "boardEvidence": "L319 `.g .seg{...border:1.5px solid ...;font:700 12px var(--body)}` and L320 `.g .seg span{padding:6px 11px...}`. The `font` shorthand has no /line-height, so line-height resets to `normal` (≈1.2×12 ≈ 14.5 px), not body's 1.5 (L5). Option ≈ 6+14.5+6 ≈ 26.5 px, container ≈ 29.5 px. 33 only works with an 18 px line-height that the board doesn't use",
+  "fix": "Change to 'seg option ≈27, container ≈30 est. (font shorthand resets line-height to normal)'. It is still below 44, so the conclusion stands.",
+  "section": null
+ },
+ {
+  "docLine": 359,
+  "token": "touch-target list / hero buy 40",
+  "docValue": "dock btn 42, tab 34, side CTA 36, X 36, buy 32, pbtn 30, claim 22, ...",
+  "kind": "missing",
+  "boardEvidence": "L236 `.g .hero .buy{height:40px;padding:0 16px;font-size:20px}` (Starter Pack CTA, R$ 199 at L632). L241 `.g .hero.mini .buy{height:32px...}`",
+  "fix": "Add 'hero buy 40 (mini 32)' with L236/L241 to the conflict list and the source column.",
+  "section": null
+ },
+ {
+  "docLine": 359,
+  "token": "chip 27 citation",
+  "docValue": "Source: L111, L181, L183, L186, L221, L242, L255, L307, L315–322, P§5",
+  "kind": "wrong-citation",
+  "boardEvidence": "The chip value comes from L197 `.g .chip{font:700 12px/24px var(--body);padding:0 10px;...border:1.5px solid ...}` (24 + 2×1.5 = 27). L197 is not in the cited set",
+  "fix": "Add L197 to the source column (also L236/L241 for hero buy, L319–320 for seg).",
+  "section": null
+ },
+ {
+  "docLine": 336,
+  "token": "Board placeholders 2×44 at (12,7), gap 8",
+  "docValue": "Source: L81, L86, L693, P§5",
+  "kind": "wrong-citation",
+  "boardEvidence": "Position and gap come from L80 `.g .core{left:12px;top:7px;display:flex;gap:8px;...}`. L81 only gives `.g .core i{width:44px;height:44px;border-radius:12px...}`",
+  "fix": "Cite L80–81 instead of L81.",
+  "section": null
+ },
+ {
+  "docLine": 356,
+  "token": "World (data-world) beacon, vignette, shock",
+  "docValue": "World (`data-world`) beacon, vignette, shock",
+  "kind": "wrong-value",
+  "boardEvidence": "Only the beacon has the attribute: L600 `<div class=\"beacon\" data-world>`. Vignette L627 `'<div class=\"vig\"></div>'` and shock L605 `'<div class=\"shock\"></div>'` have no data attribute. They are skipped because checkHud selects only `[data-hud],[data-transient]` (L696), not because they are tagged as world",
+  "fix": "Reword to: 'World/untagged: beacon (`data-world`, L600), vignette (L627) and shock ring (L605) are untagged. Not checked (L696 selector) and excluded from coverage.'",
+  "section": null
+ },
+ {
+  "docLine": 148,
+  "token": "cta (gradient) citation",
+  "docValue": "90 | #FF8FE0 → #A55BEA | L54–56, L184, L320",
+  "kind": "wrong-citation",
+  "boardEvidence": "L54 `.g .dockb.on{background:linear-gradient(180deg,#FF9BDD,var(--vi));...}`: the top stop is #FF9BDD, not #FF8FE0. .dockb is only used in the old-chase 'Before' control (L459–463), and doc L327 itself lists `.dockb` under 'Not to build'. #FF8FE0 is at L55 (`linear-gradient(180deg,#ff8fe0,var(--vi))`), L56, L184 and L320.",
+  "fix": "Cite L55–56, L184, L320 and drop L54. If you keep L54, add a note that dockb.on (#FF9BDD) is board-only and not built.",
+  "section": null
+ },
+ {
+  "docLine": 187,
+  "token": "glow.chip",
+  "docValue": "#F46BC4 | .4 | 12 | L184",
+  "kind": "untraceable",
+  "boardEvidence": "L198 `.g .chip.on{background:rgba(244,107,196,.35);border-color:#fff}`: the chip has no box-shadow. The only cited line, L184, is `.g .tab.on{...box-shadow:0 0 12px rgba(244,107,196,.6)}`, which is the tab. The doc's own chip recipe at L309 ('On: `pk` T.65, stroke white') has no glow either.",
+  "fix": "Delete `glow.chip`. Keep `glow.tabOn` only (#F46BC4, T.4, B12, L184).",
+  "section": null
+ },
+ {
+  "docLine": 157,
+  "token": "holo",
+  "docValue": "20 | 7 stops at even spacing; size 240 % (Offset tween)",
+  "kind": "roblox-infeasible",
+  "boardEvidence": "L207 `background:linear-gradient(110deg,#ff4d8d,#ffb52e,#fff35c,#52e07a,#3fc8ff,#9a5cf0,#ff4d8d);background-size:240% 100%;animation:holo 5s linear infinite` + L208 `@keyframes holo{to{background-position:-240% 0}}`. The CSS background repeats and is zoomed to 2.4×. UIGradient has no size or tiling, and an Offset beyond ±1 clamps to the end colour.",
+  "fix": "Write the actual recipe. Either use a ColorSequence with two cycles (13 keypoints, ≤20 allowed), each spanning 1/2.4 of the visible width, and tween Offset.X over one cycle then reset, or use a 2.4×-wide inner Frame under a CanvasGroup/clip. Mark the recipe est./P3-verify.",
+  "section": null
+ },
+ {
+  "docLine": 174,
+  "token": "1g Glows (missing board glows)",
+  "docValue": "table omits several board glows",
+  "kind": "missing",
+  "boardEvidence": "L333 `.rvsel{...box-shadow:0 0 18px #ffd84a,inset 0 0 12px rgba(255,216,74,.5)}`; L334 `.rvhalo{...box-shadow:0 0 24px #ffd84a}`; L167 `.shock{...box-shadow:0 0 20px #ff3d85,inset 0 0 20px #ff3d85}`; L300 `.trail i{...box-shadow:0 0 10px var(--rc)}`; L41 `.tw{...filter:drop-shadow(0 0 8px #f78ad0)}.tw.d2{...drop-shadow(0 0 8px #7bd8ff)}`. None of these is in 1g or in the §2 recipes (reveal selector, halos, shock and streak there have no glow), and #F78AD0 is not in 1a.",
+  "fix": "Add glow.revealSel (#FFD84A T0 B18; the inset is not ported), glow.halo (#FFD84A T0 B24), glow.shock (#FF3D85 T0 B20; the inset is not ported), glow.streak (rc T0 B10) and glow.sparkle (#F78AD0 / #7BD8FF T0 B8). Or list each as an explicit 'not ported' decision.",
+  "section": null
+ },
+ {
+  "docLine": 199,
+  "token": "font.display role list",
+  "docValue": "(titles, banner, moment, RUN!, rarity word, card/pass/egg names, prices)",
+  "kind": "contradiction",
+  "boardEvidence": "L203 `.g .card .nm .t{font:700 12px/1.25 var(--body)}`: creature card names are body, and the doc's own L227 lists `t.cardName` 12 body. Also L285 `.bst .t{font:700 13px var(--body)}` and L304 `.skin .t{font:700 13px var(--body)}`.",
+  "fix": "Change to 'ticket/coin-pack/pass/egg names'. State that creature card, boost and skin names are body.",
+  "section": null
+ },
+ {
+  "docLine": 207,
+  "token": "1i scaling rule",
+  "docValue": "px at HUD scale M = board; S/L = M × hud.scaleS / hud.scaleL",
+  "kind": "contradiction",
+  "boardEvidence": "Plan §7: 'HUD scale uses one UIScale on the HUD root, never on menus.' Board L644 `row('HUD size','Scales every button',seg(['S','M','L'],1))`. 1i applies S/L to every role, including menu roles (t.menuTitle L180, t.tab L183, t.rowTitle L312, shop sizes).",
+  "fix": "Limit S/L scaling to the HUD-root roles. State that menu and reveal roles use M only (and Large text via T.size).",
+  "section": null
+ },
+ {
+  "docLine": 229,
+  "token": "t.small citations",
+  "docValue": "11 | body | L128 … L313",
+  "kind": "missing",
+  "boardEvidence": "L174 `.g .pcard .meta small{display:block;font:500 11px var(--body);opacity:.85}`: the player-card sub line ('12 creatures · 3 summits', L606) is 11 px body and is not cited. Its .85 opacity (T.15) is also absent from text.dimT sources.",
+  "fix": "Add 'pcard sub' to the t.small role list and L174 to its sources.",
+  "section": null
+ },
+ {
+  "docLine": 204,
+  "token": "Tracking range citation",
+  "docValue": ".02–.3em | L56, L145, L158, L164, L193, L231, L268, L277, L328, L350",
+  "kind": "wrong-citation",
+  "boardEvidence": "The low end .02 comes from L163 `.g .run{...letter-spacing:.02em...}` and L195 `.g .sh em{...letter-spacing:.02em...}`, which are not cited. L159 `.cpt b{...letter-spacing:.03em}` is also uncited. None of the cited lines has .02.",
+  "fix": "Add L159, L163 and L195 to the sources.",
+  "section": null
+ },
+ {
+  "docLine": 236,
+  "token": "Legacy key → new token (name clashes)",
+  "docValue": "gold→gold, card→card.fallback, close→close.to, cta.*→ctaHi/vi/lip, display→font.body; only the `ink` clash is flagged",
+  "kind": "contradiction",
+  "boardEvidence": "Theme.luau L5–L18: `card=rgb(27,43,90)`, `gold=rgb(255,210,60)`, `close=rgb(228,58,54)` are Color3; `cta={base=...}` is a table; `display=Enum.Font.FredokaOne`. The new token families in 1a/1f use the same roots as namespaces: `gold.hi/.lo/.lip/...` (L59–65), `card.fallback/.glow/.xpFull` (L76–78), `close.from/.to/.lip` (L47), and a gradient named `cta` (L148). 1i's Face column uses 'display' to mean LuckiestGuy, while legacy `T.display` is FredokaOne. Plan §3 requires that legacy keys stay as aliases, but a key cannot be both a Color3 and a sub-table.",
+  "fix": "Flag these like the `ink` clash and pick a resolution: rename the new families (e.g. `goldHi`, `cardFallback`, `closeFrom`, `grad.cta`) or migrate T.gold/T.card/T.close/T.cta callers first. Note that new code must use `font.display`, never legacy `T.display` (FredokaOne).",
+  "section": null
+ },
+ {
+  "docLine": 272,
+  "token": "W.glass lip + glow.glass (also pass/skin/bat glow.rarity, bat lip)",
+  "kind": "roblox-infeasible",
+  "docValue": "lip Frame (same size/radius, +5 y, behind) `night` T.4 + optional `glow.glass`",
+  "boardEvidence": "L47 `.gl{background:linear-gradient(180deg,rgba(130,70,220,.55),rgba(50,20,110,.62));... 0 0 18px rgba(244,107,196,.35),0 5px 0 rgba(10,2,40,.6)}`. CSS outer box-shadows are never painted under the element; in Roblox a full-size lip Frame and the filled-centre U1 glow (doc L399: white disc, centre opaque) behind a 38-45 % transparent glass body show through it, darkening/pinking the whole body. Same for L273 `.pass` (fill white .14→night .88) + glow.rarity, L297 `.skin` (.1→.78) + glow.rarity, L124 bat rgba(40,16,90,.78) + lip/glow. The doc's own L410 rejects exactly this bleed for U9/U10 but applies it here.",
+  "fix": "Restrict the lip to the area below the body (e.g. a ClipsDescendants holder starting at y=H−r, accepting corner overlap) and use a hollow-centre glow 9-slice (centre slice transparent, inner edge at the shape edge) behind translucent fills; or record the bleed as an accepted deviation with adjusted T values.",
+  "section": null
+ },
+ {
+  "docLine": 274,
+  "token": "W.ring progress circle size",
+  "kind": "contradiction",
+  "docValue": "each with a circle Frame d×d, UIStroke t ... inner disc inset t",
+  "boardEvidence": "L112 `.db.xpr{background:conic-gradient(...);border:0;padding:3px}` / L126 `.cpr{width:52px;height:52px;padding:4px}`: the ring occupies the outer t px INSIDE d. Doc L11 says UIStroke draws outside the edge, so a d×d circle + outer stroke spans d+2t and its outer half lies outside the d/2×d ClipsDescendants half frames (clipped away), and the ring sits outside the inner disc gap instead of over it.",
+  "fix": "Specify circle Frames of (d−2t) centred with an outer stroke t (or d×d with an Inner stroke position if verified), and size the half-clip frames to d/2×d accordingly; same for the track circle.",
+  "section": null
+ },
+ {
+  "docLine": 286,
+  "token": "rail label height",
+  "kind": "wrong-value",
+  "docValue": "h 22, `W.pill` 22",
+  "boardEvidence": "L108 `.raillab{font:700 11.5px/22px var(--body);padding:0 9px;border-radius:11px;...border:1.5px solid var(--pk)}`: line-height 22 + 2×1.5 border = 25, per the doc's own W.pill rule (L279 'Height = line-height + 2×border', applied as 13+3, 16+3, 20+3, 24+3 elsewhere).",
+  "fix": "h 25 (22+3); W.pill(25, 9, night2, .15, 1.5 pk).",
+  "section": null
+ },
+ {
+  "docLine": 311,
+  "token": "hero list pill height",
+  "kind": "wrong-value",
+  "docValue": "List pills h 20 `night` T.45, stroke 1 white T.75",
+  "boardEvidence": "L233 `.hlist li{font:700 11px/20px var(--body);padding:0 8px;border-radius:10px;background:rgba(10,2,40,.55);border:1px solid rgba(255,255,255,.25)}` → 20 + 2×1 = 22. Also padX 8 and body 11 omitted.",
+  "fix": "List pills h 22 (20+2), padX 8, body 11, r10.",
+  "section": null
+ },
+ {
+  "docLine": 284,
+  "token": "corner radii clamped without note (coin r17, toast r15, toggle r14, wallet r15, XP line r3)",
+  "kind": "contradiction",
+  "docValue": "coin `W.glass h 34 r17`; toast `r15`; tog `54×28 r14`; wallet `h 30, W.glass r15`; XP line `track Frame r3`",
+  "boardEvidence": "L98 `.coin{height:34px;border-radius:18px}`, L141 `.toast{height:30px;...border-radius:16px}`, L321 `.tog{...height:28px;border-radius:16px}`, L219 `.wallet{height:30px;...border-radius:16px}`, L116 `.xpl{height:6px;...border-radius:4px}`. The doc's own §1d lists these at r.glass 18 (L98), r.btn 16 (L141, L219, L321), r.4 (L116). Values are half-height clamps, not board values, and are not marked est. (rows 284, 288, 295, 323, 324).",
+  "fix": "Cite the board radius (18/16/16/16/4) or mark the clamped value as derived ('= h/2, board 16 clamps'), so §1d and §2 agree.",
+  "section": null
+ },
+ {
+  "docLine": 291,
+  "token": "bat orb gloss",
+  "kind": "wrong-value",
+  "docValue": "`W.orb` flat `bat.fill` T.22 (W.orb includes 'gloss highlight (radial at 50 %/28 %...)')",
+  "boardEvidence": "L124 `.g .bat{...background:rgba(40,16,90,.78);...}` replaces the whole `.orb` background shorthand from L55, so the bat orb has no radial gloss (sprint L123 re-declares it, bat does not).",
+  "fix": "State 'flat, no gloss' for the bat orb (W.orb with gloss=false).",
+  "section": null
+ },
+ {
+  "docLine": 322,
+  "token": "seg on-state corner clip",
+  "kind": "roblox-infeasible",
+  "docValue": "r12 `night` T.4 ... On: `cta` gradient",
+  "boardEvidence": "L319 `.seg{border-radius:12px;...overflow:hidden}` + L320 `.seg span.on{background:linear-gradient(...)}`: the board relies on rounded overflow clipping of the first/last option. Roblox ClipsDescendants is rect-only (the doc notes this for the buy shine, L312), so a filled end option shows square corners outside the r12 shape.",
+  "fix": "Give the first/last option its own UICorner 12 (or r12 on all on-state fills, with the inner corners squared by an extra Frame), and note the deviation.",
+  "section": null
+ },
+ {
+  "docLine": 299,
+  "token": "shock ring glow",
+  "kind": "missing",
+  "docValue": "**Shock** 180 circle UIStroke 6 `run.shock`, centred at top .22, Decor",
+  "boardEvidence": "L167 `.shock{border-radius:50%;border:6px solid #ff7ab8;box-shadow:0 0 20px #ff3d85,inset 0 0 20px #ff3d85;...}` (doc §1a L49 even names run.glow 'also the shock glow').",
+  "fix": "Add glow `run.glow` B20 (outer; inner glow not portable or via a second U1) to the shock row.",
+  "section": null
+ },
+ {
+  "docLine": 297,
+  "token": "moment title glow",
+  "kind": "missing",
+  "docValue": "title display 64 `moment.text`, UIStroke 3 `lip`, drop 5 `lipDeep`",
+  "boardEvidence": "L150 `filter:drop-shadow(0 5px 0 #3a0a6a) drop-shadow(0 0 18px #f46bc4)`; RUN! row 299 offers an optional U1 for its equivalent glow but the moment row drops it silently.",
+  "fix": "Add 'glow `pk` 18 → optional U1 behind' (or state explicitly not ported) for consistency with B.run.",
+  "section": null
+ },
+ {
+  "docLine": 326,
+  "token": "reveal result card glow spread",
+  "kind": "missing",
+  "docValue": "glow `gold` T.15 34",
+  "boardEvidence": "L342 `.rvcard{...box-shadow:0 0 34px 8px rgba(255,216,74,.85)}`: spread 8 omitted (doc §1g records spread for card.glow, so the same convention applies).",
+  "fix": "glow `gold` T.15 B34 spread 8 (U1 size = element + 2×(34+8)).",
+  "section": null
+ },
+ {
+  "docLine": 319,
+  "token": "skin streak glow",
+  "kind": "missing",
+  "docValue": "Streak h 10, 70 % wide, r6, `streak` gradient (Decor)",
+  "boardEvidence": "L300 `.trail i{...height:10px;width:70%;border-radius:6px;background:linear-gradient(90deg,transparent,var(--rc));box-shadow:0 0 10px var(--rc)}`",
+  "fix": "Add glow `rc` B10 (or state not ported).",
+  "section": null
+ },
+ {
+  "docLine": 399,
+  "token": "U1 glow",
+  "docValue": "white disc r 32, Gaussian σ 16, so α = .5 at r 32 and → 0 at r 64. Same profile as a CSS box-shadow blur",
+  "kind": "wrong-value",
+  "boardEvidence": "L47 `0 0 18px rgba(244,107,196,.35)`, L55 `0 0 20px rgba(244,107,196,.8)`: CSS blur B = Gaussian σ B/2 across a straight edge, so α is .5 at the edge and ≈.98 at edge−B. A blurred r32 disc with σ16 is a different profile: centre α = 1−e^−2 ≈ .865, and at r 32 α = 1−Q1(2,2) ≈ .40 (not .5). The stretched 9-slice centre (Rect 63–65) and the edge pieces carry this disc profile, so every glow edge is about 20 % too faint and the core is never opaque.",
+  "fix": "Bake the profile directly instead of blurring a disc: α(r) = .5·erfc((r−32)/(16·√2)), which gives .5 at r 32, ≈.98 at r 0 and ≈.02 at r 64. Drop the claim that the blurred r32 disc equals the CSS profile.",
+  "section": null
+ },
+ {
+  "docLine": 399,
+  "token": "U1 glow behind translucent fills",
+  "docValue": "all glows (glass, pass, boost, skin…) = U1 behind the element",
+  "kind": "contradiction",
+  "boardEvidence": "CSS outer box-shadow is never painted under the element's border box. The glowing fills here are translucent: L47 `.gl` rgba(130,70,220,.55)→rgba(50,20,110,.62) with `0 0 18px rgba(244,107,196,.35)`, L273 `.pass` rgba(255,255,255,.14)→rgba(20,6,60,.88) with `0 0 14px var(--rc)`, L281–282 `.bst` rgba(10,2,40,.55) with `.on` `0 0 14px rgba(93,255,192,.45)`, L297 `.skin` rgba(255,255,255,.1)→… with `0 0 12px var(--rc)`. A full U1 disc behind them shows the glow colour through the fill. The doc's own L410 rejects tinted copies behind translucent fills for exactly this reason (\"would bleed the border colour through\").",
+  "fix": "Make U1 an outer-only glow: α = 0 for r < 32, then the erfc tail from .5 at r 32 to 0 at r 64. The 9-slice centre is then transparent, which matches CSS clipping. Alternatively, state that the bleed is accepted on glass, pass, boost and skin, and list it as a deviation for owner sign-off.",
+  "section": null
+ },
+ {
+  "docLine": 405,
+  "token": "U7 ring.fallback",
+  "docValue": "Thickness error ≤ 0.4 px at other ring sizes",
+  "kind": "wrong-value",
+  "boardEvidence": "L126 `.cpr{width:52px;height:52px;...padding:4px;...conic-gradient(var(--go) 0 68%,...)}`. The 128 px PNG with an 8 px ring shown at 52 px gives 8×52/128 = 3.25 px against the board's 4 px, an error of 0.75 px. The other rings: L112 `.db.xpr` 42/3 gives 2.63 (0.37), L172+L49 pcard `.ring` 48/3 gives 3.0, L283 `.bring` 62/4 gives 3.88.",
+  "fix": "State that the error is up to 0.75 px, on the carry distance ring. Or add a second variant for the portrait with thickness ratio 4/52 (≈9.8 px at 128).",
+  "section": null
+ },
+ {
+  "docLine": 406,
+  "token": "U8 gloss.orb",
+  "docValue": "L55 radial (white α .6 at 50%/28%, 52%) baked; used for orb, porb, cpic, bring; only cost = cpic/porb sit slightly higher",
+  "kind": "wrong-value",
+  "boardEvidence": "L283–284 `.bring` has no radial highlight (`conic-gradient(var(--go) 0 var(--p),rgba(255,255,255,.18) 0)` and an inner `#2b1457`), so \"bring highlights\" do not exist. L274 `.porb` `radial-gradient(circle at 50% 30%,rgba(255,255,255,.75),transparent 60%)` and L157 `.cpic` `radial-gradient(circle at 50% 35%,rgba(255,255,255,.8),transparent 62%)` also differ in peak α (.75/.8 vs .6) and extent (60/62 % vs 52 %). A PNG baked at a peak of .6 cannot reach .75 or .8 through ImageTransparency.",
+  "fix": "Remove bring from U8's uses (sprint L123 belongs there instead). Bake the peak at α 1 and set ImageTransparency per use (orb/sprint .4, porb .25, cpic .2). Record the larger extents of porb and cpic as a size offset, or list them as a second deviation next to the offset.",
+  "section": null
+ },
+ {
+  "docLine": 421,
+  "token": "carry.pop",
+  "docValue": "2.5 s (in .25 s, settled .35 s, hold to 2.0 s, shrink to portrait by 2.5 s), ease-out",
+  "kind": "wrong-value",
+  "boardEvidence": "L686 `pop.animate([... offset:.1 ..., offset:.14 ..., offset:.8 ..., offset:.92 ...],{duration:2500,easing:'ease-out',fill:'forwards'})`. Here `easing` is effect-level, so it remaps the whole timeline and does not ease each segment. With cubic-bezier(0,0,.58,1), the .1 key lands at ≈0.15 s, .14 at ≈0.22 s, .8 at ≈1.54 s and .92 at ≈1.93 s. The listed .25/.35/2.0 s are offset×duration (linear) values and match only the prose at L434 (\"in at 0.35 s\"), not what the board renders.",
+  "fix": "List the rendered times (≈.15 / .22 / 1.54 / 1.93 / 2.5 s, whole-timeline ease-out) and flag the conflict with the L434 text under G4, as the doc already does for the XP line. Or pick the L434 timing and mark it as a choice.",
+  "section": null
+ },
+ {
+  "docLine": 436,
+  "token": "pcard.open",
+  "docValue": ".2 s (from y +40, transparent) ease-out",
+  "kind": "wrong-value",
+  "boardEvidence": "L171 `.pc .pcard{display:flex;animation:dockup .2s ease-out}`, L138 `@keyframes dockup{from{transform:translate(-50%,40px);opacity:0}}`. `.pcard` (L170) is positioned by `left:calc(50% - 125px)` and has no base transform, so as rendered it also slides in from x −50 % of its 230 px width (≈−115 px). The keyframe was written for the dock, which carries translateX(−50%).",
+  "fix": "Record from (−115, +40), T 1 as the rendered value, or note that the x offset is a board artefact and that only y +40 is intended. Either way, flag it rather than silently dropping x.",
+  "section": null
+ },
+ {
+  "docLine": 419,
+  "token": "banner.danger / G4 \"no drawn curve for the danger banner\"",
+  "docValue": "1.5 s, not drawn (G4)",
+  "kind": "contradiction",
+  "boardEvidence": "L415 \"RUN! is that banner, with 'Thornback is awake' under it\". L529 tier 2, \"danger 1.5 s … RUN!\". L163/L165 `runslam` is drawn, and its visible part (0–30 % of 5 s) is exactly 1.5 s. The doc's own L424 `run.slam` row and L382 (alert = tier 2 danger = RUN!) already cover it. The board shows no other danger-coloured banner.",
+  "fix": "Point banner.danger at run.slam / run.awake / run.shock (L165–168), and remove 'no drawn curve for the danger banner' from G4.",
+  "section": null
+ },
+ {
+  "docLine": 464,
+  "token": "G5 tier collision: carry pop-up vs RUN!",
+  "docValue": "carry pop-up vs RUN! at the same moment (gap)",
+  "kind": "contradiction",
+  "boardEvidence": "L529 Tier 2 banner \"Used for: Carrying, got it back, section arrival, secured, RUN!\". L532 \"A new banner replaces the one showing; toasts queue.\" Both are tier-2 banners, so the newer one replaces the other. The doc restates this rule itself at L373.",
+  "fix": "Drop that sub-item, or narrow it to 'whether RUN! may replace a carry pop-up that is mid-shrink'. Keep the tier-3 queueing and toast-cap items, which are real gaps.",
+  "section": null
+ },
+ {
+  "docLine": 453,
+  "token": "Reduce effects",
+  "docValue": "board turns off every animation (L36)",
+  "kind": "wrong-citation",
+  "boardEvidence": "L36 `@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}` is the OS media query for the board page, not the game setting. The board's in-game toggle is L643 `row('Reduce effects','No FOV kick, hue cycling or flashes',…)`. vfx-ui-intel L35 says the same (\"no shake, FOV kick or hue cycling\"). The build plan P6 L157 says \"Reduce effects stops every loop, and transitions become ≤ 0.15 s fades or instant\".",
+  "fix": "Cite L643 and vfx-ui-intel L35 for the setting's scope, and the plan (P6) for the motion rule: loops stop, transitions ≤ .15 s fade or instant. Keep L36 only as supporting evidence.",
+  "section": null
+ },
+ {
+  "docLine": 480,
+  "token": "G21 board token table glass",
+  "docValue": "glass #2B1457→#4B2A9A",
+  "kind": "wrong-value",
+  "boardEvidence": "L567 `<i class=\"sw2\" style=\"background:#2B1757\"></i>#2B1757 → #4B2A9A, 60% opacity, blur 6`. #2B1457 is the CSS `deep` token (L50), not the table value.",
+  "fix": "Quote the table as #2B1757 → #4B2A9A.",
+  "section": null
+ },
+ {
+  "docLine": 474,
+  "token": "G15 gamepad focus visuals",
+  "docValue": "none drawn",
+  "kind": "missing",
+  "boardEvidence": "L35 `button:focus-visible{outline:2px solid #fff;outline-offset:2px}` applies to every button, including the in-frame `.g` buttons (L46 resets padding, border and background, not outline). This is the board's only focus style.",
+  "fix": "Record a focus token: 2 px white ring, 2 px outside the control (Roblox: SelectionImageObject or a UIStroke frame 2 px out). Narrow G15 to the visuals the board really leaves undefined (Coming soon, confirm, insufficient funds).",
+  "section": null
+ },
+ {
+  "docLine": 447,
+  "token": "reveal sequence anchor (landed)",
+  "docValue": "reveal.halo/shard/cardIn/dim/slam listed without a start time",
+  "kind": "missing",
+  "boardEvidence": "L738 `at(3500,function(){rv.classList.add('landed');title.textContent='RARE PULL!'},t)`. Every landed-relative effect (L336, L339, L343, L345, L347) starts at 3.5 s, 0.1 s after the 3.4 s spin (L737). L356 `.rvf.landed .rvtitle{font-size:26px}` (from 30) is an instant change at landed, and L355 makes `.rvbig` jump from top 238 to 226 at named (4.3 s), with no transition.",
+  "fix": "Add `reveal.landed` at 3.5 s (title → 'RARE PULL!', 30→26 instant) as the zero point for halo/shard/cardIn/dim/slam. Add the rvbig 12 px jump at 4.3 s.",
+  "section": null
+ },
+ {
+  "docLine": 428,
+  "token": "pulse (alert, ready rung)",
+  "docValue": "pulse used by alert and ready rung",
+  "kind": "wrong-citation",
+  "boardEvidence": "L58 `.g .alert{...animation:pulse 1.2s...}` is used only by the removed alert chip in the 'Before' control frame (L451 `class=\"gl alert tx\" ... Guardian awake!`). L415 says that chip was merged into RUN!. In the new design, the only pulse user is L253 `.rung.ready .ico`.",
+  "fix": "Change the label to 'pulse (ready rung)' and cite L39 and L253. Keep L58 only as legacy.",
+  "section": null
+ },
+ {
+  "docLine": 480,
+  "token": "G21 board token table",
+  "docValue": "glass #2B1457→#4B2A9A",
+  "kind": "wrong-value",
+  "boardEvidence": "L567: `#2B1757 → #4B2A9A, 60% opacity, blur 6`",
+  "fix": "Change #2B1457 to #2B1757. #2B1457 is `deep`, not the board table value.",
+  "section": null
+ },
+ {
+  "docLine": 187,
+  "token": "glow.chip",
+  "docValue": "#F46BC4 T.4 B12 (shared with glow.tabOn, L184)",
+  "kind": "untraceable",
+  "boardEvidence": "L198 `.g .chip.on{background:rgba(244,107,196,.35);border-color:#fff}`: chip.on has no box-shadow. Only L184 `.tab.on` has `0 0 12px rgba(244,107,196,.6)`",
+  "fix": "Delete glow.chip. Keep glow.tabOn only.",
+  "section": null
+ },
+ {
+  "docLine": 101,
+  "token": "pill.T (forever)",
+  "docValue": ".75→.25 forever, grouped under 'night2 pills'",
+  "kind": "contradiction",
+  "boardEvidence": "L277 `.forever{...background:rgba(10,2,40,.75)}` is night (10,2,40), not night2 (20,6,60). §2 pass() line 316 correctly says `night` T.25",
+  "fix": "Move forever from pill.T to well.T as night .75→T.25.",
+  "section": null
+ },
+ {
+  "docLine": 288,
+  "token": "XP line track radius",
+  "docValue": "track Frame r3",
+  "kind": "wrong-value",
+  "boardEvidence": "L116 `.g .xpl{...height:6px;border-radius:4px;...}`. The doc's own §1d r.4 row (line 129) lists XP line L116 as 4",
+  "fix": "Change r3 to r4, which renders as a pill at h 6 anyway.",
+  "section": null
+ },
+ {
+  "docLine": 312,
+  "token": "buy() shine",
+  "docValue": "white→T.25→white",
+  "kind": "wrong-value",
+  "boardEvidence": "L243 `background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent)`, top/bottom −10%",
+  "fix": "Write white T1 → T.25 → T1, at 110% of the button height.",
+  "section": null
+ },
+ {
+  "docLine": 26,
+  "token": "ctaHi / cta gradient citation",
+  "docValue": "#FF8FE0 cited L54–56",
+  "kind": "wrong-citation",
+  "boardEvidence": "L54 `.dockb.on{background:linear-gradient(180deg,#FF9BDD,var(--vi))` is #FF9BDD on an old 'Before' control. #FF8FE0 is on L55, L56, L184, L320",
+  "fix": "Cite L55–56, L184, L320 on doc lines 26 and 148. Optionally list #FF9BDD as board-only.",
+  "section": null
+ },
+ {
+  "docLine": 129,
+  "token": "r.4 scrollbar citation",
+  "docValue": "L190",
+  "kind": "wrong-citation",
+  "boardEvidence": "L190 `::-webkit-scrollbar{width:6px}`. The radius is at L191–192 `border-radius:4px`",
+  "fix": "Cite L191–192.",
+  "section": null
+ },
+ {
+  "docLine": 365,
+  "token": "chase coverage",
+  "docValue": "11.0 % (board printout)",
+  "kind": "untraceable",
+  "boardEvidence": "The board has no static 11.0. L724 computes `fp.chase.toFixed(1)` at runtime from `area()` L692. The doc's own hand sum is 10.9 %",
+  "fix": "Label 11.0 % as from P§4 or a prior run, not the board source. Otherwise mark it est. like the rest row and read #fp (G3).",
+  "section": null
+ },
+ {
+  "docLine": 419,
+  "token": "banner.danger",
+  "docValue": "1.5 s, not drawn (G4)",
+  "kind": "contradiction",
+  "boardEvidence": "L399 'RUN! is now the 1.5 s guardian alert'. L415 'RUN! is that banner'. L165 runslam keyframes (0–30% of 5 s = 1.5 s). §4 line 382 maps the tier-2 danger slot to RUN!",
+  "fix": "Make banner.danger an alias of run.slam/run.awake. Remove 'not drawn' here and the danger-banner clause from G4 (line 463).",
+  "section": null
+ },
+ {
+  "docLine": 318,
+  "token": "egg() plinth",
+  "docValue": "Plinth 88×20 ellipse via U1 tinted gold T.3",
+  "kind": "missing",
+  "boardEvidence": "L292 `.plat{...background:radial-gradient(ellipse,rgba(255,216,74,.7),rgba(90,30,170,.6) 60%,transparent 72%)}`",
+  "fix": "Add the violet second stop, #5A1EAA (hero.from) T.4 at 60 %, fading out by 72 %. This needs two U1 layers or a dedicated PNG.",
+  "section": null
+ },
+ {
+  "docLine": 310,
+  "token": "card() grid",
+  "docValue": "Columns n = ⌊(W+10)/106⌋, cell = (W−10(n−1))/n",
+  "kind": "missing",
+  "boardEvidence": "L199 `.g .cards{display:grid;...gap:10px;padding:3px}`",
+  "fix": "Add UIPadding 3, and define W as scroll content width − 6.",
+  "section": null
+ },
+ {
+  "docLine": 222,
+  "token": "pbtn (Reset button)",
+  "docValue": "only a text size (15) and a touch-target entry",
+  "kind": "missing",
+  "boardEvidence": "L307 `.g .pbtn{height:30px;padding:0 12px;font-size:15px;border-width:2px;box-shadow:0 0 10px rgba(244,107,196,.5),0 4px 0 #5a2299}`. L646 is used as `btn ghost pbtn`, and `.btn.ghost` box-shadow (L57) wins on specificity",
+  "fix": "Add a pbtn row to the menu builders: ghost, h 30, padX 12, display 15, stroke 2. Note that the pink glow/lip is overridden on the board's only instance.",
+  "section": null
+ },
+ {
+  "docLine": 229,
+  "token": ".note",
+  "docValue": "listed only inside t.small",
+  "kind": "missing",
+  "boardEvidence": "L306 `.g .note{font:600 11px/1.35 var(--body);opacity:.85;margin-top:10px}`. L639 shop footer",
+  "fix": "Add a note component: body 11, T.15, top margin 10, last item in the shop scroll.",
+  "section": null
+ },
+ {
+  "docLine": 285,
+  "token": "HUD state composition",
+  "docValue": "B.rail row has no state visibility. Only bat says 'hidden in the sanctuary'",
+  "kind": "missing",
+  "boardEvidence": "L625–628 `F.rest/carry/chase/sanct`: sanct = tr+dock+orbs(false)+pcard+toast (no rail). Carry adds beacon+cp+cpop. Chase adds vig+dock('c3')+cp+edge+run. L432 'No rail, no bat'",
+  "fix": "Add a state→builder table (rest/carry/chase/sanct). State that the rail is hidden in the sanctuary.",
+  "section": null
+ },
+ {
+  "docLine": 299,
+  "token": "glows not ported",
+  "docValue": "shock: stroke only; skin streak: gradient only; rvsel/rvhalo: stroke only",
+  "kind": "missing",
+  "boardEvidence": "L167 shock `box-shadow:0 0 20px #ff3d85,inset 0 0 20px #ff3d85`. L300 trail i `box-shadow:0 0 10px var(--rc)`. L333 rvsel `0 0 18px #ffd84a,inset 0 0 12px rgba(255,216,74,.5)`. L334 rvhalo `0 0 24px #ffd84a`",
+  "fix": "Add these to §1g and the B.run, skin() and reveal rows, or mark them as not ported.",
+  "section": null
+ },
+ {
+  "docLine": 311,
+  "token": "display-text drops",
+  "docValue": "hero title, coin-pack amount, pass/egg name, reveal title/name listed without drops",
+  "kind": "missing",
+  "boardEvidence": "L230 htit `0 3px 0 #5a2299`. L266 cpk b `0 2px 0 #5a2299`. L275 pass .t / L293 eggc .t `0 2px 0 #5a2299`. L328 rvtitle `0 3px 0 #5a2299`. L350 rvname `0 2px 0 #5a2299`",
+  "fix": "Add 'drop N lip' to each row, as already done for the ticket title and banner. Or state that they are cut by the ≤6 drop budget.",
+  "section": null
+ },
+ {
+  "docLine": 446,
+  "token": "reveal timeline",
+  "docValue": "spin 3.4 s, name 4.3 s, cta 5.7 s; landed time absent",
+  "kind": "missing",
+  "boardEvidence": "L738 `at(3500,function(){rv.classList.add('landed');title.textContent='RARE PULL!'})`. halo/shard/cardIn/slam/dim (L336–347) all key off .landed",
+  "fix": "Add a reveal.land token at 3.5 s and state that halo, shard, cardIn, slam and dim are relative to it.",
+  "section": null
+ },
+ {
+  "docLine": 326,
+  "token": "reveal strip data",
+  "docValue": "track y 104, pitch 108; no card count, landing index or dim level",
+  "kind": "missing",
+  "boardEvidence": "L731 20-entry colour sequence (blue-heavy, gold/violet spaced). Icons alternate creature/egg (`ico[i%2]`). L733 `T=14`, `X(i)=422-(i*108+54)`. L345 landed band/track/selector `opacity:.12`",
+  "fix": "Add: 20 cards, landing index 14, centre x 422, alternating icons, and dim to T.88 on land.",
+  "section": null
+ },
+ {
+  "docLine": 414,
+  "token": "motion amplitudes",
+  "docValue": "names/durations/easings only",
+  "kind": "missing",
+  "boardEvidence": "L39 pulse scale 1.08/opacity .85. L69 vigp opacity .45. L130 nudge −4px. L143 toast y −8 in / x +16 out. L148 bnr y −30, scale .8→1.05. L168 shock scale .2→2.6. L227 bob −5px. L271 wob 1.07. L291 eggw −7/6/−3°. L301 streak −80%→130%. L303 swing −18°. L337 halo .4→2.8. L340 shard dx/dy/r. L342–344 cardIn from .3/−8°",
+  "fix": "Add an amplitude column so Motion doesn't have to re-read the CSS, or point to the board lines explicitly.",
+  "section": null
+ },
+ {
+  "docLine": 436,
+  "token": "pcard.open",
+  "docValue": ".2 s from y +40",
+  "kind": "missing",
+  "boardEvidence": "L138 `@keyframes dockup{from{transform:translate(-50%,40px);opacity:0}}` applied by L171 to .pcard, which has no base translateX (L170 left:calc(50% - 125px)), so the board also starts it −115 px in x",
+  "fix": "Note this as a board artefact. Intended motion is y +40 only.",
+  "section": null
+ },
+ {
+  "docLine": 80,
+  "token": "board-only colour list",
+  "docValue": "#0B1022, #121a36, #F2F5FF, #A3B0D2, #FFD23C, #FFC414, #30343C, #5DFFC0/#FF6B88, #C9B8F5",
+  "kind": "missing",
+  "boardEvidence": "Chrome/zone colours not listed: #05070f (L20), #223363 (L26), #34467e/#141d3c/#cfd8f5 (L28–29), #2a3566 (L33), #1b2547/#263a74 (L360–362), #16473a/#4a3a12/#4a1222 (L364), #8e97b8/#5e6788 (L373), #c5c9d1/#ff8aa0/#7bd8ff zone fills (L86–93), #dfe2e8/#e3e6ea (L82, L587). Old-control-only colours: #FF9BDD (L54), #8fb2ff (L488)",
+  "fix": "Extend the do-not-build row so every board hex is accounted for.",
+  "section": null
+ },
+ {
+  "docLine": 445,
+  "token": "sparkle glow colour",
+  "docValue": "flare #7BD8FF only (line 27 'sparkle glow')",
+  "kind": "missing",
+  "boardEvidence": "L41 `.tw{...filter:drop-shadow(0 0 8px #f78ad0)}.tw.d2{...drop-shadow(0 0 8px #7bd8ff)}`. d1 and d3 use #f78ad0",
+  "fix": "Add #F78AD0 as the sparkle glow (sparkles 1 and 3), with #7BD8FF on sparkle 2.",
+  "section": null
+ },
+ {
+  "docLine": 327,
+  "token": "Not to build",
+  "docValue": ".navb, .gcard, .dockb, .node, .rail, old 82 px jump",
+  "kind": "missing",
+  "boardEvidence": "L68 `.f .vigp` (old radial vignette, L443), L70–71 `.shim` + `@keyframes shim` 2.4 s (L447 old XP bar), L66 `.navb.on`. Old inline orbs L464–466",
+  "fix": "Add .vigp and .shim/shim to the Before-only list.",
+  "section": null
+ },
+ {
+  "docLine": 307,
+  "token": "menu content map",
+  "docValue": "tabs() generic; dock order without icon ids",
+  "kind": "missing",
+  "boardEvidence": "L596 dock icons creature/map/chest/calendar/scroll. L629 Collection tabs All/Team/Index/Evolve = creature/heart/scroll/egg-cracked, chips L630. L631 Shop tabs Featured/Coins/Passes/Eggs/Skins = gift/coin/gem/egg/bat. L641 Settings tabs have no icons. Shop section order L632–639. Scroll-sync offsets L660 (`offsetTop-(h?60:10)`) and L662 (`hero?64:4`)",
+  "fix": "Add a per-menu table: tab labels → icon ids, section order, and the tab-sync/jump offsets.",
+  "section": null
+ },
+ {
+  "docLine": 406,
+  "token": "U8 gloss.orb",
+  "docValue": "one PNG from the L55 radial (α .6 at 28 %, fade 52 %); cost noted only as position",
+  "kind": "missing",
+  "boardEvidence": "L157 cpic `rgba(255,255,255,.8)` at 35 %, fade 62 %. L274 porb `.75` at 30 %, fade 60 %. L55 orb `.6` at 28 %, fade 52 %",
+  "fix": "State the alpha and fade-radius differences too (cpic/porb highlights are 25–33 % stronger and wider), or use ImageTransparency per use (.2/.25/.4).",
+  "section": null
+ },
+ {
+  "docLine": 357,
+  "token": "menu Decor exemption",
+  "docValue": "Decor (rays, hero rays, trail streak, sparkles) is exempt",
+  "kind": "untraceable",
+  "boardEvidence": "data-deco is set only on .prays (L640), .hrays (L632) and trail `<i data-deco>` (L619, L634). Sparkles (.tw, L548) are only in the reveal, which no check covers (L711–715)",
+  "fix": "Drop sparkles from the menu Decor list, or note that the reveal has no board containment check.",
+  "section": null
+ },
+ {
+  "docLine": 120,
+  "token": "r.btn vs component radii",
+  "docValue": "r.btn 16 includes toast, wallet, toggle",
+  "kind": "contradiction",
+  "boardEvidence": "L141 toast, L219 wallet and L321 tog are all `border-radius:16px`, but §2 lines 295, 324 and 323 give r15/r15/r14 (clamped to h/2). Likewise the coin pill: L98 r18 vs §2 r17",
+  "fix": "Use one convention: either cite the board value 16/18 in §2, or list the clamped values in §1d with a note.",
+  "section": null
+ }
+]

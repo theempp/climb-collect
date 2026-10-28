@@ -15,3 +15,9 @@ Plan: `design/hud-glassbloom-build-plan-2026-10-27.md` (§11 owner answers overr
 - `UserGameSettings` quality and mouse sensitivity are not writable (RobloxScript capability) → Graphics = own effects tier, no Camera speed row.
 - UIGradient under UIStroke rotates with a hard step → ring technique viable; half-clip angles still to tune in P3.
 - `sync_hud.py` now creates missing modules (ModuleScript, LocalScript for `*.client.luau`) and skips repo files not written yet.
+
+## P1 results (atlas)
+- Intel: `C:\Users\HOME!\Desktop\climb&collect\design\hud-glassbloom-intel.md` (623 lines, 8 sections). Every value is cited to a board line; the board's estimated token table (L566–575) loses to the CSS (same rule as D12).
+- Independent audit (7 agents, about 1,290 values): 81 issues (`evidence/hud_glassbloom_2026-10-27/p1_intel_verification.json`); atlas re-checked and fixed all 81, 0 rejected (doc §8).
+- Board self-check run in a browser at 844×390: 21/21 PASS, both controls fail. Permanent HUD coverage: rest 10.6 %, carrying 11.6 %, chase 11.1 % (the plan's 11.0 % is superseded), sanctuary 9.0 %, old chase 24.7 %.
+- Open for STOP 1: upload set 11 vs the approved ~7; drawn controls under 44 px (proposal: invisible 44 px hit areas); timing conflicts between the board text and the CSS (XP line, carry pop-up entry, rail hold); gaps G1–G23.
