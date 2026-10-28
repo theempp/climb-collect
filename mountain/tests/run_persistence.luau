@@ -39,6 +39,10 @@ local migrated=service.load({UserId=102})
 check(migrated and #migrated.eggs==2 and migrated.schema==2,'load_migrates_legacy_entitlements')
 local bad=Rules.newProfile(100);bad.schema=1;bad.recovery={eggs={{id='broken',species='unknown'}}};backend.backend.u103={profile=bad}
 check(not service.load({UserId=103}) and backend.backend.u103.profile.schema==1,'invalid_profile_no_overwrite')
+local newer=Rules.newProfile(100);newer.settings={largeText=true,futurePref=true};backend.backend.u106={profile=newer}
+local loaded=service.load({UserId=106})
+check(loaded and loaded.settings.largeText and loaded.settings.futurePref==nil,'unknown_settings_key_loads_no_kick')
+check(backend.backend.u106.profile.settings.futurePref==true and backend.backend.u106.lock~=nil,'unknown_settings_key_load_no_overwrite')
 local unsafe=Rules.newProfile(100);carry(unsafe,'offline');backend.backend.u104={profile=unsafe}
 check(service.load({UserId=104}).run==nil,'reconnect_forfeits_unsecured_run')
 -- Real interleaving: exit yields at the storage boundary, then disconnect waits.

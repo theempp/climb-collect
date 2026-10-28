@@ -2,6 +2,8 @@
 local U={}
 local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,RegisterDefense=true,ChallengeDefense=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true}
 local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true}
+-- Per-key enums (patch path strict; saved values snap to the nearest step, ties to the default, else the lower).
+local steps={}
 local function finite(value) return type(value)=='number' and value==value and math.abs(value)<math.huge end
 local function text(value) return type(value)=='string' and #value>0 and #value<=80 end
 local function fields(value,allowed)
@@ -17,19 +19,35 @@ function U.parseId(id)
  if not n or n<1 or n>9007199254740991 then return nil end
  return token,n
 end
+local function known(key,value)
+ local default=defaults[key]
+ return type(value)==type(default) and (type(value)~='number' or (finite(value) and value>=0 and value<=1))
+end
+local function snap(key,value)
+ local list=steps[key];if not list then return value end
+ local best,gap=nil,math.huge
+ for _,step in ipairs(list) do
+  local d=math.abs(step-value)
+  if d<gap or (d==gap and step==defaults[key]) then best,gap=step,d end
+ end
+ return best
+end
+local function merge(result,saved)
+ for key,value in pairs(saved) do if defaults[key]~=nil and known(key,value) then result[key]=snap(key,value) end end
+end
+-- Saved profiles: unknown keys (written by a newer build) are ignored, never a lockout; known keys keep type and 0-1 checks.
+function U.savedSettings(saved)
+ if type(saved)~='table' then return nil end
+ for key,value in pairs(saved) do if defaults[key]~=nil and not known(key,value) then return nil end end
+ local result=table.clone(defaults);merge(result,saved);return result
+end
 function U.settings(patch,current)
  local result=table.clone(defaults)
- if type(current)=='table' then
-  for key,default in pairs(defaults) do
-   local value=current[key]
-   if type(value)==type(default) and (type(value)~='number' or (finite(value) and value>=0 and value<=1)) then result[key]=value end
-  end
- end
+ if type(current)=='table' then merge(result,current) end
  if patch==nil then return result end
  if type(patch)~='table' then return nil end
  for key,value in pairs(patch) do
-  local default=defaults[key]
-  if default==nil or type(value)~=type(default) or (type(value)=='number' and (not finite(value) or value<0 or value>1)) then return nil end
+  if defaults[key]==nil or not known(key,value) or (steps[key] and not table.find(steps[key],value)) then return nil end
   result[key]=value
  end
  return result

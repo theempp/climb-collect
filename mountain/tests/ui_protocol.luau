@@ -15,6 +15,12 @@ local settings=Protocol.settings(nil)
 check(settings.musicVolume==.7 and settings.sfxVolume==.8 and settings.hints==true and settings.largeText==false,'legacy preference defaults')
 check(Protocol.settings({largeText=true},settings).largeText,'partial UI-only preferences merge')
 for _,patch in ipairs({{coins=900},{hints=1},{musicVolume=0/0},{sfxVolume=math.huge},{musicVolume=-.1},{sfxVolume=1.1}}) do check(not Protocol.settings(patch,settings),'invalid preferences denied') end
+-- C1: saved tables from a newer build may carry unknown keys; known keys stay strict, the patch path stays strict.
+local saved=Protocol.savedSettings({largeText=true,futurePref=3,[1]='x'})
+check(saved and saved.largeText and saved.futurePref==nil and saved.musicVolume==.7,'saved unknown key ignored, known kept')
+check(not Protocol.settings({futurePref=3},settings),'patch with unknown key denied')
+for _,bad in ipairs({{hints=1},{sfxVolume=math.huge},{musicVolume=-.1},'junk'}) do check(not Protocol.savedSettings(bad),'saved known key still validated') end
+check(Protocol.settings(nil,{futurePref=3,largeText=true}).largeText,'saved merge ignores unknown key')
 local now=10;local profile=Rules.newProfile(100);profile.coins=100;local healthy=true;local busy=false;local calls=0
 local requests=Requests.new({clock=function() return now end,available=function() return healthy end,busy=function() return busy end,handle=function(_,action,payload)
  calls+=1

@@ -21,7 +21,7 @@ local function valid(p)
  for _,key in ipairs({'serial','unlocked','coins','trophies','lastIncome','competitionAt'}) do if type(p[key])~='number' or p[key]~=p[key] or math.abs(p[key])==math.huge then return false end end
  if p.unlocked<1 or p.unlocked>6 then return false end
  if p.tycoon~=nil and not R.tycoon.valid(p.tycoon) then return false end
- if p.settings~=nil and not UIProtocol.settings(p.settings) then return false end
+ if p.settings~=nil and not UIProtocol.savedSettings(p.settings) then return false end
  if p.bats~=nil then
   if type(p.bats)~='table' or type(p.bats.equipped)~='string' or type(p.bats.levels)~='table' or not p.bats.levels[p.bats.equipped] then return false end
   for id,n in pairs(p.bats.levels) do if not Bats.byId[id] or not finite(n) or n%1~=0 or n<1 or n>Bats.maxLevel then return false end end
