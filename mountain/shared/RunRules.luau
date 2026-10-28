@@ -12,8 +12,8 @@ local function eggs(list)
  return count==#list
 end
 function Run.migrate(p)
- if type(p)~='table' or (p.schema~=1 and p.schema~=2) then return nil end
- if p.schema==2 then return p end
+ if type(p)~='table' or (p.schema~=1 and p.schema~=2 and p.schema~=3) then return nil end
+ if p.schema>=2 then return p end
  if not eggs(p.eggs) or not eggs(p.cargo) or (p.recovery~=nil and (type(p.recovery)~='table' or not eggs(p.recovery.eggs))) then return nil end
  local identities={}
  for _,list in ipairs({p.eggs,p.cargo,if p.recovery then p.recovery.eggs else {}}) do for _,e in ipairs(list) do
@@ -34,7 +34,7 @@ function Run.migrate(p)
  return p
 end
 function Run.strike(p,egg,now)
- if p.schema~=2 or type(egg)~='table' or not text(egg.id) or not text(egg.runId) or not C.byId[egg.species] or type(egg.section)~='number' or egg.section%1~=0 or egg.section<1 or egg.section>6 or type(now)~='number' or now~=now then return false,'invalid' end
+ if (p.schema or 0)<2 or type(egg)~='table' or not text(egg.id) or not text(egg.runId) or not C.byId[egg.species] or type(egg.section)~='number' or egg.section%1~=0 or egg.section<1 or egg.section>6 or type(now)~='number' or now~=now then return false,'invalid' end
  if egg.trial and (not p.wins[tostring(egg.section)] or p.captures[egg.species]) then return false,'trial_unavailable' end
  if p.run and (p.run.eggId~=egg.id or p.run.id~=egg.runId or p.run.phase~='breaking') then return false,'full_hands' end
  if not p.run then p.run={id=egg.runId,eggId=egg.id,species=egg.species,section=egg.section,trial=egg.trial==true,phase='breaking',hits=0,startedAt=now} end
@@ -57,7 +57,7 @@ function Run.drop(p)
 end
 -- Whoever grabs a dropped creature (thief or original carrier) carries it under a fresh run id.
 function Run.receive(p,snapshot,runId,now)
- if p.schema~=2 or p.run or type(snapshot)~='table' or not C.byId[snapshot.species] or not text(runId) or type(now)~='number' then return false,'full_hands' end
+ if (p.schema or 0)<2 or p.run or type(snapshot)~='table' or not C.byId[snapshot.species] or not text(runId) or type(now)~='number' then return false,'full_hands' end
  p.run={id=runId,eggId='drop:'..runId,species=snapshot.species,section=snapshot.section,trial=false,phase='carried',hits=0,startedAt=now,stolenFrom=snapshot.from}
  return true
 end

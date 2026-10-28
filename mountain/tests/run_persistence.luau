@@ -4,7 +4,7 @@ local backend=Store.memory()
 local service=Profiles.newForTests(backend,'owner')
 local player={UserId=101}
 local p=service.load(player)
-check(p and p.schema==2,'schema2 loads')
+check(p and p.schema==3 and p.v1 and p.v1.version==1,'schema2 loads and migrates to schema3')
 local function carry(profile,id)
  RunRules.strike(profile,{id=id,runId=id,species='mossbun',section=1,hitsRequired=1},100)
  RunRules.pickup(profile,id)
@@ -36,7 +36,7 @@ check(not service.transact(player,'c',function(draft) return RunRules.secure(dra
 local old=Rules.newProfile(100);old.schema=1;old.cargo={{id='legacy1',species='mossbun'}};old.recovery={eggs={{id='legacy2',species='petalyn'}},expires=1}
 backend.backend.u102={profile=old}
 local migrated=service.load({UserId=102})
-check(migrated and #migrated.eggs==2 and migrated.schema==2,'load_migrates_legacy_entitlements')
+check(migrated and #migrated.eggs==2 and migrated.schema==3,'load_migrates_legacy_entitlements')
 local bad=Rules.newProfile(100);bad.schema=1;bad.recovery={eggs={{id='broken',species='unknown'}}};backend.backend.u103={profile=bad}
 check(not service.load({UserId=103}) and backend.backend.u103.profile.schema==1,'invalid_profile_no_overwrite')
 local unsafe=Rules.newProfile(100);carry(unsafe,'offline');backend.backend.u104={profile=unsafe}

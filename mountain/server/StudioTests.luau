@@ -6,7 +6,7 @@ function T.run()
  local R=require(game.ReplicatedStorage.MountainShared.Rules);local C=require(game.ReplicatedStorage.MountainShared.Catalog)
  local checks={};local function check(name,value) assert(value,name);table.insert(checks,name) end
  local backend=Store.memory();local a=P.newForTests(backend,'test-a');local b=P.newForTests(backend,'test-b');local player={UserId=92833001}
- local p=a.load(player);check('new schema loads',p and p.schema==2)
+ local p=a.load(player);check('new schema loads',p and p.schema==3 and p.v1~=nil)
  check('contended session rejects',not b.load(player))
  p.coins=97;R.collect(p,'mossbun','fixture',100);R.extract(p);R.incubate(p,p.eggs[1].id,100)
  check('release save succeeds',a.save(player,true))

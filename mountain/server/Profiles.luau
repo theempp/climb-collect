@@ -2,6 +2,7 @@ local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
 local Bats=require(game.ReplicatedStorage.MountainShared.BatRules)
+local V1Schema=require(game.ReplicatedStorage.MountainShared.V1Schema)
 local Store=require(script.Parent.Store)
 local Http=game:GetService('HttpService')
 local Run=game:GetService('RunService')
@@ -16,7 +17,7 @@ local function dense(t)
  return count==#t
 end
 local function valid(p)
- if type(p)~='table' or (p.schema~=1 and p.schema~=2) then return false end
+ if type(p)~='table' or (p.schema~=1 and p.schema~=2 and p.schema~=3) then return false end
  for _,key in ipairs({'creatures','team','cargo','eggs','wins','captures','discoveries','claims','shortcuts','resources'}) do if type(p[key])~='table' then return false end end
  for _,key in ipairs({'serial','unlocked','coins','trophies','lastIncome','competitionAt'}) do if type(p[key])~='number' or p[key]~=p[key] or math.abs(p[key])==math.huge then return false end end
  if p.unlocked<1 or p.unlocked>6 then return false end
@@ -38,7 +39,8 @@ local function valid(p)
   if type(p.recovery)~='table' or not dense(p.recovery.eggs) then return false end
   for _,e in ipairs(p.recovery.eggs) do if type(e)~='table' or type(e.id)~='string' or not C.byId[e.species] or C.byId[e.species].rarity=='Legendary' then return false end end
  end
- if p.schema==2 then
+ if p.schema==3 and not V1Schema.valid(p.v1) then return false end
+ if p.schema>=2 then
   if type(p.legacyEntitlements)~='table' or not dense(p.securedRunIds) or #p.securedRunIds>128 then return false end
   for _,id in ipairs(p.securedRunIds) do if type(id)~='string' or #id>128 then return false end end
   local r=p.run
@@ -53,7 +55,7 @@ function P.load(player)
   if old and (type(old)~='table' or not valid(old.profile)) then return nil end
   if old and old.lock and old.lock.owner~=owner and old.lock.expires>now then return nil end
   local p=if old then old.profile else R.newProfile(now)
-  p=Custody.migrate(p);if not p or not valid(p) then return nil end
+  p=Custody.migrate(p);p=p and V1Schema.migrate(p);if not p or not valid(p) then return nil end
   Custody.forfeit(p,'leave')
   if not p.tycoon then R.settleIncome(p,now);R.tycoon.ensure(p,now) else R.tycoon.settle(p,now,true) end
   accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}

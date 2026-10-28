@@ -27,7 +27,7 @@ function R.winGuardian(p,k,trial)
  if not R.canEnter(p,k) then return false end
  local g=C.guardians[k]
  if trial then
-  if p.schema==2 then return false,'trial_requires_raid' end
+  if (p.schema or 0)>=2 then return false,'trial_requires_raid' end
   if not p.wins[tostring(k)] or p.captures[g.id] then return false end
   p.captures[g.id]=true
   table.insert(p.creatures,{id=nextId(p,'c'),species=g.id,level=1,xp=0})
