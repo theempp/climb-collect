@@ -8,6 +8,7 @@ local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
 local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
+local Motion=require(script.Parent.Motion)
 local TycoonHub=require(script.Parent.TycoonHub)
 local Shop=require(script.Parent.Shop)
 local S={};S.__index=S
@@ -34,8 +35,14 @@ function S:open(name,tab)
  if self.store.profile then self.selected=table.clone(self.store.profile.team) end
  self:render(false)
 end
+-- Close (§19): the panel fades .15 s and is then destroyed; it stops taking input at once and is renamed so lookups (and a reopen)
+-- see only a live shade. The state reset below stays synchronous.
 function S:close()
- if self.shade then self.shade:Destroy();self.shade=nil end
+ local shade=self.shade;self.shade=nil
+ if shade then
+  shade.Interactable=false;shade.Name='HubShadeClosing'
+  Motion.play(shade,'panel.close',{done=function() shade:Destroy() end});if not Motion.playing(shade) then shade:Destroy() end -- reduced / no fade: now
+ end
  self.hub=nil;self.detail=nil;self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.landKey=nil;self.complete=nil;self.sectionsPending=nil;GuiService.SelectedObject=nil
  if self.onClose then self.onClose() end
 end
@@ -142,29 +149,35 @@ function S:sectionOffset(key)
  return s.frame.AbsolutePosition.Y-body.AbsolutePosition.Y+body.CanvasPosition.Y
 end
 function S:highlight(name) for n,b in pairs(self.tabButtons) do W.setOn(b,n==name) end end
--- Landing (a section key or a restored y) is re-applied while the layout settles and dropped once the player scrolls. No tween (Motion, P6).
+-- Landing (a section key or a restored y) is re-applied while the layout settles and dropped once the player scrolls. A tapped
+-- landing (smooth) glides (Motion tab.scroll, §19 .3 s ease-out) to the reachable y and a settle retargets the glide; open-with-tab,
+-- the UIProbe tab and refresh restores land at once.
 function S:land()
  local p,body=self.landing,self.body
  if not p or not body or not body.Parent then return end
  local y=if p.key then self:sectionOffset(p.key) else p.y
- if y then body.CanvasPosition=Vector2.new(0,math.max(0,if p.key then y-4 else y)) end
+ if not y then return end
+ y=math.max(0,if p.key then y-4 else y)
+ if p.smooth then Motion.scrollTo(body,math.min(y,math.max(0,body.AbsoluteCanvasSize.Y-body.AbsoluteWindowSize.Y)),'tab.scroll',function() self:syncTab() end)
+ else body.CanvasPosition=Vector2.new(0,y) end
 end
 -- Progressive hubs (Shop) build later sections over the next frames; self.complete builds the rest now so a jump always lands.
-function S:jumpToSection(key)
+-- smooth = a tap (side tab, wallet +: board goTo L662-663).
+function S:jumpToSection(key,smooth)
  if not self.sections[key] and self.complete then self.complete() end
  if not self.sections[key] then return false end
- self.landing={key=key};self:land();task.defer(function() self:land() end);return true
+ self.landing={key=key,smooth=smooth==true};self:land();task.defer(function() self:land() end);return true
 end
 function S:jumpTo(name)
  if not table.find(tabs[self.hub] or {},name) then return end
  if not self.sectionMode then self.tab=name;self.detail=nil;self.page=1;self:render(false);return end
- self.tab=name;self:highlight(name);self:jumpToSection(name)
+ self.tab=name;self:highlight(name);self:jumpToSection(name,true)
 end
 -- Tab sync: a tab is active once its section's offset − 10 ≤ scroll; the last tab is active at the end of the canvas (not while a
 -- progressive hub is still adding sections: the partial canvas end is not the list end).
 function S:syncTab()
  local body=self.body
- if not self.sectionMode or not body or not body.Parent then return end
+ if not self.sectionMode or not body or not body.Parent or Motion.busy(body) then return end -- the tapped tab stays lit while the glide runs
  local names=tabs[self.hub];local y=body.CanvasPosition.Y;local first,last,active
  for _,n in ipairs(names) do
   local s=self.sections[n]
@@ -209,6 +222,7 @@ function S:render(preserve)
  end
  local tabScrollPosition=if preserve and self.shade then self.shade.Hub.Tabs.CanvasPosition else Vector2.zero
  local scroll=if preserve and self.body then self.body.CanvasPosition else Vector2.zero
+ local fresh=self.shade==nil -- §19: only a real open animates (never a refresh, tab re-render or detail)
  if self.shade then self.shade:Destroy() end
  self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.footer=nil
  -- Progressive content (Shop): restoreY = the scroll a refresh restores, so the content can build that view synchronously.
@@ -261,6 +275,19 @@ function S:render(preserve)
  elseif self.hub=='Shop' then self:shop(data)
  elseif self.hub=='Settings' then self:settings(data) end
  if self.body~=body then return end -- content re-rendered (e.g. a missing creature detail); that render finished the frame
+ -- Panel open (§19): the shade (tint + everything in it) fades in and the Hub scales .96 → 1, .2 s ease-out. The fade's capture of
+ -- every descendant is kept off the build frame (Studio P6 B: +4-5 ms on the Shop open): the shade is hidden for this frame and the
+ -- fade starts on a later one (Motion.later: a RenderStepped hop would still be this frame when the open came from input);
+ -- sections the progressive build adds after that are not faded (they sit below the fold).
+ local hidden=fresh and not Motion.reduced()
+ if hidden then
+  local shade=self.shade;shade.Visible=false
+  Motion.later(function()
+   if self.shade~=shade or not shade.Parent then return end
+   shade.Visible=true;Motion.play(shade,'panel.open');Motion.play(f,'panel.scale')
+   local sel=self.pendingSelect;self.pendingSelect=nil;if sel and sel.Parent then GuiService.SelectedObject=sel end
+  end)
+ end
  -- Landing: a refresh restores the scroll; an open/probe lands on its section key or (section hubs) the current tab.
  if preserve then self.landing={y=scroll.Y}
  elseif self.landKey and self.sections[self.landKey] then self.landing={key=self.landKey}
@@ -268,7 +295,7 @@ function S:render(preserve)
  self.landKey=nil
  local function settle() self:land();self:syncTab() end
  body:GetPropertyChangedSignal('AbsoluteCanvasSize'):Connect(settle);body:GetPropertyChangedSignal('CanvasPosition'):Connect(function() self:syncTab() end)
- local function scrolled() self.landing=nil end
+ local function scrolled() self.landing=nil;if Motion.busy(body) then Motion.cancel(body);self:syncTab() end end -- touch / wheel / selection takes over a glide
  body.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.Touch or i.UserInputType==Enum.UserInputType.MouseButton1 then scrolled() end end)
  body.InputChanged:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseWheel then scrolled() end end)
  body.SelectionChanged:Connect(scrolled)
@@ -277,7 +304,8 @@ function S:render(preserve)
  if UIS.GamepadEnabled and UIS:GetLastInputType()==Enum.UserInputType.Gamepad1 then
   local target=nil
   if preserve and #selectedPath>0 then target=self:focusTarget(selectedPath,selectedName) end
-  GuiService.SelectedObject=if target and target:IsA('GuiButton') and target.Selectable then target else f.Back
+  local sel=if target and target:IsA('GuiButton') and target.Selectable then target else f.Back
+  if hidden then self.pendingSelect=sel else GuiService.SelectedObject=sel end -- a hidden shade takes focus when it shows
  end
 end
 local black=Color3.new(0,0,0)

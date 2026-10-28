@@ -8,6 +8,7 @@ local Players=game:GetService('Players')
 local RS=game:GetService('ReplicatedStorage')
 local Run=game:GetService('RunService')
 local TS=game:GetService('TweenService')
+local TextService=game:GetService('TextService')
 local T=require(script.Parent.Theme)
 local M={}
 local S,D=Enum.EasingStyle,Enum.EasingDirection
@@ -66,10 +67,15 @@ M.tokens={
  ['edge.nudge']={kind='loop',cat='hud',dur=.5,ease='inOut',to={x=-4},rev=true}, -- L130 nudge 1 s (50 % key)
  ['vignette.pulse']={kind='loop',cat='hud',dur=.55,ease='inOut',to={a=.45},rev=true}, -- L69/L139 vigp 1.1 s
  -- Menus / shop (Task B wires these).
- ['panel.open']={kind='shot',dur=.2,ease='out',keys={{0,a=0,s=.96},{.2,a=1,s=1}}}, -- §19
+ -- Panel open (§19: fade + scale .96 → 1, .2 s ease-out) = two shots with the same timing: the fade on HubShade (the tint and
+ -- everything in it, so the Hub fades once) and the scale on the Hub.
+ -- hush: loops inside wait until it lands (an alpha loop started mid-fade would keep a half-faded base).
+ ['panel.open']={kind='shot',dur=.2,ease='out',hush=true,keys={{0,a=0},{.2,a=1}}},
+ ['panel.scale']={kind='shot',dur=.2,ease='out',keys={{0,s=.96},{.2,s=1}}},
  ['panel.close']={kind='shot',dur=.15,ease='linear',keys={{0,a=1},{.15,a=0}}}, -- §19 .15 s fade (no easing given: linear)
  ['tab.scroll']={kind='tween',dur=.3,ease='out'}, -- §19
- ['hero.mini']={kind='tween',dur=.2,ease='out'}, -- §19
+ ['hero.mini']={kind='tween',dur=.2,ease='out'}, -- §19: hero height full ↔ mini
+ ['hero.fade']={kind='shot',dur=.2,ease='out',keys={{0,a=0},{.2,a=1}}}, -- §19: the hero's Inner contents fade in with the glide
  ['tog.knob']={kind='tween',dur=.15,ease='ease'}, -- L322 left .15s, x 3 ↔ 29
  ['rays.panel']={kind='loop',cat='rays',dur=40,ease='linear',to={r=360}}, -- L212
  ['rays.hero']={kind='loop',cat='rays',dur=24,ease='linear',to={r=360}}, -- L223
@@ -86,17 +92,24 @@ M.tokens={
  ['trail.swing']={kind='loop',cat='idle',group='parent',dur=.7,ease='inOut',to={r=-18},rev=true}, -- L302-303 1.4 s
  pulse={kind='loop',cat='idle',dur=.6,ease='inOut',to={s=1.08,a=.85},rev=true}, -- L39/L253 1.2 s
  sparkle={kind='loop',cat='reveal',from={s=.4,r=0,a=.4},dur=1.1,ease='inOut',to={s=1,r=45,a=1},rev=true}, -- L41-42 2.2 s, delays .7/1.3 (MotionDelay)
- -- Hatch reveal (Task C). Reel X(i) = 422 - (i*108 + 54), L733.
- ['reveal.spin']={kind='timeline',dur=3.4,ease='quint',from=422-54,to=422-(14*108+54)}, -- L737
- ['reveal.landed']={kind='mark',at=3.5,spinSize=30,spinTitle={rare='SOMETHING RARE IS COMING...',common='SOMETHING IS COMING...'}}, -- L738, §19 (instant switch)
- ['reveal.dim']={kind='tween',dur=.4,ease='ease'}, -- L345
- ['reveal.halo']={kind='shot',dur=1.1,ease='out',keys={{0,a=1,s=.4},{1.1,a=0,s=2.8}}}, -- L336-337 (2nd ring MotionDelay .12)
- ['reveal.shard']={kind='shot',dur=.9,ease='out',keys={{0,a=1,s=1},{.9,a=0,s=.6}}}, -- L339-341; G12: not built
- ['reveal.cardIn']={kind='shot',dur=.5,delay=.15,ease='back',keys={{0,a=0,s=.3,r=-5},{.5,a=1,s=1,r=0}}}, -- L342-344: rot -8 → -3 (built -3, r adds)
- ['reveal.slam']={kind='shot',dur=.4,delay=.3,ease='back',keys={{0,a=0,s=2.6},{.4,a=1,s=1}}}, -- L346-348
- ['reveal.name']={kind='shot',at=4.3,dur=.4,ease='ease',keys={{0,a=0,y=10},{.4,a=1,y=0}}}, -- L349-352 (word 238 → 226 instant)
+ -- Hatch reveal (Task C, board L725-738 + brief). `at` = start in s from the reveal (MotionDelay adds); every piece rests in its
+ -- t = 0 key until then, i.e. the pre-spin / pre-landed pose. Feedback builds the landed + named + cta end state.
+ ['reveal.spin']={kind='shot',at=0,dur=3.4,ease='quint',keys={{0,x=1512},{3.4,x=0}}}, -- L733/L737: X(0)-X(14) = (422-54)-(422-1566) = 1512
+ ['reveal.landed']={kind='mark',at=3.5,spinSize=T.t.revealTitle,spinTitle={rare='SOMETHING RARE IS COMING...',common='SOMETHING IS COMING...'}}, -- L738, §19 (instant)
+ -- Band / track / selector are built dimmed (opacity × (1-revealDimT), Feedback dimT): undim = opacity × 1/(1-revealDimT) until
+ -- landed, then back to the built dim over .4 s (L345 transition .4s, CSS default ease).
+ ['reveal.dim']={kind='shot',at=0,dur=3.9,ease='ease',keys={{0,a=1/(1-T.revealDimT)},{3.5,a=1/(1-T.revealDimT)},{3.9,a=1}}},
+ -- L336-337 burst: opacity 1 → 0, scale .4 → 2.8 (2nd ring MotionDelay .12). Built fully transparent: the timeline sets the opaque
+ -- base (glowHalo.t, ring T 0) and the step key keeps it hidden until it starts.
+ ['reveal.halo']={kind='shot',at=3.5,dur=1.1,ease='out',keys={{0,a=0,s=.4},{0,a=1,s=.4},{1.1,a=0,s=2.8}}},
+ ['reveal.shard']={kind='shot',at=3.5,dur=.9,ease='out',keys={{0,a=1,s=1},{.9,a=0,s=.6}}}, -- L339-341; G12: not built
+ ['reveal.cardIn']={kind='shot',at=3.65,dur=.5,ease='back',keys={{0,a=0,s=.3,r=-5},{.5,a=1,s=1,r=0}}}, -- L342-344 delay .15: rot -8 → -3 (built -3, r adds)
+ -- L346-348 delay .3: scale 2.6 → 1, α 0 → 1 at y 238 (+12 on the built 226), then 238 → 226 at named (4.3 s = .5 in), instant.
+ ['reveal.slam']={kind='shot',at=3.8,dur=.5,ease='back',keys={{0,a=0,s=2.6,y=12},{.4,a=1,s=1},{.5,y=12},{.5,y=0}}},
+ ['reveal.name']={kind='shot',at=4.3,dur=.4,ease='ease',keys={{0,a=0,y=10},{.4,a=1,y=0}}}, -- L349-352
  ['reveal.cta']={kind='shot',at=5.7,dur=.4,ease='ease',keys={{0,a=0,y=12,s=.9},{.4,a=1,y=0,s=1}}}, -- L353-354
 }
+for k,v in pairs(M.tokens) do v.id=k;if v.show then v.show.id=k..'.show' end;if v.hide then v.hide.id=k..'.hide' end end -- stats names
 local AUTO_SHOT={toast=true,banner=true,moment=true,['carry.pop']=true,['carry.iconTwist']=true,['run.slam']=true,['run.awake']=true,['run.shock']=true}
 local CAPS={holo=1,shine=3,idle=6} -- plan §6, per open menu (one menu at a time; the reveal covers the rest). rays: 1 per token
 
@@ -108,6 +121,9 @@ readScale();RS:GetAttributeChangedSignal('MotionTimeScale'):Connect(readScale)
 local function speed() return if RS:GetAttribute('StudioAids')==true then M.timeScale else 1 end
 function M.setTimeScale(v) RS:SetAttribute('MotionTimeScale',if type(v)=='number' and v>0 then v else nil) end
 function M.after(sec,fn) return task.delay(sec/speed(),fn) end
+-- fn on a later frame than the current one, whatever phase calls it (input or Heartbeat): the second Heartbeat hop is always the
+-- next frame. Keeps capture / loop work off a build frame.
+function M.later(fn) Run.Heartbeat:Once(function() Run.Heartbeat:Once(fn) end) end
 
 -- Gates (brief). Reduced: loops stop, transitions instant (or a .15 s linear fade for group-transparency state changes).
 function M.reduced()
@@ -127,7 +143,9 @@ end
 local function play(tw) live[tw]=true;tw:Play() end
 
 -- Alpha = opacity multiplier over the piece + descendants, from their values at start (fully transparent ones are skipped).
-local function snap(o,list)
+-- prune (one-shots): skip hidden subtrees and scroll children outside their window — nothing there shows during a short fade
+-- (Studio P6 C: the Shop open fade captured ~1,250 instances; most sit below the fold).
+local function snap(o,list,prune)
  local function add(x,k) local v=x[k];if v<1 then table.insert(list,{x,k,v}) end end
  local function one(x)
   if x:IsA('UIStroke') then add(x,'Transparency')
@@ -137,13 +155,31 @@ local function snap(o,list)
    elseif x:IsA('ImageLabel') or x:IsA('ImageButton') then add(x,'ImageTransparency') end
   end
  end
- one(o);for _,x in ipairs(o:GetDescendants()) do one(x) end
- return list
+ if not prune then one(o);for _,x in ipairs(o:GetDescendants()) do one(x) end;return list end
+ local function walk(x)
+  one(x)
+  local y0,y1
+  if x:IsA('ScrollingFrame') then local p,s=x.AbsolutePosition,x.AbsoluteSize;y0,y1=p.Y,p.Y+s.Y end
+  for _,c in ipairs(x:GetChildren()) do
+   if not c:IsA('GuiObject') then if c:IsA('UIStroke') then one(c) end
+   elseif c.Visible then
+    if not y0 then walk(c) else local a,b=c.AbsolutePosition.Y,c.AbsoluteSize.Y;if a+b>y0 and a<y1 then walk(c) end end
+   end
+  end
+ end
+ walk(o);return list
 end
-local function fade(list,a) for _,v in ipairs(list) do v[1][v[2]]=1-(1-v[3])*a end end
+local function fade(list,a) for _,v in ipairs(list) do v[1][v[2]]=math.max(0,1-(1-v[3])*a) end end -- a > 1: undim, Back overshoot
 -- Centre pivot for scale: AnchorPoint (.5,.5) and Position shifted by (.5 - anchor) * Size; scale = a Motion-owned UIScale.
 local function shiftOf(sz,ap) local ax,ay=.5-ap.X,.5-ap.Y;return UDim2.new(ax*sz.X.Scale,ax*sz.X.Offset,ay*sz.Y.Scale,ay*sz.Y.Offset) end
-local function scaler(o) local u=o:FindFirstChild('MotionScale');if not (u and u:IsA('UIScale')) then u=Instance.new('UIScale');u.Name='MotionScale';u.Parent=o end;return u end
+local scalers=setmetatable({},weak) -- live MotionScale UIScales -> host (Widgets skips size refits under them)
+local function scaler(o) local u=o:FindFirstChild('MotionScale');if not (u and u:IsA('UIScale')) then u=Instance.new('UIScale');u.Name='MotionScale';u.Parent=o end;scalers[u]=o;return u end
+local function dropScale(u)
+ local host=scalers[u];scalers[u]=nil;u:Destroy()
+ if host and M.scaleDone then M.scaleDone(host) end -- Widgets refits the labels whose size changed meanwhile
+end
+-- Widgets (W.fit): a MotionScale is live somewhere; label-under-scale checks are skipped otherwise.
+function M.scaling() return next(scalers)~=nil end
 
 -- One-shot engine. Position is driven as an offset on top of the base; a write from outside (layout) becomes the new base.
 local CH={'a','s','x','y','r'}
@@ -165,13 +201,14 @@ local function at(pts,t)
 end
 local shots={} -- GuiObject -> playing one-shot
 local beat
+local markDirty -- loop re-check (below); a hush shot ending re-checks the loops it held
 -- Our own last write read back (tolerant of a float32 Scale round-trip); anything else is a layout write = the new base.
 local function same(p,q) return p.X.Offset==q.X.Offset and p.Y.Offset==q.Y.Offset and math.abs(p.X.Scale-q.X.Scale)<1e-4 and math.abs(p.Y.Scale-q.Y.Scale)<1e-4 end
 local function apply(s,t)
  local tr=s.tr
  local a=if tr.a then at(tr.a,t) else nil;local sc=if tr.s then at(tr.s,t) else nil
  local x=if tr.x then at(tr.x,t) else 0;local y=if tr.y then at(tr.y,t) else 0;local r=if tr.r then at(tr.r,t) else 0
- if a then fade(s.alpha,a) end
+ if a and a~=s.a then fade(s.alpha,a) end -- held keys (reveal undim 0-3.5 s) write nothing
  for _,g in ipairs(s.targets) do
   local o=g.o
   if g.u then g.u.Scale=sc end
@@ -190,7 +227,7 @@ local function restore(s)
   local o=g.o
   if g.pos then local cur=o.Position;o.Position=if same(cur,g.last) then cur-g.off else cur end
   if g.rot~=0 then o.Rotation=o.Rotation-g.rot end
-  if g.u then g.u:Destroy();o.AnchorPoint=g.ap end
+  if g.u then dropScale(g.u);o.AnchorPoint=g.ap end
  end
 end
 local function identity(s) return (s.a==nil or s.a==1) and (s.s==nil or s.s==1) and s.x==0 and s.y==0 and s.r==0 end
@@ -198,9 +235,12 @@ local function identity(s) return (s.a==nil or s.a==1) and (s.s==nil or s.s==1) 
 -- 'cancel' (built state now), 'gone' (destroyed: nothing to restore).
 local function stopShot(o,how)
  local s=shots[o];if not s then return end;shots[o]=nil
- if how=='gone' then for _,g in ipairs(s.targets) do if g.u then g.u:Destroy() end end;return end
+ if s.hush then markDirty() end
+ if how=='gone' then for _,g in ipairs(s.targets) do if g.u then dropScale(g.u) end end;return end
  if how=='end' and s.hide then o.Visible=false end
  if how=='cancel' or s.restore or identity(s) then restore(s) end
+ if how=='cancel' and s.cancel then s.cancel() end -- a piece whose snapshot base is not its built state (reveal halos)
+ if how=='end' and s.done then task.defer(s.done) end
 end
 local function tick()
  local now=os.clock();local ended
@@ -217,20 +257,22 @@ end
 local function target(s,o,pos)
  local g={o=o,off=ZERO,rot=0,last=o.Position,pos=pos and (s.tr.x~=nil or s.tr.y~=nil or s.tr.s~=nil)}
  if s.tr.s then g.ap=o.AnchorPoint;g.u=scaler(o);o.AnchorPoint=MID end
- if s.tr.a then snap(o,s.alpha) end
+ if s.tr.a then snap(o,s.alpha,true) end
  table.insert(s.targets,g)
 end
--- Motion.play(piece, token name | shot table, {hold, delay, restore, hide}). hold = MotionHold: the in part only.
+-- Motion.play(piece, token name | shot table, {hold, delay, restore, hide, done, cancel}). hold = MotionHold: the in part only.
+-- done runs after a natural end (deferred), or at once when reduced motion skips the shot; cancel runs after a cancel's restore.
 function M.stop(o) stopShot(o,'cancel') end
+function M.playing(o) return shots[o]~=nil end
 function M.play(o,name,opts)
  opts=opts or {}
  local tk=if type(name)=='table' then name else M.tokens[name]
  if not (tk and tk.keys and o and o.Parent) then return end
  M.stop(o)
- if M.reduced() then return end
+ if M.reduced() then if opts.done then opts.done() end;return end
  local tr
  if type(tk.keys)=='function' then tr=tracks(tk.keys(o),tk.ease) else tr=tk._tr;if not tr then tr=tracks(tk.keys,tk.ease);tk._tr=tr end end
- local s={tr=tr,t0=os.clock(),sp=speed(),delay=opts.delay or tk.delay or 0,endT=if opts.hold then tk.inEnd or tk.dur else tk.dur,alpha={},targets={},restore=opts.restore,hide=opts.hide}
+ local s={tr=tr,t0=os.clock(),sp=speed(),delay=opts.delay or tk.delay or 0,endT=if opts.hold then tk.inEnd or tk.dur else tk.dur,alpha={},targets={},restore=opts.restore,hide=opts.hide,done=opts.done,cancel=opts.cancel,hush=tk.hush,id=tk.id}
  target(s,o,true)
  local f=tk.follow and tk.follow(o);if f then target(s,f[1],f[2]) end
  shots[o]=s;apply(s,0)
@@ -248,8 +290,9 @@ function M.show(o,on,name,opts)
  elseif not instant and tk.hide and o.Visible then M.play(o,tk.hide,{restore=true,hide=true})
  else M.stop(o);o.Visible=false end
 end
--- Motion.to(instance, props, token, {out, instant}): a property tween, only when the target changes (Hud.render runs often).
--- out = the token's `out` duration. Reduced: a .15 s linear fade if the token is a group-transparency state change, else instant.
+-- Motion.to(instance, props, token, {out, instant, done}): a property tween, only when the target changes (Hud.render runs
+-- often). out = the token's `out` duration. Reduced: a .15 s linear fade if the token is a group-transparency state change, else
+-- instant. done runs when the props land (tween completed or set at once), not when a newer target replaces the tween.
 local tos=setmetatable({},weak)
 function M.to(o,props,name,opts)
  opts=opts or {};local tk=M.tokens[name] or {}
@@ -261,8 +304,21 @@ function M.to(o,props,name,opts)
  if st.tw then st.tw:Cancel();st.tw=nil end
  local d,ease,delay=if opts.out and tk.out then tk.out else tk.dur or 0,tk.ease,tk.delay
  if M.reduced() then d=if tk.reducedFade then .15 else 0;ease='linear';delay=0 end
- if opts.instant or d<=0 then for k,v in pairs(props) do o[k]=v end;return end
- st.tw=mk(o,info(d,ease,0,false,delay),props);play(st.tw)
+ if opts.instant or d<=0 then for k,v in pairs(props) do o[k]=v end;if opts.done then opts.done() end;return end
+ local done=opts.done
+ st.tw=mk(o,info(d,ease,0,false,delay),props,if done then function(state) if state==Enum.PlaybackState.Completed then done() end end else nil);play(st.tw)
+end
+-- A Motion.to tween is running on o (Screens: tab sync waits; W.toggle: one knob slide at a time).
+function M.busy(o) local st=tos[o];local tw=st and st.tw;return tw~=nil and (tw.PlaybackState==Enum.PlaybackState.Playing or tw.PlaybackState==Enum.PlaybackState.Delayed) end
+-- Stop o's Motion.to tween where it is and forget its target (a touch / wheel / selection took over the scroll).
+function M.cancel(o) local st=tos[o];if st then if st.tw then st.tw:Cancel() end;tos[o]=nil end end
+-- Scroll tween (tab.scroll, §19): retargets a running glide when the landing moves; done when it lands (or is already there).
+function M.scrollTo(sf,y,name,done)
+ local p=Vector2.new(0,y)
+ if M.busy(sf) and tos[sf].goal.CanvasPosition==p then return end
+ M.cancel(sf)
+ if sf.CanvasPosition==p then if done then done() end;return end
+ M.to(sf,{CanvasPosition=p},name,{done=done})
 end
 -- Motion.value(key, to, token, fn, {from, instant}): a number tweened through fn (rings, the XP fill). The first call sets it;
 -- later calls tween from the shown value when `to` changes; `from` restarts from that value.
@@ -285,7 +341,7 @@ local reveals={} -- HudPiece='reveal' frames: loops outside them pause (cover ru
 local rootRef
 local dirty=false
 local evaluate
-local function markDirty() if not dirty then dirty=true;Run.Heartbeat:Once(function() dirty=false;evaluate() end) end end -- at most once per frame
+markDirty=function() if not dirty then dirty=true;Run.Heartbeat:Once(function() dirty=false;evaluate() end) end end -- at most once per frame
 local watched={} -- ancestor -> {n, conns}: Visible / CanvasPosition / Enabled re-check the loops
 local function watch(p)
  local w=watched[p];if w then w.n+=1;return end
@@ -306,18 +362,25 @@ local function chain(e)
  end
 end
 local function inReveal(o) for r in pairs(reveals) do if o==r or o:IsDescendantOf(r) then return true end end;return false end
--- Shown = own Visible chain + an enabled LayerCollector, inside the nearest ScrollingFrame's window, not under a reveal.
+-- Shown = own Visible chain + an enabled LayerCollector, inside the nearest ScrollingFrame's window, not under a reveal. The box
+-- tested (and sorted by Y) is the nearest clipping ancestor below the scroll when there is one: a buy shine rests outside its
+-- button (x -40 %), a holo cycle is 4.8× wide, so their own rects say nothing about what is on screen.
 local function visibleNow(e)
  local o=e.o;if next(reveals)~=nil and not inReveal(o) then return false end
- local sf;local p=o;local ok=false
+ local sf,clip;local p=o;local ok=false
  while p and p~=game do
   if p:IsA('LayerCollector') then ok=p.Enabled;break end
-  if p:IsA('GuiObject') then if not p.Visible then return false end;if p~=o and not sf and p:IsA('ScrollingFrame') then sf=p end end
+  if p:IsA('GuiObject') then
+   if not p.Visible then return false end
+   local s=shots[p];if s and s.hush then return false end
+   if p~=o and not sf then if p:IsA('ScrollingFrame') then sf=p elseif not clip and (p.ClipsDescendants or p:IsA('CanvasGroup')) then clip=p end end
+  end
   p=p.Parent
  end
  if not ok then return false end
+ local box=clip or o;e.box=box
  if sf then
-  local a,b,c,d=o.AbsolutePosition,o.AbsoluteSize,sf.AbsolutePosition,sf.AbsoluteSize
+  local a,b,c,d=box.AbsolutePosition,box.AbsoluteSize,sf.AbsolutePosition,sf.AbsoluteSize
   if a.X+b.X<=c.X or a.X>=c.X+d.X or a.Y+b.Y<=c.Y or a.Y>=c.Y+d.Y then return false end
  end
  return true
@@ -370,7 +433,7 @@ local function stopLoop(e)
   if u.s then o.AnchorPoint=e.base.ap end
   fade(e.alpha,1)
  end
- if e.u then e.u:Destroy();e.u=nil end
+ if e.u then dropScale(e.u);e.u=nil end
 end
 local unregister
 local function register(o,name)
@@ -397,7 +460,7 @@ evaluate=function()
   local cap=CAPS[cat]
   if cat=='rays' or cap then
    -- Budget: chosen top-down by screen Y (rays: the first of each token; idle: trail streak + swing count once).
-   for _,e in ipairs(l) do local p=e.o.AbsolutePosition;e.sy,e.sx=p.Y,p.X end
+   for _,e in ipairs(l) do local p=(e.box or e.o).AbsolutePosition;e.sy,e.sx=p.Y,p.X end
    table.sort(l,function(a,b) if a.sy~=b.sy then return a.sy<b.sy end;return a.sx<b.sx end)
    local rank,n={},0
    for _,e in ipairs(l) do
@@ -412,8 +475,9 @@ evaluate=function()
  for _,e in pairs(loops) do if e.want and not e.on then startLoop(e) elseif not e.want and e.on then stopLoop(e) end end
 end
 
--- LOW (effectsTier 0) hides every rays.* piece and gives back only the ones it hid.
-local raysPieces=setmetatable({},weak);local lowHidden=setmetatable({},weak);local lowOn=false
+-- LOW (effectsTier 0) hides every rays.* piece and gives back only the ones it hid, unless their owner hid them meanwhile:
+-- owners that toggle a rays piece call Motion.visible (Shop hero mini), so the wanted state survives LOW.
+local raysPieces=setmetatable({},weak);local lowHidden=setmetatable({},weak);local wanted=setmetatable({},weak);local lowOn=false
 local function lowHide(o) if o.Visible then lowHidden[o]=true;o.Visible=false end end
 local function trackRays(o)
  if raysPieces[o] then return end;raysPieces[o]=true
@@ -422,7 +486,12 @@ local function trackRays(o)
 end
 local function applyLow(on)
  if on==lowOn then return end;lowOn=on
- for o in pairs(raysPieces) do if on then lowHide(o) elseif lowHidden[o] then lowHidden[o]=nil;if o.Parent then o.Visible=true end end end
+ for o in pairs(raysPieces) do if on then lowHide(o) elseif lowHidden[o] then lowHidden[o]=nil;if o.Parent and wanted[o]~=false then o.Visible=true end end end
+end
+-- An owner's Visible for a piece Motion may hide (rays.* under LOW).
+function M.visible(o,on)
+ on=on==true;wanted[o]=on
+ if lowOn and raysPieces[o] then if on then lowHidden[o]=true end;o.Visible=false else o.Visible=on end
 end
 -- Live gates: Controller calls refresh after T.configure; the player attributes call it too. Turning reduced on ends every
 -- one-shot in its built state; the loops stop on the next evaluation.
@@ -433,12 +502,51 @@ function M.refresh()
  wasReduced=red;applyLow(M.noRays());markDirty()
 end
 
+-- Hatch reveal timeline (Task C), started by the scan when a HudPiece='reveal' frame appears (Feedback built its landed + named +
+-- cta end state). Every tagged piece gets its shot now with delay = the token's `at` (+ MotionDelay), so it rests in its t = 0 key
+-- (pre-spin / pre-landed pose) until its time; the title switch and the Collect hand-over are timers on the same QA-scaled clock.
+-- The hub's loops pause underneath (cover rule, visibleNow). Reduced / LOW: nothing here, the built end state stays.
+function M.revealTimeline(o)
+ if M.reduced() then return end
+ local mark=M.tokens['reveal.landed']
+ for _,p in ipairs(o:GetDescendants()) do
+  local name=p:IsA('GuiObject') and p:GetAttribute('Motion');local tk=type(name)=='string' and M.tokens[name]
+  if tk then
+   local delay=(tk.at or 0)+(p:GetAttribute('MotionDelay') or 0)
+   if tk.kind=='loop' then M.later(function() if p.Parent then register(p,name) end end) -- rays.reveal, sparkle: from the next frame
+   elseif name=='reveal.landed' then
+    -- Spin title by tier (§19): "SOMETHING (RARE) IS COMING..." at revealTitle (30) px, its glow fitted to it; the built landed text
+    -- and size come back at 3.5 s (L738, instant).
+    local r=o:GetAttribute('RevealRarity');local text=if r=='Common' or r=='Uncommon' then mark.spinTitle.common else mark.spinTitle.rare
+    local n=T.size(mark.spinSize);local tb=T.glowRevealTitle.b;local lbl=p:FindFirstChild('Text');local saved={}
+    for _,x in ipairs(p:GetChildren()) do
+     if x:IsA('TextLabel') then saved[x]={x.Text,x.TextSize};x.Text=text;x.TextSize=n
+     elseif x:IsA('ImageLabel') and x.Name=='Glow' and lbl then saved[x]=x.Size;x.Size=UDim2.fromOffset(math.ceil(TextService:GetTextSize(text,n,lbl.Font,Vector2.new(1e4,1e4)).X)+2*tb,n+2*tb) end
+    end
+    M.after(mark.at,function() for x,v in pairs(saved) do if x.Parent then if typeof(v)=='UDim2' then x.Size=v else x.Text=v[1];x.TextSize=v[2] end end end end)
+   elseif name=='reveal.halo' then
+    -- Built fully transparent: the burst runs on the board's opaque ring (border solid, T 0) and glowHalo.t; a cancel hides them again.
+    local built={}
+    for _,x in ipairs(p:GetDescendants()) do
+     if x:IsA('UIStroke') then built[x]='Transparency';x.Transparency=0 elseif x:IsA('ImageLabel') and x.Name=='Glow' then built[x]='ImageTransparency';x.ImageTransparency=T.glowHalo.t end
+    end
+    M.play(p,tk,{delay=delay,cancel=function() for x,k in pairs(built) do x[k]=1 end end})
+   elseif name=='reveal.cta' then
+    -- Not tappable or focusable before it shows; MotionShown hands it to Feedback's gamepad trap.
+    p.Interactable=false;M.play(p,tk,{delay=delay})
+    M.after(delay,function() if p.Parent then p.Interactable=true;p:SetAttribute('MotionShown',true) end end)
+   elseif tk.kind=='shot' and tk.keys then M.play(p,tk,{delay=delay}) end
+  end
+ end
+end
+
 -- Attach (Controller, once, on SafeRoot): new GuiObjects are scanned after their builder finishes (attributes and layout are
 -- set right after parenting), batched in one deferred pass.
 local pending,flushing={},false
+local laterLoops,loopsQueued={},false
 local attachConns={}
 local function scan(o)
- if not o.Parent then return end
+ if not o.Parent or not o:IsA('GuiObject') then return end
  if o:GetAttribute('HudPiece')=='reveal' and not reveals[o] then
   reveals[o]=true;local c;c=o.AncestryChanged:Connect(function() if not (rootRef and o:IsDescendantOf(rootRef)) then reveals[o]=nil;c:Disconnect();markDirty() end end)
   markDirty();if M.revealTimeline then M.revealTimeline(o) end -- Task C
@@ -450,10 +558,15 @@ local function scan(o)
   local hold=o:GetAttribute('MotionHold')==true
   M.play(o,name,{hold=hold})
   if name=='carry.pop' and not hold then local cp=portraitOf(o);if cp then M.play(cp,'carry.portraitIn') end end
- elseif M.tokens[name] and M.tokens[name].kind=='loop' then register(o,name) end
+ elseif M.tokens[name] and M.tokens[name].kind=='loop' then
+  -- Loops register a frame later (ancestry watchers, visibility, tweens stay off the build frame); one-shots start now so their
+  -- t = 0 pose is what renders first.
+  table.insert(laterLoops,{o,name});if not loopsQueued then loopsQueued=true;M.later(function() loopsQueued=false;local l=laterLoops;laterLoops={};for _,v in ipairs(l) do if v[1].Parent then register(v[1],v[2]) end end end) end
+ end
 end
+-- One deferred flush per batch: DescendantAdded only appends (no defer, no attribute read per instance).
 local function flush() flushing=false;local list=pending;pending={};for _,o in ipairs(list) do scan(o) end end
-local function queue(o) if o:IsA('GuiObject') then table.insert(pending,o);if not flushing then flushing=true;task.defer(flush) end end end
+local function queue(o) table.insert(pending,o);if not flushing then flushing=true;task.defer(flush) end end
 function M.detach()
  for _,c in ipairs(attachConns) do c:Disconnect() end;table.clear(attachConns)
  for o in pairs(loops) do unregister(o) end;rootRef=nil
@@ -466,12 +579,13 @@ function M.attach(root)
  if me then for _,a in ipairs({'MountainReducedMotion','MountainSimplifiedVFX'}) do table.insert(attachConns,me:GetAttributeChangedSignal(a):Connect(M.refresh)) end end
  M.refresh()
 end
--- Budget check (UIProbe motionStats): loop entries playing, raw Tweens playing, entries per category, one-shots playing.
+-- Budget check (UIProbe motionStats): loop entries playing (one per budget group: a skin's trail streak + swing = one entry, as the
+-- idle cap counts them), raw Tweens playing, entries per category, one-shots playing.
 function M.stats()
- local n,by,tw,sh=0,{},0,0
- for _,e in pairs(loops) do if e.on then n+=1;by[e.cat]=(by[e.cat] or 0)+1 end end
+ local n,by,tw,sh,seen,names=0,{},0,0,{},{}
+ for _,e in pairs(loops) do if e.on and not seen[e.group] then seen[e.group]=true;n+=1;by[e.cat]=(by[e.cat] or 0)+1 end end
  for _ in pairs(live) do tw+=1 end
- for _ in pairs(shots) do sh+=1 end
- return {loops=n,tweens=tw,byCat=by,oneShots=sh,reduced=M.reduced(),timeScale=speed()}
+ for o,s in pairs(shots) do sh+=1;table.insert(names,o.Name..':'..tostring(s.id)) end -- QA: which one-shots are playing
+ return {loops=n,tweens=tw,byCat=by,oneShots=sh,shotNames=names,reduced=M.reduced(),timeScale=speed()}
 end
 return M

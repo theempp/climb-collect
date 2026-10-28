@@ -92,7 +92,7 @@ end
 for _,size in ipairs(SIZES) do
  root.Size=UDim2.fromOffset(size[1],size[2]);if sprintRoot then sprintRoot.Size=root.Size end;task.wait(.2)
  for _,state in ipairs(STATES) do
-  probe:Invoke('hudState',state);task.wait(.3)
+  probe:Invoke('hudState',state);task.wait(1) -- P6: held messages finish their in part (RUN! settles at .95 s)
   check(size[1]..'x'..size[2]..' '..state,size[1],size[2],state)
  end
 end

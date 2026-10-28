@@ -1,4 +1,5 @@
 local T=require(script.Parent.Theme)
+local Motion=require(script.Parent.Motion) -- P6 (Motion requires Theme only)
 local W={}
 local scaleHosts=setmetatable({},{__mode='k'}) -- GuiObject -> UIScale made by W.new (wordFit divides kit-made scales out)
 function W.new(class,parent,props)
@@ -114,7 +115,15 @@ local function scaleOf(l)
  local p=l;while p and p:IsA('GuiObject') do local u=p:FindFirstChild('MotionScale');if u and u:IsA('UIScale') then k*=u.Scale end;p=p.Parent end
  return k
 end
-local function refit(l)
+-- P6 (Studio open A/B): while a Motion scale animates (panel open, messages) every label under it changes AbsoluteSize each frame
+-- but its fit (width divided by the scale) does not change: size-driven refits wait in `held` and run once when the scale ends.
+local held=setmetatable({},{__mode='k'})
+local function underMotion(l) local p=l;while p and p:IsA('GuiObject') do if p:FindFirstChild('MotionScale') then return true end;p=p.Parent end;return false end
+local refit
+Motion.scaleDone=function(host)
+ for l in pairs(held) do if not l.Parent then held[l]=nil elseif l==host or l:IsDescendantOf(host) then held[l]=nil;if not underMotion(l) then refit(l) else held[l]=true end end end
+end
+refit=function(l)
  local f=fits[l];if not f then return end
  -- A max written from outside (Shop hero re-sizes its buy labels) becomes the new base: integer change vs our last write.
  local c=f.c;if f.mx and math.abs(c.MaxTextSize-f.mx)>=1 then f.max=c.MaxTextSize;f.mx=nil end
@@ -138,7 +147,8 @@ function W.wordFit(l,c,max,min,line)
  if f then f.c,f.max,f.min,f.line,f.mx=c,max,min,line==true,nil;refit(l);return l end
  fits[l]={c=c,max=max,min=min,line=line==true,mx=max,mn=min} -- c was created with max/min
  local function go() refit(l) end
- l:GetPropertyChangedSignal('AbsoluteSize'):Connect(go);l:GetPropertyChangedSignal('Text'):Connect(go);l:GetPropertyChangedSignal('Font'):Connect(go)
+ l:GetPropertyChangedSignal('AbsoluteSize'):Connect(function() if Motion.scaling() and underMotion(l) then held[l]=true else refit(l) end end)
+ l:GetPropertyChangedSignal('Text'):Connect(go);l:GetPropertyChangedSignal('Font'):Connect(go)
  go();return l
 end
 local function fitMax(l,max) local f=fits[l];if f then f.max=max;f.mx=nil;refit(l) end end
@@ -918,6 +928,8 @@ function W.seg(parent,name,options,index,fn)
 end
 -- tog() (§2, L321-323, L622): 54×28 r16 night T.3, stroke 1.5 white T.7; knob 20 at (3,3) togOff inside the border (the CSS ::after);
 -- on = gradAction fill, knob x 29 white. Knob Motion 'tog.knob' (§6). fn() on tap (the caller sends the new state).
+-- Tap (L322-323): the fill and knob colour switch at once (no transition on them), the knob slides 3 ↔ 29 (.15 s), then fn() runs
+-- (its re-render rebuilds the toggle in the end state). Taps during the slide are ignored (fn sends the state it was built with).
 function W.toggle(parent,name,on,fn)
  local s=T.s.thin;local r=T.r.btn
  local o=root('TextButton',parent,name,UDim2.fromOffset(54,28),nil,r);o:SetAttribute('QAControl',true);o:SetAttribute('Enabled',true)
@@ -927,7 +939,13 @@ function W.toggle(parent,name,on,fn)
   b.BackgroundColor3=if v then T.text else T.night;b.BackgroundTransparency=if v then 0 else T.wellT.tog;g.Enabled=v
   k.Position=UDim2.fromOffset(if v then 29 else 3,3);k.BackgroundColor3=if v then T.text else T.togOff
  end
- W.setOn(o,on);W.bind(o,fn);W.hit(o,44);W.focus(o);return o
+ W.setOn(o,on);W.hit(o,44);W.focus(o)
+ if fn then W.bind(o,function()
+  if Motion.busy(k) then return end
+  local from=k.Position;W.setOn(o,not o:GetAttribute('On'));local to=k.Position;k.Position=from
+  Motion.cancel(k);Motion.to(k,{Position=to},'tog.knob',{done=fn}) -- cancel: forget a target an outside W.setOn made stale
+ end) end
+ return o
 end
 -- card() (§2, L199-206, L610-612): rcg fill, stroke 3 ink, outer ring 2 white T.7 (violet/prism: T.4 + glowCardRare), art h 62
 -- with U11 highlight + icon 52, ink T.38 name band (padding 3/7/6, gap 3, FO 12, XP h 7), level badge 28 at (5,5) deep FO 13.

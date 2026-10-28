@@ -282,6 +282,12 @@ if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
   -- P6: motion budget check; QA-only time scale for evidence capture (a speed, .1 = 10x slower; honoured while StudioAids == true).
   if action=='motionStats' then return Motion.stats() end
   if action=='motionScale' then Motion.setTimeScale(tonumber(value) or 1);return Motion.stats() end
+  -- Local pref override for the Reduce effects / LOW checks (never sent to the server); nil = back to the saved prefs.
+  if action=='motionPrefs' then
+   local saved=store.profile and store.profile.ui and store.profile.ui.settings or {}
+   local p=table.clone(saved);if type(value)=='table' then for k,v in pairs(value) do p[k]=v end end
+   applyPreferences(p);return Motion.stats()
+  end
   -- Evidence demos (capture_motion.py): a fixture state + one message played in full (MotionHold cleared before Motion's deferred
   -- scan, so the out part runs while the held frame stays). 'clock' = the game VM clock for frame timestamps.
   if action=='motionDemo' then

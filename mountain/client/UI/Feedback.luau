@@ -6,6 +6,7 @@
 -- Motion (P6) plays each tagged piece on creation; MotionHold = a held message plays only its in part and stays.
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
+local Motion=require(script.Parent.Motion)
 local Hud=require(script.Parent.Hud)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local H=require(game.ReplicatedStorage.MountainShared.HudState)
@@ -291,6 +292,7 @@ function F:_reveal(m)
  -- Root = backdrop reveal.bgOut (L326), full screen; it sinks input so the hub underneath can't be tapped.
  local o=W.new('Frame',self.root,{Name='HatchReveal',Size=UDim2.fromScale(1,1),BackgroundColor3=T.revealBgOut,BorderSizePixel=0,Active=true,ClipsDescendants=true,ZIndex=60})
  o:SetAttribute('HudClass','transient');o:SetAttribute('HudPiece','reveal') -- full screen by design: §3 has no strip check
+ o:SetAttribute('RevealRarity',sp.rarity) -- Motion's spin title by tier (§19)
  -- U11 radial reveal.bgIn at 50 %/48 %, linear to bgOut at 75 % of the farthest-corner distance (≈702 at 844x390, est.).
  local radial=W.new('ImageLabel',o,{Name='Radial',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.48),BackgroundTransparency=1,Image='rbxassetid://'..T.images.radial,ImageColor3=T.revealBgIn,ZIndex=1})
  radial:SetAttribute('Decor',true)
@@ -376,7 +378,13 @@ function F:_reveal(m)
    W.new('UIGradient',arm,{Rotation=a[5],Transparency=FADE});W.glow(f,arm,v[4])
   end
  end
- local rec={frame=o,trap=cta}
+ -- Motion's reveal timeline shows Collect at 5.7 s (P6, Task C): until it sets MotionShown the CTA is no trap and takes no gamepad
+ -- focus (Motion also makes it non-interactable). Reduced motion = the built end state: trapped at once, as before.
+ local wait=not Motion.reduced()
+ local rec={frame=o,trap=if wait then nil else cta}
+ if wait then cta:GetAttributeChangedSignal('MotionShown'):Connect(function()
+  if cta:GetAttribute('MotionShown') and self.moment==rec then rec.trap=cta;if UIS.GamepadEnabled and not self.modal then GuiService.SelectedObject=cta end end
+ end) end
  rec.place=function()
   local v=self.root.AbsoluteSize;if v.X<=0 or v.Y<=0 then return end
   local s=math.min(1,v.X/844,v.Y/390);scale.Scale=s
@@ -388,7 +396,7 @@ function F:_reveal(m)
  end
  rec.place();self.moment=rec
  if self.hooks.blocking then self.hooks.blocking(true) end
- if UIS.GamepadEnabled then rec.prev=GuiService.SelectedObject;GuiService.SelectedObject=cta end
+ if UIS.GamepadEnabled then rec.prev=GuiService.SelectedObject;GuiService.SelectedObject=if wait then nil else cta end
 end
 function F:_collect()
  local prev=self.moment and self.moment.prev

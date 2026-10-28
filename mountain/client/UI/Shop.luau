@@ -10,6 +10,7 @@ local EggOdds=require(game.ReplicatedStorage.MountainShared.EggOdds)
 local ShopRules=require(game.ReplicatedStorage.MountainShared.ShopRules)
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
+local Motion=require(script.Parent.Motion)
 local Shop={}
 local center,left=Enum.TextXAlignment.Center,Enum.TextXAlignment.Left
 local function asset(id) return 'rbxassetid://'..id end
@@ -127,7 +128,7 @@ local function wallet(screen,f,data)
  local b=corner(frame(p,'Body',{Size=UDim2.new(1,-2*st,1,-2*st),Position=UDim2.fromOffset(st,st),BackgroundTransparency=0,BackgroundColor3=T.text}),T.r[7]-st)
  W.grad(b,T.gradMint);stroke(b,T.text,st,0)
  txt(p,'Label','+',T.fontBody,T.t.plus,T.goInk,UDim2.fromScale(1,1),nil,nil,nil,true).ZIndex=2
- W.bind(p,function() screen:jumpToSection('Coins') end);W.hit(p);W.focus(p)
+ W.bind(p,function() screen:jumpToSection('Coins',true) end);W.hit(p);W.focus(p) -- a tap glides (board goTo .plus, L663)
  return o
 end
 -- Sticky hero (L207, L222-241, L659): above the scroll; full / mini (CanvasPosition.Y > 8). No offer timer exists: no timer pill.
@@ -193,7 +194,7 @@ local function hero(screen,f)
   local midH=if mini then rowH else y+22
   local ch=math.max(a,midH,bh);local ih=ch+2*py;local H=ih+8
   art.Size=UDim2.fromOffset(artW,a);art.Position=UDim2.fromOffset(px,py+(ch-a)/2)
-  egg.Size=UDim2.fromOffset(a,a);coin.Visible=not mini;chest.Visible=not mini;rays.Visible=not mini
+  egg.Size=UDim2.fromOffset(a,a);coin.Visible=not mini;chest.Visible=not mini;Motion.visible(rays,not mini) -- LOW-mode rays (Motion) keep this wish
   mid.Size=UDim2.fromOffset(midW,midH);mid.Position=UDim2.fromOffset(px+artW+12,py+(ch-midH)/2)
   buy.Size=UDim2.fromOffset(bw,bh);buy.Position=UDim2.fromOffset(iw-px-bw,py+(ch-bh)/2)
   for _,c in ipairs(buy:GetChildren()) do if c:IsA('TextLabel') then textSize(c,bn) end end
@@ -202,8 +203,18 @@ local function hero(screen,f)
   -- The scroll holder starts 4 px below the hero (board margin-bottom 4).
   screen:setScrollTop(top+H+4)
  end
+ -- Full ↔ mini (§19, hero.mini): the layout switches at once, then the hero height glides old → new over .2 s ease-out with the
+ -- scroll top following, and Inner's contents (all but its Radial background) fade in (hero.fade). Not on the first layout, and
+ -- no fade while the panel itself is still fading in.
  local body=screen.body;local cur=nil
- local function sync() local m=body.CanvasPosition.Y>8;if m~=cur then cur=m;layout(m) end end
+ local function glide(h) o.Size=UDim2.fromOffset(W0,h);screen:setScrollTop(top+h+4) end
+ local function sync()
+  local m=body.CanvasPosition.Y>8;if m==cur then return end
+  local first=cur==nil;local oldH=o.Size.Y.Offset;cur=m;layout(m)
+  if first then Motion.value(o,o.Size.Y.Offset,'hero.mini',glide,{instant=true});return end
+  Motion.value(o,o.Size.Y.Offset,'hero.mini',glide,{from=oldH})
+  if not Motion.playing(screen.shade) then for _,c in ipairs(inner:GetChildren()) do if c:IsA('GuiObject') and c~=rad then Motion.play(c,'hero.fade') end end end
+ end
  sync();body:GetPropertyChangedSignal('CanvasPosition'):Connect(sync)
  return o
 end
