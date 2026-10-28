@@ -117,53 +117,96 @@ function P.layout(width,height,largeText)
   teamWidth=teamWidth,teamBottom=math.min(teamBottom,math.max(0,h-160)),
   actionBottom=math.min(teamBottom+100,math.max(0,h-48))}
 end
--- Safe-root coordinates. Native bounds are supplied by the actual TouchGui.
-function P.horizontalNavigation(height,touch) return height<550 or touch==true end
--- topbar (optional): Roblox's topbar row in safe-root coordinates (y is negative: the row sits above the root).
-function P.hudLayout(w,h,obstacles,touch,topbar)
- local short=h<400
- -- Owner 2026-10-27: creature slots and the context button sit in the true bottom middle of the screen.
- local center=w/2
- local function rect(x,y,rw,rh) return {x=x,y=y,w=rw,h=rh} end
- local horizontal=P.horizontalNavigation(h,touch==true or #(obstacles or {})>0)
- local actionY=math.min(h-190,h-((if short then 140 else 170)+54))
- for _,o in ipairs(obstacles or {}) do if o.x>w/2 then actionY=math.min(actionY,o.y-108) end end
- -- HUD v2 (mock 1): menu + quick tiles top-left, coin pill + settings gear top-right, journey card under them.
- -- Expanded navigation scrolls in the free top strip, so native controls lower on the screen never collide.
- local tile=if short then 52 else 60
- local statusW=if w<900 then 210 else 260
- local jw=if short then 232 else 272
- local tw=3*64+2*8+12
- local navX=12+tile+8
- -- Owner 2026-10-27: the whole top row rides in Roblox's own topbar row at the core buttons' size (44 px): menu +
- -- quick tiles just right of the core buttons, coin pill + settings flush right; the journey card moves up to the
- -- first HUD row and the expanded navigation strip opens there.
- local tilesEnd=if type(topbar)=='table' then topbar.x+8+3*44+2*8 else 0
- local inTopbar=type(topbar)=='table' and topbar.h>=44 and math.min(w,topbar.x+topbar.w)-12-44-8-statusW>=tilesEnd+8
- local gear=if inTopbar then 44 else tile
- local edge=if inTopbar then math.min(w,topbar.x+topbar.w)-12 else w-12
- -- Roblox's 44 px core buttons sit 12 px below the top of the 58 px row (measured in the iPhone emulator).
- local rowY=if inTopbar then topbar.y+math.min(12,topbar.h-44) else 8
- local statusX=edge-gear-8-statusW
- local journeyY=if inTopbar then 8 else tile+16
- local navRight=if inTopbar then edge-jw else statusX
+-- Glassbloom HUD geometry (climb&collect/design/hud-glassbloom-intel.md §2 HUD builders + §3 zones; plan §15 G2/G6-G9).
+-- Every px is the board's 844x390 value at HUD scale M, in the HUD root's VIRTUAL space: the HUD root carries the one UIScale,
+-- so real px = virtual px x scale. Inputs are REAL safe-root px: w,h = root size; obstacles = native TouchGui rects
+-- ({x,y,w,h,kind='jump'|'stick'|'dynamic'}); topbar = Roblox's row (TopbarInset) in root coordinates (y < 0 when the row
+-- sits above the root); opts = {scale, screen (full screen rect in root coords), coinW, edgeW, abilityW}.
+P.hudScales={[0]=.85,[.5]=1,[1]=1.15} -- G2: hudScale pref 0/.5/1 = S/M/L
+-- Narrowest virtual width the board geometry fits: the carry portrait's right edge (W/2+186) meets the sprint orb (W-150).
+P.hudMinWidth=672
+function P.hudScale(pref,w)
+ local s=P.hudScales[pref] or 1
+ if finite(w) and w>0 then s=math.min(s,math.max(P.hudScales[0],w/P.hudMinWidth)) end
+ return s
+end
+local function rect(x,y,rw,rh) return {x=x,y=y,w=rw,h=rh} end
+local function over(a,b) return a.x<b.x+b.w and b.x<a.x+a.w and a.y<b.y+b.h and b.y<a.y+a.h end
+P.overlap=over
+function P.hudLayout(w,h,obstacles,touch,topbar,opts)
+ opts=opts or {}
+ local s=if finite(opts.scale) and opts.scale>0 then opts.scale else 1
+ local W,H=w/s,h/s
+ local sr=opts.screen or rect(0,0,w,h)
+ local scr=rect(sr.x/s,sr.y/s,sr.w/s,sr.h/s)
+ local bar=type(topbar)=='table' and topbar.w>0 and topbar.h>=44*s
+ -- Zones (§3, full-screen px): core C = x < max(116, TopbarInset.Min.X), y < max(56, TopbarInset.Max.Y); thumbstick
+ -- T = left 30 % x bottom 48 %; keep-clear M = x 28-72 %, y 24-70 %.
+ local cx=math.max(116,if bar then topbar.x-sr.x else 0);local cy=math.max(56,if bar then topbar.y+topbar.h-sr.y else 0)
+ local Z={S=scr,C=rect(scr.x,scr.y,cx/s,cy/s),T=rect(scr.x,scr.y+.52*scr.h,.30*scr.w,.48*scr.h),M=rect(scr.x+.28*scr.w,scr.y+.24*scr.h,.44*scr.w,.46*scr.h)}
+ local obs={}
+ for _,o in ipairs(obstacles or {}) do if o.kind~='dynamic' then table.insert(obs,rect(o.x/s,o.y/s,o.w/s,o.h/s)) end end
+ -- B.tr (L97-100): coin pill h34 + gap 8 + gear 44, flush right; in Roblox's row level with the core buttons (HUD v2 measured
+ -- them 12 px below the row top), else AP(1,0) at (1,-12, 0,7).
+ local coinW=opts.coinW or 103 -- est.: B.tr box ~155 - gear 44 - gap 8
+ local trW=coinW+8+44
+ local edge,trY,inBar=W-12,7,false
+ if bar then
+  local e=math.min(w,topbar.x+topbar.w)/s-12
+  if e-trW>=topbar.x/s then edge=e;trY=(topbar.y+math.min(12,topbar.h-44*s))/s;inBar=true end
+ end
+ local tr=rect(edge-trW,trY,trW,44)
+ -- B.rail (L101-106): x 14, w 22, top 14 below the core zone (board 70 = 56+14), bottom 10 above the thumbstick zone.
+ -- G9: 6 section nodes 12 + summit 15 (10/13 when the rail is under 110), top = summit, spread space-between.
+ local railTop=Z.C.y+Z.C.h+14;local railH=Z.T.y-10-railTop
+ local small=railH<110;local node=if small then 10 else 12;local summit=if small then 13 else 15
+ local gap=(railH-6*node-summit)/6
+ local nodes={[7]=rect((22-summit)/2,0,summit,summit)};local ny=summit+gap
+ for k=6,1,-1 do nodes[k]=rect((22-node)/2,ny,node,node);ny+=node+gap end
+ -- B.dock (L110-115): AP(.5,1) (.5,0, 1,-10); glass border 2 + padding 6, 42 px buttons, gap 6 (5 = 250x58, chase 3 = 154x58).
+ local function dockRect(n) local dw=2*8+n*42+(n-1)*6;return rect(W/2-dw/2,H-10-58,dw,58) end
+ local dock,dockChase=dockRect(5),dockRect(3)
+ local dockButtons={};for i=1,5 do dockButtons[i]=rect(dock.x+8+(i-1)*48,dock.y+8,42,42) end
+ -- Orbs (L123-124): sprint 54 at AP(1,1) (1,-96, 1,-20); bat 52 at (1,-20, 1,-96). They cleared the board's 70 px jump orb by
+ -- 10 px, so the same 10 px clearance moves them off a native jump/thumbstick (G10): sprint left, bat up.
+ local sprint=rect(W-96-54,H-20-54,54,54);local bat=rect(W-20-52,H-96-52,52,52)
+ for _,o in ipairs(obs) do if over(sprint,o) then sprint.x=math.min(sprint.x,o.x-10-54) end end
+ for _,o in ipairs(obs) do if over(bat,o) then bat.y=math.min(bat.y,o.y-10-52) end end
+ -- G8: pick-up orb = bat recipe 52, 10 px above the bat orb (board bottom -158).
+ local pickup=rect(bat.x,bat.y-10-52,52,52)
+ for _,o in ipairs(obs) do if over(pickup,o) then pickup.y=math.min(pickup.y,o.y-10-52) end end
+ -- G6 battle: 3 sprint-recipe orbs 54 in a dock glass (r30, border 2 + padding 6, gap 6) in the dock slot; Dodge = bat slot;
+ -- Ability = glass chip h27 above the dock (4 px, the XP line's clearance); boss bar = banner glass in the tier-2 slot.
+ local team=rect(W/2-95,H-10-70,190,70)
+ local slots={};for i=1,3 do slots[i]=rect(team.x+8+(i-1)*60,team.y+8,54,54) end
+ local aw=opts.abilityW or 84
+ local ability=rect(W/2-aw/2,team.y-4-27,aw,27)
+ -- Where the chip would enter the keep-clear zone (short phones), it slides right of M on the same line.
+ if over(ability,Z.M) then ability.x=Z.M.x+Z.M.w+6 end
+ -- B.cp (L125-128): AP(0,1) (.5,134, 1,-10), 52x62. B.edge (L129): AP(1,0) (1,-8, .36,0), h36, w ~100 est.
+ local portrait=rect(W/2+134,H-10-62,52,62)
+ local ew=opts.edgeW or 100
+ local edgeArrow=rect(W-8-ew,.36*H,ew,36)
+ -- Transient slots (§4): tier 1 under the coin pill (board y 60 = row 7 + 53); tier 2 band (banner 62, pop-up 60); RUN! top
+ -- .19 (LG 104, line 1.2 = 125; awake pill h27, 6 below); moment top .30 (LG 64 line 77; sub pill h20, 8 below). Widths
+ -- cap at the core column so a centred/right-anchored message never reaches C.
+ local band=W-2*(Z.C.x+Z.C.w)
+ local runY=scr.y+.19*scr.h;local momentY=scr.y+.30*scr.h
  return {
-  short=short,
-  crowdedNavigation=false,
-  horizontalNavigation=horizontal,
-  topbar=inTopbar,
-  navigation=if horizontal then (if inTopbar then rect(12,4,math.max(1,math.min(navRight-8-12,696)),tile+8) else rect(navX,4,math.max(1,math.min(navRight-8-navX,696)),tile+8)) else rect(12,tile+16,184,326),
-  status=rect(statusX,if inTopbar then rowY else 8+(tile-44)/2,statusW,44),
-  settings=rect(edge-gear,rowY,gear,gear),
-  journey=rect(edge-jw,journeyY,jw,if short then 58 else 72),
-  menu=if inTopbar then rect(topbar.x+8,rowY,44,44) else rect(12,8,tile,tile),
-  quickCreatures=if inTopbar then rect(topbar.x+8+52,rowY,44,44) else rect(12+tile+8,8,tile,tile),
-  quickMountain=if inTopbar then rect(topbar.x+8+104,rowY,44,44) else rect(12+2*(tile+8),8,tile,tile),
-  team=rect(center-tw/2,h-76,tw,66),
-  context=rect(center-math.min(250,w-24)/2,h-132,math.min(250,w-24),48),
-  dodge=rect(w-106,actionY,94,48),
-  ability=rect(w-208,actionY,94,48),
-  sprint=rect(w-106,actionY+54,94,48),
+  scale=s,topbar=inBar,zones=Z,railFits=gap>=0,railNode=node,railSummit=summit,
+  tr=tr,coin=rect(tr.x,trY+5,coinW,34),gear=rect(edge-44,trY,44,44),
+  rail=rect(14,railTop,22,railH),railNodes=nodes,railLabel=rect(42,scr.y+.26*scr.h+20,0,25),
+  dock=dock,dockChase=dockChase,dockButtons=dockButtons,xpLine=rect(W/2-118,H-72-6,236,6),
+  sprint=sprint,bat=bat,pickup=pickup,dodge=bat,team=team,slots=slots,ability=ability,
+  portrait=portrait,edge=edgeArrow,
+  toast=rect(edge,trY+53,0,30),toastMax=math.max(0,edge-(Z.C.x+Z.C.w)),
+  banner=rect(W/2,trY+55,0,59),carryPop=rect(W/2,trY+53,0,78),boss=rect(W/2,trY+55,0,76),bandMax=math.max(0,band),
+  run=rect(0,runY,W,125),awake=rect(W/2,runY+125+6,0,27),shock=rect(W/2-90,scr.y+.22*scr.h-90,180,180),
+  moment=rect(0,momentY,W,77),momentSub=rect(W/2,momentY+77+8,0,20),collect=rect(W/2-95,momentY+77+8+20+8,190,46),
+  -- B.pcard (L170-174, G7): AP(0,1) (.5,-125, 1,-78); widened to the 5-button launcher row: 2+12+5x42+4x6+12+2 = 262; height
+  -- 2+10+48 (ring row)+10 (gap)+42 (launcher)+10+2 = 124.
+  card=rect(W/2-125,H-78-124,262,124),
+  screen=scr,
  }
 end
 return P

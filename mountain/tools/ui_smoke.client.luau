@@ -7,7 +7,7 @@ for _,g in ipairs(pg:GetChildren()) do if g.Name=='MountainHUD' then count+=1 en
 assert(count==1,'Duplicate HUD root')
 assert(gui.ScreenInsets==Enum.ScreenInsets.CoreUISafeInsets,'CoreGui safe inset required')
 local root=gui:FindFirstChild('SafeRoot');assert(root,'Missing safe root')
-local slots=root:FindFirstChild('Team');assert(slots,'Missing team')
+local slots=root:FindFirstChild('Team',true);assert(slots,'Missing team') -- Glassbloom: SafeRoot.Hud.Team (battle specials)
 local n=0;for _,b in ipairs(slots:GetChildren()) do if b:IsA('TextButton') and b.Name:match('Slot') then n+=1 end end
 assert(n==3,'Exactly three creature slots required')
 local errors={}

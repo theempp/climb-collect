@@ -9,6 +9,7 @@ local function kinds(list) local t={};for _,m in ipairs(list) do table.insert(t,
 -- Tier map (intel §4; board text wins: XP line 1.5 s, carry pop-up 2.5 s, RUN! 1.5 s).
 local want={coin={1,'toast',1.5},xp={1,'toast',1.5},xpLine={1,'xpLine',1.5},pickup={1,'toast',1.5},toast={1,'toast',1.5},
  carry={2,'carryPop',2.5},regrab={2,'carryPop',2.5},alert={2,'run',1.5},section={2,'banner',2.5},safe={2,'banner',2.5},
+ knocked={1,'toast',1.5},lost={2,'banner',2.5},
  levelUp={3,'moment',2.5},summit={3,'moment',2.5}}
 for kind,w in pairs(want) do
  local m=H.message(kind)
@@ -17,17 +18,21 @@ end
 check(H.message('alert').danger==true and not H.message('section').danger,'alert_is_the_danger_banner')
 local cp=H.message('checkpoint');check(cp.tier==nil and cp.slot=='rail' and cp.duration==3,'checkpoint_is_rail_not_tier')
 local hatch=H.message('hatch');check(hatch.tier==3 and hatch.slot=='reveal' and hatch.land==3.5 and hatch.cta==5.7 and hatch.collect and hatch.duration==nil,'hatch_reveal_waits_for_collect')
-for _,gap in ipairs({'knocked','lost','calm','purchase','nope'}) do check(H.message(gap)==nil,'gap_has_no_tier_'..gap) end
+for _,gap in ipairs({'calm','purchase','nope'}) do check(H.message(gap)==nil,'gap_has_no_tier_'..gap) end
 local up=H.message('levelUp',{level=2},true);check(up.tier==3 and up.collect and up.duration==nil and up.data.level==2,'sanctuary_tier3_waits_for_collect')
 check(H.message('summit',nil,false).duration==2.5 and H.message('section',nil,true).duration==2.5 and not H.message('section',nil,true).collect,'collect_only_for_tier3_in_sanctuary')
 -- Legacy toasts: unknown text is tier 1; typed duplicates and the summit are mapped.
 local g=C.guardians[2].name;local sp=C.byId.mossbun.name
-for _,text in ipairs({'Rest point saved. Unsecured creatures still need the sanctuary exit.','Knocked! Your '..sp..' dropped — grab it back!','Your dropped creature escaped.',
- 'Unsecured '..sp..' lost. Try another egg.','Your creature was taken. Unsecured creatures stay at risk until the sanctuary gate.','Landmark discovered • +10 Petals','Movement corrected.','anything at all'}) do
+for _,text in ipairs({'Rest point saved. Unsecured creatures still need the sanctuary exit.','Hit! Grab the '..sp..' before it escapes.','Landmark discovered • +10 Petals','Movement corrected.','anything at all'}) do
  local m=H.classify(text);check(m.kind=='toast' and m.tier==1 and m.duration==1.5 and m.text==text and not m.typed and not m.priority,'legacy_default_tier1_'..text)
 end
 local a=H.classify(g..' heard your strike! Watch its approach.');check(a.kind=='alert' and a.tier==2 and a.typed,'legacy_alert_typed')
 local s=H.classify('Safe! '..sp..' is yours. Carry it home.');check(s.kind=='safe' and s.tier==2 and s.typed,'legacy_safe_typed')
+-- G5: the knocked/lost toasts the server sends next to the typed events are skipped (the typed event drives the message).
+local kn=H.classify('Knocked! Your '..sp..' dropped — grab it back!');check(kn.kind=='knocked' and kn.tier==1 and kn.typed,'legacy_knocked_typed')
+for _,text in ipairs({'Unsecured '..sp..' lost. Try another egg.','Your creature was taken. Unsecured creatures stay at risk until the sanctuary gate.','Your dropped creature escaped.'}) do
+ local m=H.classify(text);check(m.kind=='lost' and m.tier==2 and m.slot=='banner' and m.typed,'legacy_lost_typed_'..text)
+end
 check(H.classify('Not Safe! here').kind=='toast','safe_matches_only_at_start')
 local top=H.classify('IMPOSSIBLE MOUNTAIN CONQUERED • Sovereign Explorer!');check(top.kind=='summit' and top.tier==3 and top.duration==2.5 and not top.typed,'legacy_summit_moment')
 check(H.classify('Find the golden heart. Use a special nearby to interrupt healing!').priority and H.classify('Align all three constellation stones before the gravity wave!').priority,'battle_objectives_keep_priority')
@@ -95,11 +100,13 @@ Run.receive(r,{species='glimfox',section=1,from='z8'},'z9',5);check(#H.observe(m
 check(#H.event(m4,{kind='carry'})==0 and #H.event(m4,{kind='carry',runId=5})==0,'carry_needs_run_id')
 for i=1,40 do H.event(m4,{kind='carry',runId='bulk'..i}) end
 check(#m4.order<=32 and not m4.announced.bulk1 and m4.announced.bulk40,'announced_memory_bounded')
--- Other typed events: safe banner, xp toast; knocked and lost are gaps (their legacy toasts stay tier 1).
+-- Other typed events: safe/lost banners, knocked and xp toasts (G5).
 out=H.event(m,{kind='safe',species='glimfox',runId='r2'});check(kinds(out)=='safe' and out[1].tier==2 and out[1].slot=='banner','safe_banner')
 out=H.event(m,{kind='xp',amount=25,source='rest',level=1});check(kinds(out)=='xp' and out[1].tier==1 and out[1].data.source=='rest' and out[1].data.amount==25,'xp_toast_names_source')
 check(#H.event(m,{kind='xp',amount=0})==0 and #H.event(m,{kind='xp',amount=0/0})==0,'xp_without_gain_ignored')
-for _,kind in ipairs({'knocked','lost','unknown'}) do check(#H.event(m,{kind=kind,species='glimfox'})==0,'gap_event_no_message_'..kind) end
+out=H.event(m,{kind='knocked',species='glimfox',dropId='d1'});check(kinds(out)=='knocked' and out[1].tier==1 and out[1].slot=='toast' and out[1].data.species=='glimfox','knocked_toast')
+out=H.event(m,{kind='lost',species='glimfox',reason='stolen'});check(kinds(out)=='lost' and out[1].tier==2 and out[1].slot=='banner' and out[1].data.reason=='stolen','lost_banner')
+check(#H.event(m,{kind='unknown',species='glimfox'})==0,'unknown_event_no_message')
 check(#H.event(m,nil)==0 and #H.event(m,'junk')==0,'event_ignores_non_table')
 -- Section banner: changes only; box gaps (false) don't re-banner; the sanctuary resets it.
 m=H.new();p=profile();H.observe(m,p)

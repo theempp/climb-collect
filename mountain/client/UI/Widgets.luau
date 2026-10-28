@@ -771,4 +771,7 @@ function W.burst(parent,size,label)
  local l=gtext(f,'Label',label,T.fontBody,T.t.small,T.goldInk);l.Rotation=-12;l.ZIndex=2
  f:SetAttribute('Motion','burst.wob');return f
 end
+-- Rarity (1b): tier name -> rarityColor key, and the key's rcg gradient as a grad table (W.tint / W.grad).
+function W.rarityKey(tier) return tierKey[tier or ''] end
+function W.rarityGrad(key) return if key and T.rarityColor[key] then rarityGrad(key) else nil end
 return W

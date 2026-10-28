@@ -5,7 +5,8 @@ local H={}
 H.states={rest=true,carry=true,chase=true,sanctuary=true,battle=true}
 -- Message tiers (intel §4). Board text wins on timing (STOP 1, G4): XP line 1.5 s, carry pop-up 2.5 s, RUN! 1.5 s.
 -- Tier 1 = toast under the coin pill, 2 = top band, 3 = centre moment. The checkpoint rail label is not a tier message.
--- knocked, lost, calm and purchase are open gaps (G5): no entry, so their legacy toasts stay tier 1 and calm is state only.
+-- G5 (plan §15): knocked = tier 1 toast "Knocked loose!"; lost = tier 2 banner "LOST IT / <name> went home"; safe = tier 2
+-- banner "SECURED / <name>"; calm is state only (vignette off, dock restores). Purchase stays an open gap.
 H.tiers={
  coin={tier=1,slot='toast',duration=1.5},
  xp={tier=1,slot='toast',duration=1.5},
@@ -18,6 +19,8 @@ H.tiers={
  alert={tier=2,slot='run',duration=1.5,danger=true},
  section={tier=2,slot='banner',duration=2.5},
  safe={tier=2,slot='banner',duration=2.5},
+ knocked={tier=1,slot='toast',duration=1.5},
+ lost={tier=2,slot='banner',duration=2.5},
  checkpoint={slot='rail',duration=3},
  levelUp={tier=3,slot='moment',duration=2.5},
  summit={tier=3,slot='moment',duration=2.5},
@@ -28,6 +31,11 @@ H.tiers={
 H.legacy={
  {find='heard your strike!',kind='alert',typed=true},
  {match='^Safe! ',kind='safe',typed=true},
+ -- Server toasts sent next to a typed knocked/lost event (Bats, CarryVisuals).
+ {match='^Knocked! Your ',kind='knocked',typed=true},
+ {match='^Unsecured .+ lost%. Try another egg%.$',kind='lost',typed=true},
+ {find='Your creature was taken.',kind='lost',typed=true},
+ {find='Your dropped creature escaped.',kind='lost',typed=true},
  {find='IMPOSSIBLE MOUNTAIN CONQUERED',kind='summit'},
  {find='golden heart',kind='toast',priority=true},
  {find='constellation stones',kind='toast',priority=true},
@@ -174,7 +182,7 @@ function H.observe(m,profile,fallback)
  m.explorer=explorer;m.creatures=owned
  return out
 end
--- Typed hud events (Main hud(), T3). alert/calm drive the chase; knocked and lost are gaps (their toasts stay).
+-- Typed hud events (Main hud(), T3). alert/calm drive the chase; knocked/lost/safe are messages (G5).
 function H.event(m,payload,inSanctuary)
  local out={}
  if type(payload)~='table' then return out end
@@ -188,6 +196,10 @@ function H.event(m,payload,inSanctuary)
   m.threats[payload.section]=nil
  elseif kind=='safe' then
   table.insert(out,H.message('safe',{species=payload.species,runId=payload.runId},inSanctuary))
+ elseif kind=='knocked' then
+  table.insert(out,H.message('knocked',{species=payload.species,dropId=payload.dropId,expiresAt=payload.expiresAt},inSanctuary))
+ elseif kind=='lost' then
+  table.insert(out,H.message('lost',{species=payload.species,reason=payload.reason,eggId=payload.eggId},inSanctuary))
  elseif kind=='xp' and finite(payload.amount) and payload.amount>0 then
   table.insert(out,H.message('xp',{amount=payload.amount,source=payload.source,level=payload.level},inSanctuary))
  end
