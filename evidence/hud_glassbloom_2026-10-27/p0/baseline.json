@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-27",
+  "branch": "codex/hud-glassbloom from codex/hud-v2 f6da03b",
+  "base": {"file": "outputs/ClimbCollect.HUDv2.Review01.rbxl", "sha256": "2a3bff90935f2930418cc3f164f0a1d7e9915a11c0c4eb09083a4c7527bc6343"},
+  "copy": {"file": "outputs/ClimbCollect.Glassbloom.Review01.rbxl", "sha256": "2a3bff90935f2930418cc3f164f0a1d7e9915a11c0c4eb09083a4c7527bc6343", "placeId": 0, "gameId": 0, "studioAids": false, "instances": 15502, "saved_since_copy": false},
+  "tests": {"hud_layout": 288, "ui_presentation": 46, "ui_client_state": 50, "ui_protocol": 42, "ui_server": 25, "run_ui_server.py": 25, "rules": 121, "bat_rules": 27, "egg_raids": 21, "all_pass": true},
+  "overflow_audit": {"file": "overflow_audit.json", "sizes": ["749x330","844x390","932x430","1024x700","1180x780","1600x860"], "screens": 162, "errors": 1, "note": "only error: 844x390 Shop/Convenience Promise3 title (the 'No paid odds' tile D8 removes); 0 at the 4 original sizes"},
+  "state_audit_rest": {"file": "state_audit_rest.json", "errors": ["Small target AddCoins", "Slot1 overlaps DynamicThumbstickFrame", "Context overlaps DynamicThumbstickFrame"], "note": "pre-existing; Glassbloom removes centred slots/context on the mountain"},
+  "hud_descendants": {"rest_all": 631, "rest_visible_gui": 244, "sprint_gui": 24, "shop_open_all": 1034, "after_close": 631, "budget_rest_plus15pct": 726},
+  "perf": {"view": "iPhone 16 Pro emulator, safe root 750x343, desktop GPU", "rest": {"avgMs": 16.6, "p99Ms": 18.3, "worstMs": 20.0, "over33": 0, "frames": 600}, "shop_open": {"avgMs": 16.6, "p99Ms": 18.6, "worstMs": 18.9, "over33": 0, "frames": 600}},
+  "studio_checks": {
+    "UserGameSettings.SavedQualityLevel write": "blocked (lacking capability RobloxScript) even from the MCP plugin context; game scripts cannot write it",
+    "UserGameSettings.MouseSensitivity write": "blocked (same)",
+    "conclusion": "Graphics row = the game's own effectsTier; drop Camera speed (D11 as recommended)",
+    "UIGradient under UIStroke": "rotates correctly with a hard 0/1 transparency step (ring_spike.png: grad 0 = left half, grad 45 rotated). The two half-clip assembly still needs angle and Border-stroke clip tuning: P3 spike."
+  },
+  "tooling": "sync_hud.py creates missing ModuleScript/LocalScript targets and skips repo files that don't exist yet; adds Motion, Hud, Shop, UIProtocol, HudState"
+}
