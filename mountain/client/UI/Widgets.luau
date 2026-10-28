@@ -615,12 +615,14 @@ function W.glassChip(parent,label,on,size,pos,fn)
 end
 -- card() (§2, L199-206, L610-612): rcg fill, stroke 3 ink, outer ring 2 white T.7 (violet/prism: T.4 + glowCardRare), art h 62
 -- with U11 highlight + icon 52, ink T.38 name band (padding 3/7/6, gap 3, FO 12, XP h 7), level badge 28 at (5,5) deep FO 13.
--- rarityKey: tier name or rarityColor key (default species.rarity). species nil = unknown ("???", "?" FO 30).
--- opts: level, xp (0..1), locked (padlock 38), icon (W.icon kind, default 'Creature').
+-- rarityKey: tier name or rarityColor key (default species.rarity). species (Catalog entry or name string) nil = unknown ("???", "?" FO 30).
+-- opts: name, level, xp (0..1), locked (padlock 38), icon (W.icon kind, default 'Creature').
 function W.rarityCard(parent,name,species,rarityKey,size,pos,opts)
  opts=opts or {}
  local key=if T.rarityColor[rarityKey] then rarityKey else tierKey[rarityKey or (species and species.rarity) or '']
  local r=T.r.card;local s=T.s.bold;local rare=key=='violet' or key=='prism';local known=species~=nil and key~=nil and not opts.locked
+ -- species = Catalog entry or a display string ('Sprout'); opts.name overrides. Only the unknown card reads "???".
+ local title=opts.name or (if type(species)=='table' then species.name else species)
  local o=root('Frame',parent,name,size,pos,r)
  if rare and known then W.glow(o,o,T.glowCardRare) end
  gstroke(corner(W.new('Frame',o,{Name='Ring',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,BorderSizePixel=0,ZIndex=-1}),r),T.text,T.s.glass,if rare and known then .4 else .7)
@@ -638,7 +640,7 @@ function W.rarityCard(parent,name,species,rarityKey,size,pos,opts)
  else gtext(art,'Unknown','?',T.fontBody,T.t.cardArt) end
  local band=W.new('Frame',b,{Name='Band',AnchorPoint=Vector2.new(0,1),Position=UDim2.fromScale(0,1),Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundColor3=T.outline,BackgroundTransparency=.38,BorderSizePixel=0})
  W.new('UIPadding',band,{PaddingTop=UDim.new(0,3),PaddingRight=UDim.new(0,7),PaddingBottom=UDim.new(0,6),PaddingLeft=UDim.new(0,7)});W.list(band,3)
- local nm=inked(gtext(band,'Name',if species then species.name else '???',T.fontBody,T.t.cardName));nm.Size=UDim2.fromScale(1,0);nm.AutomaticSize=Enum.AutomaticSize.Y;nm.TextWrapped=true;nm.LayoutOrder=1
+ local nm=inked(gtext(band,'Name',if species~=nil and title~=nil then title else '???',T.fontBody,T.t.cardName));nm.Size=UDim2.fromScale(1,0);nm.AutomaticSize=Enum.AutomaticSize.Y;nm.TextWrapped=true;nm.LayoutOrder=1
  if known then
   -- GAP: the card XP track fill is not stated; well.T xp (night T.3, L51) used. Fill = gradAction, full = gradCardXpFull.
   local xp=math.clamp(opts.xp or 0,0,1)
