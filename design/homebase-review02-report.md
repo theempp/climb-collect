@@ -1,13 +1,25 @@
 # Home-base Review02 — report (October 27, 2026)
 
-Follow-up pass on Review01 (`design/homebase-rebuild-review01-report.md`). Stopped for the owner's review. No push, no publish.
+Follow-up pass on Review01 (`design/homebase-rebuild-review01-report.md`). Stopped for the owner's review. No push. Published privately for phone review (see below).
 
-## File status — NOT SAVED YET
-`outputs/ClimbCollect.HomeBase.Review02.rbxl` does not exist yet. The Review01 window in Studio holds the Review02 state (Review01 + the changed sources synced over the Studio MCP, 97/97 match, Play-checked), unsaved. No MCP tool saves or publishes, and computer use for Studio was declined twice, so saving needs the owner at the computer: File → Save to File As → `outputs/ClimbCollect.HomeBase.Review02.rbxl` (never Ctrl+S: that overwrites Review01). If Studio closes first, reopen Review01 and re-sync: `python tools/rmcp/sync_homebase.py <studio id> TycoonWorld TycoonFeel CreatureMotion HomeAmbience`, then `compare_sources.py`.
+## Files (saved 2026-10-27, owner at the computer)
+| File | SHA256 | Notes |
+|---|---|---|
+| `outputs/ClimbCollect.HomeBase.Review02.rbxl` | `f1dd0c60aa4dded66b035a3b0c6026125b73c5228cce050a76d324aaa6665f38` | Review file (StudioTests kept, `StudioAids` unset). Studio File › Save to File As. Cold reopen: 97/97 sources match the branch |
+| `outputs/ClimbCollect.HomeBase.Review02.Phone.rbxl` | `e85abe345b2ffa0619bb6d2204c53dbbbc94ab132f1bc391b5a6d589f9656759` | Publish copy: `ReplicatedStorage.StudioAids=false`, `MountainServer.StudioTests` removed; the other 96 sources match |
+
+Terrain: both files differ from Review01 only in the `SmoothGrid` payload bytes (Studio re-encodes it on Save As; no terrain API was called). A whole-terrain voxel fingerprint (`tools/rmcp/terrain_fingerprint.luau`: material + 16-bit occupancy, gap-encoded) is identical in the cold-reopened Review02 and in the published window loaded from Review01: 5,584,724 occupied cells, hashes 1284664095 / 2105651153, `CountCells` 12,844,066 both. So the voxels are unchanged; only the encoding differs.
+
 Review01 (`4ef76009…27f96`) and Review06 are untouched. Branch `codex/homebase-rebuild`; commits `a4e0e71` (tags, creature life, ambience), `a708238` (sound), plus this report.
 
-## Phone publish — owner-approved, pending
-Owner chose (popup, 2026-10-27): publish **home base Review02 alone** (current in-game HUD, not HUD v2) to a **new private experience** ("Climb & Collect – Home Review", owner's account, Team Create off, Data Sharing off, phone enabled). Publish copy: `ReplicatedStorage.StudioAids=false`, `StudioTests` removed, saved locally first. Blocked on the same Studio-click permission; nothing was published.
+## Phone publish (owner-approved, done 2026-10-27)
+Owner chose (popup): home base Review02 alone (current in-game HUD, not HUD v2) to a new private experience. Published from the Phone copy via Studio File › Publish As › Create new experience:
+- **Climb & Collect – Home Review**, PlaceId `76614656094214`, UniverseId `10773424325`. Phone link: https://www.roblox.com/games/76614656094214
+- Creator: Me (owner account). Devices Computer/Phone/Tablet/VR. Team Create off, Data Sharing off.
+- Studio's post-publish dialog: "Only available to you and your collaborators". Invite / Release publicly were **not** clicked.
+- Experience Settings › Security: HTTP, Studio Access to API Services, third-party sales and teleports all off (read only, nothing changed).
+- Untouched: Phone Candidate (139426549461023) and its PhoneCandidate03 Studio window, the Oct 22 place 134979185642785.
+- Not done: Max Players is 12 (8 homes). Studio moved that to Creator Hub (Configure › Places), so the owner sets 8 there if wanted; a solo review doesn't need it. No phone or hosted-server play was checked by me; the live server uses DataStore (`Profiles` not in Studio) for the first time in this place.
 
 ## 1. Play-through and bugs
 Play Solo in Studio, natural spawn at home 1, ordinary player requests only (no profile or position fixtures). Probes: `mountain/tools/promenade_raid.client.luau`, new `mountain/tools/homebase_systems.client.luau`.
@@ -61,4 +73,4 @@ Habitat creatures get a small brain: pick a spot inside their pad (wander box fr
 - **Incubate / hatch**: a fresh profile has no eggs, so the loop wasn't exercised in Play.
 - Decor buy/place/clear in Play (coins), and therefore wind chimes on a real placed item (tested on a local tagged part).
 - Real phones, hosted servers, 8 occupied homes, live DataStore. Human pacing.
-- `StudioAids` still unset; set it to false before any publish. Combined publish with HUD v2 Review03 still needs owner approval and a confirmed target place.
+- Combined publish with HUD v2 Review03 still needs owner approval and a confirmed target place.
