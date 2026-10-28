@@ -21,5 +21,8 @@ Only `ServerScriptService.MountainServer.Profiles` (the brief said `CC_CoreServe
 - Final file not reopened in Studio (checked by decoding only).
 - API Services: an experience setting, not in the place file; not touched.
 - No Studio persistence test (none gated for this; `[CC-SAVE]` prints are skipped in Studio anyway).
-- `[CC-SAVE]` output itself: only appears on a hosted server. Not published; experience untouched.
+- `[CC-SAVE]` output itself: only appears on a hosted server; hosted test not run yet (check logs with `mountain/tools/check_cc_save.py`).
+
+## Published (owner-approved, 2026-10-27 ~21:55)
+Final file opened fresh in Studio (read-only; Studio check: `[CC-SAVE]` 1, StudioAids false, HTTP false), File › Publish As › overwrote the place in **Climb & Collect – Phone Candidate** (PlaceId 139426549461023). Dialog: "Only available to you and your collaborators"; Invite / Release publicly not clicked. Experience settings not changed.
 - Studio still has PC03 open. Saving it again would overwrite the final file and bring back the terrain byte drift.
