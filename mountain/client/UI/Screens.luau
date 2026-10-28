@@ -551,7 +551,7 @@ function S:shop(data)
   self:banner('Chest','Fair conveniences','Only noncompetitive convenience belongs here.',T.alt)
   -- Promise tiles (cc/05 perk tiles).
   local g=self:grid('Promises',3,180,if compact then 92 else 108)
-  for i,v in ipairs({{'Egg','No paid odds','Creature odds are never sold'},{'Bat','No power','Strength comes from play'},{'Creature','No capture edge','Catching stays fair'}}) do
+  for i,v in ipairs({{'Egg','True odds','Odds shown are the odds used'},{'Bat','No power','Strength comes from play'},{'Creature','Fair play','Robux creatures never battle or raid'}}) do
    local card=W.card(g,'Promise'..i,nil,nil,T.navy);card.LayoutOrder=i
    local a=if compact then 48 else 60
    W.icon(card,v[1],UDim2.fromOffset(a,a),UDim2.new(0,10,.5,-a/2))
