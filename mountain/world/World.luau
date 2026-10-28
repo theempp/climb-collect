@@ -253,8 +253,8 @@ function W.build()
  local bloom=Instance.new('BloomEffect');bloom.Intensity=.18;bloom.Size=20;bloom.Threshold=1.4;bloom.Parent=L
  for name,id in pairs({['Mountain Birds 1 (SFX)']='9112832288',WaterfallLoop='9120550423',AstralWind='9125742262',LavaLoop='9112823563'}) do
   local sound=game:GetService('SoundService'):FindFirstChild(name)
-  if not sound then sound=Instance.new('Sound');sound.Name=name;sound.SoundId='rbxassetid://'..id;sound.Parent=game:GetService('SoundService') end
-  sound.Volume=0;sound.Looped=true
+  if not sound then sound=Instance.new('Sound');sound.Name=name;sound.Parent=game:GetService('SoundService') end
+  sound.SoundId='rbxassetid://'..id;sound.Volume=0;sound.Looped=true
  end
  require(script.Parent.TraversalArt).apply(root)
  root:SetAttribute('Ready',true)
