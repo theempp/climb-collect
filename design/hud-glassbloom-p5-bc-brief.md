@@ -1,0 +1,32 @@
+# P5 tasks B (Collection) and C (Settings)
+
+Rules: `design/hud-glassbloom-p5-builder-brief.md`. Panel frame from task A is in `Screens.luau` (side tabs, `self:sideFooter`, section-jump mode `self:section/jumpTo`). Read it first.
+
+## Task B — Creatures › Collection (intel `card()` L199–206, chips L196–198, per-menu "Collection" L630)
+In `S:creatures` (non-detail), the **Collection** tab gets new content; Team/Training/Evolution keep their current layout (reskin only).
+- Chips row (`W.glassChip`, gap 6, bottom margin 8; wrap with UIListLayout Wraps if the row is too narrow; wrapped-chip hit areas `W.hit(chip,44,Vector2.new(math.huge,33))` per STOP 1 G1 only when wrapped): "All N" · "Owned n" · "Missing m" (exclusive filter, state `self.collectionFilter`, default All) · "Rarity ↓" (toggle, state `self.collectionSort`; on = sort Legendary → Mythic → Epic → Rare → Uncommon → Common, ties in catalog order; off = catalog order `C.species`). N = #C.species, n = owned species count, m = N − n.
+- Grid: one card per species (Catalog `C.species`, 36). Column formula (intel): W = scroll content width − 6, n = ⌊(W+10)/106⌋, cell = (W−10(n−1))/n, gap 10, grid UIPadding 3. Card height = the board card: art 62 + name band (padding 3/7/6, name FO 12 line ≈ 15, gap 3, XP 7) + 2×3 stroke ≈ 102; if any visible name needs two lines at the cell width (TextService), use the two-line height for every card.
+- Owned species → `W.rarityCard(grid,'Species_'..id,species,nil,size,nil,{level=c.level,xp=…})` using that species' best creature (highest level, then XP; `P.creature(c).xpRequired`, maxed → 1). Tappable: a transparent TextButton over the whole card named `Details_<creature id>` (card ≥ 96 px so it is its own ≥ 44 target), `W.focus`, fn → `self.detail=c.id; self:render(false)`.
+- Missing species: owner §17 — species whose section (`species.kingdom`) the player has entered = unknown card (`W.rarityCard(grid,name,nil,…)` → "???"); never entered = Locked (`opts.locked=true`, name text "Locked"; `W.rarityCard` shows the name it is given). "Entered" = `data.discoveries[k..':entrance']==true` or the player owns any species of section k.
+- Side footer: `self:sideFooter('Equip team', fn)` on the Collection tab only → `self.tab='Team'; self:render(false)`.
+- Remove the Search/Rarity/Sort filter panel from the Collection tab only (Team/Training/Evolution keep it).
+- **Fix Screens:281-ish grey gradient multiply** in the creature list grid used by Team/Training/Evolution: delete the `card.UIGradient.Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(190,200,225))` line (it greys the rarity tint).
+- Title stays "Creatures n/36".
+
+## Task C — Settings (intel `row()`, `sl()`, `seg()`, `tog()`, `pbtn`, L311–323, L620–623, L642–646; plan D11)
+Kit additions in `Widgets.luau` (one function each, header comment citing intel lines):
+- `W.prefRow(parent,name,title,desc)` → board `row()`: 2 columns (1fr / auto) gap 12, padding 8/12, r14, `night` T.55, stroke 1.5 white T.82, bottom margin 7 (the scroll list gap is 0 in section mode, so the row carries its own margin), title FO 14, desc FO 11 T.18, height from content (AutomaticSize Y). Returns row, controls frame (right, UIListLayout H gap 8, vertically centred).
+- `W.slider(parent,name,value,fn)` → `sl()`: track 120×10 r6 `night` T.3 stroke 1.5 white T.5; fill `gradAction` r5; knob 16 white + glow `pk` B 8 (intel §2 states it; T is not stated → T 0 as `box-shadow:0 0 8px var(--pk)` is opaque; add it to Theme as `glowKnob={color=pk,t=0,b=8,s=0}` with a comment citing L317); value label FO 12, w 34, right-aligned "70%". Input: a ≥44 px tall hit over the track; tap/drag sets the value (snap 0.05), commit `fn(value)` on release; gamepad Activated steps +0.1 wrapping 1→0. Static visuals only; no tween.
+- `W.seg(parent,name,options,index,fn)` → `seg()`: r12 `night` T.4 stroke 1.5 white T.75; option padding 6/11, FO 12 `segText`; on = `gradCta` (Rot 90) + white text; first/last on-state fills get UICorner 12 with square inner corners (intel deviation note). Each option is a GuiButton (`Option<label>`) with `W.hit(opt,44,Vector2.new(optWidth,math.huge))` (adjacent options: hit trimmed to its own width, G1).
+- `W.toggle(parent,name,on,fn)` → `tog()`: 54×28 r16 `night` T.3 stroke 1.5 white T.7; knob 20 at (3,3) `togOff`; on = `gradAction` fill, knob x 29 white; knob `Motion='tog.knob'`. `W.hit(tog,44)`.
+- pbtn = `W.ghost(parent,name,label,UDim2.fromOffset(w,30),nil,fn,{n=T.t.pbtn,padX=12})` (intel: the ghost wins on its only instance).
+
+`S:settings` rebuild (section mode; tabs Audio/Graphics/HUD/Controls/Account, no icons; `tabs.Settings` in Screens changes accordingly):
+- **Audio**: Music "Background tracks" slider `musicVolume`; Sound effects "Hits, UI and voices" slider `sfxVolume`.
+- **Graphics**: Graphics quality "Lower is smoother on older phones" seg LOW/MED/HIGH → `effectsTier` 0/.5/1; Camera shake "Shake on guardian roars and big hits" toggle `cameraShake`; Reduce effects "No FOV kick, hue cycling or flashes" toggle — on when `reducedMotion and simplifiedVFX`; a tap sends both keys = the new state (D11).
+- **HUD**: HUD size "Scales every button" seg S/M/L → `hudScale` 0/.5/1; Altitude rail "Left edge, fades when idle" toggle `altitudeRail`; Large text "Bigger labels and numbers" toggle `largeText`; kept rows (D11): High contrast "Opaque panels and brighter outlines." toggle `highContrast`; Hints "Short, nonblocking expedition guidance." toggle `hints`.
+- **Controls**: Sprint "Hold or tap to toggle" seg HOLD/TOGGLE → `sprintMode` 0/1. No Camera speed row (P0: not writable).
+- **Account**: Reset settings "Back to the defaults above" pbtn "Reset" → `self.feedback:confirm('Reset settings?','Every setting goes back to its default.',fn)` → send one `Settings` patch with every default from `UIProtocol.settings(nil)` (shared module; it returns the defaults). Then the existing save-mode note (`data.saveMode or 'Preferences follow your profile save status.'`) as a FO 11 note.
+- Values from `data.ui.settings` (fall back to `UIProtocol.settings(nil)` defaults). Every change = `self:send('Settings',{key=value})`; the re-render on the confirmed state refreshes controls.
+- Section headers via `W.sectionHeader` (first = Audio), registered with `self:section(tab,header,true)`.
+- Hud.luau line ~99: the gear opens `go('Settings','Quick')`; 'Quick' no longer exists → `go('Settings')` (top). Grep for other references to the old Settings tab names (Accessibility/Audio/Quick) and update them.

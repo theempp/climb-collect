@@ -595,9 +595,14 @@ local function ctaCore(parent,name,label,size,pos,k)
  o:GetPropertyChangedSignal('Text'):Connect(function() l.Text=o.Text;if drop then drop.Text=o.Text end end)
  W.hit(o);W.focus(o);return o
 end
--- Title plate (panel() title, L180): the W.cta look as a non-interactive Frame (no GuiButton, so no 44 px rule). n default menuTitle 23.
-function W.ctaPlate(parent,name,label,size,pos,n)
- return ctaCore(parent,name,label,size,pos,{plate=true,stroke=T.s.bold,grad=T.gradCta,gloss=true,glow=T.glowCta,lipY=6,lipColor=T.lip,drop=T.lip,n=n or T.t.menuTitle})
+-- Title plate (panel() title, L180): the W.cta look as a non-interactive Frame (no GuiButton, so no 44 px rule). n default menuTitle 23;
+-- padX (board .ttl 20) insets the label from the plate's border box.
+function W.ctaPlate(parent,name,label,size,pos,n,padX)
+ return ctaCore(parent,name,label,size,pos,{plate=true,stroke=T.s.bold,grad=T.gradCta,gloss=true,glow=T.glowCta,lipY=6,lipColor=T.lip,drop=T.lip,n=n or T.t.menuTitle,padX=padX})
+end
+-- Plate width that fits `label` on one line: text + 2 padX + 2 bold strokes (the CSS border sits inside the box).
+function W.plateWidth(label,n,padX)
+ return math.ceil(TextService:GetTextSize(label,T.size(n or T.t.menuTitle),T.fontDisplay,Vector2.new(1e4,1e4)).X)+2*(padX or 0)+2*T.s.bold
 end
 -- Menu X (§2 panel(), L181): 36 drawn circle, gradClose, stroke 3 white, glowX, lip closeLip 3, "×" FO 20. The named TextButton
 -- is the 44 px hit area (audit: every GuiButton >= 44); the circle is centred inside it. Text stays 'X' for lookups.

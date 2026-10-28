@@ -2,6 +2,9 @@
 -- Every hub/tab at several root sizes: each visible GuiObject must sit inside its parent (parts tagged Overhang must
 -- stay inside the grandparent; Decor is exempt), children of a ScrollingFrame must fit its width, text must fit,
 -- buttons >= 44 px, and text-bearing siblings must not overlap.
+-- Glassbloom P5: touch is measured on the kit's invisible Hit child (W.hit; owner-approved trims at neighbour midpoints use
+-- the Hit's UISizeConstraint.MaxSize); Hit areas are exempt from spill/overlap. Also: no horizontal canvas, and the panel and
+-- Overhang parts stay clear of the core zone (x<116, y<56 from the root's top-left, intel §3).
 local pg=game.Players.LocalPlayer.PlayerGui
 local gui=pg:WaitForChild('MountainHUD')
 local root=gui.SafeRoot
@@ -19,14 +22,22 @@ local function overlap(a,b)
  local a0,a1=a.AbsolutePosition,a.AbsolutePosition+a.AbsoluteSize;local b0,b1=b.AbsolutePosition,b.AbsolutePosition+b.AbsoluteSize
  return a0.X<b1.X-1 and b0.X<a1.X-1 and a0.Y<b1.Y-1 and b0.Y<a1.Y-1
 end
+local function hitArea(o) return o:GetAttribute('HitArea')==true end
+local function needs(h) local c=h:FindFirstChildOfClass('UISizeConstraint');local m=if c then c.MaxSize else Vector2.new(44,44);return math.min(44,m.X),math.min(44,m.Y) end
+local function core(o) local p=o.AbsolutePosition-root.AbsolutePosition;return p.X<116 and p.Y<56 end
 local function texty(o) return (o:IsA('TextLabel') and o.Text~='') or o:IsA('TextButton') or o:IsA('TextBox') end
 local function add(where,msg) if #errors<200 then table.insert(errors,where..' '..msg) end end
 local function check(where)
  local hub=root.HubShade.Hub
  if not inside(hub,root,0) then add(where,'hub outside root') end
+ if core(hub) then add(where,'hub in core zone') end
  for _,o in ipairs(root.HubShade:GetDescendants()) do
-  if o:IsA('GuiObject') and visible(o) and not tagged(o,'Decor') then
+  if o:IsA('GuiObject') and visible(o) and not tagged(o,'Decor') and hitArea(o) then
+   local nx,ny=needs(o);if o.AbsoluteSize.X<nx-.5 or o.AbsoluteSize.Y<ny-.5 then add(where,'touch: '..o.Parent.Name) end
+  elseif o:IsA('GuiObject') and visible(o) and not tagged(o,'Decor') then
    objects+=1
+   if o:GetAttribute('Overhang') and core(o) then add(where,'core zone: '..o.Name) end
+   if o:IsA('ScrollingFrame') and o.ScrollingDirection~=Enum.ScrollingDirection.Y and o.AbsoluteCanvasSize.X>o.AbsoluteWindowSize.X+1 then add(where,'horizontal canvas: '..o:GetFullName():match('HubShade%.(.*)$')) end
    local p=o.Parent
    if p:IsA('ScrollingFrame') then
     local x0,x1=o.AbsolutePosition.X,o.AbsolutePosition.X+o.AbsoluteSize.X
@@ -36,12 +47,12 @@ local function check(where)
     if ref and ref:IsA('GuiObject') and not ref:IsA('ScrollingFrame') and not inside(o,ref,1.5) then add(where,'spills: '..o:GetFullName():match('HubShade%.(.*)$')) end
    end
    if (o:IsA('TextLabel') or o:IsA('TextButton')) and o.Text~='' and not o.TextFits then add(where,'text: '..o:GetFullName():match('HubShade%.(.*)$')) end
-   if o:IsA('GuiButton') and (o.AbsoluteSize.Y<44 or o.AbsoluteSize.X<44) then add(where,'touch: '..o.Name) end
+   if o:IsA('GuiButton') and not o:FindFirstChild('Hit') and (o.AbsoluteSize.Y<44 or o.AbsoluteSize.X<44) then add(where,'touch: '..o.Name) end
   end
  end
  for _,p in ipairs(root.HubShade:GetDescendants()) do
   if p:IsA('GuiObject') and visible(p) then
-   local kids={};for _,c in ipairs(p:GetChildren()) do if c:IsA('GuiObject') and visible(c) and texty(c) and not tagged(c,'Decor') then table.insert(kids,c) end end
+   local kids={};for _,c in ipairs(p:GetChildren()) do if c:IsA('GuiObject') and visible(c) and texty(c) and not tagged(c,'Decor') and not hitArea(c) then table.insert(kids,c) end end
    for i=1,#kids do for j=i+1,#kids do if overlap(kids[i],kids[j]) then add(where,'overlap: '..kids[i].Name..' / '..kids[j].Name..' in '..p.Name) end end end
   end
  end

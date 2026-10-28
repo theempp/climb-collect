@@ -11,22 +11,29 @@ local S={};S.__index=S
 local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Bats','Cosmetics','Convenience'},Settings={'Accessibility','Audio','Quick'}}
 local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain',Competition='Social'}
 local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests',Competition='Challenges'}
+-- Side-tab icons only where the board draws them (Collection All/Team/Index/Evolve, L630); every other tab has none.
+local tabIcons={Creatures={Collection='Creature',Team='Heart',Training='Scroll',Evolution='EggCracked'}}
+-- Section-jump hubs (intel §2 per-menu): their tabs are sections of one scroll. Shop (task D) and Settings (task E) join here.
+local sectionHubs={}
 function S.new(root,store,feedback,onClose)
- local self=setmetatable({root=root,store=store,feedback=feedback,onClose=onClose,selected={},query='',rarity='All',sort='Name',page=1,tickers={},actionButtons={},touches={}},S)
+ local self=setmetatable({root=root,store=store,feedback=feedback,onClose=onClose,selected={},query='',rarity='All',sort='Name',page=1,tickers={},actionButtons={},touches={},sections={},tabButtons={}},S)
  self.touchBegin=UIS.TouchStarted:Connect(function(input) self.touches[input]=true end)
  self.touchEnd=UIS.TouchEnded:Connect(function(input) self.touches[input]=nil end)
  return self
 end
-function S:open(name)
- if not tabs[aliases[name] or name] then return end
+-- `tab` (optional): a tab name, or a section key the content registers with S:section (e.g. Shop 'Free gifts').
+function S:open(name,tab)
+ local hub=aliases[name] or name
+ if not tabs[hub] then return end
  self.tycoonRoster=nil;self.tycoonPage=1
- self.hub=aliases[name] or name;self.tab=aliasTabs[name] or tabs[self.hub][1];self.detail=nil;self.page=1
+ self.hub=hub;self.tab=aliasTabs[name] or tabs[hub][1];self.detail=nil;self.page=1;self.landKey=nil
+ if tab then if table.find(tabs[hub],tab) then self.tab=tab else self.landKey=tab end end
  if self.store.profile then self.selected=table.clone(self.store.profile.team) end
  self:render(false)
 end
 function S:close()
  if self.shade then self.shade:Destroy();self.shade=nil end
- self.hub=nil;self.detail=nil;self.tickers={};self.actionButtons={};GuiService.SelectedObject=nil
+ self.hub=nil;self.detail=nil;self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.landKey=nil;GuiService.SelectedObject=nil
  if self.onClose then self.onClose() end
 end
 function S:destroy()
@@ -74,10 +81,12 @@ end
 function S:banner(kind,title,subtitle,color,slot,height)
  local sw,sh=if slot then slot.w else 0,if slot then slot.h else 0
  if self.compact and not height then
-  local cw=184;local body=self.body
-  body.Position+=UDim2.fromOffset(cw+8,0);self.bodyInset=cw+8;body.Size=UDim2.new(1,-24-self.bodyInset,0,body.Size.Y.Offset);self.rowW-=cw+8
-  if self.fade then self.fade.Position+=UDim2.fromOffset(cw+8,0);self.fade.Size-=UDim2.fromOffset(cw+8,0) end
-  local f=W.spotlightColumn(body.Parent,'Spotlight',cw,self.bodyHeight,kind,title,subtitle,color,sh);f.Position=UDim2.fromOffset(12,body.Position.Y.Offset)
+  -- The column takes the left of the scroll holder; the scroll, its rows and the bottom fade move right of it.
+  local cw=184;local inset=cw+8;local body=self.body;local holder=body.Parent
+  body.Position=UDim2.fromOffset(inset,0);body.Size=UDim2.new(1,-inset,1,0);self.rowW-=inset
+  local fade=holder:FindFirstChild('BottomFade')
+  if fade then fade.Position=UDim2.new(0,inset,fade.Position.Y.Scale,fade.Position.Y.Offset);fade.Size=UDim2.new(1,-inset,0,fade.Size.Y.Offset) end
+  local f=W.spotlightColumn(holder,'Spotlight',cw,self.bodyHeight,kind,title,subtitle,color,sh);f.Size=UDim2.new(0,cw,1,0)
   sw=math.min(sw,cw-16)
   local s=W.frame(f,'Slot',UDim2.fromOffset(sw,sh),UDim2.new(.5,-sw/2,1,-sh-10));s.BackgroundTransparency=1
   return f,s,sw
@@ -92,17 +101,75 @@ function S:pending()
   for _,p in pairs(self.store.pending) do if p.action==v.action then busy=true;break end end
   W.enable(v.button,v.enabled and not busy and not self.deferredRender,if busy then 'Waiting…' else v.label)
  end
- if self.status then
-  local message='Changes are confirmed by the server.';local retryId=nil
+ if self.status and self.shade then
+  -- Status strip (no board line; results toast): shown only while a request waits, timed out or a refresh is deferred.
+  local message,retryId=nil,nil
   for id,p in pairs(self.store.pending) do
    if p.status=='timeout' then message='No reply yet. Retry safely with the same request.';retryId=id;break
    else message='Waiting for '..p.action..'…' end
   end
-  if not next(self.store.pending) and self.store.lastResult then message=self.store.lastResult.message or message end
   if self.deferredRender then message='Release your touch or finish editing to refresh actions.' end
-  self.status.Text=message;self.retry.Visible=retryId~=nil;self.retryId=retryId
-  if self.body and self.bodyHeight then self.body.Size=UDim2.new(1,-24-(self.bodyInset or 0),0,self.bodyHeight-(if retryId then 20 else 0)) end
+  local h=if retryId then 48 elseif message then 20 else 0
+  self.status.Text=message or '';self.retry.Visible=retryId~=nil;self.retryId=retryId
+  self.status.Size=UDim2.new(1,if retryId then -(88+12) else 0,1,0)
+  self.statusStrip.Visible=h>0;self.statusStrip.Size=UDim2.fromOffset(self.scrollW,h);self.statusStrip.Position=UDim2.fromOffset(self.scrollX,26+self.bodyHeight-h)
+  self.holder.Size=UDim2.fromOffset(self.scrollW,self.bodyHeight-h)
  end
+end
+-- Section-jump mode (intel §2 per-menu "Tab sync" / "Jump"; the hero is not in the scroll, P§2, so offsets 10 / 4). Content calls
+-- S:section(key, frame) for the frame that starts a section; keys that are not tabs (Shop 'Free gifts', 'Coins') are jump targets only.
+function S:section(key,frame,isTab)
+ if isTab==nil then isTab=table.find(tabs[self.hub] or {},key)~=nil end
+ self.sections[key]={frame=frame,tab=isTab==true};return frame
+end
+function S:sectionOffset(key)
+ local s=self.sections[key];local body=self.body
+ if not s or not body or not s.frame:IsDescendantOf(body) then return nil end
+ return s.frame.AbsolutePosition.Y-body.AbsolutePosition.Y+body.CanvasPosition.Y
+end
+function S:highlight(name) for n,b in pairs(self.tabButtons) do W.setOn(b,n==name) end end
+-- Landing (a section key or a restored y) is re-applied while the layout settles and dropped once the player scrolls. No tween (Motion, P6).
+function S:land()
+ local p,body=self.landing,self.body
+ if not p or not body or not body.Parent then return end
+ local y=if p.key then self:sectionOffset(p.key) else p.y
+ if y then body.CanvasPosition=Vector2.new(0,math.max(0,if p.key then y-4 else y)) end
+end
+function S:jumpToSection(key)
+ if not self.sections[key] then return false end
+ self.landing={key=key};self:land();task.defer(function() self:land() end);return true
+end
+function S:jumpTo(name)
+ if not table.find(tabs[self.hub] or {},name) then return end
+ if not self.sectionMode then self.tab=name;self.detail=nil;self.page=1;self:render(false);return end
+ self.tab=name;self:highlight(name);self:jumpToSection(name)
+end
+-- Tab sync: a tab is active once its section's offset − 10 ≤ scroll; the last tab is active at the end of the canvas.
+function S:syncTab()
+ local body=self.body
+ if not self.sectionMode or not body or not body.Parent then return end
+ local names=tabs[self.hub];local y=body.CanvasPosition.Y;local first,last,active
+ for _,n in ipairs(names) do
+  local s=self.sections[n]
+  if s and s.tab then first=first or n;last=n;local o=self:sectionOffset(n);if o and o-10<=y then active=n end end
+ end
+ local canvas,window=body.AbsoluteCanvasSize.Y,body.AbsoluteWindowSize.Y
+ if last and canvas>window+1 and y>=canvas-window-1 then active=last end
+ active=active or first
+ if active and active~=self.tab then self.tab=active;self:highlight(active) end
+end
+-- Side footer CTA (board .side .btn, L186: h 36, LG 16) pinned under the tabs, outside the Tabs scroll (which gives up 36 + gap 5).
+function S:sideFooter(label,fn)
+ local f=self.shade and self.shade:FindFirstChild('Hub')
+ if not f or self.footer then return self.footer end
+ local b=W.cta(f,'SideFooter',label,UDim2.fromOffset(self.sideW,36),UDim2.new(0,12,1,-12-36),fn,{n=T.t.btnSide});b.ZIndex=2
+ self.tabScroll.Size-=UDim2.fromOffset(0,36+5);self.footer=b;return b
+end
+-- Title plate (board .ttl, L180): W.cta look h 42, padX 20, LG 23, centred on the panel's top edge (top −21). Text only.
+-- Hook: the Shop hub restyles its plate in task D by replacing this call for self.hub=='Shop'.
+function S:titlePlate(f,text)
+ local p=W.ctaPlate(f,'TitleRibbon',text,UDim2.fromOffset(W.plateWidth(text,T.t.menuTitle,20),42),UDim2.new(.5,0,0,-21),T.t.menuTitle,20)
+ p.AnchorPoint=Vector2.new(.5,0);p.ZIndex=2;p:SetAttribute('Overhang',true);return p
 end
 function S:tick()
  if self.deferredRender then self:render(true) end
@@ -125,45 +192,46 @@ function S:render(preserve)
  local tabScrollPosition=if preserve and self.shade then self.shade.Hub.Tabs.CanvasPosition else Vector2.zero
  local scroll=if preserve and self.body then self.body.CanvasPosition else Vector2.zero
  if self.shade then self.shade:Destroy() end
- self.tickers={};self.actionButtons={}
+ self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.footer=nil
  local data=self.store.profile;local view=self.root.AbsoluteSize
- -- Margins keep the ribbon (10 px) and close-X (14 px) overhangs on screen.
- local width=math.min(850,view.X-40);local height=math.min(660,view.Y-20)
- -- Glassbloom (intel §2 panel()): mtint backdrop (no blur; the world shows through), glass panel r22 (shop: gold glass variant).
+ -- Glassbloom (intel §2 panel(), L177-181): mtint backdrop (no blur; the world shows through), glass panel r22 (shop: gold glass).
  self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1));W.tint(self.shade,T.gradMtint);self.shade.ZIndex=20;self.shade.Active=true
+ -- G14 (plan §17): board insets 24 sides / 66 top / 10 bottom up to 850×660, then that size, centred in the inset region.
+ local width=math.min(850,view.X-48);local height=math.min(660,view.Y-76)
+ local px=math.floor((view.X-width)/2);local py=66+math.floor((view.Y-76-height)/2)
  local shop=self.hub=='Shop'
- local f=W.glass(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.new(.5,0,.5,6),{radius=T.r.panel,variant=if shop then 'shop' else nil,glow=if shop then nil else T.glowGlass});f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=21
+ local f=W.glass(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.fromOffset(px,py),{radius=T.r.panel,variant=if shop then 'shop' else nil,glow=if shop then nil else T.glowGlass});f.ZIndex=21
  local title=if self.detail then 'Creature details' else self.hub
  if self.hub=='Creatures' and not self.detail then local owned={};for _,c in ipairs(data.creatures) do owned[c.species]=true end;local n=0;for _ in pairs(owned) do n+=1 end;title='Creatures '..n..'/'..#C.species end
- -- Header (intel §2 panel()): W.cta-look title plate (LuckiestGuy 23, h 42) over the top edge; menu X (36 drawn in a 44 hit button).
- local ribbon=W.ctaPlate(f,'TitleRibbon',string.upper(title),UDim2.fromOffset(math.min(300,width-170),42),UDim2.new(.5,0,0,-10));ribbon.AnchorPoint=Vector2.new(.5,0);ribbon.ZIndex=2;ribbon:SetAttribute('Overhang',true)
- W.icon(ribbon,self.hub,UDim2.fromOffset(40,40),UDim2.fromOffset(6,1)).ZIndex=3
- for _,n in ipairs({'Drop','Label'}) do local l=ribbon:FindFirstChild(n);if l then l.Size=UDim2.new(1,-60,1,0);l.Position=UDim2.fromOffset(50,if n=='Drop' then 2 else 0) end end
- local back=if self.detail then W.button(f,'Back','Back',UDim2.fromOffset(86,44),UDim2.new(1,-98,0,7),function() self:back() end,'blue') else W.closeX(f,'Back',UDim2.new(1,-30,0,-14),function() self:back() end)
- back.ZIndex=3;if not self.detail then back:SetAttribute('Overhang',true) end
+ self:titlePlate(f,string.upper(title))
+ -- X (L181): 36 circle at top −13 / right −10; the 44 hit button is centred on it. Back leaves a creature detail first.
+ local back=W.closeX(f,'Back',UDim2.new(1,10-36-4,0,-13-4),function() self:back() end);back.ZIndex=3;back:SetAttribute('Overhang',true)
  local short=view.Y<390;self.compact=short
- self.rowW=width-24-16
- -- Tabs share the row width (no sideways spill); on short phones the creature filters take the right end.
- local names=tabs[self.hub];local reserve=if self.hub=='Creatures' and not self.detail and short then 300 else 0
- local tabW=math.clamp(math.floor((width-24-reserve-8*(#names-1)-(if reserve>0 then 8 else 0))/#names),64,128)
- local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.new(1,-24,0,48),Position=UDim2.fromOffset(12,if short then 40 else 54),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.X,ScrollingDirection=Enum.ScrollingDirection.X,ScrollBarThickness=0})
- W.list(tabScroll,8,true)
- for _,name in ipairs(names) do
-  W.tabButton(tabScroll,'Tab'..name,name,UDim2.fromOffset(tabW,44),name==self.tab,function() self.tab=name;self.detail=nil;self.page=1;self:render(false) end)
+ self.sectionMode=sectionHubs[self.hub]==true and not self.detail
+ -- Columns (L177-179): padding 26 top / 12 sides+bottom, side column 128, gap 12, scroll area = the rest.
+ local side=128;local sx=12+side+12;local sw=width-sx-12;local sh=height-26-12
+ self.sideW=side;self.scrollX=sx;self.scrollW=sw;self.bodyHeight=sh
+ -- tabs() (L182-186): vertical list gap 5 in a Y scroll (a hub may hold more tabs than fit). The frame keeps a glowTabOn-blur (12)
+ -- margin on every side so the on-tab glow stays inside it; its right margin ends where the scroll area starts.
+ local m=T.glowTabOn.b
+ local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.fromOffset(side+2*m,sh+2*m),Position=UDim2.fromOffset(12-m,26-m),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=0})
+ W.padding(tabScroll,m);W.list(tabScroll,5);self.tabScroll=tabScroll
+ local icons=tabIcons[self.hub] or {}
+ for i,name in ipairs(tabs[self.hub]) do
+  local t=W.tab(tabScroll,'Tab'..name,name,icons[name],name==self.tab,function()
+   if self.sectionMode then self:jumpTo(name) else self.tab=name;self.detail=nil;self.page=1;self:render(false) end
+  end)
+  -- STOP 1 G1: side-tab hit areas trimmed to the 39 px pitch (full column width).
+  t.LayoutOrder=i;W.hit(t,44,Vector2.new(math.huge,39));self.tabButtons[name]=t
  end
- local top=if short then 90 else 106;local foot=if short then 24 else 40
- self.bodyHeight=height-top-foot
- self.body=W.scroll(f,'Content',UDim2.new(1,-24,0,self.bodyHeight),UDim2.fromOffset(12,top))
- -- Bottom fade (intel §2 scroll area): 36 px to the panel tint, hidden at the end of the scroll.
- -- GAP: "the panel tint" has no value in the intel; the glass bottom stop (glassTo T.38) is used, as in W.scrollArea.
- self.bodyInset=0
- local fh=36;local last=T.gradGlass.stops[#T.gradGlass.stops];local body=self.body
- local fade=W.frame(f,'ScrollFade',UDim2.new(1,-28,0,fh),UDim2.fromOffset(12,top+self.bodyHeight-fh),last[2]);fade.ZIndex=5;fade.Active=false;fade:SetAttribute('Decor',true);self.fade=fade
- W.new('UIGradient',fade,{Rotation=90,Transparency=NumberSequence.new(1,last[3])})
- local function syncFade() fade.Visible=body.CanvasPosition.Y<body.AbsoluteCanvasSize.Y-body.AbsoluteWindowSize.Y-1 end
- for _,prop in ipairs({'CanvasPosition','AbsoluteCanvasSize','AbsoluteWindowSize'}) do body:GetPropertyChangedSignal(prop):Connect(syncFade) end
- self.status=W.label(f,'',UDim2.new(1,-124,0,foot-8),UDim2.new(0,16,1,-foot+2),nil,12,T.muted)
- self.retry=W.button(f,'Retry','Retry',UDim2.fromOffset(88,44),UDim2.new(1,-100,1,-48),function() if self.retryId then self.store:retry(self.retryId) end end,'gold');self.retry.Visible=false
+ -- Scroll area (L188-195, P§2). Normal hubs keep the 10 px gap their stacked rows rely on; section hubs use sectionHeader margins.
+ local body,holder=W.scrollArea(f,'Content',UDim2.fromOffset(sw,sh),UDim2.fromOffset(sx,26))
+ local layout=body:FindFirstChildOfClass('UIListLayout');if layout then layout.Padding=UDim.new(0,if self.sectionMode then 0 else 10) end
+ self.body=body;self.holder=holder
+ self.rowW=sw-3-10-8
+ local strip=W.frame(f,'Status',UDim2.fromOffset(sw,0),UDim2.fromOffset(sx,26+sh));strip.BackgroundTransparency=1;strip.Visible=false;self.statusStrip=strip
+ self.status=W.label(strip,'',UDim2.fromScale(1,1),nil,T.fontBody,T.t.small,T.lavText);self.status.Name='StatusText'
+ self.retry=W.button(strip,'Retry','Retry',UDim2.fromOffset(88,44),UDim2.new(1,-88,.5,-22),function() if self.retryId then self.store:retry(self.retryId) end end,'gold');self.retry.Visible=false
  if self.hub=='Creatures' then self:creatures(data,width)
  elseif self.hub=='Discovery' then self:discovery(data)
  elseif self.hub=='Sanctuary' then self:sanctuary(data)
@@ -172,7 +240,20 @@ function S:render(preserve)
  elseif self.hub=='Profile' then self:profile(data)
  elseif self.hub=='Shop' then self:shop(data)
  elseif self.hub=='Settings' then self:settings(data) end
- self.body.CanvasPosition=scroll;tabScroll.CanvasPosition=tabScrollPosition;self:pending();self:tick()
+ if self.body~=body then return end -- content re-rendered (e.g. a missing creature detail); that render finished the frame
+ -- Landing: a refresh restores the scroll; an open/probe lands on its section key or (section hubs) the current tab.
+ if preserve then self.landing={y=scroll.Y}
+ elseif self.landKey and self.sections[self.landKey] then self.landing={key=self.landKey}
+ elseif self.sectionMode and self.tab~=tabs[self.hub][1] and self.sections[self.tab] then self.landing={key=self.tab} end
+ self.landKey=nil
+ local function settle() self:land();self:syncTab() end
+ body:GetPropertyChangedSignal('AbsoluteCanvasSize'):Connect(settle);body:GetPropertyChangedSignal('CanvasPosition'):Connect(function() self:syncTab() end)
+ local function scrolled() self.landing=nil end
+ body.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.Touch or i.UserInputType==Enum.UserInputType.MouseButton1 then scrolled() end end)
+ body.InputChanged:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseWheel then scrolled() end end)
+ body.SelectionChanged:Connect(scrolled)
+ self:land();task.defer(settle)
+ tabScroll.CanvasPosition=tabScrollPosition;self:pending();self:tick()
  if UIS.GamepadEnabled and UIS:GetLastInputType()==Enum.UserInputType.Gamepad1 then
   local target=nil
   if preserve and #selectedPath>0 then target=self:focusTarget(selectedPath,selectedName) end
@@ -266,15 +347,8 @@ function S:creatures(data,width)
  local box=W.round(W.new('TextBox',filters,{Name='Search',Size=UDim2.new(.45,-12,0,44),Position=UDim2.fromOffset(6,6),Text=self.query,PlaceholderText='Search your creatures',ClearTextOnFocus=false,TextColor3=T.ink,PlaceholderColor3=T.muted,BackgroundColor3=T.outline,Font=T.body,TextSize=T.size(15),TextTruncate=Enum.TextTruncate.AtEnd,BorderSizePixel=0}),8)
  box.FocusLost:Connect(function() self.query=box.Text;self.page=1;self:render(false) end)
  local rarities={'All','Common','Uncommon','Rare','Epic','Mythic','Legendary'}
- local rarityButton=W.button(filters,'Rarity','Rarity: '..self.rarity,UDim2.new(.3,-6,0,44),UDim2.new(.45,0,0,6),function() self.rarity=rarities[(table.find(rarities,self.rarity) or 1)%#rarities+1];self.page=1;self:render(false) end,'quiet')
- local sortButton=W.button(filters,'Sort','Sort: '..self.sort,UDim2.new(.25,-12,0,44),UDim2.new(.75,0,0,6),function() self.sort=if self.sort=='Name' then 'Level' elseif self.sort=='Level' then 'Rarity' else 'Name';self:render(true) end,'quiet')
- if compact then
-  -- Short phones: filters ride at the end of the tab row so the cards stay on screen.
-  filters.Parent=self.shade.Hub.Tabs;filters.Size=UDim2.fromOffset(300,44);filters.LayoutOrder=99;filters.BackgroundTransparency=1;filters.UIStroke.Enabled=false
-  box.Size=UDim2.new(.36,-6,0,44);box.Position=UDim2.new();box.PlaceholderText='Search'
-  rarityButton.Size=UDim2.new(.36,-6,0,44);rarityButton.Position=UDim2.new(.36,0,0,0)
-  sortButton.Size=UDim2.new(.28,0,0,44);sortButton.Position=UDim2.new(.72,0,0,0)
- end
+ W.button(filters,'Rarity','Rarity: '..self.rarity,UDim2.new(.3,-6,0,44),UDim2.new(.45,0,0,6),function() self.rarity=rarities[(table.find(rarities,self.rarity) or 1)%#rarities+1];self.page=1;self:render(false) end,'quiet')
+ W.button(filters,'Sort','Sort: '..self.sort,UDim2.new(.25,-12,0,44),UDim2.new(.75,0,0,6),function() self.sort=if self.sort=='Name' then 'Level' elseif self.sort=='Level' then 'Rarity' else 'Name';self:render(true) end,'quiet')
  local list=P.filterCreatures(data,self.query,self.rarity,self.sort)
  if #list==0 then self:info('Egg','No matching companions','Try another filter, or discover eggs on your next climb. Your collection stays safe.',72);return end
  local cardHeight=if compact then 156 else 210

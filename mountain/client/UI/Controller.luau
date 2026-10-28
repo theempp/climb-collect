@@ -31,9 +31,8 @@ local click=W.new('Sound',gui,{Name='UIFeedback',SoundId='rbxasset://sounds/volu
 local function sound() click.Volume=.16*(T.prefs.sfxVolume or .8);click:Play() end
 local function open(name,tab)
  if not ready then return end
- sound();screens:open(name)
- -- Route to a tab through the Screens tab API when that tab exists (Daily -> Shop > Free gifts arrives with P5).
- if tab and screens.hub and screens.shade and screens.shade.Hub.Tabs:FindFirstChild('Tab'..tab) then screens.tab=tab;screens.detail=nil;screens.page=1;screens:render(false) end
+ -- `tab`: a tab name or a registered section key (Daily -> Shop 'Free gifts', P5 task D); Screens lands there.
+ sound();screens:open(name,tab)
 end
 -- HUD (Hud.luau) before Feedback: messages render in the HUD root so they share its one UIScale.
 local activeAbility=1;local swingReadyAt=0

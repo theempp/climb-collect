@@ -278,3 +278,9 @@ All Q1–Q8 recommendations in `design/hud-glassbloom-p2-proposal-2026-10-28.md`
 ## 16. STOP 2 (owner popup, 2026-10-28)
 - HUD states approved as captured (`evidence/hud_glassbloom_2026-10-27/p4/stop2/`); next phase P5.
 - HUD scale S: drawn buttons shrink but the dock/launcher on-screen pitch stays ≥ 48 (virtual gap max(6, 48/s − 42)), so hit areas stay 44; the carry portrait follows the dock's right edge (+9).
+
+## 17. P5 owner answers (popup, 2026-10-28)
+- G14: hub panels follow the board insets (24 sides, 66 top, 10 bottom) up to 850×660, then stay that size, centred.
+- Real bat upgrade/equip cards: a "Bats" section right after Bat skins, reached by the Skins tab (5 side tabs kept).
+- Collection: missing species from sections the player has entered = "???"; from sections never entered = Locked (padlock).
+- Free gifts + Daily deal: board look (2 claimed, 1 ready, 1 timer; Ember trail ticket), inert buttons, "coming soon" in the section headers.
