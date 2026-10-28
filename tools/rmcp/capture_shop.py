@@ -36,6 +36,8 @@ for title in ['COINS', 'PASSES', 'BOOSTS', 'EGGS', 'BAT SKINS', 'BATS']:
 for _,h in ipairs(s:GetDescendants()) do if h.Name=='SectionHeader' and h:FindFirstChild('Title') and h.Title.Text=='{title}' then
  s.CanvasPosition=Vector2.new(0,math.max(0,h.AbsolutePosition.Y-s.AbsolutePosition.Y+s.CanvasPosition.Y-4));task.wait(.6);return 'ok' end end return 'missing'""")
     print(title, r, shot(f"shop_{k:02d}_{title.replace(' ', '').lower()}"), flush=True)
+    luau(probe + "local s=root.HubShade.Hub.Content.Scroll;s.CanvasPosition+=Vector2.new(0,100);task.wait(.6) return 1")
+    print(title, 'low', shot(f"shop_{k:02d}b_{title.replace(' ', '').lower()}_low"), flush=True)
 luau(probe + "pr:Invoke('close');pr:Invoke('reveal');task.wait(.8) return 1")
 print('reveal', shot('reveal'))
 luau(probe + "pr:Invoke('close') return 1")

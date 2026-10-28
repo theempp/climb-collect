@@ -73,12 +73,13 @@ end
 -- Whole words only (P5 F1; handoff gotcha "UNDISCOVERE D"). TextScaled forces wrapping on, and once UITextSizeConstraint.MinTextSize
 -- stops the shrink, Roblox breaks inside a word. wordFit caps MaxTextSize at the largest size whose longest word fits the label's
 -- width and lets MinTextSize drop to that size when it is below the floor (a smaller whole word beats a broken word); multi-word text
--- still wraps between words. Recomputed on AbsoluteSize / Text / Font; width 0 (not laid out yet) keeps the plain max/min until the
--- AbsoluteSize change. Cost: 3 connections per label, no per-frame work; widths cached per string+font+size and caps per
--- text+font+width+max (both cleared past 4000 entries, so ticking timers can't grow them). Width is in the label's own space:
--- UIScales made with W.new are divided out (the HUD root, the reveal strip); others are not seen.
+-- still wraps between words. Line mode (button labels: candy, ctaCore, tabs, chips, seg) counts the whole label as one word, so it
+-- stays on one line like the board's single-line .btn labels. Recomputed on AbsoluteSize / Text / Font; width 0 (not laid out yet)
+-- keeps the plain max/min until the AbsoluteSize change. Cost: 3 connections per label, no per-frame work; widths cached per
+-- string+font+size and caps per text+font+width+max+mode (both cleared past 4000 entries, so ticking timers can't grow them).
+-- Width is in the label's own space: UIScales made with W.new are divided out (the HUD root, the reveal strip); others are not seen.
 local big=Vector2.new(1e4,1e4)
-local fits=setmetatable({},{__mode='k'}) -- label -> {c=constraint, max, min, mx/mn = last written}
+local fits=setmetatable({},{__mode='k'}) -- label -> {c=constraint, max, min, line, mx/mn = last written}
 local widths,caps,nw,nc={},{},0,0
 local function textW(s,font,n)
  local k=s..'\1'..font.Value..'\1'..n;local w=widths[k]
@@ -88,15 +89,15 @@ local function textW(s,font,n)
  end
  return w
 end
-local function capFor(text,font,w,max)
- local k=text..'\1'..font.Value..'\1'..w..'\1'..max;local s=caps[k]
+local function capFor(text,font,w,max,line)
+ local k=text..'\1'..font.Value..'\1'..w..'\1'..max..(if line then '\1L' else '');local s=caps[k]
  if s then return s end
  s=max
  local full=textW(text,font,max)
  if full>w then
-  -- One line at max doesn't fit: find the widest word (no space = the text itself).
+  -- One line at max doesn't fit: find the widest word (line mode / no space = the text itself).
   local long,lw=text,full
-  if string.find(text,'%s') then lw=0;for word in string.gmatch(text,'%S+') do local x=textW(word,font,max);if x>lw then long,lw=word,x end end end
+  if not line and string.find(text,'%s') then lw=0;for word in string.gmatch(text,'%S+') do local x=textW(word,font,max);if x>lw then long,lw=word,x end end end
   if lw>w then
    s=math.clamp(math.floor(max*w/lw),1,math.max(1,math.floor(max)))
    while s>1 and textW(long,font,s)>w do s-=1 end
@@ -119,7 +120,7 @@ local function refit(l)
   local k=scaleOf(l)
   if k>0 then
    local text=l.Text;if l.RichText then text=string.gsub(text,'<[^>]*>','') end
-   s=capFor(text,l.Font,math.floor(x/k+.05),f.max)
+   s=capFor(text,l.Font,math.floor(x/k+.05),f.max,f.line)
   end
  end
  local mx,mn=math.min(f.max,s),math.min(f.min,s)
@@ -127,11 +128,12 @@ local function refit(l)
  if mx<c.MinTextSize then c.MinTextSize=mn;c.MaxTextSize=mx else c.MaxTextSize=mx;c.MinTextSize=mn end -- keep Min <= Max
  f.mx,f.mn=mx,mn
 end
--- Attach (or re-base) a TextScaled label's UITextSizeConstraint c: max/min = the plain W.fit values (max already T.size'd).
-function W.wordFit(l,c,max,min)
+-- Attach (or re-base) a TextScaled label's UITextSizeConstraint c: max/min = the plain W.fit values (max already T.size'd);
+-- line = true: one line (the whole text is the word).
+function W.wordFit(l,c,max,min,line)
  local f=fits[l]
- if f then f.c,f.max,f.min,f.mx=c,max,min,nil;refit(l);return l end
- fits[l]={c=c,max=max,min=min,mx=max,mn=min} -- c was created with max/min
+ if f then f.c,f.max,f.min,f.line,f.mx=c,max,min,line==true,nil;refit(l);return l end
+ fits[l]={c=c,max=max,min=min,line=line==true,mx=max,mn=min} -- c was created with max/min
  local function go() refit(l) end
  l:GetPropertyChangedSignal('AbsoluteSize'):Connect(go);l:GetPropertyChangedSignal('Text'):Connect(go);l:GetPropertyChangedSignal('Font'):Connect(go)
  go();return l
@@ -270,8 +272,8 @@ function W.candy(b,base)
  local fg=W.new('UIGradient',face,{Rotation=90});local fs=gstroke(face,T.text,T.s.bold,0)
  local shine=W.new('Frame',face,{Name='Shine',Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,ZIndex=0});local sc=W.new('UICorner',shine,{});W.grad(shine,T.gradGloss)
  local label=W.new('TextLabel',b,{Name='Label',BackgroundTransparency=1,Text=b.Text,TextColor3=T.text,Font=T.fontDisplay,TextSize=b.TextSize+3,TextWrapped=true,TextScaled=true,ZIndex=2})
- -- Labels shrink (never spill) when a button is narrower than its text, whole words only (wordFit).
- local cap=W.new('UITextSizeConstraint',label,{MaxTextSize=b.TextSize+3,MinTextSize=9});W.wordFit(label,cap,b.TextSize+3,9)
+ -- Labels shrink (never spill) when a button is narrower than its text, on one line (wordFit line mode).
+ local cap=W.new('UITextSizeConstraint',label,{MaxTextSize=b.TextSize+3,MinTextSize=9});W.wordFit(label,cap,b.TextSize+3,9,true)
  local drop,glow
  local function fit()
   local L=lookOf(b);local h=if b.AbsoluteSize.Y>0 then b.AbsoluteSize.Y else b.Size.Y.Offset
@@ -293,7 +295,7 @@ function W.candy(b,base)
   label.TextTransparency=L.dimT or 0
   if L.drop and not drop then
    drop=W.new('TextLabel',b,{Name='Drop',BackgroundTransparency=1,Text=label.Text,Font=label.Font,TextSize=label.TextSize,TextWrapped=true,TextScaled=true,ZIndex=1});drop:SetAttribute('Decor',true)
-   W.wordFit(drop,W.new('UITextSizeConstraint',drop,{MaxTextSize=b.TextSize+3,MinTextSize=9}),b.TextSize+3,9)
+   W.wordFit(drop,W.new('UITextSizeConstraint',drop,{MaxTextSize=b.TextSize+3,MinTextSize=9}),b.TextSize+3,9,true)
   end
   if drop then drop.Visible=L.drop~=nil and label.Visible;if L.drop then drop.TextColor3=L.drop end end
   if L.glow and not glow then glow=W.new('ImageLabel',b,{Name='Glow',BackgroundTransparency=1,Image=asset(T.images.glow),ScaleType=Enum.ScaleType.Slice,SliceCenter=T.slice.glow,ZIndex=-2});glow:SetAttribute('Decor',true) end
@@ -470,12 +472,13 @@ function W.mountain(parent)
 end
 -- Hub kit (Review03). Values trace to design/hud-v2-intel.md §1–§4 and the cited pins.
 local center=Enum.TextXAlignment.Center
--- Text that shrinks to its box instead of spilling (single line unless wrap), never breaking inside a word (wordFit).
-function W.fit(label,max,min,wrap)
+-- Text that shrinks to its box instead of spilling (single line unless wrap), never breaking inside a word (wordFit). line = true:
+-- the whole label stays on one line (button labels).
+function W.fit(label,max,min,wrap,line)
  -- Engine: TextWrapped=false clears TextScaled, so set wrap first (TextScaled then forces wrap on).
  label.TextWrapped=wrap==true;label.TextScaled=true
  local f=fits[label];local mx,mn=T.size(max),min or 8
- return W.wordFit(label,if f then f.c else W.new('UITextSizeConstraint',label,{MaxTextSize=mx,MinTextSize=mn}),mx,mn)
+ return W.wordFit(label,if f then f.c else W.new('UITextSizeConstraint',label,{MaxTextSize=mx,MinTextSize=mn}),mx,mn,line)
 end
 function W.label(parent,content,size,pos,font,n,color,align,wrap)
  local t=W.fit(W.text(parent,content,size,pos,font,n,color),n or 15,8,wrap);t.TextXAlignment=align or Enum.TextXAlignment.Left;return t
@@ -662,7 +665,7 @@ local function ctaCore(parent,name,label,size,pos,k)
  end
  local padL=k.padL or pad
  local function label_(name_,color,y,z)
-  local l=W.fit(gtext(o,name_,label,T.fontDisplay,k.n,color),k.n,8);l.Size=UDim2.new(1,-(padL+pad),1,0);l.Position=UDim2.fromOffset(padL,y);l.ZIndex=z;return l
+  local l=W.fit(gtext(o,name_,label,T.fontDisplay,k.n,color),k.n,8,false,true);l.Size=UDim2.new(1,-(padL+pad),1,0);l.Position=UDim2.fromOffset(padL,y);l.ZIndex=z;return l
  end
  local drop=if k.drop then label_('Drop',k.drop,2,1) else nil;if drop then drop:SetAttribute('Decor',true) end
  local l=label_('Label',k.ink or T.text,0,2)
@@ -702,7 +705,7 @@ function W.tabButton(parent,name,label,size,on,fn)
  local v=root('Frame',b,'Visual',UDim2.new(1,0,0,34),UDim2.new(0,0,.5,-17),r)
  local glow=W.glow(v,v,T.glowTabOn)
  local bd=body(v,r,s,T.night,T.wellT.tab);local g=W.grad(bd,T.gradCta,nil,0);local st=gstroke(bd,T.text,s,.82)
- local l=W.fit(inked(gtext(v,'Label',label,T.fontBody,T.t.tab)),T.t.tab,8);l.Size=UDim2.new(1,-2*(s+9),1,0);l.Position=UDim2.fromOffset(s+9,0)
+ local l=W.fit(inked(gtext(v,'Label',label,T.fontBody,T.t.tab)),T.t.tab,8,false,true);l.Size=UDim2.new(1,-2*(s+9),1,0);l.Position=UDim2.fromOffset(s+9,0)
  b:GetPropertyChangedSignal('Text'):Connect(function() l.Text=b.Text end)
  states[b]=function(on2)
   bd.BackgroundColor3=if on2 then T.text else T.night;bd.BackgroundTransparency=if on2 then 0 else T.wellT.tab;g.Enabled=on2;glow.Visible=on2
@@ -765,7 +768,7 @@ function W.tab(parent,name,label,iconKind,on,fn)
  local glow=W.glow(o,o,T.glowTabOn)
  local b=body(o,r,s,T.night,T.wellT.tab);local g=W.grad(b,T.gradCta,nil,0);local st=gstroke(b,T.text,s,.82)
  if iconKind then W.icon(o,iconKind,UDim2.fromOffset(22,22),UDim2.fromOffset(x,6));x+=22+7 end
- local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,T.t.tab,T.text,Enum.TextXAlignment.Left)),T.t.tab,8);l.Size=UDim2.new(1,-x-s-9,1,0);l.Position=UDim2.fromOffset(x,0)
+ local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,T.t.tab,T.text,Enum.TextXAlignment.Left)),T.t.tab,8,false,true);l.Size=UDim2.new(1,-x-s-9,1,0);l.Position=UDim2.fromOffset(x,0)
  states[o]=function(v)
   b.BackgroundColor3=if v then T.text else T.night;b.BackgroundTransparency=if v then 0 else T.wellT.tab;g.Enabled=v;glow.Visible=v
   st.Transparency=if v then 0 else .82;st:SetAttribute('BaseTransparency',st.Transparency)
@@ -809,7 +812,7 @@ function W.glassChip(parent,label,on,size,pos,fn)
  if not size then size=UDim2.fromOffset(math.ceil(TextService:GetTextSize(label,T.size(n),T.fontBody,Vector2.new(1e4,1e4)).X)+2*pad,27) end
  local o=root('TextButton',parent,'Chip'..(label:gsub('[^%w]','')),size,pos,r);o.Text=label;o:SetAttribute('QAControl',true)
  local b=body(o,r,s,T.night,T.wellT.chip);local st=gstroke(b,T.text,s,.78)
- local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,n)),n,8);l.Size=UDim2.new(1,-2*pad,1,0);l.Position=UDim2.fromOffset(pad,0)
+ local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,n)),n,8,false,true);l.Size=UDim2.new(1,-2*pad,1,0);l.Position=UDim2.fromOffset(pad,0)
  states[o]=function(v)
   b.BackgroundColor3=if v then T.pk else T.night;b.BackgroundTransparency=if v then .65 else T.wellT.chip
   st.Transparency=if v then 0 else .78;st:SetAttribute('BaseTransparency',st.Transparency)
@@ -905,7 +908,7 @@ function W.seg(parent,name,options,index,fn)
     end
    end
   end
-  local l=W.fit(inked(gtext(opt,'Label',label,T.fontBody,n,if on then T.text else T.segText)),n,8);l.Size=UDim2.new(1,-2*padX,1,0);l.Position=UDim2.fromOffset(padX,0);l.ZIndex=1
+  local l=W.fit(inked(gtext(opt,'Label',label,T.fontBody,n,if on then T.text else T.segText)),n,8,false,true);l.Size=UDim2.new(1,-2*padX,1,0);l.Position=UDim2.fromOffset(padX,0);l.ZIndex=1
   W.bind(opt,function() if not on and fn then fn(i) end end);W.hit(opt,44,Vector2.new(w,math.huge));W.focus(opt)
  end
  return o
