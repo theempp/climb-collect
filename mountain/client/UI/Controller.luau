@@ -105,6 +105,7 @@ local function screenRect()
  local o=screenOrigin.AbsolutePosition-root.AbsolutePosition
  return {x=o.X,y=o.Y,w=screenProbe.AbsoluteSize.X,h=screenProbe.AbsoluteSize.Y}
 end
+local function bx(o) return {x=o.AbsolutePosition.X,y=o.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y} end
 layout=function()
  local v=root.AbsoluteSize;if v.X<=0 then return end
  local obstacles={}
@@ -113,7 +114,7 @@ layout=function()
   for name,kind in pairs({JumpButton='jump',ThumbstickFrame='stick',DynamicThumbstickFrame='dynamic'}) do
    local o=touch and touch:FindFirstChild(name,true)
    if o and o.Visible then
-    table.insert(obstacles,{x=o.AbsolutePosition.X-root.AbsolutePosition.X,y=o.AbsolutePosition.Y-root.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y,kind=kind})
+    local r=P.nativeRect(bx(o),bx(gui),bx(root),kind=='jump');r.kind=kind;table.insert(obstacles,r)
     if not nativeWatched[o] then nativeWatched[o]=true
      connect(o:GetPropertyChangedSignal('AbsolutePosition'),function() task.defer(layout) end)
      connect(o:GetPropertyChangedSignal('AbsoluteSize'),function() task.defer(layout) end)

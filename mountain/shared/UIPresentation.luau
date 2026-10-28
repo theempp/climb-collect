@@ -133,6 +133,14 @@ end
 local function rect(x,y,rw,rh) return {x=x,y=y,w=rw,h=rh} end
 local function over(a,b) return a.x<b.x+b.w and b.x<a.x+a.w and a.y<b.y+b.h and b.y<a.y+a.h end
 P.overlap=over
+-- Native touch controls are anchored to the screen corners (jump bottom-right, thumbsticks bottom-left). Measure them from
+-- the gui's own box (ref) so a resized root (audits) keeps them at the same corner distance; equals the plain offset when
+-- the root fills the gui. abs/size/ref = {x,y,w,h} absolute boxes; root = {x,y,w,h} of the HUD root.
+function P.nativeRect(o,ref,root,right)
+ local dy=(ref.y+ref.h)-(o.y+o.h)
+ local x=if right then root.w-((ref.x+ref.w)-(o.x+o.w))-o.w else o.x-ref.x
+ return {x=x,y=root.h-dy-o.h,w=o.w,h=o.h}
+end
 function P.hudLayout(w,h,obstacles,touch,topbar,opts)
  opts=opts or {}
  local s=if finite(opts.scale) and opts.scale>0 then opts.scale else 1

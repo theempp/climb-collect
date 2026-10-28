@@ -6,6 +6,7 @@ local Run=game:GetService('RunService')
 local player=Players.LocalPlayer
 local remote=game.ReplicatedStorage:WaitForChild('MountainRemotes'):WaitForChild('SprintRequest')
 local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
+local function bx(o) return {x=o.AbsolutePosition.X,y=o.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y} end
 local W=require(script.Parent.UI.Widgets)
 local T=require(script.Parent.UI.Theme)
 local gui=Instance.new('ScreenGui');gui.Name='MountainSprint';gui.ResetOnSpawn=false;gui.DisplayOrder=15;gui.Parent=player:WaitForChild('PlayerGui')
@@ -84,7 +85,7 @@ Run.Heartbeat:Connect(function(dt)
  local obstacles={};local touch=player.PlayerGui:FindFirstChild('TouchGui')
  for name,kind in pairs({JumpButton='jump',ThumbstickFrame='stick'}) do
   local o=touch and touch:FindFirstChild(name,true)
-  if o and o.Visible then table.insert(obstacles,{x=o.AbsolutePosition.X-root.AbsolutePosition.X,y=o.AbsolutePosition.Y-root.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y,kind=kind}) end
+  if o and o.Visible then local r=P.nativeRect(bx(o),bx(root:FindFirstAncestorWhichIsA('LayerCollector')),bx(root),kind=='jump');r.kind=kind;table.insert(obstacles,r) end
  end
  local r=P.hudLayout(v.X,v.Y,obstacles,Input.TouchEnabled,nil,{scale=s}).sprint
  button.Position=UDim2.fromOffset(r.x,r.y)

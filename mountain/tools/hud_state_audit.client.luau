@@ -38,7 +38,12 @@ local function check(where,w,h,state)
  local native,dynamic={},nil;local touch=pg:FindFirstChild('TouchGui')
  for _,n in ipairs({'JumpButton','ThumbstickFrame','DynamicThumbstickFrame'}) do
   local o=touch and touch:FindFirstChild(n,true)
-  if o and visible(o,pg) then if n=='DynamicThumbstickFrame' then dynamic=box(o,origin) else table.insert(native,{name=n,box=box(o,origin)}) end end
+  if o and visible(o,pg) then
+   -- Native controls stay at their screen corner when the root is resized (same rule as P.nativeRect in the HUD).
+   local a,s=o.AbsolutePosition,o.AbsoluteSize;local g,gs=gui.AbsolutePosition,gui.AbsoluteSize;local dy=(g.Y+gs.Y)-(a.Y+s.Y)
+   local b={x=if n=='JumpButton' then w-((g.X+gs.X)-(a.X+s.X))-s.X else a.X-g.X,y=h-dy-s.Y,w=s.X,h=s.Y}
+   if n=='DynamicThumbstickFrame' then dynamic=b else table.insert(native,{name=n,box=b}) end
+  end
  end
  local perm,trans={}, {}
  for _,g in ipairs({gui,sprintGui}) do if g then for _,o in ipairs(g:GetDescendants()) do

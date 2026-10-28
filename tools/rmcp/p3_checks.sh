@@ -11,6 +11,7 @@ timeout 300 python "$S/sync_hud.py" "$ID" | tail -1
 timeout 120 $R call start_stop_play "{\"is_start\":true,\"studio_id\":\"$ID\"}"; sleep 25
 { echo "SIZES={{749,330},{844,390},{932,430},{1024,700},{1180,780},{1600,860}}"; cat "$S/../../mountain/tools/hud_overflow_audit.client.luau"; } > "$S/qa/_audit.luau"
 luau "$S/qa/_audit.luau" Client > "$OUT/overflow_audit.json"; head -c 600 "$OUT/overflow_audit.json"; echo
+luau "$S/../../mountain/tools/hud_state_audit.client.luau" Client > "$OUT/state_audit.json"; head -c 800 "$OUT/state_audit.json"; echo
 luau "$S/qa/perf_counts.client.luau" Client > "$OUT/perf_counts.json"; cat "$OUT/perf_counts.json"; echo
 timeout 120 $R call get_console_output "{\"studio_id\":\"$ID\"}" > "$OUT/console.txt"; grep -ci "error\|warn" "$OUT/console.txt"
 timeout 120 $R call start_stop_play "{\"is_start\":false,\"studio_id\":\"$ID\"}" >/dev/null

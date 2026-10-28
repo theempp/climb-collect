@@ -61,4 +61,12 @@ check(not P.combatVisible(false,true,false), 'no dodge or specials in sanctuary'
 check(P.combatVisible({hp=10},true,false), 'battle shows combat controls')
 check(not P.combatVisible({hp=10},true,true), 'hub hides combat controls')
 check(not P.combatVisible({hp=10},false,false), 'loading hides combat controls')
+-- Native controls keep their screen-corner distance when the HUD root is resized (audits) and equal the plain offset otherwise.
+local ref={x=40,y=0,w=750,h=343};local jump={x=40+750-95,y=343-90,w=70,h=70}
+local same=P.nativeRect(jump,ref,{x=40,y=0,w=750,h=343},true)
+check(same.x==750-95 and same.y==343-90,'native jump: natural root gives the plain offset')
+local big=P.nativeRect(jump,ref,{x=40,y=0,w=844,h=390},true)
+check(big.x==844-95 and big.y==390-90 and big.w==70,'native jump: resized root keeps the bottom-right distance')
+local stick=P.nativeRect({x=40+20,y=343-150,w=120,h=120},ref,{x=40,y=0,w=844,h=390},false)
+check(stick.x==20 and stick.y==390-150,'native thumbstick: resized root keeps the bottom-left distance')
 print('PASS '..count..' UI presentation checks')
