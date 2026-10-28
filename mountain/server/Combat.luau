@@ -1,9 +1,10 @@
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local RaidConfig=require(game.ReplicatedStorage.MountainShared.RaidConfig)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
+local Explorer=require(game.ReplicatedStorage.MountainShared.ExplorerRules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 local B={battles={},wild={},dodgeUntil={},specialAt={},buffs={},nextId=0}
-local profiles,send,changed
+local profiles,send,changed,hud
 local raidContext
 local function root(player) local c=player.Character;return c and c:FindFirstChild('HumanoidRootPart') end
 local function alive(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 and h end
@@ -32,7 +33,7 @@ local guardianEffects={
 local function warnPart(b,name,pos,size,color)
  local p=A.part(workspace.ImpossibleMountain.Dynamics,name,size,CFrame.new(pos),color,Enum.Material.Neon,nil,false);p.Transparency=.55;table.insert(b.effects,p);return p
 end
-function B.init(p,s,c) profiles=p;send=s;changed=c end
+function B.init(p,s,c,h) profiles=p;send=s;changed=c;hud=h end
 function B.connectRaids(context) raidContext=context end
 function B.start(player,k,trial,center)
  local p=profiles.get(player);if not p or not R.canEnter(p,k) or (trial and not p.wins[tostring(k)]) then return false,'Defeat the normal Guardian first.' end
@@ -174,8 +175,11 @@ function B.finish(b)
      awarded=raidContext and raidContext.raids.reward(player,k,C.guardians[k].id,b.center)
      send(player,'toast',if awarded then 'Trial won! Pick up your Guardian reward and escape to sanctuary.' else 'Guardian reward unavailable. Finish your current attempt first.')
     else
+     -- Player XP only for an engaged contributor (2+ resolved patterns); the win flag and companion XP are unchanged.
+     local gained=if m.dodges+m.hits>=2 then Explorer.award(p,'win',k,Explorer.today()) else 0
      R.winGuardian(p,k,false);awarded=true
      send(player,'toast',C.guardians[k].name..' is resting. The section has a brief raid opening!')
+     if gained>0 and hud then hud(player,'xp',{amount=gained,source='win',level=Explorer.summary(p).level}) end
     end
     if awarded then for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,RaidConfig.section(k).companionXP) end end end
    else send(player,'toast','Victory, but mastery requires 3 clean dodges. Retry the Trial.') end

@@ -44,6 +44,7 @@ local profiles={};local roots={}
 local P={get=function(player) return profiles[player] end,mode='memory'}
 local BatRules={grantUnlocks=function() return {} end}
 local UIProtocol=Protocol
+local Explorer=ExplorerRules
 local workspace={GetServerTimeNow=function() return 1000 end}
 local B={cooldowns=function() return {},0 end}
 local tycoonWorld={update=function() end}
@@ -68,6 +69,7 @@ publish(late)
 local ui=lastOf(late,'state').ui
 check(ui.exits==exitBoxes and #ui.exits==1 and ui.exits[1].size==promenadeExit.Size,'late_joiner_state_ui_has_exits')
 check(ui.section==2,'state_ui_has_server_section')
+check(ui.explorer and ui.explorer.xp==0 and ui.explorer.level==1 and ui.explorer.into==0 and ui.explorer.need==60 and ui.explorer.cap==49980,'state_ui_has_explorer_summary')
 local rootless={UserId=78};profiles[rootless]=Rules.newProfile(100)
 publish(rootless);check(lastOf(rootless,'state').ui.section==false and #lastOf(rootless,'state').ui.exits==1,'no_root_section_false_exits_still_sent')
 contextTick(late,profiles[late],roots[late],true)

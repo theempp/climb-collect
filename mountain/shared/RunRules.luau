@@ -53,12 +53,12 @@ end
 -- Bat theft: a carried, non-Trial creature leaves the carrier's hands as a snapshot (Trial rewards stay bound).
 function Run.drop(p)
  local r=p.run;if not r or r.phase~='carried' or r.trial then return nil end
- p.run=nil;return {species=r.species,section=r.section,from=r.id,eggId=r.eggId}
+ p.run=nil;return {species=r.species,section=r.section,from=r.id,eggId=r.eggId,firstCarrier=r.firstCarrier}
 end
--- Whoever grabs a dropped creature (thief or original carrier) carries it under a fresh run id.
+-- Whoever grabs a dropped creature (thief or original carrier) carries it under a fresh run id; firstCarrier stays (only they earn secure XP).
 function Run.receive(p,snapshot,runId,now)
  if p.schema~=2 or p.run or type(snapshot)~='table' or not C.byId[snapshot.species] or not text(runId) or type(now)~='number' then return false,'full_hands' end
- p.run={id=runId,eggId='drop:'..runId,species=snapshot.species,section=snapshot.section,trial=false,phase='carried',hits=0,startedAt=now,stolenFrom=snapshot.from}
+ p.run={id=runId,eggId='drop:'..runId,species=snapshot.species,section=snapshot.section,trial=false,phase='carried',hits=0,startedAt=now,stolenFrom=snapshot.from,firstCarrier=snapshot.firstCarrier}
  return true
 end
 function Run.secure(p,runId)

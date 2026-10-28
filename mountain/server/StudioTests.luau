@@ -53,6 +53,10 @@ function T.run()
  check('offline snapshot challenge',ok and type(result.rounds)=='number')
  check('challenge replay cooldown',not defense.challenge(challenger,92833004,92833003))
  local guard=profile.creatures[1];guard.level=25;R.specialize(profile,guard.id,'Guard');check('guard has defensive stat',R.stats(guard).guard==.15)
+ local X=require(game.ReplicatedStorage.MountainShared.ExplorerRules);local Http=game:GetService('HttpService')
+ local explorer=R.newProfile(100);explorer.discoveries['1:entrance']=true;X.award(explorer,'win',2,X.today());X.award(explorer,'secure',3,X.today(),'glimfox')
+ local back=Http:JSONDecode(Http:JSONEncode(explorer));X.ensure(back,X.today())
+ check('explorer JSON round trip',back.explorer.won['2']==true and back.explorer.species.glimfox==true and back.explorer.secures==1 and X.summary(back).xp==X.summary(explorer).xp and X.summary(back).xp==25+200+30+50)
  return {passed=#checks,checks=checks,scope='isolated memory profiles and snapshots; no live DataStore or actual player progression'}
 end
 return T

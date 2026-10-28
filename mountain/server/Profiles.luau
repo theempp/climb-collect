@@ -2,6 +2,7 @@ local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
 local Bats=require(game.ReplicatedStorage.MountainShared.BatRules)
+local Explorer=require(game.ReplicatedStorage.MountainShared.ExplorerRules)
 local Store=require(script.Parent.Store)
 local Http=game:GetService('HttpService')
 local Run=game:GetService('RunService')
@@ -22,6 +23,8 @@ local function valid(p)
  if p.unlocked<1 or p.unlocked>6 then return false end
  if p.tycoon~=nil and not R.tycoon.valid(p.tycoon) then return false end
  if p.settings~=nil and not UIProtocol.savedSettings(p.settings) then return false end
+ -- Type only: every explorer bound is enforced by ExplorerRules, so XP data can never kick or freeze a profile.
+ if p.explorer~=nil and type(p.explorer)~='table' then return false end
  if p.bats~=nil then
   if type(p.bats)~='table' or type(p.bats.equipped)~='string' or type(p.bats.levels)~='table' or not p.bats.levels[p.bats.equipped] then return false end
   for id,n in pairs(p.bats.levels) do if not Bats.byId[id] or not finite(n) or n%1~=0 or n<1 or n>Bats.maxLevel then return false end end
@@ -50,10 +53,13 @@ function P.load(player)
  local now=os.time();local accepted=false
  local ok,data,err=store:update('u'..player.UserId,function(old)
   accepted=false
+  -- A malformed explorer is reseeded by ensure below, never a reason to refuse the profile.
+  if old and type(old)=='table' and type(old.profile)=='table' and type(old.profile.explorer)~='table' then old.profile.explorer=nil end
   if old and (type(old)~='table' or not valid(old.profile)) then return nil end
   if old and old.lock and old.lock.owner~=owner and old.lock.expires>now then return nil end
   local p=if old then old.profile else R.newProfile(now)
   p=Custody.migrate(p);if not p or not valid(p) then return nil end
+  Explorer.ensure(p,Explorer.today(now))
   Custody.forfeit(p,'leave')
   if not p.tycoon then R.settleIncome(p,now);R.tycoon.ensure(p,now) else R.tycoon.settle(p,now,true) end
   accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}

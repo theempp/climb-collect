@@ -75,4 +75,24 @@ g.normalWin(4,{a.UserId});check(#calms==2,'resting_win_sends_no_extra_calm')
 g.tick(1);n,last=calmsFor(c.UserId)
 check(n==1 and last.k==5 and last.reason=='step' and not g.states[5].threats[c.UserId],'step_removal_calm')
 g.tick(2);g.remove(c,'leave');check(calmsFor(c.UserId)==1 and #calms==3,'step_calm_once')
+-- Player XP (C3, C5): only an engaged contributor (dodges+hits >= 2) earns it; the wins flag and companion XP are unchanged.
+local e={UserId=204,DisplayName='E'};local pe=Rules.newProfile(100);ps[e]=pe;local xpHuds={}
+Combat.init({get=function(player) return ps[player] end,save=function() return true end},function() end,function() end,function(player,kind,data) table.insert(xpHuds,{player=player,kind=kind,data=data}) end)
+context.guardians.normalWin=function(_,ids) return {xp=ids} end
+local function win(player,k,dodges,hits)
+ local battle={key='xp'..k,k=k,trial=false,max=1000,hp=0,members={[player]={damage=1000,dodges=dodges,hits=hits}},effects={}}
+ Combat.battles[battle.key]=battle;return Combat.finish(battle)
+end
+local companion=pe.creatures[1].level
+win(e,2,1,0)
+check(pe.wins['2'] and pe.unlocked==3 and pe.creatures[1].level>companion and not pe.explorer.won['2'] and ExplorerRules.xp(pe)==0 and #xpHuds==0,'leech_gets_wins_flag_and_companion_xp_but_0_player_xp')
+win(e,2,1,1)
+check(pe.explorer.won['2'] and ExplorerRules.xp(pe)==200 and pe.explorer.repeats==0,'engaged_first_win_100k')
+check(#xpHuds==1 and xpHuds[1].player==e and xpHuds[1].kind=='xp' and xpHuds[1].data.amount==200 and xpHuds[1].data.source=='win' and xpHuds[1].data.level==3,'engaged_win_xp_event')
+for i=1,5 do win(e,2,2,0) end
+check(ExplorerRules.xp(pe)==300 and pe.explorer.repeats==5,'five_repeat_wins_pay_10k_each')
+win(e,2,0,3);check(ExplorerRules.xp(pe)==300 and pe.explorer.repeats==5 and #xpHuds==6,'repeat_cap_5_per_day')
+win(e,3,0,1);check(pe.wins['3'] and not pe.explorer.won['3'] and ExplorerRules.xp(pe)==300,'leech_first_win_elsewhere_pays_0')
+local legacyWin={UserId=205,DisplayName='F'};local pf=Rules.newProfile(100);pf.explorer=nil;pf.wins['4']=true;ps[legacyWin]=pf
+win(legacyWin,4,1,1);check(pf.explorer.won['4'] and pf.explorer.repeats==1 and ExplorerRules.xp(pf)==440,'unseeded_explorer_judges_prior_win_before_flag_is_set')
 print('PASS '..checks..' combat raid integration checks')

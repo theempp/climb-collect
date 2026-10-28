@@ -59,6 +59,12 @@ for _,v in ipairs({.7,.8,.95}) do
  check(prefsService.setSettings(prefsPlayer,{musicVolume=v,sfxVolume=v,sprintMode=0}) and prefsService.save(prefsPlayer,true),'volume saved')
  lp=prefsService.load(prefsPlayer);check(lp.settings.musicVolume==v and lp.settings.sfxVolume==v and lp.settings.sprintMode==0,'volume round-trips')
 end
+local preXp=Rules.newProfile(os.time());preXp.explorer=nil;preXp.wins['1']=true;table.insert(preXp.creatures,{id='c9',species='bloomlet',level=1,xp=0});backend.backend.u432={profile=preXp}
+local xpService=Profiles.newForTests(backend,'xp');local xpPlayer={UserId=432};local xpp=xpService.load(xpPlayer)
+check(xpp and xpp.explorer.won['1'] and xpp.explorer.species.bloomlet and ExplorerRules.summary(xpp).xp==150 and backend.backend.u432.profile.explorer.species.bloomlet,'legacy profile explorer seeded and persisted')
+check(xpService.save(xpPlayer,true) and xpService.load(xpPlayer).explorer.species.bloomlet,'seeded explorer survives release and reload')
+local junkXp=Rules.newProfile(os.time());junkXp.explorer='junk';backend.backend.u433={profile=junkXp}
+check(type(xpService.load({UserId=433}).explorer)=='table','explorer junk loads without a kick')
 local events={}
 Combat.init(first,function(_,kind,data) table.insert(events,{kind=kind,data=data}) end,function() end)
 local now=os.clock();Combat.specialAt['123:c1:1']=now+12;Combat.specialAt['124:c2:1']=now+24

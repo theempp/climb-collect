@@ -4,7 +4,7 @@ R.tycoon=if script then require(script.Parent.Tycoon) else require('./Tycoon')
 local function nextId(p,prefix) p.serial+=1;return prefix..p.serial end
 local function find(list,id) for i,v in ipairs(list) do if v.id==id then return v,i end end end
 function R.newProfile(now)
- local p={schema=2,legacyEntitlements={},securedRunIds={},serial=3,unlocked=1,wins={},captures={},cargo={},eggs={},creatures={},team={},checkpoint='1:entrance',discoveries={},claims={},shortcuts={},resources={},coins=0,trophies=0,lastIncome=now,competitionAt=0}
+ local p={schema=2,legacyEntitlements={},securedRunIds={},serial=3,unlocked=1,wins={},captures={},cargo={},eggs={},creatures={},team={},checkpoint='1:entrance',discoveries={},claims={},shortcuts={},resources={},coins=0,trophies=0,lastIncome=now,competitionAt=0,explorer={v=1,repeatXp=0,day=0,secures=0,repeats=0,species={},won={}}}
  for i,id in ipairs({'mossbun','petalyn','fernox'}) do local v={id='c'..i,species=id,level=1,xp=0};table.insert(p.creatures,v);table.insert(p.team,v.id) end
  return p
 end

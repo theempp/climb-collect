@@ -1,5 +1,6 @@
 local Run=if script then require(game.ReplicatedStorage.MountainShared.RunRules) else require('../shared/RunRules')
 local Config=if script then require(game.ReplicatedStorage.MountainShared.RaidConfig) else require('../shared/RaidConfig')
+local X=if script then require(game.ReplicatedStorage.MountainShared.ExplorerRules) else require('../shared/ExplorerRules')
 local E={}
 function E.new(context)
  local P=context.profiles
@@ -7,6 +8,7 @@ function E.new(context)
  local service={}
  local function changed(player) if context.changed then context.changed(player) end end
  local function present(player,data) if context.present then context.present(player,data) end end
+ local function today() return if context.today then context.today() else X.today() end
  local function release(player,rest)
   local reservation=owners[player]
   if reservation then
@@ -43,7 +45,7 @@ function E.new(context)
   if not p or not current or current.runId~=runId or not context.alive(player) or exits[player] then return false,'no_reveal' end
   if not context.near(player,current.egg,Config.pickupRange) then return false,'too_far' end
   local ok,reason=Run.pickup(p,runId)
-  if ok then current.expiresAt=nil;present(player,{kind='carry',run=table.clone(p.run)});changed(player) end
+  if ok then p.run.firstCarrier=player.UserId;current.expiresAt=nil;present(player,{kind='carry',run=table.clone(p.run)});changed(player) end
   return ok,reason
  end
  function service.forfeit(player,reason)
@@ -62,15 +64,25 @@ function E.new(context)
   if not pending then
    local p=P.get(player)
    if not p or not p.run or p.run.id~=runId or p.run.phase~='carried' or not context.alive(player) or not context.atExit(player) then return false,'not_at_exit' end
-   pending={runId=runId,species=p.run.species};exits[player]=pending
+   pending={runId=runId,species=p.run.species,source=if p.run.trial then 'trial' else 'secure'};exits[player]=pending
    present(player,{kind='securing',run=table.clone(p.run)})
   end
   pending.busy=true
-  local ok,reason=P.transact(player,runId,function(draft) return Run.secure(draft,runId) end)
+  local ok,reason=P.transact(player,runId,function(draft)
+   -- Player XP rides the same write but can never fail it: award is total and its result is ignored.
+   -- A Trial pays only its derived capture XP; a stolen creature (first carrier is someone else) pays 0.
+   local r=draft.run;local before=X.xp(draft)
+   local secured,why=Run.secure(draft,runId)
+   if secured and why=='secured' and r and not r.trial and r.firstCarrier==player.UserId then X.award(draft,'secure',r.section,today(),r.species) end
+   -- A replayed mutate (already_secured) keeps the gain of the draft that paid it.
+   pending.gained=math.max(pending.gained or 0,X.xp(draft)-before);pending.level=X.summary(draft).level
+   return secured,why
+  end)
   pending.busy=false;pending.retryAt=context.clock()+Config.saveRetrySeconds
   if ok then
    release(player,true);exits[player]=nil
    present(player,{kind='safe',species=pending.species,runId=runId});changed(player)
+   if context.hud and (pending.gained or 0)>0 then context.hud(player,'xp',{amount=pending.gained,source=pending.source,level=pending.level}) end
   end
   return ok,reason
  end

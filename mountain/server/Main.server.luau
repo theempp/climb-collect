@@ -10,6 +10,7 @@ local UIRequests=require(script.Parent.UIRequests)
 local UIProtocol=require(RS.MountainShared.UIProtocol)
 local BatRules=require(RS.MountainShared.BatRules)
 local EggOdds=require(RS.MountainShared.EggOdds)
+local Explorer=require(RS.MountainShared.ExplorerRules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
@@ -109,11 +110,11 @@ local function publish(player,visual)
  tycoonWorld.update(player,p)
  -- false (not nil) outside every section, so a context merge on the client clears the previous one.
  local rr=root(player);local section=rr and sectionOf(rr.Position) or false
- s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings),bats=if bats then bats.snapshot(p) else nil,section=section,exits=exitBoxes}
+ s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings),bats=if bats then bats.snapshot(p) else nil,section=section,exits=exitBoxes,explorer=Explorer.summary(p)}
  send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
-B.init(P,send,function(player) publish(player,true) end)
+B.init(P,send,function(player) publish(player,true) end,hud)
 local function restoreRecovery(player)
  local p=P.get(player);if not p then return end
  if p.recovery and p.recovery.expires<=os.time() then p.recovery=nil end
@@ -178,7 +179,7 @@ for _,part in ipairs(world.Interactions:GetChildren()) do
  end
 end
 raids=require(script.Parent.EggRaids).new({profiles=P,clock=os.clock,guid=function() return game:GetService('HttpService'):GenerateGUID(false) end,
- eggs=raidEggs,roll=roll,alive=living,inBattle=inBattle,spawn=task.spawn,
+ eggs=raidEggs,roll=roll,alive=living,inBattle=inBattle,spawn=task.spawn,hud=hud,
  near=function(player,egg,range) local rr=root(player);return rr and safe(player) and (rr.Position-egg.position).Magnitude<=range end,
  atExit=function(player)
   local rr=root(player);local exits=world:FindFirstChild('SanctuaryExits');if not rr or not exits then return false end
@@ -241,10 +242,12 @@ local function interact(player,part)
  local kind=part:GetAttribute('Kind');local k=part:GetAttribute('Kingdom') or 1;local id=part:GetAttribute('Id')
  if not R.canEnter(p,k) then send(player,'toast','Defeat the previous Guardian first.');return end
  if kind=='Checkpoint' then
-  p.checkpoint=id;local first=not p.discoveries[id]
+  p.checkpoint=id;local first=not p.discoveries[id];local before=Explorer.xp(p)
   p.discoveries[id]=true
   local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');if h then h.Health=h.MaxHealth end
   if first then for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,40*k) end end end
+  -- Rest-point player XP is derived from discoveries; the event only names its source.
+  local gained=Explorer.xp(p)-before;if gained>0 then hud(player,'xp',{amount=gained,source='rest',level=Explorer.summary(p).level}) end
   send(player,'toast','Rest point saved. Unsecured creatures still need the sanctuary exit.');task.spawn(P.save,player,false)
  elseif kind=='Nest' then
   local ok,reason

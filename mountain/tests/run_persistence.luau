@@ -84,4 +84,21 @@ local invalid=Rules.newProfile(1);invalid.creatures[2].id=invalid.creatures[1].i
 check(not service.load({UserId=108}),'duplicate_roster_ids_rejected')
 local conflict=Rules.newProfile(1);conflict.schema=1;conflict.eggs={{id='same',species='mossbun',readyAt=77}};conflict.cargo={{id='same',species='petalyn'}};backend.backend.u110={profile=conflict}
 check(not service.load({UserId=110}) and backend.backend.u110.profile.schema==1 and #backend.backend.u110.profile.cargo==1,'conflicting_legacy_identity_preserved_without_overwrite')
+-- Player XP (C3): a legacy profile is seeded in the load write; a malformed explorer never refuses a load or a secure.
+local legacyXp=Rules.newProfile(100);legacyXp.explorer=nil;legacyXp.wins['2']=true
+for i,sp in ipairs({'glimfox','floravelle','bubblit'}) do table.insert(legacyXp.creatures,{id='x'..i,species=sp,level=1,xp=0,origin=if sp=='bubblit' then 'coin' else nil}) end
+backend.backend.u111={profile=legacyXp}
+local xpPlayer={UserId=111};local seeded=service.load(xpPlayer);local stored=backend.backend.u111.profile.explorer
+check(seeded and seeded.explorer.won['2'] and seeded.explorer.species.glimfox and not seeded.explorer.species.floravelle and not seeded.explorer.species.bubblit,'legacy_profile_explorer_seeded')
+check(type(stored)=='table' and stored.won['2'] and stored.species.glimfox and ExplorerRules.xp(seeded)==ExplorerRules.xp({discoveries={},captures={},explorer=stored}),'legacy_explorer_seed_persisted_in_load_write')
+for i,bad in ipairs({'junk',7,true}) do
+ local junk=Rules.newProfile(100);junk.explorer=bad;backend.backend['u'..(111+i)]={profile=junk}
+ local j=service.load({UserId=111+i})
+ check(j and type(j.explorer)=='table' and type(backend.backend['u'..(111+i)].profile.explorer)=='table','malformed_explorer_loads_reseeded_'..type(bad))
+end
+local typed=Rules.newProfile(100);check(Profiles.valid(typed),'explorer_table_valid');typed.explorer='junk';check(not Profiles.valid(typed),'explorer_type_checked_by_valid')
+typed.explorer=nil;check(Profiles.valid(typed),'explorer_absent_valid')
+local xp=service.get(xpPlayer);xp.explorer={secures=-4,species='x',won=5,day=-1,repeatXp=-3};carry(xp,'xp-run')
+check(service.transact(xpPlayer,'xp-run',function(draft) local r=draft.run;local ok,why=RunRules.secure(draft,'xp-run');ExplorerRules.award(draft,'secure',r.section,20000,r.species);return ok,why end)
+ and #service.get(xpPlayer).creatures==7 and not service.get(xpPlayer).run and service.get(xpPlayer).explorer.secures==1,'malformed_explorer_still_secures_once_through_transact')
 print('PASS '..checks..' durable exit/migration checks (isolated adapter)')
