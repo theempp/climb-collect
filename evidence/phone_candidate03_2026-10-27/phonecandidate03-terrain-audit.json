@@ -1,0 +1,12 @@
+{
+  "source": "..\\..\\outputs\\ClimbCollect.PhoneCandidate03.StudioSave.rbxl",
+  "reference": "C:\\Users\\HOME!\\Desktop\\climb-collect-integration\\outputs\\ClimbCollect.PhoneCandidate02.rbxl",
+  "output": "..\\..\\outputs\\ClimbCollect.PhoneCandidate03.rbxl",
+  "sha256": "9a1f4fec0b3fedd107901fc2eeb7ff51167ca7bf19baff760dea71ad7d8f7eae",
+  "changed_properties": [
+    "Materials",
+    "SmoothGrid"
+  ],
+  "terrain_properties_exact": 70,
+  "other_chunks_preserved": 1796
+}
