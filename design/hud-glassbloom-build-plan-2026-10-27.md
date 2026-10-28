@@ -287,3 +287,9 @@ All Q1–Q8 recommendations in `design/hud-glassbloom-p2-proposal-2026-10-28.md`
 
 ## 18. P5 result (2026-10-28) — STOP 3 approved
 P5 built in 6 component-builder tasks (A frame, B Collection, C Settings, D Shop, E reveal strip, F reskin caveats), commits `ea8ccf1`…`f2395fd`. All §4 P5 done-checks pass (handoff "Final P5 checks"). Copy saved after P5 (SHA256 e1d1afde…17b0). STOP 3 approved (popup): hubs/shop as captured; reveal title "RARE PULL!" only for Rare and up, else "NEW COMPANION!". Next: P6 motion.
+
+## 19. P6 gap answers (popup, 2026-10-28)
+- G19 panel: open = fade + scale .96 → 1, 0.2 s ease-out; close = 0.15 s fade, then destroy. Only on a real open/close (not on refresh or tab re-render).
+- G19 scroll/hero: tab tap tweens the scroll 0.3 s ease-out (a touch cancels it); Shop hero full ↔ mini 0.2 s ease-out, scroll top follows.
+- G23 player card: **as rendered** — from (−115, +40) with fade, 0.2 s ease-out.
+- Reveal spin title **by tier**: board "SOMETHING RARE IS COMING..." for Rare and up, "SOMETHING IS COMING..." for Common/Uncommon.

@@ -9,11 +9,13 @@ local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
 local Feedback=require(script.Parent.Feedback)
 local Hud=require(script.Parent.Hud)
+local Motion=require(script.Parent.Motion)
 local pg=player:WaitForChild('PlayerGui')
 if pg:FindFirstChild('MountainHUD') then return {} end
 local gui=W.new('ScreenGui',pg,{Name='MountainHUD',ResetOnSpawn=false,DisplayOrder=10,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets,ClipToDeviceSafeArea=true})
 gui:SetAttribute('BlueprintVersion',2);gui:SetAttribute('VisualSystem','Glassbloom')
 local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
+Motion.attach(root) -- P6: every Motion-tagged piece under SafeRoot (HUD, messages, hubs, reveal)
 local loading=W.frame(root,'Loading',UDim2.fromScale(1,1),nil,T.navy);loading.ZIndex=90
 local mountain=W.mountain(loading);mountain.Size=UDim2.fromScale(.7,.8);mountain.Position=UDim2.fromScale(.15,.1)
 local brand=W.text(loading,'CLIMB & COLLECT',UDim2.new(.9,0,0,58),UDim2.fromScale(.05,.26),T.title,40,T.ink);brand.TextXAlignment=Enum.TextXAlignment.Center
@@ -77,6 +79,7 @@ local layout
 local function applyPreferences(prefs)
  T.configure(prefs);player:SetAttribute('MountainReducedMotion',prefs.reducedMotion==true)
  player:SetAttribute('MountainSimplifiedVFX',prefs.simplifiedVFX==true)
+ Motion.refresh() -- reduced / LOW / camera shake gates follow the new prefs live
  for _,o in ipairs(root:GetDescendants()) do
   if o:IsA('UIStroke') then local base=o:GetAttribute('BaseThickness') or 1;local bt=o:GetAttribute('BaseTransparency');o.Transparency=if prefs.highContrast then math.min(bt or 0,.15) else (bt or .15);o.Thickness=if prefs.highContrast then math.max(2,base) else base
   elseif o:IsA('TextLabel') or o:IsA('TextButton') then local base=o:GetAttribute('BaseTextSize');if base then o.TextSize=T.size(base) end end
@@ -269,13 +272,38 @@ connect(Run.Heartbeat,function(dt)
 end)
 layout()
 connect(gui.Destroying,function()
- screenProbe:Destroy();disconnect();store:destroy();feedback:destroy();screens:destroy();hud:destroy();for _,c in ipairs(connections) do c:Disconnect() end
+ screenProbe:Destroy();disconnect();store:destroy();feedback:destroy();screens:destroy();hud:destroy();Motion.detach();for _,c in ipairs(connections) do c:Disconnect() end
  for o,value in pairs(defaultEffects) do if o.Parent then o.Enabled=value end end;for s,value in pairs(soundBases) do if s.Parent then s.Volume=value end end;GuiService.SelectedObject=nil
 end)
 if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
  local probe=W.new('BindableFunction',gui,{Name='UIProbe'})
  local hubNames={'Creatures','Discovery','Sanctuary','Mountain','Social','Profile','Shop','Settings'}
  probe.OnInvoke=function(action,value)
+  -- P6: motion budget check; QA-only time scale for evidence capture (a speed, .1 = 10x slower; honoured while StudioAids == true).
+  if action=='motionStats' then return Motion.stats() end
+  if action=='motionScale' then Motion.setTimeScale(tonumber(value) or 1);return Motion.stats() end
+  -- Evidence demos (capture_motion.py): a fixture state + one message played in full (MotionHold cleared before Motion's deferred
+  -- scan, so the out part runs while the held frame stays). 'clock' = the game VM clock for frame timestamps.
+  if action=='motionDemo' then
+   if value=='clock' then return os.clock() end
+   local states={carry='carry',run='chase',chaseTap='chase',banner='rest',toast='rest',moment='rest',card='rest',xp='rest',rail='rest'}
+   feedback:clear();hud:clearTransients();hud:setChaseRestored(false);screens:close();feedback:clearMoments()
+   local st=states[value];if st then fixture=st;gui:SetAttribute('HudFixture',st);local v=fixtureView(st,store.profile);hud:render(v) end
+   local rare;for _,s in ipairs(C.species) do if s.rarity=='Rare' then rare=s;break end end
+   local msgs={carry=H.message('carry',{species=rare and rare.id,runId='fixture'}),run=H.message('alert',{guardian=C.guardians[2].name,section=2}),
+    banner=H.message('section',{section=2,name='Whispering Forest'}),toast=H.message('coin',{text='+25 coins'}),moment=H.message('summit',{})}
+   local t0=os.clock()
+   if msgs[value] then
+    feedback:show(msgs[value],true)
+    for _,slot in ipairs({'current','band','moment'}) do local r=feedback[slot];if r and r.frame then r.frame:SetAttribute('MotionHold',nil);for _,x in ipairs(r.frame:GetDescendants()) do x:SetAttribute('MotionHold',nil) end end end
+   elseif value=='chaseTap' then task.delay(.6,function() hud:_dockTap(hud.e.dockButtons.Creatures) end);t0+=.6
+   elseif value=='card' then hud:toggleCard(true)
+   elseif value=='xp' then hud:xpLine(H.message('xpLine',{amount=60,into=300,need=500}))
+   elseif value=='rail' then hud:checkpoint(H.message('checkpoint',H.checkpoint('2:recovery')))
+   elseif value=='reveal' then local s;for _,x in ipairs(C.species) do if x.rarity=='Epic' then s=x;break end end;feedback:hatchReveal(s,{})
+   elseif value=='shop' then open('Shop') end
+   return {t0=t0}
+  end
   if action=='open' and table.find(hubNames,value) then open(value)
   elseif action=='close' then screens:close();feedback:clearMoments()
   elseif action=='reveal' then

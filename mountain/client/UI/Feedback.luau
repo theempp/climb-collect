@@ -3,6 +3,7 @@
 -- Tier 1 = toast under the coin pill (queue). Tier 2 = top band (banner / carry pop-up / RUN!; the newest replaces). Tier 3 =
 -- centre moment (queue; in the sanctuary it waits for Collect). Messages never take input on the mountain.
 -- No tweens: each message is built in its static end state with Motion=<intel §6 token>; lifetimes come from HudState.
+-- Motion (P6) plays each tagged piece on creation; MotionHold = a held message plays only its in part and stays.
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
 local Hud=require(script.Parent.Hud)
@@ -17,6 +18,12 @@ local left=Enum.TextXAlignment.Left
 local function speciesName(id) local s=type(id)=='string' and C.byId[id] or nil;return if s then s.name else 'Creature' end
 local function place(o,r) o.Position=UDim2.fromOffset(r.x,r.y);o.Size=UDim2.fromOffset(r.w,r.h) end
 local function tag(o,piece,motion) o:SetAttribute('HudClass','transient');o:SetAttribute('HudPiece',piece);o:SetAttribute('Motion',motion);o.Active=false;return o end
+-- Held (QA fixtures, Collect moments, the reward modal): every Motion piece in o plays its in part only (Motion reads it on scan).
+local function held(o)
+ if o:GetAttribute('Motion') then o:SetAttribute('MotionHold',true) end
+ for _,x in ipairs(o:GetDescendants()) do if x:GetAttribute('Motion') then x:SetAttribute('MotionHold',true) end end
+ return o
+end
 -- Display text with a drop label (W.text recipe: drops on display text only).
 local function display(parent,name,text,n,color,drop,dropY,dropT)
  local d=label(parent,name..'Drop',text,T.fontDisplay,n,drop);d.ZIndex=1;d.TextTransparency=dropT or 0;d:SetAttribute('Decor',true)
@@ -91,6 +98,7 @@ function F:_nextToast()
  local g=tag(W.glass(self.layer,'Toast',UDim2.fromOffset(100,30),nil,{radius=T.r.btn,glow=T.glowGlass}),'toast','toast');g.AnchorPoint=Vector2.new(1,0);g.ZIndex=12
  if coin then W.icon(g,'Coin',UDim2.fromOffset(24,24),UDim2.fromOffset(2+6,3)).ZIndex=2 end
  local t=W.textStroke(label(g,'Text',q.text,T.fontBody,T.t.toast,T.text,left),nil).Parent;W.fit(t,T.t.toast,8)
+ if q.hold then held(g) end
  local rec={frame=g,text=q.text}
  rec.place=function()
   local l=self.l;if not l then return end
@@ -193,6 +201,7 @@ function F:_band(m,hold)
  if self.band then self.band.frame:Destroy();self.band=nil end
  local o,fit
  if m.slot=='carryPop' then o,fit=self:_carryPop(m) elseif m.slot=='run' then o,fit=self:_run(m) else o,fit=self:_banner(m) end
+ if hold then held(o) end
  local rec={frame=o};rec.place=function() if self.l then fit(self.l) end end;rec.place();self.band=rec
  if self.hooks.band then self.hooks.band(true) end
  if not hold then task.delay(m.duration or 2.5,function() if self.band==rec then o:Destroy();self.band=nil;if self.hooks.band then self.hooks.band(false) end end end) end
@@ -226,6 +235,7 @@ function F:_nextMoment()
   cta:SetAttribute('HudClass','transient');cta:SetAttribute('HudPiece','collect');cta:SetAttribute('Motion','moment')
   if self.hooks.blocking then self.hooks.blocking(true) end
  end
+ if m.collect or q.hold then held(o) end -- a Collect moment waits: title / sub / Collect stay in
  local rec={frame=o}
  rec.place=function()
   local l=self.l;if not l then return end
@@ -414,7 +424,7 @@ function F:reveal(title,description,species)
  if f then
   -- Reward moment (intel §4 + owner decision): purple panel, LuckiestGuy gold title, green confirm. Static end state; Motion
   -- owns the pop-in ('moment').
-  f:SetAttribute('Motion','moment')
+  f:SetAttribute('Motion','moment');f:SetAttribute('MotionHold',true) -- the modal waits for Continue: in part only
   f.BackgroundColor3=T.panelPurple;f.Text.Font=T.title;f.Text.TextColor3=T.gold;f.Text.TextXAlignment=Enum.TextXAlignment.Center;f.Text.TextSize=T.size(28);f.Text.UIStroke.Thickness=3
   f.Confirm:SetAttribute('ButtonColor',T.ok.base);f.Confirm.BackgroundColor3=T.ok.base
   f.Confirm.Text='Continue';f.Cancel.Visible=false;f.Confirm.Size=UDim2.new(1,-32,0,48);f.Confirm.Position=UDim2.new(0,16,1,-64)

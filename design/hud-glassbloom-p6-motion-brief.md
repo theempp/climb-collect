@@ -1,0 +1,63 @@
+# P6 motion brief (Glassbloom HUD) — 2026-10-28
+
+Repo `C:\Users\HOME!\Desktop\climb-collect-integration`, branch `codex/hud-glassbloom`. Roblox Luau. You are the **motion specialist**: the only one who writes tweens. You never restyle components (no colour, size, layout, copy changes). Your diff touches `mountain/client/UI/Motion.luau` (new, the one motion-tokens module) plus small **wiring calls** / attribute reads in Hud, Feedback, Screens, Shop, Widgets, Controller. `TweenService` may appear **only** in Motion.luau.
+
+## Sources (read first)
+- Tokens: `C:\Users\HOME!\Desktop\climb&collect\design\hud-glassbloom-intel.md` §6 (motion tokens), §4 (tier lifetimes), §7 G4/G19/G23.
+- Board keyframes: `C:\Users\HOME!\Desktop\climb&collect\design\hud-board-v3\index.html` lines 36–171, 207–348 (CSS) and 680–738 (carry/reveal JS).
+- Plan: `design/hud-glassbloom-build-plan-2026-10-27.md` §4 P6, §6 budget, §12 (board **text** timings win over CSS: XP line 1.5 s, carry pop-up in at 0.35 s, rail hold 3 s), §19 (owner gap answers below).
+- Code: `mountain/client/UI/{Theme,Widgets,Hud,Feedback,Screens,Shop,Controller}.luau`. Builders built every animated piece in its **static end state** and tagged it `Motion="<token>"` (some `MotionDelay`). `grep -n "Motion'" mountain/client/UI/*.luau` lists them.
+- Style: match the surrounding code (dense one-liners, `;` chaining, 1-space indent, short comments citing intel/board lines). Comment density like Hud.luau.
+
+## Owner answers that fill the gaps (plan §19)
+- Panel open = fade + scale .96 → 1, 0.2 s ease-out; close = 0.15 s fade then destroy. Only a real open/close (no replay on refresh or a tab re-render).
+- Tab **tap** tweens the scroll 0.3 s ease-out (a touch / wheel / gamepad selection cancels it). Shop hero full ↔ mini 0.2 s ease-out, scroll top follows.
+- `pcard.open` **as rendered**: from offset (−115, +40), α 0 → in place, 0.2 s ease-out. Close = instant hide.
+- Reveal spin title by tier: Rare and up "SOMETHING RARE IS COMING...", Common/Uncommon "SOMETHING IS COMING..." (30 px), switching to the built landed title (26 px) at 3.5 s.
+
+## Easing map (CSS → Roblox), write it once in Motion.luau
+ease-out → Quad Out · ease-in-out → Sine InOut · CSS default `ease` → Sine Out · linear → Linear · cubic-bezier(.14,.64,.2,1) → Quint Out · cubic-bezier(.2,1.4,.4,1) / (.2,1.5,.4,1) → Back Out. CSS keyframe easing applies **per segment** (between keys).
+
+## Motion.luau architecture (required shape)
+1. `Motion.tokens`: every §6 token with duration, keys (time in s, props), easing, loop flag, budget category. Values only from intel §6 / board / §19. Name any derived value in a comment (e.g. "ring tween = xpLine fill window").
+2. **Gates** `Motion.reduced()` = `T.prefs.reducedMotion or T.prefs.simplifiedVFX` or player attribute `MountainReducedMotion`/`MountainSimplifiedVFX` true, or `T.prefs.effectsTier==0` (LOW). `Motion.noRays()` = effectsTier 0. Reduced: every loop stops (pieces rest in their built end state), every transition is instant or a ≤ 0.15 s fade (use instant for one-shot messages; 0.15 s linear for group-transparency state changes: dock fade, rail). LOW also hides every `rays.*` piece (`Visible=false`) and restores it when LOW ends. React live: listen to the two player attributes and expose `Motion.refresh()` (Controller calls it after `T.configure`). `T.prefs.cameraShake==false` zeroes the RUN! word's shake keys (translate/rotate wobble at .65/.8/.95 s); no other shake exists.
+3. **Two engines.**
+   - **Loops** = real Tweens (`RepeatCount=-1`, `Reverses` where the keyframe is a 50 % there-and-back). Multi-key loops (egg.wobble, sparkle) = a chained sequence restarted on Completed. One loop *entry* per piece regardless of how many Tweens it needs; `Motion.stats()` reports `{loops=entries, tweens=raw playing tweens, byCat={...}, oneShots=n}` for the budget check.
+   - **One-shots** = a keyframe timeline (per-segment easing) that drives channels on one GuiObject: `alpha` (multiplies every descendant + self transparency: BackgroundTransparency, TextTransparency, ImageTransparency, UIStroke.Transparency, from their values at start), `scale` (a Motion-owned `UIScale` child named `MotionScale`, destroyed when the one-shot ends at scale 1), `x`/`y` offset (added to the base Position), `rot` (added to base Rotation). Scale must pivot on the element centre: during the one-shot set AnchorPoint (.5,.5) and shift Position by `(.5-anchor)*Size` (UDim2 arithmetic), restore both at the end. A TweenService-driven NumberValue or a RenderStepped connection is fine for the driver; it must disconnect when done or when the instance is destroyed.
+4. **`Motion.attach(root)`** (Controller calls it once on SafeRoot): `DescendantAdded` + `task.defer` (attributes are set right after parenting) → auto-start:
+   - on-create one-shots: `toast`, `banner`, `carry.pop`, `carry.iconTwist`, `run.slam`, `run.awake`, `run.shock`, `moment`;
+   - loops: `rays.panel`, `rays.hero`, `holo`, `buy.shine`, `bob`, `bob.pass`, `burst.wob`, `egg.wobble`, `trail.streak`, `trail.swing`, `pulse`, `vignette.pulse`, `edge.nudge`;
+   - the hatch reveal: a frame with `HudPiece='reveal'` starts the reveal timeline (Task C); skip its children's own tokens in the scanner.
+   - `MotionHold=true` on a piece (Feedback sets it for held QA fixtures, Collect moments and the legacy `F:reveal` modal) = play only the **in** part and stay at the end state (never the out part).
+   - The other tokens are wired explicitly (below), never auto-played.
+5. **Loop visibility + budget (plan §6).** A loop runs only while its piece is shown: own `Visible` chain true, inside the nearest ScrollingFrame's visible window (re-checked on `CanvasPosition` change, at most once per frame), not covered by a full-screen hatch reveal (loops outside `HudPiece='reveal'` pause while one exists). Category caps per open menu: `rays` 1 per token, `holo` 1, `shine` ≤ 3 (buy-button shine on the first 3 visible, **staggered** start offsets 0 / 1.07 / 2.13 s), `idle` (bob, bob.pass, burst.wob, egg.wobble, trail.streak + trail.swing as one, pulse) ≤ 6, chosen top-down by screen Y. HUD at rest ≤ 3 loops (expected 0); chase adds only `vignette.pulse` (+ `edge.nudge` while the gate is off screen). Loops stop and unregister on `Destroying`/removal; menus are destroyed on close so their loops end.
+6. No ParticleEmitters, no BlurEffect, no per-frame work while nothing animates.
+
+## Task A — Motion.luau core + HUD wiring
+- Motion.luau per the architecture above (all tokens defined now, including the menu/shop/reveal ones Tasks B/C will wire).
+- Controller: `Motion.attach(root)` once; `Motion.refresh()` in `applyPreferences` after `T.configure`.
+- Feedback: set `MotionHold` where a message is held (`hold` arg, `m.collect` moment title/sub/cta, `F:reveal` modal Dialog). Lifetimes stay where they are (HudState durations + `task.delay` destroy); your one-shots must finish inside them:
+  - `toast` 1.5 s: 0 α0 y−8 → .225 s α1 y0 → hold → 1.17 s → 1.5 s α0 x+16 (ease-out).
+  - `banner` 2.5 s: 0 α0 y−30 s.8 → .25 s α1 y0 s1.05 → .4 s s1 → 2.1 s → 2.5 s α0 y−30.
+  - `moment` 2.5 s: 0 α0 s2.4 → .3 s α1 s.94 → .45 s s1 → 2.05 s → 2.5 s α0 s1.08. (Title, sub pill and Collect each carry it.)
+  - `carry.pop` 2.5 s, board text timing (in at .35 s): 0 α0 y−24 s.5 → .25 s α1 y0 s1.08 → .35 s s1 → 2.0 s → 2.3 s α.9 at .55 of the path to the carry portrait centre, s.45 → 2.5 s α0 at the portrait centre, s.12. Target = the HUD `CarryPortrait` ring centre (ring top + 26) measured from AbsolutePositions, converted to the pop's virtual px (pop.AbsoluteSize.X / pop.Size.X.Offset). `carry.portraitIn` on that portrait (start with the pop): scale 0 until 2.34 s → 1.3 at 2.496 s → 1 at 2.6 s. `carry.iconTwist` (pop's Portrait): rot −14 s.7 → .25 s rot 8 s1.15 → .45 s rot 0 s1.
+  - RUN! (`run.slam` on Word, 1.5 s, ease-in-out): 0 s3.4 rot−8 α0 → .1 α1 → .25 s.86 rot2 → .4 s1.1 rot−1.5 → .5 s1 rot0 → .65 x−4 y2 rot−1 → .8 x4 y−2 rot1 → .95 x0 y0 rot0 → 1.3 → 1.5 α0 s1.12. RunDrop (Decor) must follow the Word (same channels). `run.awake`: 0–.3 s α0 y+8 → .5 s α1 y0 → 1.3 s → 1.5 s α0. `run.shock` (ease-out): 0–.2 s s.2 α0 → .25 s α.9 → 1.0 s s2.6 α0.
+- Hud wiring (replace direct property sets with Motion calls; same end values):
+  - `dock.chaseFade`: `dockCanvas.GroupTransparency` → `Motion.to(...)` 0.2 s (CSS default easing), only when the target changes.
+  - Chase tap restore (`dock.tapRestore`, board L414/L670): while the dock is slim (chase, not restored), the first tap or gamepad focus on any dock button restores all 5 for **3 s** (the tap does not fire the button's action), then fades back; a new tap restarts the 3 s; reaching safety restores (the state leaves chase). Implement the hold timer from `Motion.tokens['dock.tapRestore']` and call the existing `Hud:setChaseRestored`.
+  - `rail.bright`: railCanvas group T .7 → 0 ramp .49 s, back to .7 in .56 s (ease-in-out); the 3 s hold stays in `Hud:checkpoint`. `rail.label`: on show x −6 → 0 + α 0 → 1 over .49 s; on hide α → 0 over .56 s then `Visible=false`.
+  - `xpLine` (1.5 s, board text): α 0 → 1 by .18 s, hold to 1.125 s, → 0 at 1.5 s (ease-out); fill from the previous value to the new one between .225 s and .9 s (ease-out). Ring tweens: the dock XP ring and the player-card ring tween from the last value to the new one over the same fill window (.675 s ease-out, start .225 s) — derived from `xpLine`, comment it. The carry distance ring stays a direct 10 Hz set.
+  - `pcard.open` (§19 as rendered): on show from offset (−115, +40) α0 → 0, 0.2 s ease-out; hide instant.
+  - `vignette.pulse` (vignette's 4 edge frames, opacity 1 ↔ .45, 1.1 s loop ease-in-out) and `edge.nudge` (x −4, 1 s loop ease-in-out) run only while Visible.
+- Done when: `bash tools/run_all_tests.sh` still prints fail=0 (the main session runs it; you can't run Bash), no `TweenService` outside Motion.luau, no restyling.
+
+## Task B — menus and shop (after A is verified)
+- Panel open/close (§19) in Screens: animate the `HubShade` tint (alpha) + `Hub` (alpha + scale .96 → 1) only when there was no shade before the render; `S:close` fades 0.15 s (shade `Interactable=false` at once) then destroys. Keep `S:close`'s state reset synchronous.
+- Tab **tap** → `Motion.scrollTo(body, y, 'tab.scroll')` 0.3 s ease-out; landing/settle re-applies retarget the tween instead of snapping; `syncTab` is suppressed while a scroll tween runs (the tapped tab stays highlighted); touch/wheel/selection cancels. UIProbe `tab` and open-with-tab land instantly (QA path).
+- Shop hero full ↔ mini (`Shop.luau` `sync`): after `layout(m)`, glide the hero height old → new over 0.2 s ease-out, calling `screen:setScrollTop` each step, and fade the hero's Inner contents in (0.2 s).
+- `tog.knob` (Widgets `W.toggle`): on tap, tween the knob x 3 ↔ 29 (0.15 s, CSS default) before calling `fn`; the rebuilt toggle arrives in its end state.
+- Loops in the Shop per the caps above (panel rays, hero rays, holo, shine ≤ 3 staggered, idle ≤ 6, top-down by Y, off-screen paused).
+- `holo`: the Cycle frame is 4.8× wide with two colour cycles; one loop = X scale 0 → −2.4 linear 5 s. `buy.shine`: X scale −.4 → 1.3 in the last 38 % of 3.2 s (1.216 s Sine InOut after a 1.984 s wait, repeating). `trail.streak`: X from −.8 to 1.3 of its own width (in parent scale: ×.7), linear 1.4 s. `trail.swing` rot 0 ↔ −18 1.4 s. `bob` y −5 2.4 s (2nd item delay .5 s), `bob.pass` 2.6 s, `burst.wob` scale 1.07 2 s, `egg.wobble` rot −7/6/−3 at 76/82/88 % of 2.8 s, `pulse` scale 1.08 α .85 1.2 s, rays 360° linear (panel 40 s, hero 24 s).
+
+## Task C — hatch reveal timeline (after B is verified)
+Feedback `_reveal` builds the landed end state. Motion starts it from the **pre-spin pose** (board L725–738) and plays: title = tier text (§19) at 30 px, band/track/selector undimmed (their built transparencies are dimmed: T0 = 1−(1−T)/(1−T.revealDimT), see Feedback L246), reel at X(0)=422−54 → X(14) over 3.4 s Quint Out; halos/card/word/name/chance/Collect hidden (Collect not tappable until it shows). At **3.5 s** landed: title → built landed text, 26 px (instant); dim .4 s; halo burst 1.1 s s.4 → 2.8 α1 → 0 (2nd +.12 s); card .5 s delay .15 s s.3 rot −8 → s1 rot −3, α0 → 1 (Back Out); word slam .4 s delay .3 s s2.6 → 1 α0 → 1 (Back Out) at y 238. At **4.3 s** named: word y 238 → 226 (instant), name + chance y +10 → 0, α (0.4 s). At **5.7 s**: Collect y +12 s.9 → 1, α (0.4 s). Sparkles (`sparkle`, loop 2.2 s, scale .4 ↔ 1, rot 0 ↔ 45, α .4 ↔ 1, delays from `MotionDelay`) and `rays.reveal` (26 s) run from the start. Shards (G12) are not built: skip. Reduced: the built end state at once. The reveal pauses the hub's loops underneath (cover rule).

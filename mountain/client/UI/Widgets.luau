@@ -109,6 +109,9 @@ end
 local function scaleOf(l)
  local k=1
  for host,u in pairs(scaleHosts) do if u.Parent==host and (l==host or l:IsDescendantOf(host)) then k*=u.Scale end end
+ -- P6: Motion's temporary UIScale (MotionScale, a one-shot / loop scale) on the label or an ancestor is divided out too, so a
+ -- scale-in never refits the text.
+ local p=l;while p and p:IsA('GuiObject') do local u=p:FindFirstChild('MotionScale');if u and u:IsA('UIScale') then k*=u.Scale end;p=p.Parent end
  return k
 end
 local function refit(l)

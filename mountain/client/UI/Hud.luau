@@ -1,12 +1,14 @@
 -- Glassbloom HUD states (P4): rest / carry (+ regrab pop-up) / chase / sanctuary / battle. Values: Theme (intel §1) and
 -- climb&collect/design/hud-glassbloom-intel.md §2 HUD builders (L### = board lines), plan §15 G2/G6-G9/G19. Geometry comes from
 -- UIPresentation.hudLayout in the HUD root's virtual space (the root carries the one UIScale, G2).
--- No tweens: animated pieces carry Motion=<intel §6 token> and are built in their static end state. Every piece is tagged
+-- Animated pieces carry Motion=<intel §6 token> and are built in their static end state; state transitions go through Motion
+-- (P6: Motion.to / show / value / play, no tweens here). Every piece is tagged
 -- HudClass = permanent | transient (audits, §3) and HudPiece = its layout key. Distance/edge update at 10 Hz while carrying.
 local Players=game:GetService('Players')
 local TextService=game:GetService('TextService')
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
+local M=require(script.Parent.Motion)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local Hud={};Hud.__index=Hud
 local center=Enum.TextXAlignment.Center;local left=Enum.TextXAlignment.Left
@@ -65,7 +67,8 @@ local function dockButton(self,parent,name,kind,fn,order)
  disc(b,'Body',42,T.s.thin,T.text,T.dbtnT.fill,T.text,T.dbtnT.rim)
  W.icon(b,kind,UDim2.fromOffset(28,28),UDim2.fromOffset(7,7)).ZIndex=3
  local pitch=Vector2.new(48,math.huge) -- pitch 48 caps the hit width (G1)
- W.hit(b,44/self.scale,pitch);W.bind(b,fn);W.focus(b);table.insert(self.hits,{b,pitch})
+ W.hit(b,44/self.scale,pitch);W.bind(b,function() if self:_dockTap(b) then return end;fn() end);W.focus(b);table.insert(self.hits,{b,pitch})
+ b.SelectionGained:Connect(function() self:_dockTap(b,true) end)
  return b
 end
 -- Glass with the board's .g glow (L47).
@@ -74,7 +77,7 @@ local function glass(parent,name,size,radius,variant)
 end
 -- cb: open(hub,tab), card(), swing(), pickup(), dodge(), special(slot), ability(), sound().
 function Hud.new(root,cb)
- local self=setmetatable({root=root,cb=cb,hits={},e={},restored=false,cardOpen=false,bandBusy=false,blocked=false,scale=1,alive=true,railSerial=0,xpSerial=0},Hud)
+ local self=setmetatable({root=root,cb=cb,hits={},e={},restored=false,cardOpen=false,bandBusy=false,blocked=false,scale=1,alive=true,railSerial=0,xpSerial=0,tapSerial=0},Hud)
  local e=self.e
  local layer=frame(root,'Hud',{Size=UDim2.fromScale(1,1),ZIndex=30});self.layer=layer
  self.uiScale=W.new('UIScale',layer,{Scale=1})
@@ -126,7 +129,8 @@ function Hud.new(root,cb)
  e.xpRing=W.ring(cr,42,T.s.ring3,T.pk,T.ringTrackT.xp,T.deep)
  W.icon(cr,'Creature',UDim2.fromOffset(28,28),UDim2.fromOffset(7,7)).ZIndex=3
  local _,lv=lvBadge(cr,'1');e.level=lv
- W.hit(cr,44,Vector2.new(48,math.huge));W.bind(cr,function() cb.sound();cb.card() end);W.focus(cr);table.insert(self.hits,{cr,Vector2.new(48,math.huge)})
+ W.hit(cr,44,Vector2.new(48,math.huge));W.bind(cr,function() if self:_dockTap(cr) then return end;cb.sound();cb.card() end);W.focus(cr);table.insert(self.hits,{cr,Vector2.new(48,math.huge)})
+ cr.SelectionGained:Connect(function() self:_dockTap(cr,true) end)
  e.dockButtons={Creatures=cr,Map=dockButton(self,row,'Map','Map',go('Mountain','Map'),2),Shop=dockButton(self,row,'Shop','Chest',go('Shop'),3),
   -- Daily -> Shop › Free gifts (D2; D6 placeholder): Shop.luau registers the 'Free gifts' section key, so Screens lands there.
   Daily=dockButton(self,row,'Daily','Calendar',go('Shop','Free gifts'),4),Quests=dockButton(self,row,'Quests','Scroll',go('Mountain','Quests'),5)}
@@ -216,6 +220,9 @@ function Hud.new(root,cb)
  local bp,bl=pill(bb,'Label',23,10,T.goInk,T.pillT.beacon,T.s.thin,T.go,T.r[10],T.fontBody,T.t.beacon,T.text,'SAFE GATE')
  bp.AnchorPoint=Vector2.new(.5,0);bp.Position=UDim2.fromScale(.5,0);bp.ZIndex=3;e.beaconText=bl
  for _,k in ipairs({'tr','railCanvas','dockCanvas','bat','pickup','dodge','team','ability','boss','portrait','edge'}) do e[k].Visible=false end
+ -- Motion.value setters (rings / XP fill are drawn by :set or Size, not one property).
+ self.setXpRing=function(p) e.xpRing:set(p) end;self.setCardRing=function(p) e.cardRing:set(p) end
+ self.setXpFill=function(p) e.xpFill.Size=UDim2.fromScale(math.clamp(p,0,1),1) end
  return self
 end
 -- G2: one UIScale on the HUD root; hit areas stay >= 44 real px (min 44/scale, capped at the neighbour pitch).
@@ -246,12 +253,22 @@ function Hud:apply(l)
  place(e.bat,l.bat);place(e.pickup,l.pickup);place(e.dodge,l.dodge);place(e.team,l.team)
  e.ability.Position=UDim2.fromOffset(l.ability.x,l.ability.y)
  e.boss.Position=UDim2.fromOffset(l.boss.x,l.boss.y)
- place(e.portrait,l.portrait);e.edge.Position=UDim2.fromOffset(l.edge.x+l.edge.w,l.edge.y)
+ place(e.portrait,l.portrait);e.edge.Position=UDim2.fromOffset(l.edge.x+l.edge.w,l.edge.y);M.rebase(e.edge) -- edge.nudge restarts from the new spot
  place(e.card,l.card);local gap=UDim.new(0,l.dockGap or 6);e.dockList.Padding=gap;e.launchList.Padding=gap;e.launcher.Size=UDim2.fromOffset(l.card.w-28,42);place(e.vignette,l.screen)
  if self.view then self:render(self.view) end
 end
 -- Chase dock (L134): 3 buttons at group T .75; restored = all 5 at T 0. Motion owns the tap/focus restore timing (3 s).
 function Hud:setChaseRestored(on) self.restored=on==true;if self.view then self:render(self.view) end end
+-- dock.tapRestore (L414/L670): while the dock is slim, the first tap (or gamepad focus) on a dock button restores all 5 for 3 s
+-- and is swallowed (true = don't run the action); a tap while restored acts and restarts the 3 s. Leaving chase ends it.
+function Hud:_dockTap(b,focus)
+ if self.lastState~='chase' or not b:IsDescendantOf(self.e.dock) then return false end
+ local slim=not self.restored;if focus and not slim then return false end
+ self.tapSerial+=1;local mine=self.tapSerial
+ M.after(M.tokens['dock.tapRestore'].hold,function() if self.tapSerial==mine and self.alive and self.lastState=='chase' then self:setChaseRestored(false) end end)
+ if slim then self:setChaseRestored(true) end
+ return slim
+end
 function Hud:toggleCard(open) if open==nil then open=not self.cardOpen end;self.cardOpen=open;if self.view then self:render(self.view) end end
 -- Feedback hooks: tier-2 band in use (hides the boss bar), sanctuary moment waiting for Collect (hides dock + card).
 function Hud:setBandBusy(on) self.bandBusy=on;if self.view then self:render(self.view) end end
@@ -265,15 +282,22 @@ function Hud:checkpoint(m,hold)
  if self.view then self:render(self.view) end
  if not hold then task.delay(m and m.duration or 3,function() if self.railSerial==mine and self.alive then self.railBright=false;if self.view then self:render(self.view) end end end) end
 end
--- XP line (H.tiers.xpLine): flashes the explorer XP above the dock for the duration (1.5 s; Motion 'xpLine' animates the fill).
+-- XP line (H.tiers.xpLine): flashes the explorer XP above the dock for the duration (1.5 s). Motion 'xpLine' fades it (in by
+-- .18 s, out from 1.125 s); 'xpLine.fill' runs the fill from the value before this gain (HudState.explorerDiff into - amount; a
+-- level-up starts from 0) to the new one over .225-.9 s.
 function Hud:xpLine(m,hold)
  local d=m and m.data or {};local p=if type(d.need)=='number' and d.need>0 then (d.into or 0)/d.need elseif self.view then self.view.xp or 0 else 0
- self.e.xpFill.Size=UDim2.fromScale(math.clamp(p,0,1),1)
+ local from=if type(d.need)=='number' and d.need>0 and type(d.amount)=='number' then (if d.levelUp then 0 else math.clamp(((d.into or 0)-d.amount)/d.need,0,1)) else nil
+ M.value(self.e.xpFill,math.clamp(p,0,1),'xpLine.fill',self.setXpFill,{from=from})
  self.xpSerial+=1;local mine=self.xpSerial;self.xpShown=true
  if self.view then self:render(self.view) end
+ M.play(self.e.xpLine,'xpLine',{hold=hold})
  if not hold then task.delay(m and m.duration or 1.5,function() if self.xpSerial==mine and self.alive then self.xpShown=false;if self.view then self:render(self.view) end end end) end
 end
-function Hud:clearTransients() self.railSerial+=1;self.xpSerial+=1;self.railBright=false;self.xpShown=false;self.cardOpen=false end
+function Hud:clearTransients()
+ self.railSerial+=1;self.xpSerial+=1;self.tapSerial+=1;self.railBright=false;self.xpShown=false;self.cardOpen=false
+ M.stop(self.e.xpLine);M.show(self.e.railLabel,false,nil,{instant=true}) -- QA resets land at once
+end
 local function nearestExit(exits,pos)
  local best,bd=nil,math.huge
  for _,x in ipairs(if type(exits)=='table' then exits else {}) do
@@ -331,8 +355,10 @@ function Hud:render(v)
  e.coinValue.Text=tostring(v.coins or '—')
  e.tr.Visible=show
  e.railCanvas.Visible=show and not sanctuary and v.rail~=false
- e.railCanvas.GroupTransparency=if self.railBright then 0 else T.railIdleT
- e.railLabel.Visible=e.railCanvas.Visible and self.railBright==true
+ -- rail.bright (L107): group T .7 → 0 in .49 s, back in .56 s (ease-in-out); the 3 s hold stays in Hud:checkpoint.
+ M.to(e.railCanvas,{GroupTransparency=if self.railBright then 0 else T.railIdleT},'rail.bright',{out=not self.railBright})
+ -- rail.label (L109): x -6 → 0 + fade in .49 s; fade out .56 s, then hidden. Hidden at once with the rail.
+ M.show(e.railLabel,e.railCanvas.Visible and self.railBright==true,'rail.label',{instant=not e.railCanvas.Visible})
  for k=1,6 do
   local on=type(v.section)=='number' and k<=v.section;local nd=e.nodes[k]
   if nd.disc then nd.disc.BackgroundColor3=if on then T.pk else T.deep end;nd.glow.Visible=on
@@ -340,10 +366,13 @@ function Hud:render(v)
  -- Dock: rest/carry/sanctuary 5 buttons; chase 3 at group T .75 unless restored; hidden in battle and while a Collect moment waits.
  local slim=chase and not self.restored
  e.dockCanvas.Visible=show and not battle and not self.blocked
- e.dockCanvas.GroupTransparency=if slim then T.dockChaseT else 0
+ M.to(e.dockCanvas,{GroupTransparency=if slim then T.dockChaseT else 0},'dock.chaseFade') -- L134 .2 s; Motion acts on a change only
  e.dockButtons.Daily.Visible=not slim;e.dockButtons.Quests.Visible=not slim
  if l then local r=if slim then l.dockChase else l.dock;place(e.dockCanvas,{x=r.x-18,y=r.y-18,w=r.w+36,h=r.h+36});e.dock.Size=UDim2.fromOffset(r.w,r.h) end
- e.xpRing:set(v.xp or 0);e.level.Text=tostring(v.level or 1);e.dailyDot.Visible=v.daily==true
+ -- XP ring: last → new over the xpLine fill window (xpRing, derived); a level-up refills from 0.
+ local lv=v.level or 1;local up=self.ringLevel~=nil and lv>self.ringLevel;self.ringLevel=lv
+ M.value(e.xpRing,v.xp or 0,'xpRing',self.setXpRing,{from=if up then 0 else nil})
+ e.level.Text=tostring(lv);e.dailyDot.Visible=v.daily==true
  e.xpLine.Visible=show and self.xpShown==true
  -- Orbs: bat on the mountain only (not sanctuary/battle); pick-up while a creature is revealed (D4/G8).
  local bat=v.bat or {}
@@ -377,9 +406,14 @@ function Hud:render(v)
   e.boss.Size=UDim2.fromOffset(math.min(if l then l.bandMax else w,w),76)
  end
  -- Player card (D2 launcher): opened by the ring; open by default in the sanctuary (L628); not in chase or battle.
- e.card.Visible=show and self.cardOpen and not battle and not chase and not self.blocked
+ -- pcard.open (§19 as rendered): from (-115, +40) α 0 in .2 s ease-out; hide instant. Its ring tweens like the dock ring while
+ -- shown and lands at once when the card opens.
+ local cardOn=show and self.cardOpen and not battle and not chase and not self.blocked
+ local opened=cardOn and not e.card.Visible
+ M.show(e.card,cardOn,'pcard.open')
  if e.card.Visible then
-  e.cardMeta.Text=(v.name or 'Player')..' · Lv '..tostring(v.level or 1);e.cardXp.Size=UDim2.fromScale(math.clamp(v.xp or 0,0,1),1);e.cardRing:set(v.xp or 0)
+  e.cardMeta.Text=(v.name or 'Player')..' · Lv '..tostring(v.level or 1);e.cardXp.Size=UDim2.fromScale(math.clamp(v.xp or 0,0,1),1)
+  M.value(e.cardRing,v.xp or 0,'xpRing',self.setCardRing,{instant=opened,from=if up and not opened then 0 else nil})
   -- GAP: no summit counter exists in the profile (board "3 summits"); a reached summit is shown instead.
   e.cardSub.Text=tostring(v.creatures or 0)..' creatures'..(if v.summit then ' · summit reached' else '')
  end
