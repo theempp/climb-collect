@@ -32,7 +32,7 @@ function V.new(deps)
   track=function(player,event,n) service.track(player,event,n) end})
  local outposts=OutpostService.new({store=deps.outposts.store,index=deps.outposts.index,profiles=P,clock=deps.clock,guid=deps.guid,notify=notify,
   playerByUserId=deps.playerByUserId,productionRate=deps.productionRate,teamXP=deps.teamXP,isFriend=deps.isFriend,friends=deps.friends,
-  leaderboard=deps.leaderboard,badge=deps.badge,track=function(player,event,n) service.track(player,event,n) end})
+  leaderboard=deps.leaderboard,badge=deps.badge,secret=deps.secret,budgetOk=deps.outposts.budgetOk,track=function(player,event,n) service.track(player,event,n) end})
  service.receipts,service.party,service.outposts=receipts,party,outposts
  local function wallet(p)
   local v=p.v1
@@ -151,10 +151,22 @@ function V.new(deps)
   local p=P.get(player);local ok,why=Recognition.equip(p.v1,payload.id)
   return ok,if ok then 'ok' else why,{title=p.v1.title}
  end
+ -- Per-action cooldowns on store-heavy actions keep one client from spending the server's DataStore budget
+ -- (Q01 #1). Seconds, PROPOSED.
+ local cooldowns={Raid_Find=3,Raid_Reroll=2,Raid_Log=3,Raid_Practice=3,Raid_Friendly=5,Outpost_State=2,Season_State=2,Outpost_Collect=2,Outpost_Shield=2,Outpost_SetSlot=.5,Outpost_SetDefenders=.5,Party=.5}
+ local nextAt={}
+ service.cooldowns=cooldowns
  -- payload already passed V1Protocol.validate; profile availability is checked here.
  function service.handle(player,action,payload)
   if not P.get(player) then return false,'unavailable' end
   local h=handlers[action];if not h then return false,'unknown_action' end
+  local wait=cooldowns[action]
+  if wait then
+   nextAt[player]=nextAt[player] or {}
+   local now=(deps.monotonic or os.clock)()
+   if now<(nextAt[player][action] or 0) then return false,'cooldown' end
+   nextAt[player][action]=now+wait
+  end
   return h(player,payload)
  end
  function service.processReceipt(info) return receipts.process(info) end
@@ -166,7 +178,7 @@ function V.new(deps)
   end
  end
  function service.remove(player)
-  party.remove(player);outposts.remove(player);receipts.remove(player);lastDay[player]=nil
+  party.remove(player);outposts.remove(player);receipts.remove(player);lastDay[player]=nil;nextAt[player]=nil
  end
  service.duoHealth=V.duoHealth
  return service

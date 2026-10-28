@@ -21,7 +21,7 @@ end
 function S.new()
  return {version=1,processed={},passes={},tokens={raidReroll=0,shield=0},eggTickets=0,cosmetics={},titles={},badges={},boosts={production=0,xp=0},
   daily={day=-1,streak=0,lastLogin=-1,loginClaimed=-1,quests={},rerolls=0,week=-1,weekly=false,weeklyRerolls=0,claimed={}},
-  raid={day=-1,attacks=0,loot=0,rerolls=0,practice=0,friendlyWins=0,friendlyPlayed=0},
+  raid={day=-1,attacks=0,loot=0,rerolls=0,practice=0,revenges=0,friendly=0,friendlyWins=0,friendlyPlayed=0},
   applied={},seasons={},seasonSeen=-1}
 end
 function S.valid(v)
@@ -42,7 +42,7 @@ function S.valid(v)
  if d.weekly~=false and not quest(d.weekly) then return false end
  local r=v.raid
  if type(r)~='table' then return false end
- for _,key in ipairs({'day','attacks','loot','rerolls','practice','friendlyWins','friendlyPlayed'}) do if not int(r[key],-1,1e9) then return false end end
+ for _,key in ipairs({'day','attacks','loot','rerolls','practice','revenges','friendly','friendlyWins','friendlyPlayed'}) do if not int(r[key],-1,1e9) then return false end end
  return true
 end
 -- Returns the migrated profile, or nil when it cannot be migrated safely (caller must not overwrite).

@@ -56,7 +56,7 @@ D.refresh(wk,5,monday+7*day);check(wk.weekly.progress==0 and wk.week==3001,'week
 -- weekly claim once
 D.track(wk,5,D.byId[wk.weekly.id].event,999,monday+7*day)
 check(D.claim(wk,5,'weekly',monday+7*day) and not D.claim(wk,5,'weekly',monday+7*day+60),'weekly_claim_once')
-check(S.valid({version=1,processed={},passes={},tokens={raidReroll=0,shield=0},eggTickets=0,cosmetics={},titles={},badges={},boosts={production=0,xp=0},daily=wk,raid={day=-1,attacks=0,loot=0,rerolls=0,practice=0,friendlyWins=0,friendlyPlayed=0},applied={},seasons={},seasonSeen=-1}),'daily_state_valid')
+check(S.valid({version=1,processed={},passes={},tokens={raidReroll=0,shield=0},eggTickets=0,cosmetics={},titles={},badges={},boosts={production=0,xp=0},daily=wk,raid={day=-1,attacks=0,loot=0,rerolls=0,practice=0,revenges=0,friendly=0,friendlyWins=0,friendlyPlayed=0},applied={},seasons={},seasonSeen=-1}),'daily_state_valid')
 -- rewards contain no power
 for id,qd in pairs(D.byId) do check(qd.reward.creature==nil and qd.reward.attack==nil,'no_power '..id) end
 local view=D.view(wk,monday+7*day);check(view.weekly and view.resetAt>monday+7*day and #view.quests==3,'view_shape')

@@ -14,6 +14,7 @@ Three new RemoteEvents in `ReplicatedStorage.MountainRemotes`:
 
 - `id` uses the existing UIRequest format `token:sequence` (token `[%w_-]{1,48}`, sequence a positive integer that must increase per token; at most 4 tokens per connection). Same id twice returns the cached result. Minimum 0.12 s between requests.
 - On failure `message` is an **error code** (table below) or one of the gateway strings: `Invalid request id.`, `Unknown action.`, `Invalid action payload.`, `Please wait before trying another action.`, `Another action is in progress. Please wait.`, `Request expired. Refresh before trying again.`, `Profile or saving unavailable. Please retry when saving resumes.`
+- Store-heavy actions also have per-action cooldowns (seconds): `Raid_Find` 3, `Raid_Log` 3, `Raid_Practice` 3, `Raid_Friendly` 5, `Raid_Reroll` 2, `Outpost_State`/`Season_State`/`Outpost_Collect`/`Outpost_Shield` 2, `Outpost_SetSlot`/`SetDefenders`/`Party` 0.5 → `cooldown`. Outpost writes return `busy_try_later` when the server's DataStore budget is low (profile saves keep priority). Outpost/season views may be up to 20 s old.
 - Payloads are validated strictly (`mountain/shared/V1Protocol.luau`): unknown fields reject. Use `nil` where the table says `nil`.
 - Never treat a client-side purchase callback as success. Ownership changes arrive only through `V1_Result`/`V1_Event` after the server commits.
 
@@ -33,14 +34,14 @@ Three new RemoteEvents in `ReplicatedStorage.MountainRemotes`:
 | `Outpost_SetDefenders` | `{ids={creatureId x0-3}}` | `OutpostView` | `invalid_defenders`, `not_owned`, `robux_creature_excluded` |
 | `Outpost_Collect` | nil | `{coins}` | `vault_empty`, `store_unavailable` |
 | `Outpost_Shield` | nil | `{untilTime}` | `no_shield_token`, `daily_paid_shield_used`, `shield_cap` |
-| `Raid_Find` | nil or `{revenge=userId}` | `Offer` | `attack_in_progress`, `daily_attack_cap`, `no_revenge`, `target_protected` |
+| `Raid_Find` | nil or `{revenge=userId}` | `Offer` | `attack_in_progress`, `daily_attack_cap`, `daily_revenge_cap`, `no_revenge`, `target_protected` |
 | `Raid_Reroll` | nil | `Offer` | `no_offer`, `revenge_fixed`, `no_reroll_token`, `save_pending` |
 | `Raid_Start` | `{offerId}` | `{attackId, snapshot, expires, bot}` | `offer_expired`, `daily_attack_cap`, `target_gone`, `shielded`, `under_attack`, `save_pending` |
 | `Raid_Submit` | `{attackId, creatures={id x1-3}, lanes={1..3 each}, ability={seconds 0-20 \| false each}?}` | `RaidResult` | `stale_attack`, `attack_expired`, `invalid_team`, `not_owned`, `robux_creature_excluded`, `invalid_plan`, `target_gone`, `store_unavailable` |
-| `Raid_Abandon` | nil | — | `no_attack` |
+| `Raid_Abandon` | nil | message `forfeited` | `no_attack` |
 | `Raid_Log` | nil | `{entries={LogEntry}, report={attacks,defended,coinsLost,trophies}, since}` | `unavailable` |
 | `Raid_Practice` | plan (as Submit, no attackId) | `{stars,destruction,events,xp,coins=0,trophies=0}` | `invalid_team`, `invalid_plan` |
-| `Raid_Friendly` | plan + `{userId}` | `{stars,destruction,events,coins=0,trophies=0,friendlyWins}` | `not_friends`, `no_outpost` |
+| `Raid_Friendly` | plan + `{userId}` | `{stars,destruction,events,coins=0,trophies=0,friendlyWins}` | `not_friends`, `no_outpost`, `daily_friendly_cap` |
 | `Season_State` | nil | `{season=SeasonView, gallery=Gallery}` | `unavailable` |
 | `Title_Equip` | `{id=titleId \| false}` | `{title}` | `title_not_owned` |
 
@@ -75,7 +76,8 @@ Flow: invite (60 s) → accept → leader `ready_start` (20 s) → members `read
 - `OutpostView = {snapshot={version,rev,slots={pieceId|false x10},defenders={ {species,level,specialization} }}, slotTypes, pieces={ {id,slot,hp,damage,effect,unlocked,needs} }, vault={coins,cap,ratePerHour}, shield={untilTime,paidLeftToday,capSeconds}, trophies, season=SeasonView, revenge={ {userId,expires,attackId} }, attacksLeft, freeRerollsLeft, lootToday, lootCap, offer=Offer?, attack={attackId,expires}?}`
 - Slot types: 1 `gate`, 2–6 `wall`, 7–10 `trap`. Lanes: slot 1→2, 2–3→1, 4→2, 5–6→3, 7→1, 8→2, 9→3, 10→2. Defender i guards lane i. `needs` = `starter`, `win:N`, `creatures:N`.
 - `Offer = {offerId, bot, userId?, name, trophies, snapshot, revenge, expires}`
-- `RaidResult = {attackId, stars 0-3, destruction 0-100, loot, trophies, events, bot}`
+- `RaidResult = {attackId, stars 0-3, destruction 0-100, loot, trophies, events, bot, saved, forfeit?}`. `saved=false` means the loot/trophies are waiting on a profile save: show "saving…", not a failure.
+- Abandoning, disconnecting or letting an attack expire after `Raid_Start` is a **0★ loss** (−12 trophies; `attack_expired` on a late submit). Warn before leaving an attack. Revenge attacks give the defender no counter-revenge; 3 revenges/day; 10 friendly raids/day.
 - Replay `events` (≤60, `t` in seconds 0–20): `enter{a,lane}`, `trap{a,slot,amount}`, `move{a,lane}`, `ability{a,lane}`, `break{a,slot,gate?}`, `defender_down{a,lane,species}`, `attacker_down{a,lane}`, `end{stars,destruction}`. `a` = attacker index in the submitted `creatures` list.
 - `LogEntry = {id, attacker, name, at, stars, destruction, loot, trophies, revenge, events}`
 - `SeasonView = {season, trophies, tier, endsAt, history={ {season,trophies,tier} }, tiers}`; tiers `bronze` 0, `silver` 200, `gold` 500, `crystal` 1000, `astral` 1600.
@@ -89,7 +91,7 @@ Flow: invite (60 s) → accept → leader `ready_start` (20 s) → members `read
 
 1. `UIPresentation.quest` checks `profile.schema==2`; schema 3 profiles fall to the legacy branch. Please change to `profile.schema>=2` (one token).
 2. Player-XP (Glassbloom D1): if it needs new profile fields, add them as schema 4 after `V1Schema.migrate` (Profiles.load chain: `RunRules.migrate` → `V1Schema.migrate` → yours), or put them under their own namespaced table. `Profiles.valid` now accepts schema 1/2/3.
-3. Coin purchases (D7) must not assign `MarketplaceService.ProcessReceipt`; `V1Boot` owns it. Robux eggs (D8): stamp `source='robux'` on creatures they create. `OutpostRules.eligible` keeps them out of raids; please enforce the battle-team rule server-side the same way.
+3. Coin purchases (D7) must not assign `MarketplaceService.ProcessReceipt`; `V1Boot` owns it. Creature sources: raids accept only creatures with no `source` (legacy) or `source='play'` (`OutpostRules.eligible`). New creature-creating code should stamp `source='play'` for earned creatures and `source='robux'` for Robux eggs (D8); egg-ticket redemptions are excluded until reviewed. Please enforce the battle-team rule server-side the same way.
 4. Daily/quests UI: wire to `Daily_*` actions and the `daily` event. Hard streak is LOCKED; show that a missed UTC day resets it, and the reset time (`resetAt`).
 5. Display copy: only ids are provided for quests, pieces, titles, badges, tiers, cosmetics. Names and art are yours (design values must come from the HUD's own references).
 6. The legacy `ChallengeDefense` / `RegisterDefense` actions still work. Replacing them with `Raid_Friendly` is PROPOSED; hide them once the friendly raid is wired.

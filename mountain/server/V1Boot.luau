@@ -59,7 +59,10 @@ function Boot.start(ctx)
  end
  local MarketplaceService=game:GetService('MarketplaceService')
  local v1=V1Services.new({profiles=ctx.profiles,clock=os.time,notify=notify,playerByUserId=function(id) return Players:GetPlayerByUserId(id) end,
-  outposts={store=Store.default('MountainEmpire_Outposts_v1'),index=Store.default('MountainEmpire_OutpostIndex_v1')},
+  outposts={store=Store.default('MountainEmpire_Outposts_v1'),index=Store.default('MountainEmpire_OutpostIndex_v1'),
+   -- profile saves keep priority: outpost writes wait when the UpdateAsync budget runs low
+   budgetOk=function() if studio then return true end;local ok,b=pcall(game:GetService('DataStoreService').GetRequestBudgetForRequestType,game:GetService('DataStoreService'),Enum.DataStoreRequestType.UpdateAsync);return not ok or b>=20 end},
+  secret=Http:GenerateGUID(false),
   receipts={checkoutEnabled=function() return V1Config.checkoutEnabled end,
    prompt=function(player,item)
     if not V1Config.checkoutEnabled or item.id==0 then return end -- defensive: never prompt an unconfigured product

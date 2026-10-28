@@ -17,7 +17,7 @@ V.outpost={slots={'gate','wall','wall','wall','wall','wall','trap','trap','trap'
  lootShare={[0]=0,.20,.35,.50},dailyLootCap=1500,botLoot={[0]=0,20,35,50},
  shieldSeconds=4*3600,paidShieldSeconds=4*3600,paidShieldsPerDay=1,shieldCapSeconds=8*3600,
  revengeSeconds=24*3600,attacksPerDay=5,freeRerollsPerDay=3,offerSeconds=600,lockSeconds=180,
- activeDays=14,bucketSize=100,bucketKeep=60,trophyWin={[0]=-12,8,14,20},trophyDefend={[0]=10,-6,-10,-14},
+ revengesPerDay=3,friendlyPerDay=10,cacheSeconds=20,activeDays=14,bucketSize=100,bucketKeep=60,trophyWin={[0]=-12,8,14,20},trophyDefend={[0]=10,-6,-10,-14},
  botTrophyFactor=.5,logKeep=20,resultKeep=32,replaySeconds=20,practiceXP=60}
 V.season={softResetFactor=.5,historyKeep=8,
  tiers={{id='bronze',min=0},{id='silver',min=200},{id='gold',min=500},{id='crystal',min=1000},{id='astral',min=1600}},

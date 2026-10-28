@@ -53,9 +53,10 @@ local O=OutpostService.new({store=outStore,index=outIndex,profiles=S,clock=funct
 now+=36000;O.ensure(B)
 local _,vb=outStore:read('o8802');local vaultBefore=math.floor(OutpostRules.accrue(vb.vault,now).coins)
 outStore.conflicts=1
+local coinsB=S.get(B).coins
 local okC,got=O.collect(B)
-check(okC and got.coins==vaultBefore,'collect_under_conflict_once')
-local _,va=outStore:read('o8802');check(#va.transfers==1 and va.vault.coins<1,'single_transfer_under_conflict')
+check(okC and got.coins==vaultBefore and S.get(B).coins==coinsB+vaultBefore,'collect_under_conflict_once')
+local _,va=outStore:read('o8802');check(#va.transfers==0 and va.vault.coins<1,'applied_transfer_pruned_from_outbox')
 -- 5) save outage during raid start: attack not counted, target lock released
 outStore:update('o8802',function(r) r.shield.untilTime=0;r.lock=false;return r end)
 local offer

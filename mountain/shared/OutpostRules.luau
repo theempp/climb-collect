@@ -33,8 +33,10 @@ function O.unlocked(p)
  local set={};for _,piece in ipairs(O.pieces) do if piece.unlock(p) then set[piece.id]=true end end
  return set
 end
--- Robux-egg creatures are cosmetic/tycoon-only (decision §1/§7). The shop must stamp source='robux'.
-function O.eligible(c) return type(c)=='table' and c.source~='robux' and c.paid~=true and C.byId[c.species]~=nil end
+-- Robux-egg creatures are cosmetic/tycoon-only (decision §1/§7). Allowlist: legacy creatures (no source) and
+-- source='play' only; any other source (e.g. 'robux', ticket redemptions) is excluded until reviewed (Q01 #6).
+local playSources={play=true}
+function O.eligible(c) return type(c)=='table' and (c.source==nil or playSources[c.source]==true) and c.paid~=true and C.byId[c.species]~=nil end
 function O.defender(c) return {species=c.species,level=c.level,specialization=c.specialization} end
 function O.validDefender(d)
  return type(d)=='table' and C.byId[d.species]~=nil and int(d.level,1,50) and (d.specialization==nil or table.find({'Power','Guard','Vitality'},d.specialization)~=nil)

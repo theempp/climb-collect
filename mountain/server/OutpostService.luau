@@ -20,11 +20,13 @@ local function hash(s) local h=7;s=tostring(s);for i=1,#s do h=(h*31+string.byte
 local function copy(t) if type(t)~='table' then return t end local c={};for k,v in pairs(t) do c[k]=copy(v) end;return c end
 local function raidDay(v,now)
  local day=Config.dayIndex(now)
- if v.raid.day~=day then v.raid.day=day;v.raid.attacks=0;v.raid.loot=0;v.raid.rerolls=0;v.raid.practice=0 end
+ if v.raid.day~=day then v.raid.day=day;v.raid.attacks=0;v.raid.loot=0;v.raid.rerolls=0;v.raid.practice=0;v.raid.revenges=0;v.raid.friendly=0 end
 end
 function S.new(deps)
  local store,index=deps.store,deps.index
- local offers,active,finished,buckets={}, {}, {}, {}
+ local offers,active,finished,buckets,cache={}, {}, {}, {}, {}
+ -- Outpost writes yield to profile saves when the DataStore budget is low (Q01 #1).
+ local function budgetOk() return deps.budgetOk==nil or deps.budgetOk() end
  local service={offers=offers,active=active}
  local function clock() return deps.clock() end
  local function key(uid) return 'o'..uid end
@@ -36,6 +38,7 @@ function S.new(deps)
  end
  -- Own-record write. fn(rec,now) -> ok,reason. Creates the record from the live profile when absent.
  local function updateOwn(player,fn)
+  if not budgetOk() then return false,'busy_try_later' end
   local uid=player.UserId;local t=clock();local result,reason
   local p=deps.profiles.get(player)
   local ok,rec=store:update(key(uid),function(old)
@@ -50,6 +53,7 @@ function S.new(deps)
   end)
   if not ok then return false,'store_unavailable' end
   if not result then return false,reason or 'cancelled' end
+  cache[player]={rec=rec,at=clock()}
   return true,rec
  end
  local function applied(p,id) return Schema.has(p.v1.applied,id) end
@@ -125,11 +129,25 @@ function S.new(deps)
    if ok then table.insert(granted,h);if reward.badge and deps.badge then pcall(deps.badge,player,reward.badge) end end
   end
   if #granted>0 and deps.notify then deps.notify(player,'season_rewards',{seasons=granted}) end
+  -- Prune outbox entries once durably applied, so a forgotten applied-ring id can never re-credit (Q01 #2).
+  p=deps.profiles.get(player)
+  if p and (#rec.transfers>0 or #rec.paidShields>0) then
+   local drop=false
+   for _,x in ipairs(rec.transfers) do if applied(p,'xfer:'..x.id) then drop=true end end
+   for _,id in ipairs(rec.paidShields) do if applied(p,'pshield:'..id) then drop=true end end
+   if drop then updateOwn(player,function(r)
+    for i=#r.transfers,1,-1 do if applied(p,'xfer:'..r.transfers[i].id) then table.remove(r.transfers,i) end end
+    for i=#r.paidShields,1,-1 do if applied(p,'pshield:'..r.paidShields[i]) then table.remove(r.paidShields,i) end end
+    return true
+   end) end
+  end
   return true
  end
  function service.ensure(player)
   local p=deps.profiles.get(player);if not p then return false,'unavailable' end
   local rate=deps.productionRate(p)
+  local c=cache[player]
+  if c and clock()-c.at<cfg.cacheSeconds and c.rec.vault.rate==math.max(0,rate) and not c.rec.pending then return true,c.rec end
   local ok,rec=updateOwn(player,function(r) r.name=tostring(player.Name or ''):sub(1,32);r.vault.rate=math.max(0,rate);return true end)
   if not ok then return false,rec end
   register(player,rec);service.reconcile(player,rec)
@@ -215,6 +233,7 @@ function S.new(deps)
   if opts.revenge then
    local r=own.revenge[tostring(opts.revenge)]
    if not r or r.used or r.expires<=t then return false,'no_revenge' end
+   if p.v1.raid.revenges>=cfg.revengesPerDay then return false,'daily_revenge_cap' end
    local rec=candidate(opts.revenge,uid,t)
    if not rec then return false,'target_protected' end
    offer={target=opts.revenge,name=rec.name,trophies=rec.trophies,snapshot=rec.snapshot,revenge=true}
@@ -301,7 +320,8 @@ function S.new(deps)
   end
   local counted=deps.profiles.transact(player,'raidstart:'..attackId,function(d)
    raidDay(d.v1,t)
-   if not o.revenge then if d.v1.raid.attacks>=cfg.attacksPerDay then return false,'daily_attack_cap' end;d.v1.raid.attacks+=1 end
+   if not o.revenge then if d.v1.raid.attacks>=cfg.attacksPerDay then return false,'daily_attack_cap' end;d.v1.raid.attacks+=1
+   else if d.v1.raid.revenges>=cfg.revengesPerDay then return false,'daily_revenge_cap' end;d.v1.raid.revenges+=1 end
    return true
   end)
   if not counted then
@@ -309,11 +329,16 @@ function S.new(deps)
    return false,'save_pending'
   end
   if o.target then
-   updateOwn(player,function(r)
+   local marked,why=updateOwn(player,function(r)
     r.pending={id=attackId,target=o.target,at=t}
     if o.revenge and r.revenge[tostring(o.target)] then r.revenge[tostring(o.target)].used=true end
     return true
    end)
+   -- Without the pending marker a later credit failure could not be recovered: cancel instead (Q01 #5).
+   if not marked then
+    store:update(key(o.target),function(old) if old and old.lock and old.lock.id==attackId then old.lock=false;return old end;return nil end)
+    offers[player]=nil;return false,why
+   end
   end
   offers[player]=nil
   active[player]={id=attackId,target=o.target,bot=o.bot,snapshot=snapshot,trophies=trophies,revenge=o.revenge,expires=t+cfg.lockSeconds,name=o.name}
@@ -334,45 +359,37 @@ function S.new(deps)
   return list
  end
  service.team=team
- local function resultView(r) return {attackId=r.id,stars=r.stars,destruction=r.destruction,loot=r.loot,trophies=r.trophiesA,events=r.events,bot=r.bot} end
- function service.submit(player,attackId,plan)
-  local p=deps.profiles.get(player);local t=clock();local uid=player.UserId
-  if not p then return false,'unavailable' end
-  finished[player]=finished[player] or {}
-  if finished[player][attackId] then return true,resultView(finished[player][attackId]) end -- replayed request
-  local a=active[player]
-  if not a or a.id~=attackId then return false,'stale_attack' end
-  if t>a.expires then active[player]=nil;return false,'attack_expired' end
-  if not a.sim then
-   local attackers,why=team(p,type(plan)=='table' and plan.creatures)
-   if not attackers then return false,why end
-   if not Sim.validPlan({lanes=plan.lanes,ability=plan.ability},#attackers) then return false,'invalid_plan' end
-   -- The first accepted plan is final for this attack id: a retry cannot swap plans after a failed commit.
-   a.sim=Sim.run(a.snapshot,attackers,{lanes=plan.lanes,ability=plan.ability},hash(attackId))
-  end
-  local sim=a.sim
-  raidDay(p.v1,t)
-  local room=math.max(0,cfg.dailyLootCap-p.v1.raid.loot)
+ local function resultView(r) return {attackId=r.id,stars=r.stars,destruction=r.destruction,loot=r.loot,trophies=r.trophiesA,events=r.events,bot=r.bot,saved=r.saved,forfeit=r.forfeit} end
+ -- Commits a simulated (or forfeited) attack. Forfeit = abandon, disconnect or expiry after start: a 0-star
+ -- result, so leaving can never dodge the trophy loss (Q01 #4). Revenge attacks grant no counter-revenge (Q01 #3).
+ local function commit(player,a,sim,forfeit)
+  local p=deps.profiles.get(player);local t=clock();local uid=player.UserId;local attackId=a.id
+  local room=0
+  if p then raidDay(p.v1,t);room=math.max(0,cfg.dailyLootCap-p.v1.raid.loot) end
   local loot,trophiesA,stored=0,0,nil
   if a.bot then
-   loot=math.min(cfg.botLoot[sim.stars],room);trophiesA=math.floor(cfg.trophyWin[sim.stars]*cfg.botTrophyFactor)
+   loot=if forfeit then 0 else math.min(cfg.botLoot[sim.stars],room);trophiesA=math.floor(cfg.trophyWin[sim.stars]*cfg.botTrophyFactor)
   else
    local reason
    local ok=store:update(key(a.target),function(old)
     reason,stored=nil,nil
     if not old or not O.validRecord(old) then reason='target_gone';return nil end
     for _,r in ipairs(old.results) do if r.id==attackId then stored=r;return nil end end
-    if not old.lock or old.lock.id~=attackId or old.lock.expires<t then reason='stale_attack';return nil end
+    local ours=old.lock and old.lock.id==attackId
+    if forfeit then if not ours then reason='lock_lost';return nil end
+    elseif not ours or old.lock.expires<t then reason='stale_attack';return nil end
     O.accrue(old.vault,t);Seasons.rollover(old,t)
-    loot=math.min(math.floor(old.vault.coins*cfg.lootShare[sim.stars]),room)
+    loot=if forfeit then 0 else math.min(math.floor(old.vault.coins*cfg.lootShare[sim.stars]),room)
     trophiesA=cfg.trophyWin[sim.stars]
     local trophiesD=cfg.trophyDefend[sim.stars]
     old.vault.coins-=loot
     old.trophies=math.max(0,old.trophies+trophiesD);old.played=true
-    O.hitShield(old,t)
-    old.revenge[tostring(uid)]={expires=t+cfg.revengeSeconds,used=false,attackId=attackId}
+    if not forfeit then
+     O.hitShield(old,t)
+     if not a.revenge then old.revenge[tostring(uid)]={expires=t+cfg.revengeSeconds,used=false,attackId=attackId} end
+    end
     for k,r in pairs(old.revenge) do if r.expires<=t then old.revenge[k]=nil end end
-    table.insert(old.log,{id=attackId,attacker=uid,name=tostring(player.Name or ''):sub(1,32),at=t,stars=sim.stars,destruction=sim.destruction,loot=loot,trophies=trophiesD,revenge=not a.revenge,events=sim.events})
+    table.insert(old.log,{id=attackId,attacker=uid,name=tostring(player.Name or ''):sub(1,32),at=t,stars=sim.stars,destruction=sim.destruction,loot=loot,trophies=trophiesD,revenge=not forfeit and not a.revenge,forfeit=forfeit or nil,events=sim.events})
     while #old.log>cfg.logKeep do table.remove(old.log,1) end
     table.insert(old.results,{id=attackId,attacker=uid,stars=sim.stars,destruction=sim.destruction,loot=loot,trophiesA=trophiesA,at=t})
     while #old.results>cfg.resultKeep do table.remove(old.results,1) end
@@ -381,24 +398,53 @@ function S.new(deps)
    end)
    if not ok then return false,'store_unavailable' end -- active kept: the same result can be committed on retry
    if stored then loot,trophiesA=stored.loot,stored.trophiesA
+   elseif reason=='lock_lost' then trophiesA=cfg.trophyWin[0] -- lock already gone: still record the attacker's loss
    elseif reason then active[player]=nil;return false,reason end
   end
-  applyAttack(player,attackId,{loot=loot,trophiesA=trophiesA,bot=a.bot~=nil})
-  if deps.track then deps.track(player,'raid_attack',1) end
-  local r={id=attackId,stars=sim.stars,destruction=sim.destruction,loot=loot,trophiesA=trophiesA,events=sim.events,bot=a.bot~=nil}
+  local saved=applyAttack(player,attackId,{loot=loot,trophiesA=trophiesA,bot=a.bot~=nil})
+  if deps.track and not forfeit then deps.track(player,'raid_attack',1) end
+  local r={id=attackId,stars=sim.stars,destruction=sim.destruction,loot=loot,trophiesA=trophiesA,events=sim.events,bot=a.bot~=nil,saved=saved==true,forfeit=forfeit or nil}
+  finished[player]=finished[player] or {}
   finished[player][attackId]=r;active[player]=nil
   local victim=a.target and deps.playerByUserId and deps.playerByUserId(a.target)
-  if victim and deps.notify then deps.notify(victim,'raided',{attacker=uid,stars=sim.stars,loot=loot}) end
+  if victim and deps.notify and not forfeit then deps.notify(victim,'raided',{attacker=uid,stars=sim.stars,loot=loot}) end
+  return true,r
+ end
+ local function forfeitSim() return {stars=0,destruction=0,events={{t=0,kind='end',stars=0,destruction=0,forfeit=true}}} end
+ function service.submit(player,attackId,plan)
+  local p=deps.profiles.get(player);local t=clock()
+  if not p then return false,'unavailable' end
+  finished[player]=finished[player] or {}
+  if finished[player][attackId] then return true,resultView(finished[player][attackId]) end -- replayed request
+  local a=active[player]
+  if not a or a.id~=attackId then return false,'stale_attack' end
+  if t>a.expires then
+   local ok,r=commit(player,a,forfeitSim(),true)
+   return false,if ok then 'attack_expired' else r
+  end
+  if not a.sim then
+   local attackers,why=team(p,type(plan)=='table' and plan.creatures)
+   if not attackers then return false,why end
+   if not Sim.validPlan({lanes=plan.lanes,ability=plan.ability},#attackers) then return false,'invalid_plan' end
+   -- The first accepted plan is final for this attack id: a retry cannot swap plans after a failed commit.
+   -- The seed mixes a per-server secret so a client cannot pre-run plans against the snapshot (Q01 #4).
+   a.sim=Sim.run(a.snapshot,attackers,{lanes=plan.lanes,ability=plan.ability},hash(attackId..(deps.secret or '')))
+  end
+  local ok,r=commit(player,a,a.sim,false)
+  if not ok then return false,r end
   return true,resultView(r)
  end
  function service.abandon(player)
   local a=active[player];if not a then return false,'no_attack' end
-  active[player]=nil
-  if a.target then store:update(key(a.target),function(old) if old and old.lock and old.lock.id==a.id then old.lock=false;return old end;return nil end) end
-  return true
+  local ok=commit(player,a,forfeitSim(),true)
+  if not ok then
+   active[player]=nil
+   if a.target then store:update(key(a.target),function(old) if old and old.lock and old.lock.id==a.id then old.lock=false;return old end;return nil end) end
+  end
+  return true,'forfeited'
  end
  function service.log(player)
-  local okE=service.ensure(player);if not okE then return false,'unavailable' end
+  if not deps.profiles.get(player) then return false,'unavailable' end
   local t=clock();local seenAt=0;local entries
   local ok,rec=updateOwn(player,function(r) seenAt=r.logSeen;r.logSeen=t;return true end)
   if not ok then return false,rec end
@@ -428,11 +474,13 @@ function S.new(deps)
  function service.friendly(player,friendId,plan)
   local p=deps.profiles.get(player);if not p then return false,'unavailable' end
   if type(friendId)~='number' or friendId==player.UserId or not deps.isFriend(player.UserId,friendId) then return false,'not_friends' end
+  raidDay(p.v1,clock())
+  if p.v1.raid.friendly>=cfg.friendlyPerDay then return false,'daily_friendly_cap' end
   local ok,rec=readRec(friendId)
   if not ok then return false,rec end
   if not rec then return false,'no_outpost' end
   local sim,why=friendlyRun(p,rec.snapshot,plan,deps.guid());if not sim then return false,why end
-  p.v1.raid.friendlyPlayed+=1;if sim.stars>=2 then p.v1.raid.friendlyWins+=1 end
+  p.v1.raid.friendly+=1;p.v1.raid.friendlyPlayed+=1;if sim.stars>=2 then p.v1.raid.friendlyWins+=1 end
   if deps.track then deps.track(player,'friendly_raid',1) end
   local friend=deps.playerByUserId and deps.playerByUserId(friendId)
   if friend and deps.notify then deps.notify(friend,'friendly_result',{attacker=player.UserId,stars=sim.stars,destruction=sim.destruction,events=sim.events}) end
@@ -440,7 +488,7 @@ function S.new(deps)
  end
  function service.remove(player)
   if active[player] then service.abandon(player) end
-  offers[player]=nil;finished[player]=nil;buckets[player]=nil
+  offers[player]=nil;finished[player]=nil;buckets[player]=nil;cache[player]=nil
  end
  return service
 end
