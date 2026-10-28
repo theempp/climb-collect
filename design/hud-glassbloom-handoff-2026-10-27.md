@@ -21,3 +21,4 @@ Plan: `design/hud-glassbloom-build-plan-2026-10-27.md` (§11 owner answers overr
 - Independent audit (7 agents, about 1,290 values): 81 issues (`evidence/hud_glassbloom_2026-10-27/p1_intel_verification.json`); atlas re-checked and fixed all 81, 0 rejected (doc §8).
 - Board self-check run in a browser at 844×390: 21/21 PASS, both controls fail. Permanent HUD coverage: rest 10.6 %, carrying 11.6 %, chase 11.1 % (the plan's 11.0 % is superseded), sanctuary 9.0 %, old chase 24.7 %.
 - Open for STOP 1: upload set 11 vs the approved ~7; drawn controls under 44 px (proposal: invisible 44 px hit areas); timing conflicts between the board text and the CSS (XP line, carry pop-up entry, rail hold); gaps G1–G23.
+- **STOP 1 approved (2026-10-28):** tokens as written; 11 uploads; hidden 44 px hit areas; board-text timings. See plan §12.

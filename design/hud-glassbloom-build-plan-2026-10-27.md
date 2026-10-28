@@ -253,3 +253,9 @@ Architect plan. No code in this doc. Target: the owner-approved board `C:\Users\
 - **D10:** 6 section nodes + gold summit node; studs shown 1:1 as "m".
 - **D11/D12:** settings rows as recommended; CTA labels and prices in Luckiest Guy (board CSS).
 - **Execution:** run in a new chat from `design/hud-glassbloom-new-chat-prompt-2026-10-27.md`.
+
+## 12. STOP 1 answers (popup, 2026-10-28)
+- Atlas intel (`climb&collect/design/hud-glassbloom-intel.md`) approved as written.
+- D9 widened: **11 PNG uploads** (fallback ring held), one 20-ray image.
+- Touch targets: drawn sizes kept, invisible hit areas ≥ 44 px trimmed at neighbour midpoints; audits check hit areas.
+- Timing conflicts: board text wins (XP line 1.5 s, pop-up in at 0.35 s, rail hold 3 s); CSS = easing shape only.
