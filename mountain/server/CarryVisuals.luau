@@ -2,7 +2,8 @@
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local A=require(game.ServerStorage.MountainWorld.Art)
 local V={}
-function V.new(world,send)
+function V.new(world,send,hud)
+ hud=hud or function() end
  local folder=Instance.new('Folder');folder.Name='RaidPresentation';folder.Parent=world
  local carries,tools,shells={},{},{}
  local function clear(player)
@@ -41,7 +42,7 @@ function V.new(world,send)
    clear(player)
    local shell=shells[data.eggId]
    if shell then shell.Transparency=0;shell:SetAttribute('Hits',0);shell:SetAttribute('Species',nil);for _,v in ipairs(shell:GetChildren()) do if v:IsA('BasePart') then v:Destroy() end end end
-   if data.kind=='lost' then send(player,'toast','Unsecured '..C.byId[data.species].name..' lost. Try another egg.') end
+   if data.kind=='lost' then send(player,'toast','Unsecured '..C.byId[data.species].name..' lost. Try another egg.');hud(player,'lost',{reason=data.reason,species=data.species,eggId=data.eggId}) end
    return
   end
   if data.kind=='strike' then
@@ -70,10 +71,13 @@ function V.new(world,send)
    if character then character:SetAttribute('CarryingCreature',true) end
    if carries[player] then carries[player]:SetAttribute('InArms',true) end
    if tools[player] then tools[player]:Destroy();tools[player]=nil end
+   -- Adopted runs (theft or re-grab) carry stolenFrom; Bats sends their typed event once the drop is consumed.
+   if data.run.stolenFrom==nil then hud(player,'carry',{species=data.run.species,section=data.run.section,runId=data.run.id,trial=data.run.trial}) end
   elseif data.kind=='securing' then send(player,'toast','Securing your creature… You are protected while saving.')
   elseif data.kind=='safe' then
    if carries[player] then carries[player]:SetAttribute('Secured',true) end
    send(player,'toast','Safe! '..C.byId[data.species].name..' is yours. Carry it home.')
+   hud(player,'safe',{species=data.species,runId=data.runId})
   end
  end
  function service.tick()

@@ -43,4 +43,36 @@ check(not Combat.battles[1],'engaged_member_leaving_arena_still_exits')
 check(Combat.start(a,1,false,v(4068)),'can_retry_after_leaving')
 Combat.battles[1].members[a].approachUntil=0;Combat.tick()
 check(not Combat.battles[1],'unused_approach_grace_expires')
+-- Typed hud calm: the real Guardians service sends calm once on every threat removal.
+local calms,warnings,clock={},{},0
+local home={Position={X=0,Y=0,Z=0},X=0,Z=0}
+local encounter={PrimaryPart=true,GetPivot=function() return home end,SetAttribute=function() end}
+local g=Guardians.new({world={Encounters={FindFirstChild=function() return encounter end}},clock=function() return clock end,players=function() return {} end,
+ root=function() return nil end,profile=function() return nil end,alive=function() return false end,protected=function() return false end,inside=function() return true end,
+ rootHeight=function() return 12 end,ground=function() return nil end,catch=function() end,
+ warning=function(id,k,eggId) table.insert(warnings,{id=id,k=k,eggId=eggId}) end,calm=function(id,k,reason) table.insert(calms,{id=id,k=k,reason=reason}) end})
+local function calmsFor(id) local n,last=0,nil;for _,c in ipairs(calms) do if c.id==id then n+=1;last=c end end;return n,last end
+g.alert(1,a.UserId,'raid:1:1',0);check(#warnings==1 and warnings[1].eggId=='raid:1:1' and warnings[1].k==1,'egg_alert_passes_egg_id_to_warning')
+g.alert(1,b.UserId,nil,0);check(warnings[2].eggId==nil,'battle_join_alert_has_nil_egg')
+g.remove(a,'catch');local n,last=calmsFor(a.UserId)
+check(n==1 and last.k==1 and last.reason=='catch','alert_catch_calm')
+g.tick(1);g.remove(a,'catch');check(calmsFor(a.UserId)==1,'catch_calm_sent_once')
+g.alert(2,a.UserId,'raid:2:1',1);g.remove(a,'death');n,last=calmsFor(a.UserId)
+check(n==2 and last.k==2 and last.reason=='death','alert_death_calm')
+g.alert(3,a.UserId,'raid:3:1',1);g.remove(a,'leave');n,last=calmsFor(a.UserId)
+check(n==3 and last.k==3 and last.reason=='leave','alert_leave_calm')
+check(calmsFor(b.UserId)==1 and #calms==4,'tick_calms_lapsed_battle_join_threat')
+g.remove({UserId=999},'leave');check(#calms==4,'no_calm_without_threat')
+local c={UserId=203}
+calms={};g=Guardians.new({world={Encounters={FindFirstChild=function() return encounter end}},clock=function() return clock end,players=function() return {} end,
+ root=function() return nil end,profile=function() return nil end,alive=function() return false end,protected=function() return false end,inside=function() return true end,
+ rootHeight=function() return 12 end,ground=function() return nil end,catch=function() end,calm=function(id,k,reason) table.insert(calms,{id=id,k=k,reason=reason}) end})
+g.alert(4,a.UserId,'e',0);g.alert(4,b.UserId,nil,0);g.alert(5,c.UserId,'f',0)
+g.normalWin(4,{a.UserId})
+check(#calms==2 and calmsFor(a.UserId)==1 and calmsFor(b.UserId)==1 and calms[1].reason=='respite' and calms[2].reason=='respite' and calms[1].k==4,'normal_win_calms_each_threatened_user')
+check(calmsFor(c.UserId)==0 and g.states[5].threats[c.UserId],'normal_win_leaves_other_sections')
+g.normalWin(4,{a.UserId});check(#calms==2,'resting_win_sends_no_extra_calm')
+g.tick(1);n,last=calmsFor(c.UserId)
+check(n==1 and last.k==5 and last.reason=='step' and not g.states[5].threats[c.UserId],'step_removal_calm')
+g.tick(2);g.remove(c,'leave');check(calmsFor(c.UserId)==1 and #calms==3,'step_calm_once')
 print('PASS '..checks..' combat raid integration checks')

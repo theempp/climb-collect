@@ -38,6 +38,8 @@ local contextSnapshots={}
 local busy={};local limits={};local companions={};local motion={};local recovering={}
 local respawns={}
 local function send(player,kind,data) if player.Parent==Players then event:FireClient(player,kind,data) end end
+-- Typed HUD signals ride the same remote; every existing toast still fires beside them.
+local function hud(player,kind,data) data=data or {};data.kind=kind;data.at=workspace:GetServerTimeNow();send(player,'hud',data) end
 local function root(player) return player.Character and player.Character:FindFirstChild('HumanoidRootPart') end
 local function living(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 end
 local function nearby(player,p,range) local rr=root(player);return rr and living(player) and (rr.Position-p.Position).Magnitude<=range end
@@ -122,7 +124,7 @@ local function onCharacter(player,character)
  local pos=if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
  teleport(player,pos);rebuildTeam(player);if bats then bats.equip(player) end
- h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player) end;respawns[player]=os.clock()+3 end)
+ h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player,'death') end;respawns[player]=os.clock()+3 end)
 end
 loadCharacter=function(player)
  player:LoadCharacterAsync()
@@ -142,7 +144,7 @@ Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
  movement.clear(player);if bats then bats.remove(player) end
- if raids then raids.remove(player) end;if guardians then guardians.remove(player) end;if raidHazards then raidHazards.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
+ if raids then raids.remove(player) end;if guardians then guardians.remove(player,'leave') end;if raidHazards then raidHazards.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
  contextSnapshots[player]=nil;respawns[player]=nil;if uiService then uiService.remove(player) end
@@ -152,7 +154,7 @@ local rng=Random.new()
 local function roll(k)
  local r=rng:NextNumber()*100;for i=1,6 do local s=C.species[(k-1)*6+i];r-=s.weight;if r<=0 then return s.id end end;return C.species[k*6].id
 end
-carryVisuals=require(script.Parent.CarryVisuals).new(world,send)
+carryVisuals=require(script.Parent.CarryVisuals).new(world,send,hud)
 for _,part in ipairs(world.Interactions:GetChildren()) do
  if part:GetAttribute('Kind')=='Nest' then
   local id=part:GetAttribute('Id');local egg={id=id,section=part:GetAttribute('Kingdom'),position=part.Position,part=part}
@@ -190,11 +192,13 @@ guardians=require(script.Parent.Guardians).new({world=world,clock=os.clock,playe
   local hit=workspace:Raycast(pos+Vector3.new(0,30,0),Vector3.new(0,-95,0),groundParams)
   return hit and hit.Position
  end,
- warning=function(userId,k) local player=Players:GetPlayerByUserId(userId);if player then send(player,'toast',C.guardians[k].name..' heard your strike! Watch its approach.') end end,
+ warning=function(userId,k,eggId) local player=Players:GetPlayerByUserId(userId);if player then send(player,'toast',C.guardians[k].name..' heard your strike! Watch its approach.')
+  hud(player,'alert',{guardian=C.guardians[k].name,guardianId=C.guardians[k].id,section=k,sectionName=C.kingdoms[k].name,eggId=eggId}) end end,
+ calm=function(userId,k,reason) local player=Players:GetPlayerByUserId(userId);if player then hud(player,'calm',{guardianId=C.guardians[k].id,section=k,reason=reason}) end end,
  catch=function(player,k)
   if raids.protected(player) or os.clock()<(B.dodgeUntil[player] or 0) then return end
   local p=P.get(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
-  if p and p.run then raids.forfeit(player,'catch');teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));guardians.remove(player)
+  if p and p.run then raids.forfeit(player,'catch');teleport(player,checkpoint(p).Position+Vector3.new(0,5,0));guardians.remove(player,'catch')
   elseif h then h:TakeDamage(14+k*4) end
  end})
 B.connectRaids({guardians=guardians,raids=raids,manifest=function(k,center)
@@ -214,7 +218,7 @@ bats=require(script.Parent.Bats).new({profile=P.get,root=root,alive=living,clock
   local m=motion[target];if m then m.blockedUntil=os.clock()+stun+.6 end
   send(target,'knock',{velocity=velocity,stun=stun})
  end,
- notify=function(player,text) send(player,'toast',text) end,
+ notify=function(player,text) send(player,'toast',text) end,hud=hud,
  creatureModel=function(_,species,position) local def=C.byId[species];return def and A.creature(nil,def,position,.65,1) end})
 raidHazards=require(script.Parent.RaidHazards).new({world=world,players=function() return Players:GetPlayers() end,root=root,
  alive=function(player) local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');return h and h.Health>0 and h end,

@@ -4,6 +4,12 @@ local G={}
 function G.new(context)
  local states,models,homes,lastTick={},{},{},context.clock()
  local service={}
+ -- Every threat removal (step, respite or remove) sends calm once to the user it was tracking.
+ local function calmRemoved(k,before,reason)
+  if not context.calm then return end
+  for id in pairs(before) do if states[k].threats[id]==nil then context.calm(id,k,reason) end end
+ end
+ local function threatIds(state) local ids={};for id in pairs(state.threats) do ids[id]=true end;return ids end
  for k=1,6 do
   states[k]=Rules.new(k,lastTick)
   local model=context.world.Encounters:FindFirstChild('Guardian_'..k)
@@ -12,16 +18,20 @@ function G.new(context)
  function service.alert(k,userId,eggId,now)
   if not states[k] then return end
   Rules.alert(states[k],userId,eggId,now or context.clock())
-  if context.warning then context.warning(userId,k) end
+  if context.warning then context.warning(userId,k,eggId) end
  end
  function service.position(k) return models[k] and models[k]:GetPivot().Position-Vector3.new(0,context.rootHeight(k),0) end
  function service.resting(k) return context.clock()<states[k].restUntil end
  function service.normalWin(k,contributors)
+  local before=threatIds(states[k])
   local _,effects=Rules.normalWin(states[k],contributors,context.clock())
+  calmRemoved(k,before,'respite')
   return effects
  end
- function service.remove(player)
-  for _,state in pairs(states) do state.threats[player.UserId]=nil end
+ function service.remove(player,reason)
+  for k,state in pairs(states) do
+   if state.threats[player.UserId] then state.threats[player.UserId]=nil;if context.calm then context.calm(player.UserId,k,reason or 'removed') end end
+  end
  end
  function service.tick(now)
   local dt=math.min(.25,now-lastTick);lastTick=now
@@ -38,7 +48,9 @@ function G.new(context)
      targets[player.UserId]={player=player,root=r}
     end
    end
+   local before=threatIds(state)
    local _,effects=Rules.step(state,observations,now)
+   calmRemoved(k,before,'step')
    local target=state.target and targets[state.target]
    local destination=if target then target.root.Position else homes[k].Position
    local delta=Vector3.new(destination.X-current.X,0,destination.Z-current.Z)

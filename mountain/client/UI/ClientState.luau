@@ -61,7 +61,7 @@ function Store:_receive(kind,payload)
   for key,value in pairs(payload) do ui[key]=value end
   self.profile=table.clone(self.profile);self.profile.ui=ui
   if finite(payload.serverClock) then self._clockOffset=payload.serverClock-self._runtime.monotonic() end
- elseif kind~='open' and kind~='toast' and kind~='save' then return end
+ elseif kind~='open' and kind~='toast' and kind~='save' and kind~='hud' then return end
  self:_emit(kind,payload)
 end
 function Store:_result(result)

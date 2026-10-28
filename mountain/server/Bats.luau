@@ -6,6 +6,7 @@ local Bats={}
 function Bats.new(context)
  local states,models,drops={},{},{}
  local service={}
+ local function hud(player,kind,data) if context.hud then context.hud(player,kind,data) end end
  local function color(rgb) return Color3.fromRGB(rgb[1],rgb[2],rgb[3]) end
  local function hand(character) return character:FindFirstChild('RightHand') or character:FindFirstChild('Right Arm') end
  -- One held bat per character; rebuilt when the equipped bat changes.
@@ -77,6 +78,8 @@ function Bats.new(context)
    drops[drop.id]=drop;place(drop,orr.Position+Vector3.new(0,1,0))
    context.notify(best,'Knocked! Your '..C.byId[snapshot.species].name..' dropped — grab it back!')
    context.notify(player,'Hit! Grab the '..C.byId[snapshot.species].name..' before it escapes.')
+   -- drop.expires is server os.clock; the client needs the shared server clock.
+   hud(best,'knocked',{species=snapshot.species,dropId=drop.id,expiresAt=workspace:GetServerTimeNow()+BatRules.dropSeconds,by=player.UserId})
   end
   return true,'hit'
  end
@@ -84,10 +87,17 @@ function Bats.new(context)
   local drop=drops[id];local rr=context.root(player)
   if not drop or not rr or not context.alive(player) or not drop.part then return false,'gone' end
   if (rr.Position-drop.part.Position).Magnitude>BatRules.grabRange+1 then return false,'too_far' end
-  local ok,reason=context.raids.adopt(player,drop.snapshot,drop.part.Position)
-  if not ok then return false,reason end
+  -- Consume before adopt so a second grab in the same window finds nothing; restore it if adopt refuses.
+  drops[id]=nil
+  local ok,runId=context.raids.adopt(player,drop.snapshot,drop.part.Position)
+  if not ok then drops[id]=drop;return false,runId end
   clearDrop(drop)
-  if player~=drop.from then context.notify(drop.from,'Your creature was taken. Unsecured creatures stay at risk until the sanctuary gate.') end
+  local s=drop.snapshot
+  if player~=drop.from then
+   context.notify(drop.from,'Your creature was taken. Unsecured creatures stay at risk until the sanctuary gate.')
+   hud(player,'carry',{species=s.species,section=s.section,runId=runId,stolen=true})
+   hud(drop.from,'lost',{reason='stolen',species=s.species,eggId=s.eggId})
+  else hud(player,'regrab',{species=s.species,section=s.section,runId=runId}) end
   return true
  end
  function service.tick(now)
@@ -96,11 +106,15 @@ function Bats.new(context)
    local stowed=player.Character~=nil and player.Character:GetAttribute('CarryingCreature')==true
    if m.stowed~=stowed then m.stowed=stowed;for _,p in ipairs(m.model:GetDescendants()) do if p:IsA('BasePart') then p.Transparency=if stowed then 1 else 0 end end end
   end
-  for _,drop in pairs(drops) do
+  for id,drop in pairs(drops) do
    if now>=drop.expires then
-    local back=drop.from.Parent~=nil and context.alive(drop.from) and context.raids.adopt(drop.from,drop.snapshot,drop.part and drop.part.Position or Vector3.zero)
-    if not back and drop.from.Parent~=nil then context.notify(drop.from,'Your dropped creature escaped.') end
+    drops[id]=nil
+    local back,runId=false,nil
+    if drop.from.Parent~=nil and context.alive(drop.from) then back,runId=context.raids.adopt(drop.from,drop.snapshot,drop.part and drop.part.Position or Vector3.zero) end
     clearDrop(drop)
+    local s=drop.snapshot
+    if back then hud(drop.from,'regrab',{species=s.species,section=s.section,runId=runId,auto=true})
+    elseif drop.from.Parent~=nil then context.notify(drop.from,'Your dropped creature escaped.');hud(drop.from,'lost',{reason='escaped',species=s.species,eggId=s.eggId}) end
    end
   end
  end
