@@ -42,6 +42,9 @@ check(H.fallbackSection({X=4096,Y=16,Z=-500},1,bounds)==2,'fallback_box_wins_ove
 check(H.fallbackSection({X=0,Y=16+64*2+1,Z=0},1,bounds)==3 and H.fallbackSection({X=0,Y=16+136+1,Z=0},nil,bounds)==2,'fallback_band_free_64_legacy_136')
 check(H.fallbackSection({X=0,Y=-100,Z=0},1,{})==1 and H.fallbackSection({X=0,Y=9999,Z=0},1,{})==6,'fallback_band_clamped')
 check(H.fallbackSection(nil,1,bounds)==nil and H.fallbackSection({X=0,Y=0/0,Z=0},1,bounds)==nil,'fallback_needs_a_position')
+-- The engine passes rr.Position, a native Vector3 (type 'vector'), not a table.
+local vec=vector.create(4096,16,-500)
+check(type(vec)=='vector' and H.fallbackSection(vec,1,bounds)==2 and H.fallbackSection(vector.create(0,16+64*2+1,0),1,{})==3,'fallback_accepts_native_vector')
 -- Checkpoint ids: route order entrance, recovery, guardian (1..18); legacy ids carry no order.
 check(H.checkpoint('1:entrance').order==1 and H.checkpoint('3:recovery').order==8 and H.checkpoint('6:guardian').order==18 and H.checkpoint('6:guardian').section==6,'checkpoint_order')
 check(H.checkpoint('summit')==nil and H.checkpoint('1:discovery')==nil and H.checkpoint('7:entrance')==nil and H.checkpoint(4)==nil,'legacy_checkpoint_no_order')

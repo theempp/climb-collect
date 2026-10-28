@@ -41,6 +41,20 @@ function U.savedSettings(saved)
  for key,value in pairs(saved) do if defaults[key]~=nil and not known(key,value) then return nil end end
  local result=table.clone(defaults);merge(result,saved);return result
 end
+-- Stored form: saved keys (known ones snapped, unknown string keys from a newer build kept as-is) plus an already validated
+-- patch. Defaults are never written, so untouched new prefs keep the profile loadable on a pre-T0 build.
+function U.storedSettings(saved,patch)
+ local result=nil
+ if type(saved)=='table' then
+  result={}
+  for key,value in pairs(saved) do
+   if defaults[key]==nil then if type(key)=='string' then result[key]=value end
+   elseif known(key,value) then result[key]=snap(key,value) end
+  end
+ end
+ if type(patch)=='table' then result=result or {};for key,value in pairs(patch) do result[key]=value end end
+ return result
+end
 function U.settings(patch,current)
  local result=table.clone(defaults)
  if type(current)=='table' then merge(result,current) end

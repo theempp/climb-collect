@@ -58,8 +58,6 @@ function P.load(player)
   accepted=false
   -- A malformed explorer is reseeded by ensure below, never a reason to refuse the profile.
   if old and type(old)=='table' and type(old.profile)=='table' and type(old.profile.explorer)~='table' then old.profile.explorer=nil end
-  -- Non-table cosmetics hold no ownership, so they are dropped rather than refusing the profile (same rule as explorer).
-  if old and type(old)=='table' and type(old.profile)=='table' and old.profile.cosmetics~=nil and type(old.profile.cosmetics)~='table' then old.profile.cosmetics=nil end
   if old and (type(old)~='table' or not valid(old.profile)) then return nil end
   if old and old.lock and old.lock.owner~=owner and old.lock.expires>now then return nil end
   local p=if old then old.profile else R.newProfile(now)
@@ -73,7 +71,8 @@ function P.load(player)
   accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}
  end)
  if not ok or not accepted or not data or not valid(data.profile) then return nil,err or 'Profile unavailable or in use; no data overwritten.' end
- data.profile.settings=UIProtocol.settings(nil,data.profile.settings);Bats.normalize(data.profile)
+ -- Only set keys are kept; readers merge defaults (UIProtocol.settings), so a P2 save adds no key a pre-T0 build rejects.
+ data.profile.settings=UIProtocol.storedSettings(data.profile.settings);Bats.normalize(data.profile)
  local s={p=data.profile,busy=false,healthy=true,closing=false,lastSave=now,leaseUntil=now+180}
  P.sessions[player]=s;return s.p
 end
@@ -163,7 +162,7 @@ end
 function P.setSettings(player,patch)
  local p=P.get(player);if not p then return false end
  local settings=UIProtocol.settings(patch,p.settings);if not settings then return false end
- p.settings=settings
+ p.settings=UIProtocol.storedSettings(p.settings,patch)
  local ok=P.save(player,false)
  return ok,if ok then table.clone(settings) else nil
 end

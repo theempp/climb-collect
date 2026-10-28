@@ -40,9 +40,19 @@ check(migrated and #migrated.eggs==2 and migrated.schema==2,'load_migrates_legac
 local bad=Rules.newProfile(100);bad.schema=1;bad.recovery={eggs={{id='broken',species='unknown'}}};backend.backend.u103={profile=bad}
 check(not service.load({UserId=103}) and backend.backend.u103.profile.schema==1,'invalid_profile_no_overwrite')
 local newer=Rules.newProfile(100);newer.settings={largeText=true,futurePref=true};backend.backend.u106={profile=newer}
-local loaded=service.load({UserId=106})
-check(loaded and loaded.settings.largeText and loaded.settings.futurePref==nil,'unknown_settings_key_loads_no_kick')
+local newerPlayer={UserId=106};local loaded=service.load(newerPlayer)
+check(loaded and loaded.settings.largeText and Protocol.settings(nil,loaded.settings).futurePref==nil,'unknown_settings_key_loads_no_kick')
 check(backend.backend.u106.profile.settings.futurePref==true and backend.backend.u106.lock~=nil,'unknown_settings_key_load_no_overwrite')
+-- A newer build's pref survives this build's saves and patches; a pre-T0 build (strict, original 7 keys) still loads untouched prefs.
+check(service.save(newerPlayer,false) and backend.backend.u106.profile.settings.futurePref==true and backend.backend.u106.profile.settings.largeText,'unknown_settings_key_survives_save')
+check(service.setSettings(newerPlayer,{hudScale=1}) and backend.backend.u106.profile.settings.futurePref==true and backend.backend.u106.profile.settings.hudScale==1,'unknown_settings_key_survives_patch')
+local preT0={reducedMotion=true,largeText=true,highContrast=true,simplifiedVFX=true,musicVolume=true,sfxVolume=true,hints=true}
+local function preT0Loads(settings) if settings==nil then return true end;for key in pairs(settings) do if not preT0[key] then return false end end;return true end
+local oldPrefs=Rules.newProfile(100);oldPrefs.settings={reducedMotion=false,largeText=true,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true};backend.backend.u140={profile=oldPrefs}
+local rollback={UserId=140};service.load(rollback);check(service.setSettings(rollback,{musicVolume=.95}) and service.save(rollback,true),'pre_t0 prefs player saves on P2')
+check(preT0Loads(backend.backend.u140.profile.settings) and backend.backend.u140.profile.settings.musicVolume==.95,'untouched_new_prefs_never_written_rollback_safe')
+backend.backend.u141={profile=Rules.newProfile(100)};local fresh={UserId=141};service.load(fresh)
+check(service.save(fresh,true) and backend.backend.u141.profile.settings==nil,'fresh_profile_stores_no_default_prefs')
 local unsafe=Rules.newProfile(100);carry(unsafe,'offline');backend.backend.u104={profile=unsafe}
 check(service.load({UserId=104}).run==nil,'reconnect_forfeits_unsecured_run')
 -- Real interleaving: exit yields at the storage boundary, then disconnect waits.

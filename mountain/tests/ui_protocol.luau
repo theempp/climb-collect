@@ -21,6 +21,11 @@ check(saved and saved.largeText and saved.futurePref==nil and saved.musicVolume=
 check(not Protocol.settings({futurePref=3},settings),'patch with unknown key denied')
 for _,bad in ipairs({{hints=1},{sfxVolume=math.huge},{musicVolume=-.1},'junk'}) do check(not Protocol.savedSettings(bad),'saved known key still validated') end
 check(Protocol.settings(nil,{futurePref=3,largeText=true}).largeText,'saved merge ignores unknown key')
+-- Stored form: no defaults written (a pre-T0 build still loads untouched prefs); a newer build's string keys survive; known keys snap.
+check(Protocol.storedSettings(nil)==nil and next(Protocol.storedSettings({}))==nil,'stored settings never add defaults')
+local kept=Protocol.storedSettings({futurePref={a=1},largeText=true,hudScale=.9,[1]='x'},{sprintMode=0})
+check(kept.futurePref.a==1 and kept.largeText and kept.hudScale==1 and kept.sprintMode==0 and kept[1]==nil and kept.cameraShake==nil,'stored settings keep unknown string keys, snap known, add only the patch')
+check(Protocol.storedSettings(nil,{hints=false}).hints==false and Protocol.storedSettings(nil,{hints=false}).musicVolume==nil,'first patch stores only its own key')
 -- C2: new preferences; enums strict per key on the patch path, volumes keep the 0-1 rule, saved values snap.
 check(settings.cameraShake==true and settings.altitudeRail==true and settings.hudScale==.5 and settings.effectsTier==1 and settings.sprintMode==1,'new preference defaults (sprint TOGGLE)')
 for _,key in ipairs({'hudScale','effectsTier'}) do

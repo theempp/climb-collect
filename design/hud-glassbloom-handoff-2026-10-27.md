@@ -23,3 +23,7 @@ Plan: `design/hud-glassbloom-build-plan-2026-10-27.md` (§11 owner answers overr
 - Open for STOP 1: upload set 11 vs the approved ~7; drawn controls under 44 px (proposal: invisible 44 px hit areas); timing conflicts between the board text and the CSS (XP line, carry pop-up entry, rail hold); gaps G1–G23.
 - **STOP 1 approved (2026-10-28):** tokens as written; 11 uploads; hidden 44 px hit areas; board-text timings. See plan §12.
 - **P2 decisions approved (2026-10-28):** player XP (40L+20, cap 50, daily caps), stolen secure 0 XP, Robux creatures earn 0 coins, Competition 5 coin wins/day, Meadow Egg 2,500 (section-1 table), Candy Swirl 5,000 (board look), TRUE ODDS / FAIR PLAY tiles, Robux odds 'TBD'. Spec: `design/hud-glassbloom-p2-proposal-2026-10-28.md`.
+
+## P2 release order (T0 / C1)
+- **A build containing T0 (`f92575b`, lenient `savedSettings`) must be live before any build that writes the new pref keys (T2 `b680955` onward).** Pre-T0 builds validate saved settings strictly and refuse (kick) any profile holding an unknown key. Publish a T0-only build first; the P2 branch carries T0 and T2 together.
+- Mitigation in P2: defaults are never stored. `p.settings` keeps only keys a player set (plus a newer build's unknown keys, preserved). A player who never changes a new pref still loads on a pre-T0 build; one who did set `cameraShake`/`altitudeRail`/`hudScale`/`effectsTier`/`sprintMode` does not. Roll back only to a T0-or-later build.

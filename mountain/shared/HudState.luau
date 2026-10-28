@@ -55,7 +55,8 @@ end
 -- Client X/Z test (Controller fallback): altitude band first, then the GuardianBounds box holding the position.
 -- bounds are parts (Name '1'..'6', CFrame, Size); only X and Z are tested, as in the Controller.
 function H.fallbackSection(position,free,bounds)
- if type(position)~='table' and type(position)~='userdata' then return nil end
+ -- A Roblox Vector3 is a native vector: type() gives 'vector'.
+ local t=type(position);if t~='table' and t~='userdata' and t~='vector' then return nil end
  local y=position.Y;if not finite(y) then return nil end
  local k=math.clamp(math.floor((y-16)/(if free then 64 else 136))+1,1,6)
  if free and type(bounds)=='table' then

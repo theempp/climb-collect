@@ -156,8 +156,10 @@ function U.actions(context)
    -- C16: equip or clear an owned bat skin (looks only); the held bat is rebuilt and the choice saved, like Bat equip.
    if action=='Skin' then
     if not Shop then return false,'Bat skins are unavailable.' end
+    local before=Shop.cosmetics(p).batSkin
     local ok=Shop.skin(p,payload.op,payload.id)
-    if ok then if context.equipBat then context.equipBat(player) end;if context.save then context.save(player) end end
+    -- A no-op (clear with nothing equipped, equip of the equipped skin) neither rebuilds nor saves.
+    if ok and Shop.cosmetics(p).batSkin~=before then if context.equipBat then context.equipBat(player) end;if context.save then context.save(player) end end
     return ok==true,if ok then (if payload.op=='equip' then 'Bat skin equipped.' else 'Bat skin cleared.') else 'Buy this skin first.',{cosmetics=Shop.cosmetics(p)}
    end
    if not Shop or not P.transact then return false,'The shop is unavailable.' end
@@ -302,7 +304,8 @@ function U.actions(context)
 
    context.send(player,'competition',value);if context.save then context.save(player) end
 
-   return true,if value.won then (if value.coins==0 then 'Defense challenge won • daily coin wins used (5/day); trophies still count.' else 'Defense challenge won.') else 'Defense challenge complete.',value
+   -- Toast copy unchanged (P2): the Q4 daily coin cap shows only as value.coins==0.
+   return true,if value.won then 'Defense challenge won.' else 'Defense challenge complete.',value
 
   end
 

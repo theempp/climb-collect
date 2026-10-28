@@ -95,7 +95,9 @@ check(not ok and message=='Purchase is saving. It appears once saving resumes.' 
 pendingId=nil;commit='duplicate';tick=14;ok,message=buy('receipt-0008')
 check(ok and message=='Purchase already complete.','duplicate mutate is already applied')
 -- T10 (C16): Candy Swirl through the same Buy path, then Skin equip/clear behind the C12 gate.
-commit='ok';tick=16;ok,message,data=shop(shopper,'Skin',{op='equip',id='candy_swirl'})
+commit='ok';tick=16;ok,message=shop(shopper,'Skin',{op='clear'})
+check(ok and message=='Bat skin cleared.' and bp.cosmetics==nil and skinEquips==0 and skinSaves==0,'clear with nothing equipped neither rebuilds nor saves')
+ok,message,data=shop(shopper,'Skin',{op='equip',id='candy_swirl'})
 check(not ok and message=='Buy this skin first.' and writes==1 and bp.cosmetics==nil and skinEquips==0 and skinSaves==0 and data.cosmetics.batSkin==nil,'skin equip needs ownership')
 local rolled=rolls;tick=18;bp.coins=6000;ok,message,data=buy('skin-00001','candy_swirl')
 check(ok and message=='Bat skin added. Equip it from Bats.' and bp.coins==1000 and bp.cosmetics.skins.candy_swirl and bp.cosmetics.batSkin==nil and #bp.eggs==20 and writes==2 and rolls==rolled,'candy swirl bought for 5,000 coins with no odds roll')
@@ -104,6 +106,7 @@ tick=20;bp.coins=9000;ok,message=buy('skin-00002','candy_swirl');check(not ok an
 tick=22;ok,message=buy('skin-00001','candy_swirl');check(ok and message=='Purchase already complete.' and bp.coins==9000 and writes==2,'skin receipt replay needs no write')
 ok,message,data=shop(shopper,'Skin',{op='equip',id='candy_swirl'})
 check(ok and message=='Bat skin equipped.' and bp.cosmetics.batSkin=='candy_swirl' and skinEquips==1 and skinSaves==1 and data.cosmetics.batSkin=='candy_swirl' and writes==2,'skin equip rebuilds the bat and saves')
+ok,message=shop(shopper,'Skin',{op='equip',id='candy_swirl'});check(ok and message=='Bat skin equipped.' and skinEquips==1 and skinSaves==1,'equipping the equipped skin neither rebuilds nor saves')
 check(not shop(shopper,'Skin',{op='equip',id='meadow_egg'}) and bp.cosmetics.batSkin=='candy_swirl' and skinEquips==1,'only owned skin ids equip')
 bp.run={id='carry',eggId='raid:1:1',species='mossbun',section=1,trial=false,phase='carried',hits=2}
 ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and message=='Finish your current creature run first.' and bp.cosmetics.batSkin=='candy_swirl','skin gate refuses carried run')
@@ -113,6 +116,11 @@ pendingId=nil;safe=false;check(not shop(shopper,'Skin',{op='clear'}) and bp.cosm
 inSanct=false;ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and message=='Shop from your sanctuary.' and bp.cosmetics.batSkin=='candy_swirl' and skinEquips==1,'skin shares the shop gate')
 inSanct=true;ok,message=shop(shopper,'Skin',{op='clear'})
 check(ok and message=='Bat skin cleared.' and bp.cosmetics.batSkin==nil and bp.cosmetics.skins.candy_swirl and skinEquips==2 and skinSaves==2 and writes==2,'skin clear keeps ownership')
+for _=1,8 do shop(shopper,'Skin',{op='clear'}) end;check(skinEquips==2 and skinSaves==2,'repeated clear spam never saves')
+-- Q4 cap: a capped win keeps the existing toast; the cap shows only as coins=0 in the data.
+local cap=Requests.actions({profiles={get=function() return p end},rules=Rules,safe=function() return true end,atRefuge=function() return true end,send=function() end,
+ competition={challenge=function() return true,{won=true,coins=0,trophies=5} end}})
+ok,message,data=cap({},'ChallengeDefense',0);check(ok and message=='Defense challenge won.' and data.coins==0,'capped competition win keeps the existing toast')
 -- The Bat action through the dispatcher (equip, upgrade, refusals).
 local BatRules=require('../shared/BatRules')
 local bat=Rules.newProfile(100);bat.coins=100;local equipped,saved=0,0

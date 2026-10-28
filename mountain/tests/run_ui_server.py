@@ -23,15 +23,17 @@ local first=Profiles.newForTests(backend,'first')
 local second=Profiles.newForTests(backend,'second')
 local player={UserId=123,DisplayName='Fixture'}
 local p=first.load(player)
-check(p.settings.musicVolume==.7 and p.settings.hints,'legacy/default profile preferences')
-check(p.settings.sprintMode==1 and p.settings.hudScale==.5 and p.settings.effectsTier==1 and p.settings.cameraShake and p.settings.altitudeRail,'legacy profile gets new preference defaults')
+local view=Protocol.settings(nil,p.settings)
+check(view.musicVolume==.7 and view.hints,'legacy/default profile preferences')
+check(view.sprintMode==1 and view.hudScale==.5 and view.effectsTier==1 and view.cameraShake and view.altitudeRail,'legacy profile gets new preference defaults')
+check(p.settings==nil,'defaults are read-time only, never stored')
 check(not first.setSettings(player,{coins=1000}) and p.coins==0,'settings cannot award currency')
 check(not first.setSettings(player,{musicVolume=0/0}),'settings cannot persist NaN')
 local ok,settings=first.setSettings(player,{largeText=true,musicVolume=.2})
 check(ok and settings.largeText and settings.musicVolume==.2,'valid preferences acknowledged after save')
 check(first.save(player,true),'profile releases normally')
 local q=second.load(player)
-check(q.settings.largeText and q.settings.musicVolume==.2 and q.settings.sfxVolume==.8,'preferences survive release and reload')
+check(q.settings.largeText and q.settings.musicVolume==.2 and Protocol.settings(nil,q.settings).sfxVolume==.8 and q.settings.sfxVolume==nil,'preferences survive release and reload; only set keys stored')
 backend.failAll=true
 check(not second.setSettings(player,{hints=false}) and not second.get(player),'failed settings persistence freezes profile and rejects result')
 backend.failAll=false
@@ -54,7 +56,7 @@ malformed.settings=nil;check(Profiles.valid(malformed),'legacy saved profile wit
 local legacyPrefs=Rules.newProfile(os.time());legacyPrefs.settings={largeText=true,musicVolume=.7,sfxVolume=.8};backend.backend.u321={profile=legacyPrefs}
 local prefsService=Profiles.newForTests(backend,'prefs');local prefsPlayer={UserId=321}
 local lp=prefsService.load(prefsPlayer)
-check(lp and lp.settings.largeText and lp.settings.sprintMode==1 and lp.settings.hudScale==.5,'legacy settings without new keys load with defaults')
+check(lp and lp.settings.largeText and Protocol.settings(nil,lp.settings).sprintMode==1 and Protocol.settings(nil,lp.settings).hudScale==.5 and lp.settings.sprintMode==nil,'legacy settings without new keys load with defaults')
 for _,v in ipairs({.7,.8,.95}) do
  check(prefsService.setSettings(prefsPlayer,{musicVolume=v,sfxVolume=v,sprintMode=0}) and prefsService.save(prefsPlayer,true),'volume saved')
  lp=prefsService.load(prefsPlayer);check(lp.settings.musicVolume==v and lp.settings.sfxVolume==v and lp.settings.sprintMode==0,'volume round-trips')
@@ -87,7 +89,7 @@ do
  local op=fans.load({UserId=435});local saved=backend.backend.u435.profile.cosmetics
  check(op and op.cosmetics.skins.candy_swirl and op.cosmetics.skins.pink_swirl==nil and op.cosmetics.batSkin==nil and saved.skins.pink_swirl==nil and saved.skins.candy_swirl,'load drops unknown skin ids in the load write')
  local junk=Rules.newProfile(os.time());junk.cosmetics='junk';backend.backend.u436={profile=junk}
- local jp=fans.load({UserId=436});check(jp and jp.cosmetics==nil,'cosmetics junk loads without a kick')
+ local jp=fans.load({UserId=436});check(jp==nil and backend.backend.u436.profile.cosmetics=='junk' and backend.backend.u436.lock==nil,'non-table cosmetics refused with no overwrite')
  local typed=Rules.newProfile(1);typed.cosmetics=7;check(not Profiles.valid(typed),'non-table cosmetics fail the save type check')
  typed.cosmetics={skins='x',batSkin=5};check(Profiles.valid(typed),'valid checks the cosmetics type only')
 end
