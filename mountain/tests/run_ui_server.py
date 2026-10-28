@@ -65,6 +65,32 @@ check(xpp and xpp.explorer.won['1'] and xpp.explorer.species.bloomlet and Explor
 check(xpService.save(xpPlayer,true) and xpService.load(xpPlayer).explorer.species.bloomlet,'seeded explorer survives release and reload')
 local junkXp=Rules.newProfile(os.time());junkXp.explorer='junk';backend.backend.u433={profile=junkXp}
 check(type(xpService.load({UserId=433}).explorer)=='table','explorer junk loads without a kick')
+-- T10 (C16): legacy profiles without cosmetics load; Candy Swirl ownership and equip are durable; unknown skin ids leave on load.
+do
+ local legacyFan=Rules.newProfile(os.time());legacyFan.coins=6000;backend.backend.u434={profile=legacyFan}
+ local fans=Profiles.newForTests(backend,'skins');local fan={UserId=434};local fp=fans.load(fan)
+ check(fp and fp.cosmetics==nil and backend.backend.u434.profile.cosmetics==nil,'legacy profile without cosmetics loads')
+ local tick=0
+ local skins=UIRequests.actions({profiles=fans,rules=Rules,safe=function() return true end,shop=ShopRules,monotonic=function() return tick end,
+  rollOdds=function() error('skins never roll') end,inSanctuary=function() return true end,inBattle=function() return false end})
+ local durable=function() return backend.backend.u434.profile end
+ local writes=backend.calls.update
+ local ok,message,data=skins(fan,'Buy',{item='candy_swirl',receipt='skin-durable1'})
+ check(ok and data.skin=='candy_swirl' and backend.calls.update==writes+1 and durable().coins==1000 and durable().cosmetics.skins.candy_swirl and ShopRules.has(durable(),'skin-durable1'),'skin purchase commits debit, ownership and receipt in one write')
+ tick+=2;writes=backend.calls.update;ok,message=skins(fan,'Buy',{item='candy_swirl',receipt='skin-durable2'})
+ check(not ok and message=='You already own this skin.' and fans.get(fan).coins==1000 and backend.calls.update==writes and durable().coins==1000,'owned skin refused with no debit or write')
+ check(skins(fan,'Skin',{op='equip',id='candy_swirl'}) and fans.save(fan,true) and durable().cosmetics.batSkin=='candy_swirl','equipped skin saved on release')
+ local again=fans.load(fan)
+ check(again.cosmetics.skins.candy_swirl and again.cosmetics.batSkin=='candy_swirl' and again.coins==1000 and ShopRules.batLook(again)==ShopRules.catalog.candy_swirl.look,'skin ownership and equip survive release and reload')
+ check(fans.save(fan,true),'skin owner releases')
+ local odd=Rules.newProfile(os.time());odd.cosmetics={skins={candy_swirl=true,pink_swirl=true},batSkin='pink_swirl'};backend.backend.u435={profile=odd}
+ local op=fans.load({UserId=435});local saved=backend.backend.u435.profile.cosmetics
+ check(op and op.cosmetics.skins.candy_swirl and op.cosmetics.skins.pink_swirl==nil and op.cosmetics.batSkin==nil and saved.skins.pink_swirl==nil and saved.skins.candy_swirl,'load drops unknown skin ids in the load write')
+ local junk=Rules.newProfile(os.time());junk.cosmetics='junk';backend.backend.u436={profile=junk}
+ local jp=fans.load({UserId=436});check(jp and jp.cosmetics==nil,'cosmetics junk loads without a kick')
+ local typed=Rules.newProfile(1);typed.cosmetics=7;check(not Profiles.valid(typed),'non-table cosmetics fail the save type check')
+ typed.cosmetics={skins='x',batSkin=5};check(Profiles.valid(typed),'valid checks the cosmetics type only')
+end
 local events={}
 Combat.init(first,function(_,kind,data) table.insert(events,{kind=kind,data=data}) end,function() end)
 local now=os.clock();Combat.specialAt['123:c1:1']=now+12;Combat.specialAt['124:c2:1']=now+24

@@ -57,9 +57,10 @@ local shopService={get=function() return bp end,pending=function() return pendin
   if commit=='save_pending' then pendingId=id;return false,'save_pending' end
   writes+=1;table.clear(bp);for k,v in pairs(draft) do bp[k]=v end;return true,why
  end}
-local rolls=0
+local rolls=0;local skinEquips,skinSaves=0,0
 local shop=Requests.actions({profiles=shopService,rules=Rules,clock=function() return 200 end,safe=function() return safe end,atRefuge=function() return true end,
  publish=function() end,rebuildTeam=function() end,send=function() end,shop=Shop,monotonic=function() return tick end,rollOdds=function() rolls+=1;return 50 end,
+ equipBat=function() skinEquips+=1 end,save=function() skinSaves+=1 end,
  inSanctuary=function() return inSanct end,inBattle=function() return battle end})
 local shopper={}
 local function buy(receipt,item) return shop(shopper,'Buy',{item=item or 'meadow_egg',receipt=receipt}) end
@@ -84,7 +85,7 @@ tick=1.99;check(not buy('receipt-0002') and writes==1,'cooldown holds until 2 s'
 tick=2;ok,message,data=buy('receipt-0001')
 check(ok and message=='Purchase already complete.' and data.receipt=='receipt-0001' and writes==1 and bp.coins==3500 and #bp.eggs==1,'known receipt answered from the live profile without a write')
 tick=4;ok,message=buy('receipt-0003','golden_egg');check(not ok and message=='This item is not on sale yet.' and writes==1,'robux item refused')
-tick=6;ok,message=buy('receipt-0004','candy_swirl');check(not ok and message=='Unknown shop item.' and writes==1,'unknown item refused')
+tick=6;ok,message=buy('receipt-0004','pink_swirl');check(not ok and message=='Unknown shop item.' and writes==1,'unknown item refused')
 tick=8;bp.coins=2499;ok,message=buy('receipt-0005');check(not ok and message=='Not enough coins for this item.' and bp.coins==2499 and writes==1,'insufficient coins refused')
 tick=10;bp.coins=1e5;for i=1,23 do table.insert(bp.eggs,{id='f'..i,species='mossbun'}) end
 ok,message=buy('receipt-0006');check(not ok and message=='Egg storage is full (24). Hatch an egg first.' and #bp.eggs==24 and writes==1,'egg cap refused')
@@ -93,8 +94,25 @@ tick=12;commit='save_pending';ok,message=buy('receipt-0007')
 check(not ok and message=='Purchase is saving. It appears once saving resumes.' and pendingId=='buy:receipt-0007','failed commit reports saving, not a refund')
 pendingId=nil;commit='duplicate';tick=14;ok,message=buy('receipt-0008')
 check(ok and message=='Purchase already complete.','duplicate mutate is already applied')
-commit='ok';tick=16;ok,message=shop(shopper,'Skin',{op='equip',id='candy_swirl'});check(not ok and message=='Bat skins are unavailable.' and writes==1,'skin waits for cosmetics')
-inSanct=false;ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and message=='Shop from your sanctuary.','skin shares the shop gate')
+-- T10 (C16): Candy Swirl through the same Buy path, then Skin equip/clear behind the C12 gate.
+commit='ok';tick=16;ok,message,data=shop(shopper,'Skin',{op='equip',id='candy_swirl'})
+check(not ok and message=='Buy this skin first.' and writes==1 and bp.cosmetics==nil and skinEquips==0 and skinSaves==0 and data.cosmetics.batSkin==nil,'skin equip needs ownership')
+local rolled=rolls;tick=18;bp.coins=6000;ok,message,data=buy('skin-00001','candy_swirl')
+check(ok and message=='Bat skin added. Equip it from Bats.' and bp.coins==1000 and bp.cosmetics.skins.candy_swirl and bp.cosmetics.batSkin==nil and #bp.eggs==20 and writes==2 and rolls==rolled,'candy swirl bought for 5,000 coins with no odds roll')
+check(data.receipt=='skin-00001' and data.skin=='candy_swirl' and data.cosmetics.skins.candy_swirl and data.cosmetics~=bp.cosmetics and data.egg==nil,'skin buy returns a cosmetics copy')
+tick=20;bp.coins=9000;ok,message=buy('skin-00002','candy_swirl');check(not ok and message=='You already own this skin.' and bp.coins==9000 and writes==2,'owned skin refused with no debit')
+tick=22;ok,message=buy('skin-00001','candy_swirl');check(ok and message=='Purchase already complete.' and bp.coins==9000 and writes==2,'skin receipt replay needs no write')
+ok,message,data=shop(shopper,'Skin',{op='equip',id='candy_swirl'})
+check(ok and message=='Bat skin equipped.' and bp.cosmetics.batSkin=='candy_swirl' and skinEquips==1 and skinSaves==1 and data.cosmetics.batSkin=='candy_swirl' and writes==2,'skin equip rebuilds the bat and saves')
+check(not shop(shopper,'Skin',{op='equip',id='meadow_egg'}) and bp.cosmetics.batSkin=='candy_swirl' and skinEquips==1,'only owned skin ids equip')
+bp.run={id='carry',eggId='raid:1:1',species='mossbun',section=1,trial=false,phase='carried',hits=2}
+ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and message=='Finish your current creature run first.' and bp.cosmetics.batSkin=='candy_swirl','skin gate refuses carried run')
+bp.run=nil;battle=true;ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and message=='Finish your fight before shopping.' and bp.cosmetics.batSkin=='candy_swirl','skin gate refuses in battle')
+battle=false;pendingId='buy:other';ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and message=='Saving in progress. Try again shortly.' and bp.cosmetics.batSkin=='candy_swirl','skin gate refuses pending transaction')
+pendingId=nil;safe=false;check(not shop(shopper,'Skin',{op='clear'}) and bp.cosmetics.batSkin=='candy_swirl','skin needs a safe character');safe=true
+inSanct=false;ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and message=='Shop from your sanctuary.' and bp.cosmetics.batSkin=='candy_swirl' and skinEquips==1,'skin shares the shop gate')
+inSanct=true;ok,message=shop(shopper,'Skin',{op='clear'})
+check(ok and message=='Bat skin cleared.' and bp.cosmetics.batSkin==nil and bp.cosmetics.skins.candy_swirl and skinEquips==2 and skinSaves==2 and writes==2,'skin clear keeps ownership')
 -- The Bat action through the dispatcher (equip, upgrade, refusals).
 local BatRules=require('../shared/BatRules')
 local bat=Rules.newProfile(100);bat.coins=100;local equipped,saved=0,0

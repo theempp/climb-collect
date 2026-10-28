@@ -82,6 +82,7 @@ for _,payload in ipairs({'meadow_egg',{item='meadow_egg'},{receipt='a1b2-c3d4'},
  check(not intent('shop:1','Buy',payload),'malformed buy denied')
 end
 check(intent('shop:1','Skin',{op='equip',id='candy_swirl'}) and intent('shop:1','Skin',{op='clear'}),'skin equip and clear accepted')
+check(intent('shop:1','Buy',{item='candy_swirl',receipt='a1b2-c3d5'}),'candy swirl buy accepted')
 for _,payload in ipairs({{op='equip'},{op='clear',id='candy_swirl'},{op='buy',id='candy_swirl'},{op='equip',id='candy_swirl',extra=1},'candy_swirl'}) do check(not intent('shop:1','Skin',payload),'malformed skin denied') end
 check(not intent('legacy:1','Buy',{item='meadow_egg',receipt='a1b2-c3d4'}) and not intent('legacy:1','Skin',{op='clear'}),'legacy remote refuses shop actions')
 check(intent('legacy:1','Train','c1'),'legacy remote keeps other actions')

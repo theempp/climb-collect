@@ -43,4 +43,8 @@ local paid={coins=0,creatures={}}
 for i=1,6 do table.insert(paid.creatures,{id='p'..i,species=C.species[6+i].id,level=1,xp=0,origin=if i==6 then 'robux' else nil}) end
 check(select(1,B.setProgress(paid,2))==5 and not B.unlocked(paid,'azure') and #B.grantUnlocks(paid)==0 and not paid.bats.levels.azure,'robux creature excluded from bat sets')
 paid.creatures[6].origin='coin';check(B.unlocked(paid,'azure') and B.grantUnlocks(paid)[1]=='azure','coin creature completes a set')
+-- T10 (C16): skins live in p.cosmetics, which normalize never touches (it rebuilds only p.bats).
+local dressed={coins=0,creatures={},cosmetics={skins={candy_swirl=true},batSkin='candy_swirl'},bats={equipped='trail',levels={trail=3}}}
+local kept=dressed.cosmetics;B.normalize(dressed);B.grantUnlocks(dressed)
+check(dressed.cosmetics==kept and kept.batSkin=='candy_swirl' and kept.skins.candy_swirl==true and dressed.bats.cosmetics==nil and dressed.bats.levels.trail==3,'normalize leaves p.cosmetics alone')
 print('PASS '..n..' bat rules checks')

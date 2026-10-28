@@ -152,17 +152,27 @@ function U.actions(context)
   if not context.safe(player) then return false,'Wait until your character is ready and movement is safe.' end
   if action=='Buy' or action=='Skin' then
    local refused=shopRefusal(player,p);if refused then return false,refused end
-   if action=='Skin' then return false,'Bat skins are unavailable.' end
-   local Shop=context.shop;if not Shop or not P.transact then return false,'The shop is unavailable.' end
+   local Shop=context.shop
+   -- C16: equip or clear an owned bat skin (looks only); the held bat is rebuilt and the choice saved, like Bat equip.
+   if action=='Skin' then
+    if not Shop then return false,'Bat skins are unavailable.' end
+    local ok=Shop.skin(p,payload.op,payload.id)
+    if ok then if context.equipBat then context.equipBat(player) end;if context.save then context.save(player) end end
+    return ok==true,if ok then (if payload.op=='equip' then 'Bat skin equipped.' else 'Bat skin cleared.') else 'Buy this skin first.',{cosmetics=Shop.cosmetics(p)}
+   end
+   if not Shop or not P.transact then return false,'The shop is unavailable.' end
    -- C14: a 2 s cooldown, then a receipt already in the live profile is answered without a write.
    local now=monotonic();if now<(buyAt[player] or -math.huge) then return false,'Please wait a moment before buying again.' end;buyAt[player]=now+Shop.cooldown
    local receipt=payload.receipt
    if Shop.has(p,receipt) then return true,'Purchase already complete.',{receipt=receipt} end
-   local r=if context.rollOdds then context.rollOdds() else math.random()*100;local egg
+   local skin=Shop.isSkin(payload.item)
+   local r=if skin then nil elseif context.rollOdds then context.rollOdds() else math.random()*100;local granted
    -- The mutate runs once per pending draft; a failed commit stays pending (P.get is nil) until autosave or release commits it.
-   local ok,reason=P.transact(player,'buy:'..receipt,function(draft) local done,why,granted=Shop.buy(draft,payload.item,receipt,r);egg=granted;return done,why end)
-   if ok or reason=='duplicate' then return true,if ok then 'Egg added to your collection.' else 'Purchase already complete.',{receipt=receipt,egg=if ok and egg then table.clone(egg) else nil} end
-   local messages={coins='Not enough coins for this item.',egg_cap='Egg storage is full (24). Hatch an egg first.',unavailable='This item is not on sale yet.',unknown='Unknown shop item.',
+   local ok,reason=P.transact(player,'buy:'..receipt,function(draft) local done,why,item=Shop.buy(draft,payload.item,receipt,r);granted=item;return done,why end)
+   -- A commit refreshes the live profile in place, so p already holds the new skin.
+   if ok and skin then return true,'Bat skin added. Equip it from Bats.',{receipt=receipt,skin=payload.item,cosmetics=Shop.cosmetics(p)} end
+   if ok or reason=='duplicate' then return true,if ok then 'Egg added to your collection.' else 'Purchase already complete.',{receipt=receipt,egg=if ok and granted then table.clone(granted) else nil} end
+   local messages={coins='Not enough coins for this item.',egg_cap='Egg storage is full (24). Hatch an egg first.',unavailable='This item is not on sale yet.',unknown='Unknown shop item.',owned='You already own this skin.',
     busy='Purchase is saving. It appears once saving resumes.',save_pending='Purchase is saving. It appears once saving resumes.'}
    return false,messages[reason] or 'Purchase unavailable. No coins were spent.'
   end

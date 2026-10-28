@@ -1,5 +1,6 @@
 -- Server-authoritative bats: swing validation, knockback, 3 s dropped-creature scramble and held bat models.
 local BatRules=require(game.ReplicatedStorage.MountainShared.BatRules)
+local ShopRules=require(game.ReplicatedStorage.MountainShared.ShopRules)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local TweenService=game:GetService('TweenService')
 local Bats={}
@@ -15,14 +16,16 @@ function Bats.new(context)
   if models[player] then models[player].model:Destroy();models[player]=nil end
   if not p or not grip then return end
   local _,id=BatRules.equippedStats(p);local def=BatRules.byId[id]
+  -- C16: an equipped skin replaces only the barrel and trail colours; knockback and reach stay with BatRules.
+  local look=ShopRules.batLook(p) or def
   local model=Instance.new('Model');model.Name='Bat'
   local handle=Instance.new('Part');handle.Name='Handle';handle.Size=Vector3.new(.35,1.6,.35);handle.Color=color(C.kingdoms[1].rock);handle.Material=Enum.Material.Wood
-  local barrel=Instance.new('Part');barrel.Name='Barrel';barrel.Size=Vector3.new(.7,2.4,.7);barrel.Color=color(def.color);barrel.Material=Enum.Material[def.material] or Enum.Material.Wood
+  local barrel=Instance.new('Part');barrel.Name='Barrel';barrel.Size=Vector3.new(.7,2.4,.7);barrel.Color=color(look.color);barrel.Material=Enum.Material[def.material] or Enum.Material.Wood
   for _,part in ipairs({handle,barrel}) do part.CanCollide=false;part.CanQuery=false;part.CanTouch=false;part.Massless=true;part.Anchored=false;part.Parent=model end
   local join=Instance.new('WeldConstraint');barrel.CFrame=handle.CFrame*CFrame.new(0,2,0);join.Part0=handle;join.Part1=barrel;join.Parent=handle
   local a0=Instance.new('Attachment');a0.Position=Vector3.new(0,-1.1,0);a0.Parent=barrel
   local a1=Instance.new('Attachment');a1.Position=Vector3.new(0,1.1,0);a1.Parent=barrel
-  local trail=Instance.new('Trail');trail.Attachment0=a0;trail.Attachment1=a1;trail.Color=ColorSequence.new(color(def.trail));trail.Lifetime=.18;trail.Enabled=false;trail.Parent=barrel
+  local trail=Instance.new('Trail');trail.Attachment0=a0;trail.Attachment1=a1;trail.Color=ColorSequence.new(color(look.trail));trail.Lifetime=.18;trail.Enabled=false;trail.Parent=barrel
   local weld=Instance.new('Weld');weld.Part0=grip;weld.Part1=handle;weld.C0=CFrame.new(0,-grip.Size.Y/2,0)*CFrame.Angles(math.rad(-90),0,0);weld.Parent=handle
   model.PrimaryPart=handle;model.Parent=character
   models[player]={model=model,weld=weld,rest=weld.C0,trail=trail,id=id}

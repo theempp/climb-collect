@@ -69,4 +69,28 @@ list=toastsFor(a)
 check(count(a,'safe')==1 and last(a,'safe').runId==runId and last(a,'safe').species=='mossbun','safe_event')
 check(list[#list-1]=='Securing your creature… You are protected while saving.' and list[#list]=='Safe! '..name..' is yours. Carry it home.','securing_and_safe_toasts_unchanged')
 check(count(a,'carry')==3 and count(a,'regrab')==0,'one_carry_per_fresh_pickup')
+-- T10 (C16): the held bat takes an equipped skin's barrel and trail colours only; material and stats stay with BatRules.
+local cf={};cf.__mul=function() return setmetatable({},cf) end
+local baseCFrame,baseInstance=CFrame.new,Instance.new;local made={}
+CFrame.new=function(...) return setmetatable(baseCFrame(...),cf) end;CFrame.Angles=function() return setmetatable({},cf) end
+Instance.new=function(class) local i=baseInstance(class);table.insert(made,i);return i end
+Color3={fromRGB=function(r,g,b) return {r,g,b} end};ColorSequence={new=function(c) return {c} end}
+Enum={Material=setmetatable({},{__index=function(_,k) return k end})}
+c.Character={FindFirstChild=function(_,n) return if n=='RightHand' then {Size={Y=1}} else nil end,GetAttribute=function() return nil end}
+local function held()
+ table.clear(made);bats.equip(c);local barrel,trail
+ for _,i in ipairs(made) do if i.Name=='Barrel' then barrel=i elseif i.ClassName=='Trail' then trail=i end end
+ return barrel,trail
+end
+local function rgb(col,want) return col[1]==want[1] and col[2]==want[2] and col[3]==want[3] end
+local def=BatRules.byId.trail;local look=ShopRules.catalog.candy_swirl.look
+local barrel,trail=held()
+check(barrel and rgb(barrel.Color,def.color) and rgb(trail.Color[1],def.trail) and barrel.Material==def.material,'unskinned_bat_uses_bat_colours')
+local before=BatRules.equippedStats(ps[c])
+ps[c].cosmetics={skins={candy_swirl=true},batSkin='candy_swirl'}
+barrel,trail=held()
+check(barrel and rgb(barrel.Color,look.color) and rgb(trail.Color[1],look.trail) and barrel.Material==def.material and barrel.Size.X==.7,'candy_swirl_recolours_barrel_and_trail_only')
+local after=BatRules.equippedStats(ps[c]);check(after.knockback==before.knockback and after.reach==before.reach,'skin_keeps_knockback_and_reach')
+ShopRules.skin(ps[c],'clear');barrel,trail=held()
+check(rgb(barrel.Color,def.color) and rgb(trail.Color[1],def.trail),'cleared_skin_restores_bat_colours')
 print('PASS '..checks..' raid hud event checks')
