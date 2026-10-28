@@ -82,6 +82,7 @@ local T={
  glowRevealSel={color=rgb(255,216,74),t=0,b=18,s=0},glowHalo={color=rgb(255,216,74),t=0,b=24,s=0},
  glowRevealCard={color=rgb(255,216,74),t=.15,b=34,s=8},glowRevealTitle={color=rgb(244,107,196),t=0,b=16,s=0},
  glowHeroTitle={color=rgb(255,216,74),t=.45,b=14,s=0},
+ glowKnob={color=rgb(244,107,196),t=0,b=8,s=0}, -- sl() knob, L317 `box-shadow:0 0 8px var(--pk)` (opaque pk: T 0)
  -- 1h fonts. Legacy label/title now LuckiestGuy (D12); display/body/bold stay FredokaOne.
  fontDisplay=Enum.Font.LuckiestGuy,fontBody=Enum.Font.FredokaOne,
  label=Enum.Font.LuckiestGuy,title=Enum.Font.LuckiestGuy,display=Enum.Font.FredokaOne,body=Enum.Font.FredokaOne,bold=Enum.Font.FredokaOne,

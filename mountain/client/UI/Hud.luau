@@ -96,7 +96,7 @@ function Hud.new(root,cb)
  W.hit(coin,44);W.bind(coin,go('Shop'));table.insert(self.hits,{coin})
  local gear=glass(tr,'Gear',UDim2.fromOffset(44,44),T.r.circle);gear.LayoutOrder=2;e.gear=gear
  W.icon(gear,'Gear',UDim2.fromOffset(26,26),UDim2.fromOffset(9,9)).ZIndex=2
- W.hit(gear,44);W.bind(gear,go('Settings','Quick'));table.insert(self.hits,{gear})
+ W.hit(gear,44);W.bind(gear,go('Settings'));table.insert(self.hits,{gear})
  local function fitCoin() local w=38+textW(cv.Text,T.fontBody,T.t.coin)+14;cv.Size=UDim2.new(0,w-52,1,0);coin.Size=UDim2.fromOffset(w,34);tr.Size=UDim2.fromOffset(w+8+44,44) end
  cv:GetPropertyChangedSignal('Text'):Connect(fitCoin);cv:GetPropertyChangedSignal('TextSize'):Connect(fitCoin);fitCoin()
  -- B.rail (L101-106): CanvasGroup at group T .7 idle (rail.idle); line x9 w4 r3 railLine, inset 4; nodes deep + stroke 2 white,

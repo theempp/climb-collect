@@ -5,17 +5,18 @@ local TextService=game:GetService('TextService')
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
+local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
 local TycoonHub=require(script.Parent.TycoonHub)
 local S={};S.__index=S
-local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Bats','Cosmetics','Convenience'},Settings={'Accessibility','Audio','Quick'}}
+local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Bats','Cosmetics','Convenience'},Settings={'Audio','Graphics','HUD','Controls','Account'}}
 local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain',Competition='Social'}
 local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests',Competition='Challenges'}
 -- Side-tab icons only where the board draws them (Collection All/Team/Index/Evolve, L630); every other tab has none.
 local tabIcons={Creatures={Collection='Creature',Team='Heart',Training='Scroll',Evolution='EggCracked'}}
--- Section-jump hubs (intel §2 per-menu): their tabs are sections of one scroll. Shop (task D) and Settings (task E) join here.
-local sectionHubs={}
+-- Section-jump hubs (intel §2 per-menu): their tabs are sections of one scroll. Shop (task D) joins here.
+local sectionHubs={Settings=true}
 function S.new(root,store,feedback,onClose)
  local self=setmetatable({root=root,store=store,feedback=feedback,onClose=onClose,selected={},query='',rarity='All',sort='Name',page=1,tickers={},actionButtons={},touches={},sections={},tabButtons={}},S)
  self.touchBegin=UIS.TouchStarted:Connect(function(input) self.touches[input]=true end)
@@ -417,13 +418,18 @@ function S:collection(data)
  end
  -- STOP 1 G1: wrapped chip rows overlap at 44, so their hit areas are trimmed to the 33 px pitch.
  if used>contentW then for _,chip in ipairs(chips) do W.hit(chip,44,Vector2.new(math.huge,33)) end end
- -- Card list: catalog order, or rarity Legendary -> Common with ties in catalog order.
+ -- Card list: catalog order, or (Rarity ↓) owned species Legendary -> Common with ties in catalog order, then every missing card
+ -- (???/Locked) in catalog order, so the sort never hints at a hidden species' rarity.
  local list={}
  for i,s in ipairs(C.species) do
   local have=best[s.id]~=nil
-  if self.collectionFilter=='All' or (self.collectionFilter=='Owned')==have then table.insert(list,{s=s,i=i}) end
+  if self.collectionFilter=='All' or (self.collectionFilter=='Owned')==have then table.insert(list,{s=s,i=i,have=have}) end
  end
- if self.collectionSort then table.sort(list,function(a,b) local ra,rb=rarityRank[a.s.rarity] or 7,rarityRank[b.s.rarity] or 7;if ra~=rb then return ra<rb end;return a.i<b.i end) end
+ if self.collectionSort then table.sort(list,function(a,b)
+  if a.have~=b.have then return a.have end
+  if a.have then local ra,rb=rarityRank[a.s.rarity] or 7,rarityRank[b.s.rarity] or 7;if ra~=rb then return ra<rb end end
+  return a.i<b.i
+ end) end
  if #list==0 then
   if self.collectionFilter=='Owned' then self:info('Map','Your next companion is out there','Climb into any section. Break a visible egg, pick up the creature and escape through the sanctuary exit.',72).LayoutOrder=2
   else self:info('Creature','Collection complete',total..' / '..total..' species discovered.',72).LayoutOrder=2 end
@@ -714,41 +720,50 @@ function S:shop(data)
   self:blocked('Convenience catalog','No approved convenience products or receipt validation are connected.','Checkout unavailable')
  end
 end
+-- Settings (intel per-menu L642-646; row()/sl()/seg()/tog()/pbtn L311-323; plan D11): section-jump list, one row per pref. Values come
+-- from data.ui.settings (UIProtocol defaults fill gaps); every change sends one Settings patch, the confirmed re-render moves the controls.
 function S:settings(data)
- local prefs=(data.ui and data.ui.settings) or {}
- local compact=self.compact
- -- Settings tiles: icon, name + one line, ON/OFF candy (cc2/05 ON/OFF pill; finale-f1/01 YES green).
- local icons={largeText='Scroll',highContrast='Gem',reducedMotion='Sprint',simplifiedVFX='Gift',hints='Map',musicVolume='Heart',sfxVolume='Bat'}
- local function grid(n) return self:grid('SettingsGrid',n,300,if compact then 70 else 78) end
- local function tile(g,i,key,title,description)
-  local card=W.card(g,'Tile_'..key,nil,nil,T.navy);card.LayoutOrder=i
-  W.icon(card,icons[key],UDim2.fromOffset(40,40),UDim2.new(0,10,.5,-20))
-  W.label(card,title,UDim2.new(1,-180,0,22),UDim2.fromOffset(58,8),T.bold,16).Name='Title'
-  local d=W.label(card,description,UDim2.new(1,-180,1,-36),UDim2.fromOffset(58,31),nil,12,T.muted,nil,true);d.TextYAlignment=Enum.TextYAlignment.Top
-  return card
+ local defaults=UIProtocol.settings(nil)
+ local prefs=UIProtocol.settings(nil,data.ui and data.ui.settings) or defaults
+ local order=0
+ local function put(o) order+=1;o.LayoutOrder=order;return o end
+ local function header(tab) local first=order==0;self:section(tab,put(W.sectionHeader(self.body,tab,nil,first)),true) end
+ local function row(key,title,desc) local r,ctl=W.prefRow(self.body,'Pref_'..key,title,desc);put(r);return ctl end
+ local function set(patch) self:send('Settings',patch) end
+ local function slider(key,title,desc) W.slider(row(key,title,desc),'Slider',prefs[key],function(v) set({[key]=v}) end) end
+ local function seg(key,title,desc,labels,values)
+  local i=table.find(values,prefs[key]) or table.find(values,defaults[key]) or 1
+  W.seg(row(key,title,desc),'Seg',labels,i,function(j) set({[key]=values[j]}) end)
  end
- local function toggles(list)
-  local g=grid(#list)
-  for i,v in ipairs(list) do
-   local card=tile(g,i,v[1],v[2],v[3]);local on=prefs[v[1]]==true
-   self:action(card,'Setting_'..v[1],if on then 'On' else 'Off','Settings',function() return {[v[1]]=not prefs[v[1]]} end,true,UDim2.new(1,-112,.5,-24),UDim2.fromOffset(100,44),if on then 'ok' else 'quiet')
-  end
- end
- if self.tab=='Audio' then
-  local g=grid(2)
-  for i,v in ipairs({{'musicVolume','Music & ambience'},{'sfxVolume','Sound effects'}}) do
-   local key,title=v[1],v[2];local value=prefs[key] or 0
-   local card=tile(g,i,key,title,'')
-   -- Slider (cc2/05 gauge): bar.fill on a navy track.
-   local bar=W.progress(card,value,UDim2.new(1,-190,0,14),UDim2.new(0,58,1,-26),T.bar.fill)
-   W.label(bar.Parent,math.floor(value*100)..'%',UDim2.fromScale(1,1),nil,T.display,11,T.ink,Enum.TextXAlignment.Center).ZIndex=2
-   self:action(card,'Volume_'..key,'Adjust','Settings',function() return {[key]=if value>=1 then 0 else math.min(1,value+.25)} end,true,UDim2.new(1,-112,.5,-24),UDim2.fromOffset(100,44))
-  end
- elseif self.tab=='Quick' then
-  toggles({{'reducedMotion','Reduced motion','Keep feedback still; no cinematic movement.'},{'hints','Contextual hints','Short guidance, never a mandatory slideshow.'},{'simplifiedVFX','Simplified effects','Fewer decorative particles; encounter cues stay.'}})
- else
-  toggles({{'largeText','Larger text','Larger menu labels and descriptions.'},{'highContrast','High contrast','Opaque panels and brighter outlines.'},{'reducedMotion','Reduced motion','Less UI animation and camera feedback.'},{'simplifiedVFX','Simplified effects','Fewer decorative effects; danger stays visible.'},{'hints','Contextual hints','Short, nonblocking expedition guidance.'}})
- end
- self:info('Gear','Preference storage',data.saveMode or 'Preferences follow your profile save status.',60)
+ local function toggle(key,title,desc) local on=prefs[key]==true;W.toggle(row(key,title,desc),'Toggle',on,function() set({[key]=not on}) end) end
+ header('Audio')
+ slider('musicVolume','Music','Background tracks')
+ slider('sfxVolume','Sound effects','Hits, UI and voices')
+ header('Graphics')
+ seg('effectsTier','Graphics quality','Lower is smoother on older phones',{'LOW','MED','HIGH'},{0,.5,1})
+ toggle('cameraShake','Camera shake','Shake on guardian roars and big hits')
+ -- D11: one switch for both prefs; on only when both are on, a tap sets both to the new state.
+ local reduced=prefs.reducedMotion==true and prefs.simplifiedVFX==true
+ W.toggle(row('reduceEffects','Reduce effects','No FOV kick, hue cycling or flashes'),'Toggle',reduced,function() set({reducedMotion=not reduced,simplifiedVFX=not reduced}) end)
+ header('HUD')
+ seg('hudScale','HUD size','Scales every button',{'S','M','L'},{0,.5,1})
+ toggle('altitudeRail','Altitude rail','Left edge, fades when idle')
+ toggle('largeText','Large text','Bigger labels and numbers')
+ -- Kept accessibility rows (D11).
+ toggle('highContrast','High contrast','Opaque panels and brighter outlines.')
+ toggle('hints','Hints','Short, nonblocking expedition guidance.')
+ header('Controls')
+ seg('sprintMode','Sprint','Hold or tap to toggle',{'HOLD','TOGGLE'},{0,1}) -- no Camera speed row (P0: not writable)
+ header('Account')
+ -- pbtn (intel §2): W.ghost h 30, padX 12, LG 15, stroke 2 (the ghost look wins on its only instance, L646).
+ local w=math.ceil(TextService:GetTextSize('Reset',T.size(T.t.pbtn),T.fontDisplay,Vector2.new(1e4,1e4)).X)+2*12+2*T.s.glass
+ W.ghost(row('reset','Reset settings','Back to the defaults above'),'Reset','Reset',UDim2.fromOffset(w,30),nil,function()
+  self.feedback:confirm('Reset settings?','Every setting goes back to its default.',function() set(table.clone(defaults)) end)
+ end,{n=T.t.pbtn,padX=12})
+ -- Save-mode note (intel note: FO 11 T.15, margin-top 10; the row's 7 bottom margin collapses into it, so 3 more here).
+ local note=put(W.new('Frame',self.body,{Name='SaveNote',Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,BorderSizePixel=0}))
+ W.new('UIPadding',note,{PaddingTop=UDim.new(0,3)})
+ local l=W.text(note,data.saveMode or 'Preferences follow your profile save status.',UDim2.fromScale(1,0),nil,T.fontBody,T.t.small)
+ l.Name='Note';l.AutomaticSize=Enum.AutomaticSize.Y;l.TextTransparency=T.textDimT[3]
 end
 return S

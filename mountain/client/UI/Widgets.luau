@@ -14,6 +14,7 @@ function W.round(o,r) W.new('UICorner',o,{CornerRadius=UDim.new(0,r or 14)});ret
 local Players=game:GetService('Players')
 local MarketplaceService=game:GetService('MarketplaceService')
 local TextService=game:GetService('TextService')
+local UIS=game:GetService('UserInputService')
 local handlers=setmetatable({},{__mode='k'});local states=setmetatable({},{__mode='k'})
 local function asset(id) return 'rbxassetid://'..id end
 local function udim(r:any) return if type(r)=='number' then UDim.new(0,math.max(0,r)) else r end
@@ -725,6 +726,113 @@ function W.glassChip(parent,label,on,size,pos,fn)
   st.Transparency=if v then 0 else .78;st:SetAttribute('BaseTransparency',st.Transparency)
  end
  W.setOn(o,on);W.bind(o,fn);W.hit(o);W.focus(o);return o
+end
+-- Settings kit (P5 C). row() (§2, L311-314, L620): 2 cols (1fr / auto) gap 12, padding 8/12, r14, night T.55, stroke 1.5 white T.82,
+-- bottom margin 7 (section-mode lists have gap 0, so the row carries it). Title FO 14, desc FO 11 T.18. Height follows the content.
+-- Returns row, controls (right column: H list gap 8, vertically centred, width = its children; the text column takes the rest).
+function W.prefRow(parent,name,title,desc)
+ local s=T.s.thin;local r=T.r.card
+ local o=W.new('Frame',parent,{Name=name,Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,BorderSizePixel=0})
+ o:SetAttribute('CornerRadius',udim(r))
+ -- The well is the padding box: inset by its stroke (CSS borders sit inside the box); the 7 margin sits under the border.
+ W.new('UIPadding',o,{PaddingTop=UDim.new(0,s),PaddingRight=UDim.new(0,s),PaddingBottom=UDim.new(0,s+7),PaddingLeft=UDim.new(0,s)})
+ local w=corner(W.new('Frame',o,{Name='Well',Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundColor3=T.night,BackgroundTransparency=T.wellT.row,BorderSizePixel=0}),less(r,s))
+ gstroke(w,T.text,s,.82)
+ W.new('UIPadding',w,{PaddingTop=UDim.new(0,8),PaddingRight=UDim.new(0,12),PaddingBottom=UDim.new(0,8),PaddingLeft=UDim.new(0,12)})
+ W.new('UIListLayout',w,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,12),VerticalAlignment=Enum.VerticalAlignment.Center,SortOrder=Enum.SortOrder.LayoutOrder})
+ local col=W.new('Frame',w,{Name='Text',Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,BorderSizePixel=0,LayoutOrder=1});W.list(col,0)
+ local function line(nm,content,n,order)
+  local l=inked(gtext(col,nm,content,T.fontBody,n,T.text,Enum.TextXAlignment.Left));l.Size=UDim2.fromScale(1,0);l.AutomaticSize=Enum.AutomaticSize.Y;l.TextWrapped=true;l.LayoutOrder=order;return l
+ end
+ line('Title',title,T.t.rowTitle,1)
+ if desc then line('Description',desc,T.t.small,2).TextTransparency=T.textDimT[4] end
+ local ctl=W.new('Frame',w,{Name='Controls',Size=UDim2.new(),AutomaticSize=Enum.AutomaticSize.XY,BackgroundTransparency=1,BorderSizePixel=0,LayoutOrder=2})
+ W.new('UIListLayout',ctl,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,8),VerticalAlignment=Enum.VerticalAlignment.Center,SortOrder=Enum.SortOrder.LayoutOrder})
+ -- 1fr: the text column is the well's content width minus the controls (auto) and the 12 gap.
+ local function fit() col.Size=UDim2.new(1,-(ctl.AbsoluteSize.X+12),0,0) end
+ ctl:GetPropertyChangedSignal('AbsoluteSize'):Connect(fit);fit()
+ return o,ctl
+end
+-- sl() (§2, L315-318, L621): track 120×10 r6 night T.3, stroke 1.5 white T.5; fill gradAction r5; knob 16 white + glowKnob; value
+-- FO 12, w 34, right-aligned, gap 8. The board knob overhangs the track by 8 at 0/100 %; the root keeps that 8 on the left (on the
+-- right it is the gap) so the knob never spills. Track = the GuiButton: gamepad A steps +.1 (1 wraps to 0) and commits; its Hit
+-- (track + knob overhang × 44) takes tap/drag, snaps to .05 and commits fn(value) on release if it changed. Static visuals, no tween.
+function W.slider(parent,name,value,fn)
+ local s=T.s.thin;local tw,th,kd,gap,vw=120,10,16,8,34;local pad=kd/2
+ value=math.clamp(value or 0,0,1)
+ local o=root('Frame',parent,name,UDim2.fromOffset(pad+tw+gap+vw,kd))
+ local tr=root('TextButton',o,'Track',UDim2.fromOffset(tw,th),UDim2.fromOffset(pad,(kd-th)/2),T.r[6]);tr:SetAttribute('QAControl',true);tr:SetAttribute('Enabled',true)
+ local b=body(tr,T.r[6],s,T.night,T.wellT.sl);gstroke(b,T.text,s,.5)
+ local fill=W.grad(corner(W.new('Frame',b,{Name='Fill',BackgroundColor3=T.text,BorderSizePixel=0}),T.r[5]),T.gradAction).Parent
+ local knob=root('Frame',o,'Knob',UDim2.fromOffset(kd,kd),nil,T.r.circle);knob.AnchorPoint=Vector2.new(.5,0);knob.ZIndex=2
+ W.glow(knob,knob,T.glowKnob);body(knob,T.r.circle,0,T.text)
+ local pct=W.fit(inked(gtext(o,'Value','',T.fontBody,T.t.pct,T.text,Enum.TextXAlignment.Right)),T.t.pct,8)
+ pct.Size=UDim2.fromOffset(vw,kd);pct.Position=UDim2.fromOffset(pad+tw+gap,0)
+ -- CSS: fill width / knob left = value % of the padding box (inside the 1.5 border).
+ local function show(v) fill.Size=UDim2.fromScale(v,1);knob.Position=UDim2.fromOffset(pad+s+v*(tw-2*s),0);pct.Text=math.floor(v*100+.5)..'%' end
+ local function snap(v) return math.floor(math.clamp(v,0,1)*20+.5)/20 end
+ local function commit(v) show(v);if v~=value then value=v;if fn then fn(v) end end end
+ show(value)
+ W.bind(tr,function() commit(if value>=1 then 0 else snap(math.min(1,value+.1))) end)
+ local h=W.new('TextButton',tr,{Name='Hit',Text='',BackgroundTransparency=1,BorderSizePixel=0,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.new(1,kd,0,44),AutoButtonColor=false,Selectable=false,ZIndex=20})
+ h:SetAttribute('HitArea',true)
+ local moved,ended,cur=nil,nil,value
+ local function at(x) return snap((x-b.AbsolutePosition.X)/math.max(1,b.AbsoluteSize.X)) end
+ local function release() if moved then moved:Disconnect();moved=nil end;if ended then ended:Disconnect();ended=nil end end
+ h.InputBegan:Connect(function(i)
+  local kind=i.UserInputType
+  if moved or (kind~=Enum.UserInputType.MouseButton1 and kind~=Enum.UserInputType.Touch) then return end
+  cur=at(i.Position.X);show(cur)
+  moved=UIS.InputChanged:Connect(function(m)
+   if (kind==Enum.UserInputType.Touch and m==i) or (kind~=Enum.UserInputType.Touch and m.UserInputType==Enum.UserInputType.MouseMovement) then cur=at(m.Position.X);show(cur) end
+  end)
+  ended=UIS.InputEnded:Connect(function(e) if e==i or e.UserInputType==kind and kind==Enum.UserInputType.MouseButton1 then release();commit(cur) end end)
+ end)
+ o.Destroying:Connect(release)
+ W.focus(tr);return o
+end
+-- seg() (§2, L319-320, L623): r12 night T.4, stroke 1.5 white T.75; option padding 6/11 (h 27, the intel estimate), FO 12 segText;
+-- on = gradCta (Rot 90) + white text. Rect clipping can't round the end options, so the first/last on fills get their own UICorner 12
+-- plus a square half on the inner side (intel deviation). Options = GuiButtons Option<label>; Hit trimmed to the option width (G1).
+-- fn(index) on a tap of another option (the caller sends; the confirmed re-render moves the on state).
+function W.seg(parent,name,options,index,fn)
+ local s=T.s.thin;local r=T.r[12];local n=T.t.seg;local h=27;local padX=11
+ local ws,total={},0
+ for i,label in ipairs(options) do ws[i]=math.ceil(TextService:GetTextSize(label,T.size(n),T.fontBody,Vector2.new(1e4,1e4)).X)+2*padX;total+=ws[i] end
+ local o=root('Frame',parent,name,UDim2.fromOffset(total+2*s,h+2*s),nil,r)
+ local b=body(o,r,s,T.night,T.wellT.seg);gstroke(b,T.text,s,.75)
+ local x=0
+ for i,label in ipairs(options) do
+  local w,on=ws[i],i==index
+  local opt=root('TextButton',b,'Option'..(label:gsub('[^%w]','')),UDim2.fromOffset(w,h),UDim2.fromOffset(x,0),r);opt.Text=label;opt.ZIndex=1
+  opt:SetAttribute('QAControl',true);opt:SetAttribute('Enabled',true);opt:SetAttribute('On',on);x+=w
+  if on then
+   local f=W.new('Frame',opt,{Name='Fill',Size=UDim2.fromScale(1,1),BackgroundColor3=T.text,BorderSizePixel=0,ZIndex=0});W.grad(f,T.gradCta,nil,90)
+   local first,last=i==1,i==#options
+   if first or last then
+    corner(f,r)
+    if not (first and last) then
+     local sq=W.new('Frame',f,{Name='Square',Size=UDim2.fromScale(.5,1),Position=UDim2.fromScale(if first then .5 else 0,0),BackgroundColor3=T.text,BorderSizePixel=0});W.grad(sq,T.gradCta,nil,90)
+    end
+   end
+  end
+  local l=W.fit(inked(gtext(opt,'Label',label,T.fontBody,n,if on then T.text else T.segText)),n,8);l.Size=UDim2.new(1,-2*padX,1,0);l.Position=UDim2.fromOffset(padX,0);l.ZIndex=1
+  W.bind(opt,function() if not on and fn then fn(i) end end);W.hit(opt,44,Vector2.new(w,math.huge));W.focus(opt)
+ end
+ return o
+end
+-- tog() (§2, L321-323, L622): 54×28 r16 night T.3, stroke 1.5 white T.7; knob 20 at (3,3) togOff inside the border (the CSS ::after);
+-- on = gradAction fill, knob x 29 white. Knob Motion 'tog.knob' (§6). fn() on tap (the caller sends the new state).
+function W.toggle(parent,name,on,fn)
+ local s=T.s.thin;local r=T.r.btn
+ local o=root('TextButton',parent,name,UDim2.fromOffset(54,28),nil,r);o:SetAttribute('QAControl',true);o:SetAttribute('Enabled',true)
+ local b=body(o,r,s,T.night,T.wellT.tog);local g=W.grad(b,T.gradAction);gstroke(b,T.text,s,.7)
+ local k=corner(W.new('Frame',b,{Name='Knob',Size=UDim2.fromOffset(20,20),BorderSizePixel=0,ZIndex=1}),T.r.circle);k:SetAttribute('Motion','tog.knob')
+ states[o]=function(v)
+  b.BackgroundColor3=if v then T.text else T.night;b.BackgroundTransparency=if v then 0 else T.wellT.tog;g.Enabled=v
+  k.Position=UDim2.fromOffset(if v then 29 else 3,3);k.BackgroundColor3=if v then T.text else T.togOff
+ end
+ W.setOn(o,on);W.bind(o,fn);W.hit(o,44);W.focus(o);return o
 end
 -- card() (§2, L199-206, L610-612): rcg fill, stroke 3 ink, outer ring 2 white T.7 (violet/prism: T.4 + glowCardRare), art h 62
 -- with U11 highlight + icon 52, ink T.38 name band (padding 3/7/6, gap 3, FO 12, XP h 7), level badge 28 at (5,5) deep FO 13.
