@@ -1,0 +1,40 @@
+Glassbloom P2 T0 test baseline, 2026-10-28, branch codex/hud-glassbloom, before any P2 code change.
+Luau: C:/Users/HOME!/Desktop/climb&collect/tools/.luau/luau.exe mountain/tests/<name>.luau; Python: python mountain/tests/run_*.py (repo root).
+alpine_profile.luau: PASS 4779
+arrival_readiness.luau: PASS (no count; "real completion, bounded wait, failed asset retry")
+bat_rules.luau: PASS 27
+combat_raids.luau: N/A (fixture loaded by run_combat_raids.py; standalone: "attempt to index nil with 'connectRaids'")
+compact_geometry.luau: PASS (no count; "six connected sections, shorter route, preserved escape and hazard width")
+egg_raids.luau: PASS 21
+entrances_cli.luau: PASS 19
+free_climb_geometry.luau: PASS 62
+guardian_rules.luau: PASS 12
+home_layout.luau: PASS 105
+hud_layout.luau: PASS 288
+journey.luau: PASS 8
+movement_cli.luau: PASS 17
+quality_geometry.luau: PASS 98981
+raid_hazards.luau: PASS 30
+route_geometry.luau: PASS 657
+rules.luau: PASS 121
+run_journey.luau: PASS 6
+run_persistence.luau: N/A (fixture loaded by run_persistence.py; standalone: "attempt to index nil with 'transact'")
+run_rules.luau: PASS 23
+sanctuary_sessions.luau: PASS 18
+traversal.luau: PASS 131
+tycoon.luau: PASS 62
+tycoon_economy.luau: PASS 125
+tycoon_progression.luau: PASS 34
+tycoon_requests.luau: PASS 11
+ui_client_state.luau: PASS 50
+ui_presentation.luau: PASS 46
+ui_protocol.luau: PASS 42
+ui_server.luau: PASS 25
+run_carry_pose.py: PASS 8
+run_combat_raids.py: PASS 18
+run_lifecycle.py: PASS 8
+run_movement.py: PASS 14
+run_persistence.py: PASS 28
+run_ui_server.py: PASS 25
+service_harness.py: N/A (shared helper module for run_*.py, not a suite)
+Studio-only suites: none in mountain/tests.
