@@ -325,4 +325,340 @@ function W.slot(parent,species,size,pos)
  W.label(f,'+',UDim2.fromScale(1,1),nil,T.display,30,T.row,center)
  return f
 end
+-- Glassbloom kit (P3). Tokens: Theme (intel §1); recipes: climb&collect/design/hud-glassbloom-intel.md §2; touch §3.
+-- L### = board lines cited by the intel. No tweens: animated pieces carry attribute Motion=<§6 token>.
+-- Root layering (ZIndexBehavior Sibling): Glow -2, Lip -1, Body 0, labels/caller content >=1, Hit 20. CSS borders sit inside
+-- the box (Conversions), so each Body is inset by its stroke and the root keeps the border-box size. Do not clip a root.
+-- Every stroke stores BaseThickness + BaseTransparency (Controller.applyPreferences must honour the latter).
+local Players=game:GetService('Players')
+local MarketplaceService=game:GetService('MarketplaceService')
+local TextService=game:GetService('TextService')
+local handlers=setmetatable({},{__mode='k'});local states=setmetatable({},{__mode='k'})
+local function asset(id) return 'rbxassetid://'..id end
+local function udim(r:any) return if type(r)=='number' then UDim.new(0,math.max(0,r)) else r end
+local function corner(o,r) W.new('UICorner',o,{CornerRadius=udim(r)});return o end
+local function less(r,n) return if type(r)=='number' then r-n else r end
+local function gstroke(o,color,th,t,ctx)
+ local s=W.new('UIStroke',o,{ApplyStrokeMode=if ctx then Enum.ApplyStrokeMode.Contextual else Enum.ApplyStrokeMode.Border,Color=color,Thickness=if T.prefs.highContrast then math.max(2,th) else th,Transparency=t or 0,LineJoinMode=Enum.LineJoinMode.Round})
+ s:SetAttribute('BaseThickness',th);s:SetAttribute('BaseTransparency',t or 0);return s
+end
+-- T.grad* table -> UIGradient (stop = {pos, colour, T?}); `color` fills colour-less stops (gradStreak = rc).
+function W.grad(o,g,color,rot)
+ local c,n,alpha={},{},false
+ for _,k in ipairs(g.stops) do table.insert(c,ColorSequenceKeypoint.new(k[1],k[2] or color));table.insert(n,NumberSequenceKeypoint.new(k[1],k[3] or 0));alpha=alpha or k[3]~=nil end
+ local u=W.new('UIGradient',o,{Color=ColorSequence.new(c),Rotation=rot or g.rot or 0})
+ if alpha then u.Transparency=NumberSequence.new(n) end
+ return u
+end
+local tierKey={Common='blue',Uncommon='blue',Rare='gold',Epic='violet',Mythic='prism',Legendary='prism'} -- 1b (H L9)
+local function rcg(o,key)
+ local r=T.rarityColor[key]
+ if r.stops then local k={};for i,c in ipairs(r.stops) do k[i]=ColorSequenceKeypoint.new((i-1)/(#r.stops-1),c) end;return W.new('UIGradient',o,{Color=ColorSequence.new(k),Rotation=r.rot}) end
+ return W.new('UIGradient',o,{Color=ColorSequence.new(r.from,r.to),Rotation=r.rot})
+end
+local function gtext(parent,name,content,font,n,color,align)
+ local l=W.new('TextLabel',parent,{Name=name,Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Text=tostring(content),TextColor3=color or T.text,Font=font,TextSize=T.size(n),TextXAlignment=align or Enum.TextXAlignment.Center,TextYAlignment=Enum.TextYAlignment.Center})
+ l:SetAttribute('BaseTextSize',n);return l
+end
+-- W.text recipe (L48, P§2): body text gets a 1 px ink T.2 outline; display text gets a drop label instead.
+local function inked(l) gstroke(l,T.outline,T.s.hair,.2,true);return l end
+local function root(class,parent,name,size,pos,r)
+ local o=W.new(class,parent,{Name=name,Size=size or UDim2.fromScale(1,1),Position=pos or UDim2.new(),BackgroundTransparency=1,BorderSizePixel=0})
+ if class=='TextButton' then o.Text='';o.TextTransparency=1;o.AutoButtonColor=false end
+ o:SetAttribute('CornerRadius',udim(r));return o
+end
+local function body(o,r,s,color,t)
+ return corner(W.new('Frame',o,{Name='Body',Size=UDim2.new(1,-2*s,1,-2*s),Position=UDim2.fromOffset(s,s),BackgroundColor3=color or T.text,BackgroundTransparency=t or 0,BorderSizePixel=0,ZIndex=0}),less(r,s))
+end
+-- Lip = box-shadow 0 Y 0 (Conversions). Opaque body: same-shape Frame at +Y behind. Translucent body: inside a
+-- ClipsDescendants strip spanning y H..H+Y so it never shows through. Decor: shadows are outside the board's boxes.
+local function lip(o,r,y,color,t,clipped)
+ local host=o
+ if clipped then host=W.new('Frame',o,{Name='LipClip',Size=UDim2.new(1,0,0,y),Position=UDim2.fromScale(0,1),BackgroundTransparency=1,BorderSizePixel=0,ClipsDescendants=true,ZIndex=-1});host:SetAttribute('Decor',true) end
+ local l=corner(W.new('Frame',host,{Name='Lip',Size=UDim2.fromScale(1,1),Position=UDim2.fromOffset(0,y),BackgroundColor3=color,BackgroundTransparency=t or 0,BorderSizePixel=0,ZIndex=-1}),r)
+ if clipped then
+  local function fit() local h=if o.AbsoluteSize.Y>0 then o.AbsoluteSize.Y else o.Size.Y.Offset;l.Size=UDim2.new(1,0,0,h);l.Position=UDim2.fromOffset(0,y-h) end
+  fit();o:GetPropertyChangedSignal('AbsoluteSize'):Connect(fit)
+ end
+ l:SetAttribute('Decor',true);return l
+end
+local function fire(c) if c:GetAttribute('Enabled')~=false and handlers[c] then handlers[c]() end end
+-- Handler registry: the Hit area and gamepad Activated on the control both reach fn. Use fn/W.bind, not control.Activated
+-- (the Hit child sits on top and receives mouse/touch).
+function W.bind(c,fn)
+ if not fn then return c end
+ if handlers[c]==nil and c:IsA('GuiButton') then c.Activated:Connect(function() fire(c) end) end
+ handlers[c]=fn;return c
+end
+function W.setOn(c,on) local f=states[c];if f then f(on==true) end;c:SetAttribute('On',on==true);return c end
+-- Touch target (§3, STOP 1 G1): invisible TextButton 'Hit' >= minSize (44) centred on the control; drawn size unchanged.
+-- maxSize (number or Vector2) trims at the neighbour midpoint (side tabs 39, wrapped chips 33). Re-call to change.
+function W.hit(control,minSize,maxSize)
+ local h=control:FindFirstChild('Hit')
+ if not h then
+  h=W.new('TextButton',control,{Name='Hit',Text='',BackgroundTransparency=1,BorderSizePixel=0,AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromScale(1,1),AutoButtonColor=false,Selectable=false,ZIndex=20})
+  h:SetAttribute('HitArea',true);W.new('UISizeConstraint',h,{})
+  h.Activated:Connect(function() fire(control) end)
+ end
+ local m=minSize or 44;local mx=if type(maxSize)=='number' then Vector2.new(maxSize,maxSize) else maxSize or Vector2.new(math.huge,math.huge)
+ local c=h:FindFirstChildOfClass('UISizeConstraint');c.MinSize=Vector2.zero;c.MaxSize=mx;c.MinSize=Vector2.new(math.min(m,mx.X),math.min(m,mx.Y))
+ return h
+end
+-- Focus ring (L35, s.focus): 2 px white stroke on a Frame 2 px outside the control, used as SelectionImageObject.
+function W.focus(button)
+ local r=button:GetAttribute('CornerRadius') or UDim.new()
+ local f=W.new('Frame',nil,{Name='Focus',Size=UDim2.new(1,4,1,4),Position=UDim2.fromOffset(-2,-2),BackgroundTransparency=1,BorderSizePixel=0})
+ corner(f,if r.Scale>0 then r else UDim.new(0,r.Offset+2));gstroke(f,T.text,T.s.focus,0)
+ button.SelectionImageObject=f;return f
+end
+-- Hollow U1 glow (Conversions: box-shadow 0 0 B S C): size element+2(B+S), SliceScale B/32, tint C, T. Pass the widget
+-- root as both parent and target (layout-safe, inside the root at Z -2); otherwise a sibling one Z below target.
+-- color: tint for colour-less tokens (glowRarity = rc); use: key into a per-use blur table (glowRarity.b). S>0 adds a stroke S.
+function W.glow(parent,target,g,color,use)
+ local b=if type(g.b)=='table' then g.b[use] else g.b;local sp=g.s or 0;local c=g.color or color
+ local function place(o,e)
+  if target==parent then o.Size=UDim2.new(1,2*e,1,2*e);o.Position=UDim2.fromOffset(-e,-e);o.ZIndex=-2;return end
+  local a=target.AnchorPoint;o.AnchorPoint=a;o.Size=target.Size+UDim2.fromOffset(2*e,2*e)
+  o.Position=target.Position+UDim2.fromOffset((2*a.X-1)*e,(2*a.Y-1)*e);o.ZIndex=target.ZIndex-1
+ end
+ local o=W.new('ImageLabel',parent,{Name='Glow',BackgroundTransparency=1,Image=asset(T.images.glow),ImageColor3=c,ImageTransparency=g.t,ScaleType=Enum.ScaleType.Slice,SliceCenter=T.slice.glow,SliceScale=b/32})
+ place(o,b+sp);o:SetAttribute('Decor',true)
+ if sp>0 then
+  local f=W.new('Frame',parent,{Name='GlowSpread',BackgroundTransparency=1,BorderSizePixel=0});place(f,0);f:SetAttribute('Decor',true)
+  local cr=target:GetAttribute('CornerRadius') or (target:FindFirstChildOfClass('UICorner') and target:FindFirstChildOfClass('UICorner').CornerRadius) or UDim.new()
+  corner(f,cr);gstroke(f,c,sp,g.t)
+ end
+ return o
+end
+-- W.glass (§2, L47): gradGlass body, rim 2, 2 px top highlight (x r..W-r), clipped night lip 5 T.4, optional hollow glow.
+-- No blur; the inset bottom shade is not ported. ~9 instances (+1 glow). opts: radius (px or T.r.circle; default r.glass),
+-- variant 'shop'|'banner'|'edge', rim, rimT, glow (token, false = none), lip (default true).
+local glassVariant={shop={rim=T.gold,rimT=.2,glow=T.glowShop},banner={rim=T.text},edge={rim=T.go}} -- L210, L144, L129
+function W.glass(parent,name,size,pos,opts)
+ opts=opts or {};local v=glassVariant[opts.variant] or {}
+ local r=opts.radius or T.r.glass;local s=T.s.glass
+ local o=root('Frame',parent,name,size,pos,r)
+ local b=body(o,r,s);W.grad(b,T.gradGlass)
+ -- GAP: banner/edge rim transparency is not stated (§2 variants name only the colour); glass.rimT kept.
+ gstroke(b,opts.rim or v.rim or T.glassRim,s,opts.rimT or v.rimT or T.glassRimT)
+ if type(r)=='number' then W.new('Frame',b,{Name='Highlight',Size=UDim2.new(1,2*(s-r),0,2),Position=UDim2.fromOffset(r-s,2-s),BackgroundColor3=T.text,BackgroundTransparency=T.glassHiT,BorderSizePixel=0}) end
+ if opts.lip~=false then lip(o,r,5,T.night,T.glassLipT,true) end
+ local g=if opts.glow~=nil then opts.glow else v.glow
+ if g then W.glow(o,o,g) end
+ return o
+end
+-- W.ring (§2, L112/L126/L283; verified in Studio, evidence/hud_glassbloom_2026-10-27/p3/ring_spike_01.png). The ring is
+-- the outer t px inside d. Returns {Frame=, set=function(self,p)} (p 0..1, static; Motion drives :set). Full circle at p>=1.
+function W.ring(parent,d,t,fillColor,trackT,innerColor)
+ local f=W.new('Frame',parent,{Name='Ring',Size=UDim2.fromOffset(d,d),BackgroundTransparency=1,BorderSizePixel=0})
+ local function circle(host,name,x,color,z)
+  return corner(W.new('Frame',host,{Name=name,Size=UDim2.fromOffset(d-2*t,d-2*t),Position=UDim2.fromOffset(x,t),BackgroundColor3=color or T.text,BackgroundTransparency=if color then 0 else 1,BorderSizePixel=0,ZIndex=z}),T.r.circle)
+ end
+ if innerColor then circle(f,'Inner',t,innerColor,1) end
+ gstroke(circle(f,'Track',t,nil,1),T.text,t,trackT)
+ local step=NumberSequence.new({NumberSequenceKeypoint.new(0,0),NumberSequenceKeypoint.new(.5,0),NumberSequenceKeypoint.new(.501,1),NumberSequenceKeypoint.new(1,1)})
+ local halves={}
+ for i,h in ipairs({{'HalfR',d/2,-d/2+t},{'HalfL',0,t}}) do
+  local clip=W.new('Frame',f,{Name=h[1],Size=UDim2.fromOffset(d/2,d),Position=UDim2.fromOffset(h[2],0),BackgroundTransparency=1,BorderSizePixel=0,ClipsDescendants=true,ZIndex=2})
+  halves[i]={clip=clip,grad=W.new('UIGradient',gstroke(circle(clip,'Arc',h[3],nil,2),fillColor,t,0),{Transparency=step})}
+ end
+ local full=circle(f,'Full',t,nil,2);gstroke(full,fillColor,t,0)
+ local ring={Frame=f}
+ function ring.set(_,p)
+  p=math.clamp(p or 0,0,1);local done=p>=1
+  halves[1].grad.Rotation=math.min(p,.5)*360;halves[2].grad.Rotation=180+math.max(p-.5,0)*360
+  halves[1].clip.Visible=p>0 and not done;halves[2].clip.Visible=p>.5 and not done;full.Visible=done
+ end
+ ring:set(0);return ring
+end
+-- W.orb (§2, L55): circle body (gradient or flat fill), stroke 3 white, lip, hollow glow, U8 gloss, icon. TextButton root.
+-- opts: preset 'sprint'|'bat', gradient, fill, fillT, flat (no gloss, clipped lip), glow, lipColor, lipY, glossT, icon,
+-- iconSize, pos, fn. Plain orb defaults: gradCta, glowOrb, lip `lip`, gloss T.4 (U8).
+local orbPreset={
+ sprint={gradient=T.gradMint,glow=T.glowSprint,lipColor=T.goLip,lipY=5,glossT=.4,icon='Sprint',iconSize=32}, -- L123, U8
+ bat={flat=true,fill=T.batFill,fillT=.22,glow=T.glowBat,lipColor=T.batLip,lipY=4,icon='Bat',iconSize=30}, -- L124
+}
+function W.orb(parent,name,d,opts)
+ opts=opts or {};local p=orbPreset[opts.preset] or {}
+ local function get(k) local v=opts[k];if v==nil then v=p[k] end;return v end
+ local r=T.r.circle;local s=T.s.bold;local flat=get('flat')
+ local o=root('TextButton',parent,name,UDim2.fromOffset(d,d),opts.pos,r);o:SetAttribute('QAControl',true)
+ local g=get('glow');if g==nil and not opts.preset then g=T.glowOrb end
+ if g then W.glow(o,o,g) end
+ -- GAP: the plain cta orb (L55; the jump orb is not built, D5) has no lip height in the intel; pass opts.lipY.
+ local ly=get('lipY');if ly then lip(o,r,ly,get('lipColor') or T.lip,0,flat) end
+ local b=body(o,r,s,if flat then get('fill') else T.text,if flat then get('fillT') else 0)
+ if not flat then W.grad(b,get('gradient') or T.gradCta) end
+ gstroke(b,T.text,s,0)
+ if not flat then W.new('ImageLabel',b,{Name='Gloss',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,Image=asset(T.images.glossOrb),ImageTransparency=get('glossT') or .4}) end
+ -- GAP: the plain orb's icon size is not in the intel; the icon is drawn only when iconSize is given (presets have it).
+ local k,a=get('icon'),get('iconSize');if k and a then W.icon(o,k,UDim2.fromOffset(a,a),UDim2.fromOffset((d-a)/2,(d-a)/2)) end
+ W.bind(o,opts.fn);W.hit(o);W.focus(o);return o
+end
+-- Shared button body for cta / ghost / buy. k: stroke, strokeT, grad, fill, fillT, gloss, shine, glow, lipY, lipColor,
+-- lipT, clipped, drop (colour), ink, n, padX.
+local function ctaCore(parent,name,label,size,pos,k)
+ local r=T.r.btn;local s=k.stroke;local pad=k.padX or 0
+ local o=root('TextButton',parent,name,size,pos,r);o.Text=label;o.Font=T.fontDisplay;o.TextSize=T.size(k.n)
+ o:SetAttribute('QAControl',true);o:SetAttribute('Enabled',true)
+ if k.glow then W.glow(o,o,k.glow) end
+ lip(o,r,k.lipY,k.lipColor,k.lipT,k.clipped)
+ local b=body(o,r,s,k.fill or T.text,k.fillT);b.ClipsDescendants=k.shine==true
+ if k.grad then W.grad(b,k.grad) end
+ gstroke(b,T.text,s,k.strokeT)
+ if k.gloss then W.grad(corner(W.new('Frame',b,{Name='Gloss',Size=UDim2.fromScale(1,1),BackgroundColor3=T.text,BorderSizePixel=0}),less(r,s)),T.gradGloss) end
+ if k.shine then
+  -- Rest pose = buy.shine start (x -40 %, rect-clipped by the body); Motion sweeps it to 130 %.
+  local sh=W.new('Frame',b,{Name='Shine',Size=UDim2.fromScale(.28,1.2),Position=UDim2.fromScale(-.4,-.1),Rotation=20,BackgroundColor3=T.text,BorderSizePixel=0})
+  W.grad(sh,T.gradShine);sh:SetAttribute('Motion','buy.shine');sh:SetAttribute('Decor',true)
+ end
+ local function label_(name_,color,y,z)
+  local l=W.fit(gtext(o,name_,label,T.fontDisplay,k.n,color),k.n,8);l.Size=UDim2.new(1,-2*pad,1,0);l.Position=UDim2.fromOffset(pad,y);l.ZIndex=z;return l
+ end
+ local drop=if k.drop then label_('Drop',k.drop,2,1) else nil
+ local l=label_('Label',k.ink or T.text,0,2)
+ o:GetPropertyChangedSignal('Text'):Connect(function() l.Text=o.Text;if drop then drop.Text=o.Text end end)
+ W.hit(o);W.focus(o);return o
+end
+-- W.cta (§2, L56): gradCta, gloss overlay, stroke 3 white, lip `lip` 6, glowCta, LuckiestGuy label + `lip` drop +2.
+-- Returns the TextButton (Text = label; the Label child draws it). opts: n (text px, default t.btn 20), padX (default 0).
+function W.cta(parent,name,label,size,pos,fn,opts)
+ opts=opts or {}
+ return W.bind(ctaCore(parent,name,label,size,pos,{stroke=T.s.bold,grad=T.gradCta,gloss=true,glow=T.glowCta,lipY=6,lipColor=T.lip,drop=T.lip,n=opts.n or T.t.btn,padX=opts.padX}),fn)
+end
+-- W.ghost (§2, L57/L246/L307): night2 T.3, stroke 2 white T.6, clipped lip night T.3 5, LuckiestGuy (both ghosts: 15).
+-- Radius = the .btn r16 (ghost is a .btn variant, L57); the board ghosts are h 30-32, so it renders as a pill. opts: n, padX.
+local function ghostSpec(n,pad) return {stroke=T.s.glass,fill=T.night2,fillT=T.ghostT.fill,strokeT=T.ghostT.rim,lipY=5,lipColor=T.night,lipT=T.ghostT.lip,clipped=true,n=n,padX=pad} end
+function W.ghost(parent,name,label,size,pos,fn,opts)
+ opts=opts or {}
+ return W.bind(ctaCore(parent,name,label,size,pos,ghostSpec(opts.n or T.t.pbtn,opts.padX)),fn)
+end
+-- buy() (§2, L242-246, L614): W.cta shape, stroke 2, LG 16, gloss + shine. Signature: (parent,name,price,currency,size,pos,fn,opts)
+-- with opts {productId, short, onShort, n, padX}; `price` is the caller's formatted label (G22). Robux: id 0/nil -> disabled ghost
+-- "Coming soon" (G15); else tap -> PromptProductPurchase (Roblox handles the top-up), then fn(). Coins: tap 1 -> "CONFIRM" 3 s,
+-- tap 2 -> fn(); attribute Short (opts.short, settable later) -> label "Need <price>", taps call onShort.
+function W.buy(parent,name,price,currency,size,pos,fn,opts)
+ opts=opts or {};local n=opts.n or T.t.buy;local pad=opts.padX or 12;local robux=currency=='robux';price=tostring(price)
+ if robux and (opts.productId or 0)==0 then
+  local o=ctaCore(parent,name,'Coming soon',size,pos,ghostSpec(n,pad))
+  o:SetAttribute('Enabled',false);o:SetAttribute('Currency',currency);o.Active=false;o.Selectable=false;return o
+ end
+ -- GAP: the coin lip height (L245) is not quoted in the intel (§2 names only gold.lip); the Robux lip 4 (L242) is used.
+ local lipC=if robux then T.goLip else T.goldLip
+ local o=ctaCore(parent,name,price,size,pos,{stroke=T.s.glass,grad=if robux then T.gradMint else T.gradCoinBuy,gloss=true,shine=true,glow=if robux then T.glowBuyRobux else T.glowBuyCoin,lipY=4,lipColor=lipC,drop=lipC,n=n,padX=pad})
+ o:SetAttribute('Currency',currency)
+ if robux then return W.bind(o,function() MarketplaceService:PromptProductPurchase(Players.LocalPlayer,opts.productId);if fn then fn() end end) end
+ local armed,serial=false,0
+ local function idle() armed=false;o.Text=if o:GetAttribute('Short') then 'Need '..price else price end
+ o:SetAttribute('Short',opts.short==true);idle()
+ o:GetAttributeChangedSignal('Short'):Connect(idle)
+ return W.bind(o,function()
+  if o:GetAttribute('Short') then if opts.onShort then opts.onShort() end;return end
+  if armed then idle();if fn then fn() end;return end
+  armed=true;serial+=1;local mine=serial;o.Text='CONFIRM'
+  task.delay(3,function() if armed and serial==mine then idle() end end)
+ end)
+end
+-- tabs() Tab (§2, L182-186): h 34 r11, padX 9, icon 22, gap 7, FO 13; off night T.5 + stroke 1.5 white T.82; on gradCta
+-- Rot 0 + stroke white + glowTabOn. Fills the column width. Toggle with W.setOn(tab,on); fn optional (or W.bind).
+function W.tab(parent,name,label,iconKind,on,fn)
+ local r=T.r[11];local s=T.s.thin;local x=s+9
+ local o=root('TextButton',parent,name,UDim2.new(1,0,0,34),nil,r);o.Text=label;o:SetAttribute('QAControl',true)
+ local glow=W.glow(o,o,T.glowTabOn)
+ local b=body(o,r,s,T.night,T.wellT.tab);local g=W.grad(b,T.gradCta,nil,0);local st=gstroke(b,T.text,s,.82)
+ if iconKind then W.icon(o,iconKind,UDim2.fromOffset(22,22),UDim2.fromOffset(x,6));x+=22+7 end
+ local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,T.t.tab,T.text,Enum.TextXAlignment.Left)),T.t.tab,8);l.Size=UDim2.new(1,-x-s-9,1,0);l.Position=UDim2.fromOffset(x,0)
+ states[o]=function(v)
+  b.BackgroundColor3=if v then T.text else T.night;b.BackgroundTransparency=if v then 0 else T.wellT.tab;g.Enabled=v;glow.Visible=v
+  st.Transparency=if v then 0 else .82;st:SetAttribute('BaseTransparency',st.Transparency)
+ end
+ W.setOn(o,on);W.bind(o,fn);W.hit(o);W.focus(o);return o
+end
+-- Scroll-area section header (§2, L193-195): FO 11 pinkText uppercase, margin 14 top / 7 bottom (first: 2 top), right note
+-- FO 11 lavText. Height follows the text (AutomaticSize Y; the board line-height is not stated).
+function W.sectionHeader(parent,text,note,first)
+ local f=W.new('Frame',parent,{Name='SectionHeader',Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,BorderSizePixel=0})
+ W.new('UIPadding',f,{PaddingTop=UDim.new(0,if first then 2 else 14),PaddingBottom=UDim.new(0,7)})
+ local function line(name,s,color,align) local l=inked(gtext(f,name,s,T.fontBody,T.t.small,color,align));l.Size=UDim2.fromScale(1,0);l.AutomaticSize=Enum.AutomaticSize.Y;return l end
+ line('Title',string.upper(text),T.pinkText,Enum.TextXAlignment.Left)
+ if note then line('Note',note,T.lavText,Enum.TextXAlignment.Right) end
+ return f
+end
+-- Scroll area (§2, L188-195, P§2): ScrollingFrame Y, UIPadding 3/10/14/3, bar 6 solid pk over a night T.45 r4 track, block-flow
+-- list (gap 0), 36 px bottom fade (Decor) hidden at the end. Returns scroll, holder (holder = the positioned box named `name`).
+function W.scrollArea(parent,name,size,pos)
+ local h=W.new('Frame',parent,{Name=name,Size=size or UDim2.fromScale(1,1),Position=pos or UDim2.new(),BackgroundTransparency=1,BorderSizePixel=0});local bar=6
+ corner(W.new('Frame',h,{Name='ScrollTrack',Size=UDim2.new(0,bar,1,0),Position=UDim2.new(1,-bar,0,0),BackgroundColor3=T.night,BackgroundTransparency=T.wellT.track,BorderSizePixel=0,ZIndex=0}),T.r[4])
+ local s=W.new('ScrollingFrame',h,{Name='Scroll',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=bar,ScrollBarImageColor3=T.pk,ScrollBarImageTransparency=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollingDirection=Enum.ScrollingDirection.Y,ZIndex=1})
+ W.new('UIPadding',s,{PaddingTop=UDim.new(0,3),PaddingRight=UDim.new(0,10),PaddingBottom=UDim.new(0,14),PaddingLeft=UDim.new(0,3)});W.list(s,0)
+ -- GAP: "gradient to the panel tint" has no value in the intel; the glass panel's bottom stop (glassTo T.38) is used.
+ local last=T.gradGlass.stops[#T.gradGlass.stops]
+ local fade=W.new('Frame',h,{Name='BottomFade',Size=UDim2.new(1,0,0,36),Position=UDim2.new(0,0,1,-36),BackgroundColor3=last[2],BorderSizePixel=0,Active=false,ZIndex=2})
+ W.new('UIGradient',fade,{Rotation=90,Transparency=NumberSequence.new(1,last[3])});fade:SetAttribute('Decor',true)
+ local function sync() fade.Visible=s.CanvasPosition.Y<s.AbsoluteCanvasSize.Y-s.AbsoluteWindowSize.Y-1 end
+ for _,p in ipairs({'CanvasPosition','AbsoluteCanvasSize','AbsoluteWindowSize'}) do s:GetPropertyChangedSignal(p):Connect(sync) end
+ sync();return s,h
+end
+-- Glassbloom chip (§2 chips, L196-198): h 27, padX 10, r12, FO 12; off night T.5 + stroke 1.5 white T.78; on pk T.65 + stroke
+-- white, no glow. Width = text + padding unless size is given. W.setOn(chip,on); fn optional (or W.bind).
+function W.glassChip(parent,label,on,size,pos,fn)
+ local r=T.r[12];local s=T.s.thin;local n=T.t.chip;local pad=s+10
+ if not size then size=UDim2.fromOffset(math.ceil(TextService:GetTextSize(label,T.size(n),T.fontBody,Vector2.new(1e4,1e4)).X)+2*pad,27) end
+ local o=root('TextButton',parent,'Chip'..(label:gsub('[^%w]','')),size,pos,r);o.Text=label;o:SetAttribute('QAControl',true)
+ local b=body(o,r,s,T.night,T.wellT.chip);local st=gstroke(b,T.text,s,.78)
+ local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,n)),n,8);l.Size=UDim2.new(1,-2*pad,1,0);l.Position=UDim2.fromOffset(pad,0)
+ states[o]=function(v)
+  b.BackgroundColor3=if v then T.pk else T.night;b.BackgroundTransparency=if v then .65 else T.wellT.chip
+  st.Transparency=if v then 0 else .78;st:SetAttribute('BaseTransparency',st.Transparency)
+ end
+ W.setOn(o,on);W.bind(o,fn);W.hit(o);W.focus(o);return o
+end
+-- card() (§2, L199-206, L610-612): rcg fill, stroke 3 ink, outer ring 2 white T.7 (violet/prism: T.4 + glowCardRare), art h 62
+-- with U11 highlight + icon 52, ink T.38 name band (padding 3/7/6, gap 3, FO 12, XP h 7), level badge 28 at (5,5) deep FO 13.
+-- rarityKey: tier name or rarityColor key (default species.rarity). species nil = unknown ("???", "?" FO 30).
+-- opts: level, xp (0..1), locked (padlock 38), icon (W.icon kind, default 'Creature').
+function W.rarityCard(parent,name,species,rarityKey,size,pos,opts)
+ opts=opts or {}
+ local key=if T.rarityColor[rarityKey] then rarityKey else tierKey[rarityKey or (species and species.rarity) or '']
+ local r=T.r.card;local s=T.s.bold;local rare=key=='violet' or key=='prism';local known=species~=nil and key~=nil and not opts.locked
+ local o=root('Frame',parent,name,size,pos,r)
+ if rare and known then W.glow(o,o,T.glowCardRare) end
+ gstroke(corner(W.new('Frame',o,{Name='Ring',Size=UDim2.fromScale(1,1),BackgroundTransparency=1,BorderSizePixel=0,ZIndex=-1}),r),T.text,T.s.glass,if rare and known then .4 else .7)
+ local b=body(o,r,s,if known then T.text else T.cardFallback);gstroke(b,T.outline,s,0)
+ if known then rcg(b,key) end
+ local art=W.new('Frame',b,{Name='Art',Size=UDim2.new(1,0,0,62),BackgroundTransparency=1,BorderSizePixel=0,ClipsDescendants=true})
+ if known then
+  -- GAP: the highlight extent is not stated; sized to the farthest art corner from (50 %, 42 %) (the CSS radial default).
+  local hi=W.new('ImageLabel',art,{Name='Highlight',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.42),BackgroundTransparency=1,Image=asset(T.images.radial),ImageColor3=T.text,ImageTransparency=.4})
+  hi:SetAttribute('Decor',true)
+  local function fit() local w=if art.AbsoluteSize.X>0 then art.AbsoluteSize.X elseif size then size.X.Offset-2*s else 0;local e=2*math.sqrt((w/2)^2+(62*.58)^2);hi.Size=UDim2.fromOffset(e,e) end
+  fit();art:GetPropertyChangedSignal('AbsoluteSize'):Connect(fit)
+  W.icon(art,opts.icon or 'Creature',UDim2.fromOffset(52,52),UDim2.new(.5,-26,.5,-26))
+ elseif opts.locked then W.icon(art,'Padlock',UDim2.fromOffset(38,38),UDim2.new(.5,-19,.5,-19))
+ else gtext(art,'Unknown','?',T.fontBody,T.t.cardArt) end
+ local band=W.new('Frame',b,{Name='Band',AnchorPoint=Vector2.new(0,1),Position=UDim2.fromScale(0,1),Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundColor3=T.outline,BackgroundTransparency=.38,BorderSizePixel=0})
+ W.new('UIPadding',band,{PaddingTop=UDim.new(0,3),PaddingRight=UDim.new(0,7),PaddingBottom=UDim.new(0,6),PaddingLeft=UDim.new(0,7)});W.list(band,3)
+ local nm=inked(gtext(band,'Name',if species then species.name else '???',T.fontBody,T.t.cardName));nm.Size=UDim2.fromScale(1,0);nm.AutomaticSize=Enum.AutomaticSize.Y;nm.TextWrapped=true;nm.LayoutOrder=1
+ if known then
+  -- GAP: the card XP track fill is not stated; well.T xp (night T.3, L51) used. Fill = gradAction, full = gradCardXpFull.
+  local xp=math.clamp(opts.xp or 0,0,1)
+  local tr=corner(W.new('Frame',band,{Name='XP',Size=UDim2.new(1,0,0,7),BackgroundColor3=T.night,BackgroundTransparency=T.wellT.xp,BorderSizePixel=0,LayoutOrder=2}),T.r.circle)
+  W.grad(corner(W.new('Frame',tr,{Name='Fill',Size=UDim2.fromScale(xp,1),BackgroundColor3=T.text,BorderSizePixel=0}),T.r.circle),if xp>=1 then T.gradCardXpFull else T.gradAction)
+ end
+ if opts.level then
+  -- GAP G12: the level hexagon has no primitive or upload; drawn as a circle.
+  local lv=corner(W.new('Frame',b,{Name='Level',Size=UDim2.fromOffset(28,28),Position=UDim2.fromOffset(5,5),BackgroundColor3=T.deep,BorderSizePixel=0,ZIndex=2}),T.r.circle)
+  inked(gtext(lv,'Value',opts.level,T.fontBody,T.t.lvh))
+ end
+ return o
+end
+-- cpk Burst (§2, L269-271): 3 gold squares rotated 0/30/60 (12 points), label FO 11 goldInk rotated -12, at top 4 / right 4
+-- (the caller moves it to top 24 under a ribbon). size default 40. Motion owns the wobble.
+function W.burst(parent,size,label)
+ size=size or 40
+ local f=W.new('Frame',parent,{Name='Burst',Size=UDim2.fromOffset(size,size),AnchorPoint=Vector2.new(1,0),Position=UDim2.new(1,-4,0,4),BackgroundTransparency=1,BorderSizePixel=0})
+ for _,a in ipairs({0,30,60}) do W.new('Frame',f,{Name='Point',Size=UDim2.fromScale(1,1),Rotation=a,BackgroundColor3=T.gold,BorderSizePixel=0}) end
+ local l=gtext(f,'Label',label,T.fontBody,T.t.small,T.goldInk);l.Rotation=-12;l.ZIndex=2
+ f:SetAttribute('Motion','burst.wob');return f
+end
 return W
