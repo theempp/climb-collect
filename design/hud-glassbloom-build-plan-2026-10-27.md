@@ -285,5 +285,5 @@ All Q1–Q8 recommendations in `design/hud-glassbloom-p2-proposal-2026-10-28.md`
 - Collection: missing species from sections the player has entered = "???"; from sections never entered = Locked (padlock).
 - Free gifts + Daily deal: board look (2 claimed, 1 ready, 1 timer; Ember trail ticket), inert buttons, "coming soon" in the section headers.
 
-## 18. P5 result (2026-10-28) — STOP 3 pending
-P5 built in 6 component-builder tasks (A frame, B Collection, C Settings, D Shop, E reveal strip, F reskin caveats), commits `ea8ccf1`…`f2395fd`. All §4 P5 done-checks pass (handoff "Final P5 checks"). Copy not saved after P5 (computer use denied). Next after STOP 3: P6 motion.
+## 18. P5 result (2026-10-28) — STOP 3 approved
+P5 built in 6 component-builder tasks (A frame, B Collection, C Settings, D Shop, E reveal strip, F reskin caveats), commits `ea8ccf1`…`f2395fd`. All §4 P5 done-checks pass (handoff "Final P5 checks"). Copy saved after P5 (SHA256 e1d1afde…17b0). STOP 3 approved (popup): hubs/shop as captured; reveal title "RARE PULL!" only for Rare and up, else "NEW COMPANION!". Next: P6 motion.

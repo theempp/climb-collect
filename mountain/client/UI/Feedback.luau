@@ -296,10 +296,11 @@ function F:_reveal(m)
  local scale=W.new('UIScale',h,{})
  -- Title LG 26 landed (30 before, instant switch at reveal.landed, L328/L356) goldText at top 20, drop 3 lip, glowRevealTitle as
  -- the optional U1 around the text (1g). Line box ≈1.2 x 26 (line-height normal, est.).
- -- GAP: the board has one title copy for every tier; a Common hatch also reads "RARE PULL!".
- local title=revealText(h,'Title','RARE PULL!',T.t.revealTitleLanded,T.goldText,T.lip,3,20,32,1,'reveal.landed')
+ -- Owner STOP 3: "RARE PULL!" (board L738) for Rare and up; Common/Uncommon read "NEW COMPANION!".
+ local titleText=if sp.rarity=='Common' or sp.rarity=='Uncommon' then 'NEW COMPANION!' else 'RARE PULL!'
+ local title=revealText(h,'Title',titleText,T.t.revealTitleLanded,T.goldText,T.lip,3,20,32,1,'reveal.landed')
  local tg,tb=T.glowRevealTitle,T.glowRevealTitle.b
- W.new('ImageLabel',title,{Name='Glow',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(textW('RARE PULL!',T.fontDisplay,T.t.revealTitleLanded)+2*tb,T.size(T.t.revealTitleLanded)+2*tb),BackgroundTransparency=1,
+ W.new('ImageLabel',title,{Name='Glow',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(textW(titleText,T.fontDisplay,T.t.revealTitleLanded)+2*tb,T.size(T.t.revealTitleLanded)+2*tb),BackgroundTransparency=1,
   Image='rbxassetid://'..T.images.glow,ImageColor3=tg.color,ImageTransparency=tg.t,ScaleType=Enum.ScaleType.Slice,SliceCenter=T.slice.glow,SliceScale=tb/32,ZIndex=0}):SetAttribute('Decor',true)
  -- Track y 104 (L331-332, L731-733): 20 cards 96x108 at pitch 108, landed with index 14 centred, x = 422 - (14*108 + 54).
  -- Track = the dim group; Reel = the spinning strip (overflows the frame by design: Decor).
