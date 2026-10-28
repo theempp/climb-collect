@@ -14,6 +14,18 @@ if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerSt
 local world=workspace.ImpossibleMountain
 require(game.ServerStorage.MountainWorld.HomePromenade).apply(workspace:FindFirstChild('Sanctuary'),world)
 require(game.ServerStorage.MountainWorld.MountainEntrances).apply(world,workspace:FindFirstChild('Sanctuary'))
+-- Exit volumes are final once both frontage passes above have run; the HUD draws the safe-return line from them.
+local exitBoxes={}
+do local folder=world:FindFirstChild('SanctuaryExits');if folder then for _,v in ipairs(folder:GetChildren()) do if v:IsA('BasePart') then table.insert(exitBoxes,{cframe=v.CFrame,size=v.Size}) end end end end
+-- Server section: the GuardianBounds box holding the position, nil outside every box.
+local function sectionOf(position)
+ local bounds=world:FindFirstChild('GuardianBounds');if not bounds then return nil end
+ for k=1,6 do
+  local box=bounds:FindFirstChild(tostring(k))
+  if box then local q=box.CFrame:PointToObjectSpace(position);if math.abs(q.X)<=box.Size.X/2 and math.abs(q.Y)<=box.Size.Y/2 and math.abs(q.Z)<=box.Size.Z/2 then return k end end
+ end
+ return nil
+end
 local home=require(script.Parent.Sanctuary).new(workspace:FindFirstChild('Sanctuary'))
 local tycoonWorld=require(script.Parent.TycoonWorld).new(home)
 local areas={}
@@ -94,7 +106,9 @@ local function publish(player,visual)
  local s=table.clone(p);s.serverNow=os.time();s.saveMode=P.mode
  local serverClock=workspace:GetServerTimeNow();local cooldowns,dodgeReadyAt=B.cooldowns(player,serverClock)
  tycoonWorld.update(player,p)
- s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings),bats=if bats then bats.snapshot(p) else nil}
+ -- false (not nil) outside every section, so a context merge on the client clears the previous one.
+ local rr=root(player);local section=rr and sectionOf(rr.Position) or false
+ s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings),bats=if bats then bats.snapshot(p) else nil,section=section,exits=exitBoxes}
  send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
@@ -373,9 +387,9 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
   local p=P.get(player);local rr=root(player);local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid')
   if p and respawns[player] and now>=respawns[player] then respawns[player]=nil;task.spawn(loadCharacter,player) end
   if p and contextDue then
-   local refuge,near=atRefuge(player),nearCheckpoint(player);local previous=contextSnapshots[player]
-   if not previous or previous.atHome~=atHome(player) or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) or previous.nearestEgg~=nearestEgg(player) then
-    local context={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow()};contextSnapshots[player]=context;send(player,'context',context)
+   local refuge,near=atRefuge(player),nearCheckpoint(player);local previous=contextSnapshots[player];local section=rr and sectionOf(rr.Position) or false
+   if not previous or previous.atHome~=atHome(player) or previous.atRefuge~=refuge or previous.nearCheckpoint~=near or previous.inSanctuary~=(rr~=nil and home.inSanctuary(rr.Position)) or previous.nearestEgg~=nearestEgg(player) or previous.section~=section then
+    local context={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=rr~=nil and home.inSanctuary(rr.Position),atRefuge=refuge,nearCheckpoint=near,serverClock=workspace:GetServerTimeNow(),section=section,exits=exitBoxes};contextSnapshots[player]=context;send(player,'context',context)
    end
   end
   if p and rr and h and h.Health>0 then
