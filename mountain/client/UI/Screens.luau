@@ -51,13 +51,17 @@ function S:action(parent,name,label,action,payload,enabled,pos,size,variant)
  local b=W.button(parent,name,label,size or UDim2.new(1,-28,0,44),pos or UDim2.new(0,14,1,-56),function() self:send(action,if type(payload)=='function' then payload() else payload) end,variant or 'blue',enabled)
  table.insert(self.actionButtons,{button=b,action=action,enabled=enabled~=false,label=label});return b
 end
+-- Wrapped FO body text height at n px in a w px column (+2 slack) — sizes a compact strip so its text fits.
+local function wrapH(s,n,w) return math.ceil(TextService:GetTextSize(s,T.size(n),T.fontBody,Vector2.new(math.max(1,w),1e4)).Y)+2 end
 -- Info strip: navy inset with an illustrated icon, title and one short line; `reserve` keeps room on the right for a button.
+-- Compact (short phones) grows the strip so the description fits at the row() description size (FO 11, intel §2 row(), L311-314)
+-- instead of spilling under the 8 floor (P5 F3, overflow audit 749x330). Icon, columns and the other sizes are unchanged.
 function S:info(kind,title,description,height,reserve)
  local h=height or 72
+ local a=math.min(h-16,52);local x=if kind then a+22 else 14;local r=(reserve or 0)+12
+ if self.compact and description then h=math.max(h,38+wrapH(description,T.t.small,self.rowW-x-r)) end
  local f=W.panel(self.body,(title:gsub('[^%w]','')),UDim2.new(1,-8,0,h),nil,T.navy)
- local a=math.min(h-16,52);local x=14
- if kind then W.icon(f,kind,UDim2.fromOffset(a,a),UDim2.new(0,10,.5,-a/2));x=a+22 end
- local r=(reserve or 0)+12
+ if kind then W.icon(f,kind,UDim2.fromOffset(a,a),UDim2.new(0,10,.5,-a/2)) end
  W.label(f,title,UDim2.new(1,-x-r,0,22),UDim2.fromOffset(x,8),T.bold,17).Name='Title'
  local d=W.label(f,description,UDim2.new(1,-x-r,1,-38),UDim2.fromOffset(x,31),nil,13,T.muted,nil,true);d.Name='Description';d.TextYAlignment=Enum.TextYAlignment.Top
  return f
@@ -600,17 +604,21 @@ function S:social(data)
   self:blocked('Party finder & invitations','Persistent parties and invitations are not connected. No invitations are sent from here.','Invitations unavailable')
  elseif self.tab=='Defense' then
   -- Defense strip: your equipped team as three slots + register (layout E slots).
-  local h=if compact then 96 else 116
+  -- P5 F3 (overflow audit 749x330): compact / narrow rows take S:blocked's 130 register width, and compact grows the strip so
+  -- the description fits at the row() description size (FO 11, L311-314); slots + levels stay centred. Other sizes unchanged.
+  local art=if compact then 66 else 86;local regW=if compact or self.rowW<520 then 130 else 180
+  local tx=10+3*(art+10)+6
+  local desc='Register a snapshot for asynchronous challenges. Creatures and eggs cannot be stolen. UserId '..Players.LocalPlayer.UserId
+  local h=art+30;if compact then h=math.max(h,46+wrapH(desc,T.t.small,self.rowW-tx-regW-24)) end
+  local sy=math.floor((h-art-30)/2)
   local strip=W.panel(self.body,'DefenseTeam',UDim2.new(1,-8,0,h),nil,T.navy)
-  local art=h-30;local regW=180
   for i=1,3 do
    local id=data.team[i];local c=id and R.find(data.creatures,id)
-   W.slot(strip,c and C.byId[c.species],UDim2.fromOffset(art,art),UDim2.fromOffset(10+(i-1)*(art+10),8)).Name='DefenseSlot'..i
-   W.label(strip,if c then 'Lv '..c.level else 'Empty',UDim2.fromOffset(art,16),UDim2.fromOffset(10+(i-1)*(art+10),h-20),T.display,12,T.ink,Enum.TextXAlignment.Center)
+   W.slot(strip,c and C.byId[c.species],UDim2.fromOffset(art,art),UDim2.fromOffset(10+(i-1)*(art+10),sy+8)).Name='DefenseSlot'..i
+   W.label(strip,if c then 'Lv '..c.level else 'Empty',UDim2.fromOffset(art,16),UDim2.fromOffset(10+(i-1)*(art+10),sy+art+10),T.display,12,T.ink,Enum.TextXAlignment.Center)
   end
-  local tx=10+3*(art+10)+6
   W.label(strip,'YOUR TEAM IS YOUR DEFENSE',UDim2.new(1,-tx-regW-24,0,26),UDim2.fromOffset(tx,10),T.label,20,T.ink).Name='Title'
-  W.label(strip,'Register a snapshot for asynchronous challenges. Creatures and eggs cannot be stolen. UserId '..Players.LocalPlayer.UserId,UDim2.new(1,-tx-regW-24,1,-46),UDim2.fromOffset(tx,38),nil,12,T.muted,nil,true)
+  W.label(strip,desc,UDim2.new(1,-tx-regW-24,1,-46),UDim2.fromOffset(tx,38),nil,12,T.muted,nil,true)
   self:action(strip,'RegisterDefense','Register defense','RegisterDefense',nil,data.ui and data.ui.atRefuge,UDim2.new(1,-regW-12,.5,-24),UDim2.fromOffset(regW,44),'gold')
   self:blocked('Sanctuary defense layout','Raid defense buildings are not available yet. Team registration is above.')
  else
