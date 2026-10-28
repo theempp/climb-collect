@@ -32,6 +32,7 @@ local sprintRequest=Instance.new('RemoteEvent');sprintRequest.Name='SprintReques
 local movement=require(script.Parent.Movement).new(sprintRequest)
 local uiService
 local raids,guardians,carryVisuals,raidHazards,bats
+local v1 -- v1 services (V1Boot): dailies, receipts, duo party, outposts/raids, seasons
 local raidEggs={}
 local state={}
 local contextSnapshots={}
@@ -137,6 +138,7 @@ local function join(player)
  if player.Parent~=Players then home.release(player);areas[player]=nil;P.save(player,true);return end
  R.settleIncome(p,os.time())
  loadCharacter(player);restoreRecovery(player);publish(player)
+ if v1 then local okJ,joinData=pcall(player.GetJoinData,player);task.spawn(v1.join,player,okJ and joinData.TeleportData or nil) end
 end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
@@ -146,6 +148,7 @@ Players.PlayerRemoving:Connect(function(player)
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
  B.remove(player,true);if companions[player] then companions[player]:Destroy() end;if recovering[player] then recovering[player]:Destroy() end
  contextSnapshots[player]=nil;respawns[player]=nil;if uiService then uiService.remove(player) end
+ if v1 then v1.remove(player) end
  P.save(player,true);state[player]=nil;busy[player]=nil;limits[player]=nil;motion[player]=nil;companions[player]=nil;recovering[player]=nil
 end)
 local rng=Random.new()
@@ -171,7 +174,7 @@ raids=require(script.Parent.EggRaids).new({profiles=P,clock=os.clock,guid=functi
   return false
  end,
  alert=function(k,userId,eggId,now) if guardians then guardians.alert(k,userId,eggId,now) end end,
- changed=publish,present=function(player,data) if data.kind=='securing' then areas[player]='sanctuary' end;carryVisuals.show(player,data) end})
+ changed=publish,present=function(player,data) if data.kind=='securing' then areas[player]='sanctuary' end;carryVisuals.show(player,data);if v1 then v1.observe(player,data) end end})
 local guardianHeights={}
 for k=1,6 do
  local m=world.Encounters:FindFirstChild('Guardian_'..k)
@@ -228,6 +231,7 @@ local function interact(player,part)
   p.discoveries[id]=true
   local h=player.Character and player.Character:FindFirstChildOfClass('Humanoid');if h then h.Health=h.MaxHealth end
   if first then for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,40*k) end end end
+  if v1 then v1.track(player,'checkpoint',1) end
   send(player,'toast','Rest point saved. Unsecured creatures still need the sanctuary exit.');task.spawn(P.save,player,false)
  elseif kind=='Nest' then
   local ok,reason
@@ -237,6 +241,7 @@ local function interact(player,part)
   if not p.discoveries[id] then p.discoveries[id]=true;p.resources[tostring(k)]=(p.resources[tostring(k)] or 0)+10;p.coins+=20
    for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,60*k) end end
    send(player,'toast','Landmark discovered • +10 '..C.kingdoms[k].resource)
+   if v1 then v1.track(player,'discover',1) end
   else send(player,'toast','Landmark recorded in your expedition journal.') end
  elseif kind=='Shortcut' then
   if p.run then send(player,'toast','Use the map to confirm abandoning your unsecured creature before travel.');return end
@@ -304,7 +309,9 @@ local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Compe
  bats=bats,batRules=BatRules,equipBat=function(player) bats.equip(player) end,batSnapshot=function(p) return bats.snapshot(p) end,
 })
 local function handle(player,action,data,correlated)
+ local before=P.get(player);local coinsBefore=before and before.coins
  local ok,message,result=dispatch(player,action,data)
+ if ok and v1 then v1.afterAction(player,action,data,coinsBefore) end
  if action=='Settings' then send(player,'save',ok) end
  if action~='State' then
   if not correlated and action~='Swing' and (action~='Special' and action~='Dodge' or not ok) then send(player,'toast',message) end
@@ -331,6 +338,21 @@ request.OnServerEvent:Connect(function(player,action,data)
 end)
 -- Server-only integration contract; no Phase 1 coordinate is guessed or written.
 local gateway=Instance.new('BindableFunction');gateway.Name='MountainGateway';gateway.Parent=game.ServerStorage
+v1=require(script.Parent.V1Boot).start({remotes=remotes,profiles=P,rules=R,combat=B,areas=areas,
+ -- Duo ready-check portal: both members go to the same Blossom entrance in this server.
+ partyTravel=function(player)
+  local p=P.get(player);if not p or p.run or not safe(player) or inBattle(player) or areas[player]~='sanctuary' then return false end
+  local ok=teleport(player,world.Checkpoints['1:entrance'].CFrame+Vector3.new(math.random(-4,4),5,0));if ok then areas[player]='mountain' end;return ok
+ end,
+ partyFollow=function(player,leader)
+  local p=P.get(player);local lr=root(leader)
+  if not p or p.run or not lr or not safe(player) or inBattle(player) or areas[player]~='sanctuary' or areas[leader]~='mountain' then return false end
+  local ok=teleport(player,lr.CFrame*CFrame.new(4,2,0));if ok then areas[player]='mountain' end;return ok
+ end,
+ teamXP=function(player,amount)
+  local p=P.get(player);if not p then return end
+  for _,cid in ipairs(p.team) do local c=R.find(p.creatures,cid);if c then R.addXP(c,amount) end end;publish(player,true)
+ end})
 gateway.OnInvoke=function(player) return journey.go(player,'blossom') end
 local moving={}
 for _,part in ipairs(world.Dynamics:GetChildren()) do if part:GetAttribute('Kind')=='Moving' then

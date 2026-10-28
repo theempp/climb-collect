@@ -106,6 +106,17 @@ function S.new(deps)
   end
   return false
  end
+ -- A departed party re-opens for a new ready check only when every traveler is back in the sanctuary
+ -- (the member who stayed home keeps the follow window meanwhile).
+ function service.sweep(inSanctuary)
+  local now=deps.clock()
+  for _,party in pairs(reg.parties) do
+   if party.state=='departed' and party.departedAt and now>party.departedAt+5 then
+    local home=true;for _,id in ipairs(party.travelers or {}) do if not inSanctuary(id) then home=false end end
+    if home then Rules.reset(reg,party.id);pushParty(party) end
+   end
+  end
+ end
  function service.returned(player)
   local party=Rules.partyOf(reg,player.UserId)
   if party and party.state=='departed' then Rules.reset(reg,party.id);pushParty(party) end

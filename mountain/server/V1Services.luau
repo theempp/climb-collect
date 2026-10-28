@@ -84,6 +84,16 @@ function V.new(deps)
   if data.kind=='strike' then service.track(player,'strike',1)
   elseif data.kind=='safe' then service.track(player,'secure',1) end
  end
+ -- Successful legacy UI actions advance home quests (Main passes the dispatcher result; server-side only).
+ function service.afterAction(player,action,payload,coinsBefore)
+  local p=P.get(player);if not p then return end
+  if action=='Hatch' then service.track(player,'hatch',1)
+  elseif action=='Incubate' then service.track(player,'incubate',1)
+  elseif action=='Tycoon' and type(payload)=='table' then
+   if payload.op=='upgrade' then service.track(player,'upgrade',1)
+   elseif payload.op=='bank' and type(coinsBefore)=='number' and p.coins>coinsBefore then service.track(player,'bank',math.floor(p.coins-coinsBefore)) end
+  end
+ end
  local function claim(player,id,fn)
   local granted
   local ok,reason=P.transact(player,'daily:'..id,function(d)

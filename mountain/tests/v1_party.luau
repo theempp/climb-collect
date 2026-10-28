@@ -69,7 +69,10 @@ check(svc.request(a,'ready_start',{}) and svc.request(b,'ready',{ready=true}),'s
 svc.tick();check(#travelled==2 and #tracked==2 and tracked[1][2]=='party_expedition','svc_travel_both_and_track')
 local lastParty;for _,nn in ipairs(notes) do if nn[2]=='party' and nn[1]==102 then lastParty=nn[3] end end
 check(lastParty and lastParty.party.state=='departed','svc_notifies_members')
-svc.returned(a);check(svc.state(a).party.state=='idle','svc_return_resets')
+local home={[101]=true,[102]=false}
+clock=10;svc.sweep(function(id) return home[id] end);check(svc.state(a).party.state=='departed','svc_sweep_waits_for_all_travelers')
+home[102]=true;svc.sweep(function(id) return home[id] end);check(svc.state(a).party.state=='idle','svc_sweep_resets_when_all_home')
+clock=0
 -- disconnect mid ready check: other member stays, can travel solo
 svc.request(a,'ready_start',{});svc.remove(b);players[102]=nil
 check(#svc.state(a).party.members==1 and svc.state(a).party.state=='idle','svc_disconnect_recovery')
