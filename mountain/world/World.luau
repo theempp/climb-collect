@@ -251,7 +251,7 @@ function W.build()
  local L=game:GetService('Lighting');L.ClockTime=13.5;L.Brightness=2.5;L.Ambient=Color3.fromRGB(119,133,151);L.OutdoorAmbient=Color3.fromRGB(149,165,181)
  local atmosphere=Instance.new('Atmosphere');atmosphere.Density=.23;atmosphere.Offset=.12;atmosphere.Color=Color3.fromRGB(203,226,241);atmosphere.Decay=Color3.fromRGB(132,153,179);atmosphere.Parent=L
  local bloom=Instance.new('BloomEffect');bloom.Intensity=.18;bloom.Size=20;bloom.Threshold=1.4;bloom.Parent=L
- for name,id in pairs({['Mountain Birds 1 (SFX)']='9112832288',WaterfallLoop='137800539959141',AstralWind='9125742262',LavaLoop='318794788'}) do
+ for name,id in pairs({['Mountain Birds 1 (SFX)']='9112832288',WaterfallLoop='9120550423',AstralWind='9125742262',LavaLoop='9112823563'}) do
   local sound=game:GetService('SoundService'):FindFirstChild(name)
   if not sound then sound=Instance.new('Sound');sound.Name=name;sound.SoundId='rbxassetid://'..id;sound.Parent=game:GetService('SoundService') end
   sound.Volume=0;sound.Looped=true
