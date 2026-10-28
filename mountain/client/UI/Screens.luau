@@ -1,6 +1,7 @@
 local Players=game:GetService('Players')
 local GuiService=game:GetService('GuiService')
 local UIS=game:GetService('UserInputService')
+local TextService=game:GetService('TextService')
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
 local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
@@ -342,6 +343,7 @@ function S:creatures(data,width)
    local b,_,_,x=self:banner('EggCracked','A journey, not a purchase',nil,T.panelPurple,nil,112)
    W.track(b,{'Lv 1','Lv 15','Focus 25','Lv 35'},{true,false,false,false},UDim2.new(1,-x-12,0,56),UDim2.new(0,x,1,-60),T.bar.max)
   end
+ elseif self.tab=='Collection' then self:collection(data);return
  end
  local filters=W.panel(self.body,'Filters',UDim2.new(1,-8,0,56),nil,T.navy)
  local box=W.round(W.new('TextBox',filters,{Name='Search',Size=UDim2.new(.45,-12,0,44),Position=UDim2.fromOffset(6,6),Text=self.query,PlaceholderText='Search your creatures',ClearTextOnFocus=false,TextColor3=T.ink,PlaceholderColor3=T.muted,BackgroundColor3=T.outline,Font=T.body,TextSize=T.size(15),TextTruncate=Enum.TextTruncate.AtEnd,BorderSizePixel=0}),8)
@@ -357,7 +359,6 @@ function S:creatures(data,width)
  for index=(self.page-1)*12+1,math.min(#list,self.page*12) do
   local c=list[index];local s=C.byId[c.species];local card=W.panel(grid,'Creature_'..c.id,nil,nil,T.rarity[s.rarity]);card.LayoutOrder=index
   -- Mock 3 card: level badge top-left, portrait, XP bar with n/max, darker name band (colour = rarity).
-  card.UIGradient.Color=ColorSequence.new(Color3.new(1,1,1),Color3.fromRGB(190,200,225))
   local art=if compact then 52 else 84
   W.portrait(card,s,UDim2.fromOffset(art,art),UDim2.new(.5,-art/2,0,6))
   local badge=W.label(card,tostring(c.level),UDim2.fromOffset(26,26),UDim2.fromOffset(6,6),T.display,14,T.ink,center);badge.Name='Level';badge.BackgroundColor3=T.navy;badge.BackgroundTransparency=0
@@ -383,6 +384,79 @@ function S:creatures(data,width)
   local pages=W.frame(self.body,'Pages',UDim2.new(1,-8,0,50));pages.BackgroundTransparency=1
   W.button(pages,'Previous','Previous',UDim2.new(.5,-8,0,44),nil,function() self.page=math.max(1,self.page-1);self:render(false) end,'quiet',self.page>1)
   W.button(pages,'Next','Next',UDim2.new(.5,-8,0,44),UDim2.new(.5,8,0,0),function() self.page+=1;self:render(false) end,'quiet',self.page*12<#list)
+ end
+end
+-- Collection (intel per-menu L630, chips L196-198, card() L199-206): filter chips + one card per species, footer "Equip team".
+local rarityRank={Legendary=1,Mythic=2,Epic=3,Rare=4,Uncommon=5,Common=6}
+function S:collection(data)
+ self.collectionFilter=self.collectionFilter or 'All'
+ local layout=self.body:FindFirstChildOfClass('UIListLayout');if layout then layout.Padding=UDim.new(0,0) end -- the chips carry their own 8 margin
+ self:sideFooter('Equip team',function() self.tab='Team';self.detail=nil;self.page=1;self:render(false) end)
+ -- Best creature per species (highest level, then XP); a section is entered once its entrance is discovered or a species is owned.
+ local best,entered={},{}
+ for _,c in ipairs(data.creatures) do
+  local b=best[c.species];local l,x=c.level or 1,c.xp or 0
+  if not b or l>(b.level or 1) or (l==(b.level or 1) and x>(b.xp or 0)) then best[c.species]=c end
+ end
+ for k in ipairs(C.kingdoms) do entered[k]=data.discoveries[k..':entrance']==true end
+ local total,owned=#C.species,0
+ for _,s in ipairs(C.species) do if best[s.id] then owned+=1;entered[s.kingdom]=true end end
+ -- Chips (L196-198): UIListLayout H Wraps gap 6, bottom margin 8. All/Owned/Missing are exclusive; Rarity ↓ toggles.
+ local contentW=self.rowW+8 -- scroll content width (rowW keeps 8 off for the stacked rows)
+ local row=W.new('Frame',self.body,{Name='Chips',Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,BorderSizePixel=0,LayoutOrder=1})
+ W.new('UIPadding',row,{PaddingBottom=UDim.new(0,8)})
+ local cl=W.list(row,6,true);cl.Wraps=true
+ local chips,used={},0
+ for i,v in ipairs({{'All','All '..total},{'Owned','Owned '..owned},{'Missing','Missing '..(total-owned)},{'Rarity','Rarity ↓'}}) do
+  local key=v[1]
+  local chip=W.glassChip(row,v[2],if key=='Rarity' then self.collectionSort==true else self.collectionFilter==key,nil,nil,function()
+   if key=='Rarity' then self.collectionSort=not self.collectionSort else self.collectionFilter=key end
+   self:render(true)
+  end)
+  chip.Name='Chip'..key;chip.LayoutOrder=i;table.insert(chips,chip);used+=chip.Size.X.Offset+(if i>1 then 6 else 0)
+ end
+ -- STOP 1 G1: wrapped chip rows overlap at 44, so their hit areas are trimmed to the 33 px pitch.
+ if used>contentW then for _,chip in ipairs(chips) do W.hit(chip,44,Vector2.new(math.huge,33)) end end
+ -- Card list: catalog order, or rarity Legendary -> Common with ties in catalog order.
+ local list={}
+ for i,s in ipairs(C.species) do
+  local have=best[s.id]~=nil
+  if self.collectionFilter=='All' or (self.collectionFilter=='Owned')==have then table.insert(list,{s=s,i=i}) end
+ end
+ if self.collectionSort then table.sort(list,function(a,b) local ra,rb=rarityRank[a.s.rarity] or 7,rarityRank[b.s.rarity] or 7;if ra~=rb then return ra<rb end;return a.i<b.i end) end
+ if #list==0 then
+  if self.collectionFilter=='Owned' then self:info('Map','Your next companion is out there','Climb into any section. Break a visible egg, pick up the creature and escape through the sanctuary exit.',72).LayoutOrder=2
+  else self:info('Creature','Collection complete',total..' / '..total..' species discovered.',72).LayoutOrder=2 end
+  return
+ end
+ -- Grid (intel card()): W = content width − 6 (UIPadding 3), n = ⌊(W+10)/106⌋, cell = (W−10(n−1))/n, gap 10.
+ local gw=contentW-6;local n=math.max(1,math.floor((gw+10)/106));local cell=(gw-10*(n-1))/n
+ -- Card height (L199-206): art 62 + band padding 3/6 + name lines × 15 (FO 12/1.25, L203) + gap 3 + XP 7 + 2 × stroke 3.
+ local nameN=T.size(T.t.cardName);local line=nameN*1.25;local textW=cell-2*T.s.bold-14;local lines=1
+ for _,v in ipairs(list) do
+  local s=v.s;local name=if best[s.id] then s.name elseif entered[s.kingdom] then '???' else 'Locked'
+  local one=TextService:GetTextSize(name,nameN,T.fontBody,Vector2.new(1e4,1e4)).Y
+  local wrapped=TextService:GetTextSize(name,nameN,T.fontBody,Vector2.new(textW,1e4)).Y
+  if wrapped>one+1 then lines=2;break end
+ end
+ local cardH=math.ceil(62+3+6+lines*line+3+7+2*T.s.bold)
+ local rows=math.ceil(#list/n)
+ local grid=W.new('Frame',self.body,{Name='CollectionGrid',Size=UDim2.new(1,0,0,rows*(cardH+10)-10+6),BackgroundTransparency=1,BorderSizePixel=0,LayoutOrder=2})
+ W.padding(grid,3)
+ W.new('UIGridLayout',grid,{CellSize=UDim2.fromOffset(math.floor(cell),cardH),CellPadding=UDim2.fromOffset(10,10),SortOrder=Enum.SortOrder.LayoutOrder})
+ local size=UDim2.fromOffset(math.floor(cell),cardH) -- floor: < 1 px slack per cell, never a dropped column
+ for order,v in ipairs(list) do
+  local s=v.s;local c=best[s.id];local card
+  if c then
+   local info=P.creature(c)
+   card=W.rarityCard(grid,'Species_'..s.id,s,nil,size,nil,{level=c.level,xp=if info.xpRequired<=0 then 1 else (c.xp or 0)/info.xpRequired})
+   -- The whole card is the tap target (≥ 96 px, so no Hit child); it opens the creature detail.
+   local b=W.new('TextButton',card,{Name='Details_'..c.id,Text='',TextTransparency=1,BackgroundTransparency=1,BorderSizePixel=0,AutoButtonColor=false,Size=UDim2.fromScale(1,1),ZIndex=20,Selectable=true})
+   b:SetAttribute('CornerRadius',UDim.new(0,T.r.card));W.focus(b)
+   W.bind(b,function() self.detail=c.id;self:render(false) end)
+  elseif entered[s.kingdom] then card=W.rarityCard(grid,'Species_'..s.id,nil,nil,size) -- owner §17: section entered = unknown
+  else card=W.rarityCard(grid,'Species_'..s.id,'Locked',nil,size,nil,{locked=true}) end
+  card.LayoutOrder=order
  end
 end
 function S:discovery(data)
