@@ -1,6 +1,8 @@
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local RaidConfig=require(game.ReplicatedStorage.MountainShared.RaidConfig)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
+local Coop=require(game.ReplicatedStorage.MountainShared.CoopRules)
+local Caeloryn=require(game.ReplicatedStorage.MountainShared.CaelorynAbilities)
 local A=require(game.ServerStorage.MountainWorld.Art)
 local B={battles={},wild={},dodgeUntil={},specialAt={},buffs={},nextId=0}
 local profiles,send,changed
@@ -21,7 +23,7 @@ local function harm(player,amount)
  local guard=0
  for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then local st=R.stats(c);guard+=st.guard+(if st.role=='Tank' then .05 else 0) end end
  local buff=B.buffs[player]
- if buff and os.clock()<buff.untilTime and buff.shield then guard+=.25 end
+ if buff and os.clock()<buff.untilTime and buff.shield then guard+=buff.shieldGuard or .25 end
  h:TakeDamage(amount*(1-math.min(.65,guard)))
 end
 local guardianEffects={
@@ -48,10 +50,12 @@ function B.start(player,k,trial,center)
   if b.trial~=trial then return false,'A different encounter is already active.' end
   if b.members[player] then return false,'You are already in this encounter.' end
   if b.hp<b.max*.75 then return false,'Battle underway; join the next encounter.' end
-  b.max+=config.joinHealth;b.hp+=config.joinHealth
+  -- Duo scaling (v1 C02): health follows encounter size; strangers beyond two add the legacy join health.
+  local count=1;for _ in pairs(b.members) do count+=1 end
+  local scaled=Coop.health(b.base or b.max,count,trial,config.joinHealth);b.hp+=math.max(0,scaled-b.max);b.max=math.max(b.max,scaled)
  else
   local health=config.normalHealth*(if trial then config.trialHealthMultiplier else 1)
-  b={key=key,k=k,trial=trial,center=center,hp=health,max=health,members={},nextAttack=os.clock()+4,beat=0,resolved=0,effects={},started=os.clock(),regen=false}
+  b={key=key,k=k,trial=trial,center=center,hp=health,max=health,base=health,members={},nextAttack=os.clock()+4,beat=0,resolved=0,effects={},started=os.clock(),regen=false}
   B.battles[key]=b
   if trial and raidContext and raidContext.manifest then b.manifest=raidContext.manifest(k,center) end
  end
@@ -80,6 +84,7 @@ function B.special(player,slot,ability)
  for _,b in pairs(B.battles) do if b.members[player] and inArena(player,b) then battle=b;break end end
  local wild=B.wild[player]
  if not battle and not wild then return false end
+ if c.species==Caeloryn.species and ability>=2 then return B.caeloryn(player,c,ability,battle,wild,key,now) end
  B.specialAt[key]=now+12+(ability-1)*3
  local damage=R.stats(c).attack*(if ability==4 then 6 else 3)
  local effect=if s.rarity=='Legendary' then guardianEffects[s.kingdom][ability] else ({Support='heal',Tank='shield',Control='control',Speed='haste',Magic='burn',Damage='burst'})[s.role]
@@ -98,6 +103,40 @@ function B.special(player,slot,ability)
   end
   damage=R.damage(s.element,C.kingdoms[battle.k].element,damage);battle.hp-=damage;battle.members[player].damage+=damage
  elseif wild and root(player) and (root(player).Position-wild.part.Position).Magnitude<30 then wild.hp-=damage end
+ return true
+end
+-- Caeloryn abilities 2-4 (v1 phase 7): Gravity Choir control, Constellation Accord team shield,
+-- Celestial Dominion charged ultimate with star constructs. Numbers live in CaelorynAbilities (PROPOSED).
+function B.caeloryn(player,c,ability,battle,wild,key,now)
+ local allies={}
+ if battle then
+  local r=root(player)
+  for ally in pairs(battle.members) do local ar=root(ally);if ar and r and alive(ally) and inArena(ally,battle) and (ar.Position-r.Position).Magnitude<=Caeloryn.abilities[3].radius then table.insert(allies,ally) end end
+  table.sort(allies,function(a,b2) return if a==player then true elseif b2==player then false else a.UserId<b2.UserId end)
+ else allies={player} end
+ local plan=Caeloryn.resolve(ability,R.stats(c).attack,allies)
+ if not plan then return false end
+ B.specialAt[key]=now+plan.cooldown
+ local function hit(amount)
+  if battle and B.battles[battle.key]==battle and battle.members[player] then
+   local dmg=R.damage('Cosmic',C.kingdoms[battle.k].element,amount);battle.hp-=dmg;battle.members[player].damage+=dmg
+  elseif wild and B.wild[player]==wild and root(player) and (root(player).Position-wild.part.Position).Magnitude<30 then wild.hp-=amount end
+ end
+ if plan.role=='control' then
+  if battle then battle.weakenUntil=now+plan.weaken;battle.nextAttack=math.max(battle.nextAttack,now)+plan.delayAttack end
+  hit(plan.damage)
+ elseif plan.role=='team_shield' then
+  for _,ally in ipairs(plan.shieldTargets) do
+   B.buffs[ally]={untilTime=now+plan.shieldSeconds,shield=true,shieldGuard=plan.shield,power=1}
+   local ah=alive(ally);if ah then ah.Health=math.min(ah.MaxHealth,ah.Health+plan.heal) end
+  end
+ elseif plan.role=='ultimate' then
+  send(player,'toast','Celestial Dominion charging…')
+  task.delay(plan.charge,function()
+   hit(plan.damage)
+   for tick=1,plan.constructSeconds do task.delay(tick,function() for _=1,plan.constructs do hit(plan.constructDps) end end) end
+  end)
+ end
  return true
 end
 local function pattern(b)
@@ -172,9 +211,11 @@ function B.finish(b)
     local awarded
     if b.trial then
      awarded=raidContext and raidContext.raids.reward(player,k,C.guardians[k].id,b.center)
+     if awarded and B.onWin then B.onWin(player,k,true) end
      send(player,'toast',if awarded then 'Trial won! Pick up your Guardian reward and escape to sanctuary.' else 'Guardian reward unavailable. Finish your current attempt first.')
     else
      R.winGuardian(p,k,false);awarded=true
+     if B.onWin then B.onWin(player,k,false) end
      send(player,'toast',C.guardians[k].name..' is resting. The section has a brief raid opening!')
     end
     if awarded then for _,id in ipairs(p.team) do local c=R.find(p.creatures,id);if c then R.addXP(c,RaidConfig.section(k).companionXP) end end end

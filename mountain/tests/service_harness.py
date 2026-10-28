@@ -22,7 +22,7 @@ end
 local guid=0
 local Http={JSONEncode=function(_,value) return copy(value) end,JSONDecode=function(_,value) return copy(value) end,GenerateGUID=function() guid+=1;return 'fixture'..guid end}
 local Run={IsStudio=function() return true end}
-local task={wait=function() end,defer=function(fn,...) fn(...) end,spawn=function(fn,...) fn(...) end}
+local task={wait=function() end,defer=function(fn,...) fn(...) end,spawn=function(fn,...) fn(...) end,delay=function(_,fn,...) fn(...) end}
 local game={JobId='fixture',GetService=function(_,name) return if name=='HttpService' then Http elseif name=='RunService' then Run else error('Unsupported service: '..name) end}
 local require=function(value) return value end
 '''
@@ -39,7 +39,9 @@ body += '\nlocal BatRules=' + module('mountain/shared/BatRules.luau', 'local scr
 body += '\nlocal V1Config=' + module('mountain/shared/V1Config.luau')
 body += '\nlocal V1Schema=' + module('mountain/shared/V1Schema.luau', 'local script={Parent={V1Config=V1Config}}')
 body += '\nlocal V1Wallet=' + module('mountain/shared/V1Wallet.luau', 'local script={Parent={V1Config=V1Config}}')
-body += '\ngame.ReplicatedStorage={MountainShared={Catalog=Catalog,Rules=Rules,UIProtocol=Protocol,BatRules=BatRules,RaidConfig=RaidConfig,GuardianRules=GuardianRules,V1Config=V1Config,V1Schema=V1Schema,V1Wallet=V1Wallet}}'
+body += '\nlocal CoopRules=' + module('mountain/shared/CoopRules.luau', 'local script={Parent={V1Config=V1Config}}')
+body += '\nlocal CaelorynAbilities=' + module('mountain/shared/CaelorynAbilities.luau', 'local script={Parent={Catalog=Catalog}}')
+body += '\ngame.ReplicatedStorage={MountainShared={Catalog=Catalog,Rules=Rules,UIProtocol=Protocol,BatRules=BatRules,RaidConfig=RaidConfig,GuardianRules=GuardianRules,V1Config=V1Config,V1Schema=V1Schema,V1Wallet=V1Wallet,CoopRules=CoopRules,CaelorynAbilities=CaelorynAbilities}}'
 body += '\nlocal Store=' + module('mountain/server/Store.luau')
 body += '\nlocal Profiles=' + module('mountain/server/Profiles.luau', 'local script={Parent={Store=Store}}')
 body += '\ngame.ServerStorage={MountainWorld={Art={}}}'
