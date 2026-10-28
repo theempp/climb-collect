@@ -78,7 +78,7 @@ Run.Heartbeat:Connect(function(dt)
  local m=T.prefs.sprintMode;if m~=mode then mode=m;if toggle then toggle=false;set(pressing or next(held)~=nil) end end
  local hud=player.PlayerGui:FindFirstChild('MountainHUD');local safe=hud and hud:FindFirstChild('SafeRoot')
  -- Touch devices only; QA fixtures (HudFixture, StudioAids) show it for audits on desktop.
- button.Visible=(Input.TouchEnabled or (hud~=nil and hud:GetAttribute('HudFixture')~=nil)) and safe~=nil and not safe:FindFirstChild('HubShade') and not safe:FindFirstChild('Confirmation') and not safe.Loading.Visible
+ button.Visible=(Input.TouchEnabled or (hud~=nil and hud:GetAttribute('HudFixture')~=nil)) and safe~=nil and not safe:FindFirstChild('HubShade') and not safe:FindFirstChild('Confirmation') and not safe:FindFirstChild('HatchReveal') and not safe.Loading.Visible
  if not button.Visible then return end
  local v=root.AbsoluteSize;local s=P.hudScale(T.prefs.hudScale,v.X)
  if s~=scale then scale=s;uiScale.Scale=s;layer.Size=UDim2.fromScale(1/s,1/s);W.hit(button,44/s) end

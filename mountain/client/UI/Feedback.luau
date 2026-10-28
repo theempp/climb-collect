@@ -8,7 +8,9 @@ local W=require(script.Parent.Widgets)
 local Hud=require(script.Parent.Hud)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local H=require(game.ReplicatedStorage.MountainShared.HudState)
+local EggOdds=require(game.ReplicatedStorage.MountainShared.EggOdds)
 local GuiService=game:GetService('GuiService')
+local UIS=game:GetService('UserInputService')
 local F={};F.__index=F
 local label,pill,textW,disc=Hud.label,Hud.pill,Hud.textW,Hud.disc
 local left=Enum.TextXAlignment.Left
@@ -36,7 +38,9 @@ function F.new(root,layer)
  self.added=root.DescendantAdded:Connect(attach)
  self.focus=GuiService:GetPropertyChangedSignal('SelectedObject'):Connect(function()
   local selected=GuiService.SelectedObject
-  if self.modal and selected and not selected:IsDescendantOf(self.modal) then GuiService.SelectedObject=self.modal.Dialog.Confirm end
+  if self.modal and selected and not selected:IsDescendantOf(self.modal) then GuiService.SelectedObject=self.modal.Dialog.Confirm
+  -- A hatch reveal keeps gamepad focus on its Collect (the hub stays open underneath; closing it clears the selection).
+  elseif not self.modal and self.moment and self.moment.trap and UIS.GamepadEnabled and not (selected and selected:IsDescendantOf(self.moment.frame)) then GuiService.SelectedObject=self.moment.trap end
  end)
  return self
 end
@@ -57,7 +61,7 @@ function F:show(m,hold)
  if slot=='toast' then self:_queueToast(m,hold)
  elseif slot=='xpLine' or slot=='rail' then local fn=self.hooks[slot];if fn then fn(m,hold) end
  elseif slot=='banner' or slot=='carryPop' or slot=='run' then self:_band(m,hold)
- elseif slot=='moment' then table.insert(self.moments,{m=m,hold=hold});if not self.moment then self:_nextMoment() end end
+ elseif slot=='moment' or slot=='reveal' then table.insert(self.moments,{m=m,hold=hold});if not self.moment then self:_nextMoment() end end
 end
 -- Tier 1 (B.toast, L141, L601): glass r16 pill h30, padding L6 R12, gap 6, coin icon 24 (coin gain only), FO 13. Queue of 4.
 local function toastText(m)
@@ -203,10 +207,12 @@ local function momentCopy(m)
  return m.text or '',nil
 end
 function F:_nextMoment()
- if self.moment then self.moment.frame:Destroy();self.moment=nil end
+ if self.moment then local cur=self.moment;self.moment=nil;cur.frame:Destroy() end
  local q=table.remove(self.moments,1)
  if not q or not self.alive then if self.hooks.blocking then self.hooks.blocking(false) end;return end
- local m=q.m;local title,sub=momentCopy(m)
+ local m=q.m
+ if m.slot=='reveal' then self:_reveal(m);return end
+ local title,sub=momentCopy(m)
  local o=W.new('Frame',self.layer,{Name='Moment',BackgroundTransparency=1,BorderSizePixel=0,Size=UDim2.fromScale(1,1),ZIndex=13}) -- holder
  local t,td=display(o,'Title',title,T.t.moment,T.momentText,T.lipDeep,5)
  local ts=W.new('UIStroke',t,{Color=T.lip,Thickness=T.s.text.moment,ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,LineJoinMode=Enum.LineJoinMode.Round});ts:SetAttribute('BaseThickness',T.s.text.moment);ts:SetAttribute('BaseTransparency',0)
@@ -230,11 +236,164 @@ function F:_nextMoment()
  rec.place();self.moment=rec
  if not m.collect and not q.hold then task.delay(m.duration or 2.5,function() if self.moment==rec then self:_nextMoment() end end) end
 end
+-- Sanctuary hatch reveal strip (P5 E; intel §2 `reveal strip`, board L326-356, L538-548, L731-738). Tier-3 moment kind 'hatch'
+-- (HudState tiers.hatch: slot reveal, collect): Collect ends it. Static end state = landed + named + cta (the board's reduce-motion
+-- frame with the landed title); every animated piece carries Motion (§6 reveal.*, rays.reveal, sparkle; MotionDelay = the board
+-- delay). Scope R (1i): a SafeRoot child above the hub and HUD, never HUD-scaled.
+-- Scale decision (the board has one size; §3 has no strip check): every positioned part sits in the board's 844x390 frame
+-- ('Strip'), centred, with one UIScale = min(1, W/844, H/390), so 749x330 keeps Collect and the chance line on screen. The
+-- backdrop (root fill + radial), sun and band are screen-wide outside it, placed at the scaled geometry.
+-- reveal.dim (group opacity .12 = T.88, L345) is per child (intel Conversions): T = 1-(1-T0)*.12; Motion recovers
+-- T0 = 1-(1-T)/(1-revealDimT).
+local function dimT(t) return 1-(1-(t or 0))*(1-T.revealDimT) end
+local TRACK='bbgbvbgbbgbvbgvbbgbb' -- L731 colours: b #6C8CF0, g #F7A21B, v #B06CF0 (rarityColor rc); index 14 = the hatch
+local TRACK_KEY={b='blue',g='gold',v='violet'}
+local CARD_FILL={rot=90,stops={{0,T.text,0},{1,T.text,.2}}} -- L732 c → c+'cc' (rarity fill → T.2), times BackgroundColor3 rc
+local SPARKS={{250,260,34,T.glowSparkle},{590,250,28,T.glowSparkle2,.7},{540,60,22,T.glowSparkle,1.3}} -- L546 .tw/.d2/.d3, L41
+local FADE=NumberSequence.new({NumberSequenceKeypoint.new(0,1),NumberSequenceKeypoint.new(.5,0),NumberSequenceKeypoint.new(1,1)})
+local function stroke(o,color,th,t,ctx)
+ local s=W.new('UIStroke',o,{Color=color,Thickness=if T.prefs.highContrast then math.max(2,th) else th,Transparency=t or 0,LineJoinMode=Enum.LineJoinMode.Round,ApplyStrokeMode=if ctx then Enum.ApplyStrokeMode.Contextual else Enum.ApplyStrokeMode.Border})
+ s:SetAttribute('BaseThickness',th);s:SetAttribute('BaseTransparency',t or 0);return s
+end
+local function box(parent,name,x,y,w,h,z) return W.new('Frame',parent,{Name=name,Position=UDim2.fromOffset(x,y),Size=UDim2.fromOffset(w,h),BackgroundTransparency=1,BorderSizePixel=0,ZIndex=z or 1}) end
+local function round(o,r) W.new('UICorner',o,{CornerRadius=if type(r)=='number' then UDim.new(0,r) else r});return o end
+-- Full-width display line in the 844 frame + drop label, grouped so Motion moves both. lh = the CSS line box; the label is at least
+-- the text size tall (large text keeps TextFits).
+local function revealText(parent,name,text,n,color,drop,dropY,y,lh,z,motion)
+ local g=box(parent,name,0,y,844,lh,z);g:SetAttribute('Motion',motion)
+ local th=math.max(lh,T.size(n))
+ local function line(nm,c,dy,lz) local l=label(g,nm,text,T.fontDisplay,n,c);l.Size=UDim2.new(1,0,0,th);l.Position=UDim2.fromOffset(0,(lh-th)/2+dy);l.ZIndex=lz;return l end
+ line('Drop',drop,dropY,1):SetAttribute('Decor',true)
+ return g,line('Text',color,0,2)
+end
+-- species = Catalog entry or id; info.chance (percent) overrides the roll weight in the species' section table (EggOdds).
+function F:hatchReveal(species,info)
+ if type(species)=='string' then species=C.byId[species] end
+ if type(species)~='table' or not C.byId[species.id] then return end
+ local chance=type(info)=='table' and info.chance or nil
+ if chance==nil then for _,e in ipairs(EggOdds.table(species.kingdom) or {}) do if e.id==species.id then chance=e.weight end end end
+ self:show(H.message('hatch',{species=species.id,chance=chance},true))
+end
+function F:_reveal(m)
+ local d=m.data or {};local sp=C.byId[d.species];if not sp then self:_nextMoment();return end
+ local key=W.rarityKey(sp.rarity);local rc=if key then T.rarityColor[key].rc else T.cardFallback
+ self.tooltip.Visible=false;self.tooltipOwner=nil
+ -- Root = backdrop reveal.bgOut (L326), full screen; it sinks input so the hub underneath can't be tapped.
+ local o=W.new('Frame',self.root,{Name='HatchReveal',Size=UDim2.fromScale(1,1),BackgroundColor3=T.revealBgOut,BorderSizePixel=0,Active=true,ClipsDescendants=true,ZIndex=60})
+ o:SetAttribute('HudClass','transient');o:SetAttribute('HudPiece','reveal') -- full screen by design: §3 has no strip check
+ -- U11 radial reveal.bgIn at 50 %/48 %, linear to bgOut at 75 % of the farthest-corner distance (≈702 at 844x390, est.).
+ local radial=W.new('ImageLabel',o,{Name='Radial',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.48),BackgroundTransparency=1,Image='rbxassetid://'..T.images.radial,ImageColor3=T.revealBgIn,ZIndex=1})
+ radial:SetAttribute('Decor',true)
+ -- Sun: U2 rays.tint T.72, ≈1224 at 844 (§5). Centre = the frame centre: .rvsun is inset -60 % (L327), so it turns about 50 %/50 %
+ -- (the 48 % is the backdrop radial's centre).
+ local sun=W.new('ImageLabel',o,{Name='Sun',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),BackgroundTransparency=1,Image='rbxassetid://'..T.images.rays,ImageColor3=T.raysTint,ImageTransparency=T.raysT.reveal,ZIndex=2})
+ sun:SetAttribute('Decor',true);sun:SetAttribute('Motion','rays.reveal')
+ -- Band y 92 h 130 night2 T.38, top/bottom lines 3 white T.45 inside the box (L329), dimmed.
+ local band=W.new('Frame',o,{Name='Band',BackgroundColor3=T.night2,BackgroundTransparency=dimT(.38),BorderSizePixel=0,ZIndex=3});band:SetAttribute('Motion','reveal.dim')
+ local lines={}
+ for i=0,1 do lines[i+1]=W.new('Frame',band,{Name='Line',AnchorPoint=Vector2.new(0,i),Position=UDim2.fromScale(0,i),BackgroundColor3=T.text,BackgroundTransparency=dimT(.45),BorderSizePixel=0}) end
+ local h=W.new('Frame',o,{Name='Strip',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(844,390),BackgroundTransparency=1,BorderSizePixel=0,ZIndex=4})
+ local scale=W.new('UIScale',h,{})
+ -- Title LG 26 landed (30 before, instant switch at reveal.landed, L328/L356) goldText at top 20, drop 3 lip, glowRevealTitle as
+ -- the optional U1 around the text (1g). Line box ≈1.2 x 26 (line-height normal, est.).
+ -- GAP: the board has one title copy for every tier; a Common hatch also reads "RARE PULL!".
+ local title=revealText(h,'Title','RARE PULL!',T.t.revealTitleLanded,T.goldText,T.lip,3,20,32,1,'reveal.landed')
+ local tg,tb=T.glowRevealTitle,T.glowRevealTitle.b
+ W.new('ImageLabel',title,{Name='Glow',AnchorPoint=Vector2.new(.5,.5),Position=UDim2.fromScale(.5,.5),Size=UDim2.fromOffset(textW('RARE PULL!',T.fontDisplay,T.t.revealTitleLanded)+2*tb,T.size(T.t.revealTitleLanded)+2*tb),BackgroundTransparency=1,
+  Image='rbxassetid://'..T.images.glow,ImageColor3=tg.color,ImageTransparency=tg.t,ScaleType=Enum.ScaleType.Slice,SliceCenter=T.slice.glow,SliceScale=tb/32,ZIndex=0}):SetAttribute('Decor',true)
+ -- Track y 104 (L331-332, L731-733): 20 cards 96x108 at pitch 108, landed with index 14 centred, x = 422 - (14*108 + 54).
+ -- Track = the dim group; Reel = the spinning strip (overflows the frame by design: Decor).
+ local track=box(h,'Track',0,104,844,108,3);track:SetAttribute('Motion','reveal.dim');track:SetAttribute('Decor',true)
+ local reel=box(track,'Reel',422-(14*108+54),0,20*108,108);reel:SetAttribute('Motion','reveal.spin')
+ -- Clipped lip 4 ink (translucent card body, intel Conversions): one clip strip under the reel at y 108..112.
+ local lipClip=box(reel,'LipClip',0,108,20*108,4);lipClip.ClipsDescendants=true;lipClip:SetAttribute('Decor',true)
+ for i=0,19 do
+  local x=i*108;local c=if i==14 then rc else T.rarityColor[TRACK_KEY[TRACK:sub(i+1,i+1)]].rc
+  -- r14, border 3 ink inside the box (body inset 3 + UIStroke 3), fill rc → rc T.2, inner ring 2 white T.65, icon 68
+  -- (creature/egg alternating, L732).
+  local b=round(W.new('Frame',reel,{Name='Card'..i,Position=UDim2.fromOffset(x+3,3),Size=UDim2.fromOffset(90,102),BackgroundColor3=c,BackgroundTransparency=dimT(0),BorderSizePixel=0,ZIndex=2}),T.r.card-T.s.bold)
+  W.grad(b,CARD_FILL);stroke(b,T.outline,T.s.bold,dimT(0))
+  stroke(round(box(b,'Ring',T.s.glass,T.s.glass,90-2*T.s.glass,102-2*T.s.glass),T.r.card-T.s.bold-T.s.glass),T.text,T.s.glass,dimT(.65))
+  local img=W.icon(b,if i%2==0 then 'Creature' else 'Egg',UDim2.fromOffset(68,68),UDim2.fromOffset(11,17)):FindFirstChild('Image')
+  if img then img.ImageTransparency=dimT(0) end
+  local lp=round(box(lipClip,'Lip'..i,x,4-108,96,108),T.r.card);lp.BackgroundColor3=T.outline;lp.BackgroundTransparency=dimT(0)
+ end
+ -- Selector 120x150 at (362,82): stroke 5 gold r18, glowRevealSel (the inset glow is not ported), dimmed.
+ local sel=box(h,'Selector',362,82,120,150,4);sel:SetAttribute('Motion','reveal.dim')
+ W.glow(sel,sel,T.glowRevealSel).ImageTransparency=dimT(T.glowRevealSel.t)
+ stroke(round(box(sel,'Ring',T.s.reveal,T.s.reveal,120-2*T.s.reveal,150-2*T.s.reveal),T.r.glass-T.s.reveal),T.gold,T.s.reveal,dimT(0))
+ -- Halos 180x190 at (332,62): stroke 6 gold / stroke 3 pinkText, both glowHalo (.h2 overrides only the border, L335). The burst
+ -- ends at α 0 (L337): built fully transparent at the CSS box; Motion scales .4 → 2.8.
+ for i,v in ipairs({{T.gold,T.s.ring6},{T.pinkText,T.s.bold}}) do
+  local hl=box(h,'Halo'..i,332,62,180,190,5);hl:SetAttribute('Motion','reveal.halo');hl:SetAttribute('Decor',true);if i==2 then hl:SetAttribute('MotionDelay',.12) end
+  W.glow(hl,hl,T.glowHalo).ImageTransparency=1
+  stroke(round(box(hl,'Ring',v[2],v[2],180-2*v[2],190-2*v[2]),T.r.circle),v[1],v[2],1)
+ end
+ -- GAP: G12 — the 5 shards (46x56 at (422,150), gradShard, reveal.shard, L338-341) have no primitive or upload; not built.
+ -- Result card 140x170 at (352,70), rotation -3, stroke 5 white, rcg, glowRevealCard (B34 S8). Art: W.portrait 96 = the hatched
+ -- species' art (P5 decision; the board draws the generic creature icon 96).
+ local card=box(h,'Card',352,70,140,170,6);card.Rotation=-3;card:SetAttribute('Motion','reveal.cardIn');card:SetAttribute('CornerRadius',UDim.new(0,T.r.glass))
+ W.glow(card,card,T.glowRevealCard)
+ local cb=round(W.new('Frame',card,{Name='Body',Position=UDim2.fromOffset(T.s.reveal,T.s.reveal),Size=UDim2.fromOffset(140-2*T.s.reveal,170-2*T.s.reveal),BackgroundColor3=T.cardFallback,BorderSizePixel=0}),T.r.glass-T.s.reveal)
+ if key then W.tint(cb,W.rarityGrad(key)) end;stroke(cb,T.text,T.s.reveal,0)
+ W.portrait(cb,sp,UDim2.fromOffset(96,96),UDim2.fromOffset(70-T.s.reveal-48,85-T.s.reveal-48))
+ -- Word = tier + "!" LG 62 momentText, UIStroke 3 lip (Contextual), drop 5 lipDeep, line box 62 (L346); named → y 226 (L355).
+ local _,word=revealText(h,'Word',string.upper(sp.rarity)..'!',T.t.revealWord,T.momentText,T.lipDeep,5,226,62,7,'reveal.slam')
+ stroke(word,T.lip,T.s.text.moment,0,true)
+ -- Name LG 22 white + drop 2 lip at y 302 (L350); line box ≈1.2 x 22 (est.).
+ revealText(h,'Species',string.upper(sp.name),T.t.revealName,T.text,T.lip,2,302,27,8,'reveal.name')
+ -- Chance FO 14 pinkText at y 330 (L351): rarity pill (gradRevealPill, white, r10, padding 0/10) + " · N% chance", N = the roll
+ -- weight. Line box ≈1.2 x 14 (est.). GAP: the board's "+250 XP" span (go) is omitted: a hatch grants no XP.
+ local tier=string.upper(sp.rarity);local odds=if d.chance then ' · '..tostring(d.chance)..'% chance' else ''
+ local pw=textW(tier,T.fontBody,T.t.revealChance)+2*10;local ow=if odds~='' then textW(odds,T.fontBody,T.t.revealChance) else 0
+ local x0=math.floor(422-(pw+ow)/2)
+ local row=box(h,'Chance',0,330,844,17,9);row:SetAttribute('Motion','reveal.name')
+ local pill=round(W.new('Frame',row,{Name='Rarity',Position=UDim2.fromOffset(x0,0),Size=UDim2.fromOffset(pw,17),BackgroundColor3=T.text,BorderSizePixel=0}),T.r[10])
+ W.grad(pill,T.gradRevealPill)
+ local pl=label(pill,'Text',tier,T.fontBody,T.t.revealChance,T.text);pl.Size=UDim2.fromScale(1,1);W.textStroke(pl)
+ if odds~='' then local ol=label(row,'Odds',odds,T.fontBody,T.t.revealChance,T.pinkText,left);ol.Position=UDim2.fromOffset(x0+pw,0);ol.Size=UDim2.fromOffset(ow+4,17);W.textStroke(ol) end
+ -- Collect W.cta 190x46 LG 24 at (620,316): right inset 34 (L353).
+ local cta=W.cta(h,'Collect','Collect!',UDim2.fromOffset(190,46),UDim2.fromOffset(844-34-190,316),function() self:_collect() end,{n=T.t.revealCta})
+ cta.ZIndex=10;cta:SetAttribute('HudClass','transient');cta:SetAttribute('HudPiece','collect');cta:SetAttribute('Motion','reveal.cta')
+ -- Sparkles (.fl, L40-42, L546): 2 crossed thin Frames with a centre-bright UIGradient (P§2) and a glow per arm (drop-shadow on the
+ -- star, 1g). Static = the no-animation frame: full size, upright, α 1. GAP: arm thickness is not in the intel; .16 = the .fl
+ -- clip-path waist (42 % → 58 %, L40).
+ for i,v in ipairs(SPARKS) do
+  local f=box(h,'Sparkle'..i,v[1],v[2],v[3],v[3],11);f:SetAttribute('Motion','sparkle');f:SetAttribute('Decor',true);if v[5] then f:SetAttribute('MotionDelay',v[5]) end
+  for j,a in ipairs({{.16,1,.42,0,90},{1,.16,0,.42,0}}) do
+   local arm=W.new('Frame',f,{Name='Arm'..j,Size=UDim2.fromScale(a[1],a[2]),Position=UDim2.fromScale(a[3],a[4]),BackgroundColor3=T.text,BorderSizePixel=0,ZIndex=2})
+   W.new('UIGradient',arm,{Rotation=a[5],Transparency=FADE});W.glow(f,arm,v[4])
+  end
+ end
+ local rec={frame=o,trap=cta}
+ rec.place=function()
+  local v=self.root.AbsoluteSize;if v.X<=0 or v.Y<=0 then return end
+  local s=math.min(1,v.X/844,v.Y/390);scale.Scale=s
+  local dia=1.5*math.sqrt((v.X/2)^2+(.52*v.Y)^2);radial.Size=UDim2.fromOffset(dia,dia)
+  sun.Size=UDim2.fromOffset(1224*s,1224*s)
+  band.Position=UDim2.fromOffset(0,(v.Y-390*s)/2+92*s);band.Size=UDim2.new(1,0,0,130*s)
+  for _,l in ipairs(lines) do l.Size=UDim2.new(1,0,0,3*s) end
+  W.hit(cta,44/s) -- 44 px on screen under the UIScale (§3)
+ end
+ rec.place();self.moment=rec
+ if self.hooks.blocking then self.hooks.blocking(true) end
+ if UIS.GamepadEnabled then rec.prev=GuiService.SelectedObject;GuiService.SelectedObject=cta end
+end
+function F:_collect()
+ local prev=self.moment and self.moment.prev
+ self:_nextMoment()
+ if UIS.GamepadEnabled and not (self.moment and self.moment.trap) then GuiService.SelectedObject=if prev and prev:IsDescendantOf(self.root) then prev else nil end
+end
+-- Drop the moment queue and the moment showing (UIProbe close / reveal fixture); unblocks the HUD.
+function F:clearMoments()
+ table.clear(self.moments)
+ if self.moment then local cur=self.moment;self.moment=nil;cur.frame:Destroy();if self.hooks.blocking then self.hooks.blocking(false) end end
+end
 -- QA fixtures and state resets: drop every message now.
 function F:clear()
- table.clear(self.queue);table.clear(self.moments);self:_dropToast()
+ table.clear(self.queue);self:_dropToast()
  if self.band then self.band.frame:Destroy();self.band=nil;if self.hooks.band then self.hooks.band(false) end end
- if self.moment then self.moment.frame:Destroy();self.moment=nil;if self.hooks.blocking then self.hooks.blocking(false) end end
+ self:clearMoments()
 end
 function F:confirm(title,description,onConfirm)
  self:close();self.previousFocus=GuiService.SelectedObject

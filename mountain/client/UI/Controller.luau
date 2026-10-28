@@ -164,7 +164,7 @@ local disconnect=store:subscribe(function(kind,payload)
   screens:pending()
   if payload.action~='State' and payload.ok then
    sound();local d=payload.data
-   if payload.action=='Hatch' and d and d.creature then feedback:reveal('A new companion!',C.byId[d.creature.species].name..' joins your collection.',C.byId[d.creature.species])
+   if payload.action=='Hatch' and d and d.creature then feedback:hatchReveal(C.byId[d.creature.species],{}) -- sanctuary reveal strip (P5 E)
    elseif payload.action=='Train' and d and d.creature and d.stage and d.previousStage and d.stage>d.previousStage then feedback:reveal('Evolution unlocked!',C.byId[d.creature.species].name..' reached evolution stage '..d.stage..'.',C.byId[d.creature.species])
    elseif payload.action=='ChallengeDefense' and d then feedback:reveal(if d.won then 'Challenge won!' else 'Challenge complete',(if d.practice then 'Practice defense' else 'Opponent '..tostring(d.opponent))..' · '..tostring(d.rounds)..' rounds\n'..tostring(d.trophies)..' trophies awarded.')
    elseif payload.action~='Special' and payload.action~='Dodge' then feedback:toast(payload.message or 'Confirmed.') end
@@ -277,7 +277,11 @@ if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
  local hubNames={'Creatures','Discovery','Sanctuary','Mountain','Social','Profile','Shop','Settings'}
  probe.OnInvoke=function(action,value)
   if action=='open' and table.find(hubNames,value) then open(value)
-  elseif action=='close' then screens:close()
+  elseif action=='close' then screens:close();feedback:clearMoments()
+  elseif action=='reveal' then
+   -- Hatch reveal fixture (P5 E): a species id, else the first Epic in the catalog. Replaces any moment showing.
+   local s=C.byId[value];if not s then for _,x in ipairs(C.species) do if x.rarity=='Epic' then s=x;break end end end
+   feedback:clearMoments();feedback:hatchReveal(s,{})
   elseif action=='detail' and screens.hub=='Creatures' and store.profile and store.profile.creatures[1] then screens.detail=value or store.profile.creatures[1].id;screens:render(false)
   elseif action=='tab' and screens.hub and screens.shade.Hub.Tabs:FindFirstChild('Tab'..tostring(value)) then screens.tab=value;screens.detail=nil;screens.page=1;screens:render(false)
   elseif action=='hudState' then
@@ -285,7 +289,8 @@ if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
    if value=='live' then fixture=nil;gui:SetAttribute('HudFixture',nil);feedback:clear();hud:clearTransients();hud:setChaseRestored(false)
    elseif H.states[value] or value=='regrab' then fixture=value;gui:SetAttribute('HudFixture',value);showFixture(value) end
   end
-  return {ready=ready,hub=screens.hub,tab=screens.tab,hudState=fixture or (store.profile and H.state(memory,store.profile,store.battle)),view={root.AbsoluteSize.X,root.AbsoluteSize.Y},instances=#gui:GetDescendants(),pending=store.pending,status=store.status}
+  local rv=feedback.moment and feedback.moment.trap and feedback.moment.frame
+  return {ready=ready,hub=screens.hub,tab=screens.tab,hudState=fixture or (store.profile and H.state(memory,store.profile,store.battle)),view={root.AbsoluteSize.X,root.AbsoluteSize.Y},instances=#gui:GetDescendants(),reveal=rv and #rv:GetDescendants()+1 or nil,pending=store.pending,status=store.status}
  end
 end
 return {}
