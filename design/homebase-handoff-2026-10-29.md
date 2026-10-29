@@ -50,4 +50,4 @@ Plan: `design/homebase-build-plan-2026-10-29.md` (§6 owner answers). Branch `co
 
 ## Glassbloom P7 merged (2026-10-28)
 - Merge `e124b97` of `codex/hud-glassbloom` `e6695c1` (P7 sign-off). Conflicts: `Screens.luau` social() kept P1 Leaderboard-only (P7 edits there touched only removed tabs); `x.sh` kept local id. Suites 43/43 (+ motion_band).
-- Synced into `outputs/ClimbCollect.HomeBase.Review01.rbxl` (PlaceId 0, opened from the P3 save 829a5a9c…): overflow 174 screens × 6 sizes 0 errors, state audit 0, p7_centre intrusion 0 (all four moments), p7_insets pass, tab sync pass, console errors 0. Evidence `evidence/homebase_2026-10-29/p7merge/`. **Copy NOT saved** (owner OK needed); StudioAids back off.
+- Synced into `outputs/ClimbCollect.HomeBase.Review01.rbxl` (PlaceId 0, opened from the P3 save 829a5a9c…): overflow 174 screens × 6 sizes 0 errors, state audit 0, p7_centre intrusion 0 (all four moments), p7_insets pass, tab sync pass, console errors 0. Evidence `evidence/homebase_2026-10-29/p7merge/`. StudioAids back off, HTTP off. **Copy saved after the P7 merge (owner OK), SHA256 f07e5019…baf0** (1,494,973 bytes, 23:29); base copy unchanged (249a2786…705a).
