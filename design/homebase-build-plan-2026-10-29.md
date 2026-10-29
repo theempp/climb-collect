@@ -224,3 +224,7 @@ P0 task 1-3: verify branch `codex/homebase-c` at `9e05af5`, compute SHA256 of `o
 - Q6: decor slots take owned creatures AND coin-bought props. **New work:** prop catalog, prices, per-tier availability, save subrecord entries; propose list at P2 for owner approval (no Robux; coin only).
 - Q10: habitat modules 7-8: unassign creatures and refund spent coins.
 - Not yet answered: Q4, Q5, Q7-Q9, Q11-Q17 (plan recommendations stand unless the owner overrides at STOP 0).
+- STOP 0 approved (owner prompt, 2026-10-29); Q17 approved by default.
+
+## 7. Progress
+- **P0 done (2026-10-29), STOP 1 pending.** Hash match, Studio id `c7a0a682…`, PlaceId 0 / StudioAids false / Http off, 0 drift, 40/40 suites, HUD audits = P6, protos in `ServerStorage.HomeProtos`. Measured baseline (supersedes the §2 figures): place 15,812 edit (workspace runtime 10,432), 8 home views median 16.6-16.7 ms / p95 <= 18.1 / 222-525 draw calls. Restated budgets: net place <= 15,812 + 4,000; draw calls <= 700; per plot <= 750. Details: `design/homebase-handoff-2026-10-29.md`.

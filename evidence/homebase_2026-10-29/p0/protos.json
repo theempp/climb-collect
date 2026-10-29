@@ -1,0 +1,1036 @@
+{
+ "counts": {
+  "PlantingBed": 11,
+  "Lodge_01": 126,
+  "Boulder": 1,
+  "Lantern": 5,
+  "Tree": 13,
+  "Divider_01": 116
+ },
+ "desc": {
+  "PlantingBed": {
+   "placedScale": 1.4,
+   "source": "Workspace.Sanctuary.HomePromenade.PlotFronts",
+   "anchor": "PlantingSoil",
+   "note": "plot-front bed, scale 1.4",
+   "count": 11,
+   "parts": [
+    {
+     "offset": [
+      0,
+      0.167999267578125,
+      0
+     ],
+     "transparency": 0,
+     "name": "PlantingSoil",
+     "collide": false,
+     "color": "474230",
+     "class": "Part",
+     "material": "Ground",
+     "size": [
+      4.199999809265137,
+      0.335999995470047,
+      8.399999618530273
+     ]
+    },
+    {
+     "offset": [
+      -0.95361328125,
+      0.8400001525878906,
+      -2.1699981689453125
+     ],
+     "transparency": 0,
+     "name": "AlpineLeaf",
+     "collide": false,
+     "color": "397155",
+     "class": "Part",
+     "material": "Grass",
+     "size": [
+      0.3919999897480011,
+      1.5399999618530273,
+      0.3919999897480011
+     ]
+    },
+    {
+     "offset": [
+      -0.95361328125,
+      1.6800003051757812,
+      -2.1699981689453125
+     ],
+     "transparency": 0,
+     "name": "AlpineBlossom",
+     "collide": false,
+     "color": "eedc9d",
+     "class": "Part",
+     "material": "SmoothPlastic",
+     "size": [
+      0.9099999666213989,
+      0.699999988079071,
+      0.9099999666213989
+     ]
+    },
+    {
+     "offset": [
+      1.24658203125,
+      0.8400001525878906,
+      -0.9800033569335938
+     ],
+     "transparency": 0,
+     "name": "AlpineLeaf",
+     "collide": false,
+     "color": "397155",
+     "class": "Part",
+     "material": "Grass",
+     "size": [
+      0.3919999897480011,
+      1.5399999618530273,
+      0.3919999897480011
+     ]
+    },
+    {
+     "offset": [
+      1.24658203125,
+      1.6800003051757812,
+      -0.9800033569335938
+     ],
+     "transparency": 0,
+     "name": "AlpineBlossom",
+     "collide": false,
+     "color": "b69bd5",
+     "class": "Part",
+     "material": "SmoothPlastic",
+     "size": [
+      0.9099999666213989,
+      0.699999988079071,
+      0.9099999666213989
+     ]
+    },
+    {
+     "offset": [
+      -0.676025390625,
+      0.8400001525878906,
+      0.20999908447265625
+     ],
+     "transparency": 0,
+     "name": "AlpineLeaf",
+     "collide": false,
+     "color": "397155",
+     "class": "Part",
+     "material": "Grass",
+     "size": [
+      0.3919999897480011,
+      1.5399999618530273,
+      0.3919999897480011
+     ]
+    },
+    {
+     "offset": [
+      -0.676025390625,
+      1.6800003051757812,
+      0.20999908447265625
+     ],
+     "transparency": 0,
+     "name": "AlpineBlossom",
+     "collide": false,
+     "color": "eedc9d",
+     "class": "Part",
+     "material": "SmoothPlastic",
+     "size": [
+      0.9099999666213989,
+      0.699999988079071,
+      0.9099999666213989
+     ]
+    },
+    {
+     "offset": [
+      -0.362548828125,
+      0.8400001525878906,
+      1.4000015258789062
+     ],
+     "transparency": 0,
+     "name": "AlpineLeaf",
+     "collide": false,
+     "color": "397155",
+     "class": "Part",
+     "material": "Grass",
+     "size": [
+      0.3919999897480011,
+      1.5399999618530273,
+      0.3919999897480011
+     ]
+    },
+    {
+     "offset": [
+      -0.362548828125,
+      1.6800003051757812,
+      1.4000015258789062
+     ],
+     "transparency": 0,
+     "name": "AlpineBlossom",
+     "collide": false,
+     "color": "b69bd5",
+     "class": "Part",
+     "material": "SmoothPlastic",
+     "size": [
+      0.9099999666213989,
+      0.699999988079071,
+      0.9099999666213989
+     ]
+    },
+    {
+     "offset": [
+      1.150390625,
+      0.8400001525878906,
+      2.5900039672851562
+     ],
+     "transparency": 0,
+     "name": "AlpineLeaf",
+     "collide": false,
+     "color": "397155",
+     "class": "Part",
+     "material": "Grass",
+     "size": [
+      0.3919999897480011,
+      1.5399999618530273,
+      0.3919999897480011
+     ]
+    },
+    {
+     "offset": [
+      1.150390625,
+      1.6800003051757812,
+      2.5900039672851562
+     ],
+     "transparency": 0,
+     "name": "AlpineBlossom",
+     "collide": false,
+     "color": "eedc9d",
+     "class": "Part",
+     "material": "SmoothPlastic",
+     "size": [
+      0.9099999666213989,
+      0.699999988079071,
+      0.9099999666213989
+     ]
+    }
+   ]
+  },
+  "Lodge_01": {
+   "palette": [
+    {
+     "color": "8aedd9",
+     "material": "Neon",
+     "name": "AlpineCrest",
+     "n": 1
+    },
+    {
+     "color": "85908f",
+     "material": "Cobblestone",
+     "name": "Chimney",
+     "n": 1
+    },
+    {
+     "color": "203739",
+     "material": "Slate",
+     "name": "ChimneyCrown",
+     "n": 1
+    },
+    {
+     "color": "203739",
+     "material": "SmoothPlastic",
+     "name": "ChimneyTop",
+     "n": 1
+    },
+    {
+     "color": "b9924e",
+     "material": "Metal",
+     "name": "ColumnCollar",
+     "n": 2
+    },
+    {
+     "color": "b9924e",
+     "material": "Metal",
+     "name": "CrestHanger",
+     "n": 1
+    },
+    {
+     "color": "b9924e",
+     "material": "Metal",
+     "name": "CrestMount",
+     "n": 4
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "DeepRoofFascia",
+     "n": 4
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "EaveRail",
+     "n": 2
+    },
+    {
+     "color": "8aedd9",
+     "material": "Neon",
+     "name": "EnchantedLantern",
+     "n": 2
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "EntryLintel",
+     "n": 1
+    },
+    {
+     "color": "85908f",
+     "material": "Slate",
+     "name": "EntryStep_1",
+     "n": 1
+    },
+    {
+     "color": "85908f",
+     "material": "Slate",
+     "name": "EntryStep_2",
+     "n": 1
+    },
+    {
+     "color": "85908f",
+     "material": "Slate",
+     "name": "EntryStep_3",
+     "n": 1
+    },
+    {
+     "color": "203739",
+     "material": "Metal",
+     "name": "EstateNumber",
+     "n": 1
+    },
+    {
+     "color": "b9924e",
+     "material": "Metal",
+     "name": "FasciaBrassInlay",
+     "n": 4
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "FrontEaveBeam",
+     "n": 1
+    },
+    {
+     "color": "a3dddd",
+     "material": "Glass",
+     "name": "FrontGlazing",
+     "n": 2
+    },
+    {
+     "color": "85908f",
+     "material": "Cobblestone",
+     "name": "FrontStonePlinth",
+     "n": 2
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "FrontTimberPost",
+     "n": 4
+    },
+    {
+     "color": "203739",
+     "material": "Metal",
+     "name": "FrontWindowMullion",
+     "n": 4
+    },
+    {
+     "color": "a3dddd",
+     "material": "Glass",
+     "name": "GableGlass",
+     "n": 4
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "GableKingpost",
+     "n": 2
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "GableRafter",
+     "n": 4
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "GableStrut",
+     "n": 4
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "GableTie",
+     "n": 2
+    },
+    {
+     "color": "203739",
+     "material": "Metal",
+     "name": "LanternBackplate",
+     "n": 2
+    },
+    {
+     "color": "b9924e",
+     "material": "Metal",
+     "name": "LanternCap",
+     "n": 4
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "PorchColumn",
+     "n": 2
+    },
+    {
+     "color": "9c6d42",
+     "material": "WoodPlanks",
+     "name": "PorchDeck",
+     "n": 1
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "PorchKneeBrace",
+     "n": 2
+    },
+    {
+     "color": "85908f",
+     "material": "Cobblestone",
+     "name": "PorchPier",
+     "n": 2
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "PorchSideRail",
+     "n": 2
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "RearEaveBeam",
+     "n": 1
+    },
+    {
+     "color": "9c6d42",
+     "material": "WoodPlanks",
+     "name": "RearTimberWall",
+     "n": 1
+    },
+    {
+     "color": "b9924e",
+     "material": "Metal",
+     "name": "RidgeCap",
+     "n": 1
+    },
+    {
+     "color": "274d4e",
+     "material": "Slate",
+     "name": "RoofCourse_0",
+     "n": 2
+    },
+    {
+     "color": "274d4e",
+     "material": "Slate",
+     "name": "RoofCourse_1",
+     "n": 2
+    },
+    {
+     "color": "274d4e",
+     "material": "Slate",
+     "name": "RoofCourse_2",
+     "n": 2
+    },
+    {
+     "color": "274d4e",
+     "material": "Slate",
+     "name": "RoofCourse_3",
+     "n": 2
+    },
+    {
+     "color": "274d4e",
+     "material": "Slate",
+     "name": "RoofCourse_4",
+     "n": 2
+    },
+    {
+     "color": "274d4e",
+     "material": "Slate",
+     "name": "RoofCourse_5",
+     "n": 2
+    },
+    {
+     "color": "b9924e",
+     "material": "Metal",
+     "name": "RoofStandingSeam",
+     "n": 10
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "RoofUnderlay",
+     "n": 2
+    },
+    {
+     "color": "a3dddd",
+     "material": "Glass",
+     "name": "SideGlazing",
+     "n": 4
+    },
+    {
+     "color": "203739",
+     "material": "Metal",
+     "name": "SideMullion",
+     "n": 4
+    },
+    {
+     "color": "85908f",
+     "material": "Cobblestone",
+     "name": "SideStoneBase",
+     "n": 2
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "SideTimberPier",
+     "n": 6
+    },
+    {
+     "color": "9c6d42",
+     "material": "WoodPlanks",
+     "name": "SideUpperBand",
+     "n": 2
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "SideWindowSill",
+     "n": 4
+    },
+    {
+     "color": "85908f",
+     "material": "Slate",
+     "name": "StoneFoundation",
+     "n": 1
+    },
+    {
+     "color": "5b3925",
+     "material": "Wood",
+     "name": "WindowSill",
+     "n": 2
+    },
+    {
+     "color": "203739",
+     "material": "Metal",
+     "name": "WindowTransom",
+     "n": 2
+    }
+   ],
+   "placedScale": 1,
+   "source": "Workspace.Sanctuary.EnchantedAlpineLodges.Lodge_01",
+   "count": 128,
+   "pivot": [
+    3907.175048828125,
+    27.588159561157227,
+    -78
+   ],
+   "bounds": [
+    34.100093841552734,
+    23.176319122314453,
+    29.650049209594727
+   ]
+  },
+  "Boulder": {
+   "placedScale": 2.5,
+   "source": "Workspace.Sanctuary.HomePromenade.SouthGarden",
+   "anchor": "WeatheredBoulder",
+   "note": "south garden boulder, scale 2.5",
+   "count": 1,
+   "parts": [
+    {
+     "offset": [
+      0,
+      1.2150001525878906,
+      0
+     ],
+     "transparency": 0,
+     "name": "WeatheredBoulder",
+     "collide": false,
+     "color": "707f81",
+     "class": "Part",
+     "material": "Rock",
+     "size": [
+      6.75,
+      4.252500057220459,
+      5.534999847412109
+     ]
+    }
+   ]
+  },
+  "Lantern": {
+   "placedScale": 1.7,
+   "source": "Workspace.Sanctuary.HomePromenade.Lanterns",
+   "anchor": "LanternPlinth",
+   "note": "v1 place() scale 1.7; original = sizes/1.7",
+   "count": 5,
+   "parts": [
+    {
+     "offset": [
+      0,
+      0.8500003814697266,
+      0
+     ],
+     "transparency": 0,
+     "name": "LanternPlinth",
+     "collide": false,
+     "color": "7d8b8b",
+     "class": "Part",
+     "material": "Slate",
+     "size": [
+      3.4000000953674316,
+      1.7000000476837158,
+      3.4000000953674316
+     ]
+    },
+    {
+     "offset": [
+      0,
+      5.100000381469727,
+      0
+     ],
+     "transparency": 0,
+     "name": "CedarLanternPost",
+     "collide": false,
+     "color": "62442b",
+     "class": "Part",
+     "material": "Wood",
+     "size": [
+      0.8500000238418579,
+      8.5,
+      0.8500000238418579
+     ]
+    },
+    {
+     "offset": [
+      0,
+      9.010000228881836,
+      0
+     ],
+     "transparency": 0,
+     "name": "BrassLanternBase",
+     "collide": false,
+     "color": "ad8b4b",
+     "class": "Part",
+     "material": "Metal",
+     "size": [
+      2.890000104904175,
+      0.5100000500679016,
+      2.890000104904175
+     ]
+    },
+    {
+     "offset": [
+      0,
+      10.200000762939453,
+      0
+     ],
+     "transparency": 0,
+     "name": "WarmLanternGlass",
+     "collide": false,
+     "color": "ffdd9b",
+     "class": "Part",
+     "material": "Neon",
+     "size": [
+      1.8700001239776611,
+      2.0400002002716064,
+      1.8700001239776611
+     ]
+    },
+    {
+     "offset": [
+      0,
+      11.560001373291016,
+      0
+     ],
+     "transparency": 0,
+     "name": "LanternCap",
+     "collide": false,
+     "color": "2e5e63",
+     "class": "Part",
+     "material": "Slate",
+     "size": [
+      3.4000000953674316,
+      0.6800000071525574,
+      3.4000000953674316
+     ]
+    }
+   ]
+  },
+  "Tree": {
+   "placedScale": 2.2,
+   "source": "Workspace.Sanctuary.HomePromenade.SouthGarden",
+   "anchor": "CedarTrunk",
+   "note": "south garden tree, scale 2.2 (dividers use 1.9); 2 neighbour boughs removed (radius 6)",
+   "count": 13,
+   "parts": [
+    {
+     "offset": [
+      0,
+      10.395000457763672,
+      0
+     ],
+     "transparency": 0,
+     "name": "CedarTrunk",
+     "collide": false,
+     "color": "62442b",
+     "class": "Part",
+     "material": "Wood",
+     "size": [
+      1.6896001100540161,
+      20.790000915527344,
+      1.6896001100540161
+     ]
+    },
+    {
+     "offset": [
+      3.520263671875,
+      9.207000732421875,
+      3.519989013671875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      7.0400004386901855,
+      12.770999908447266,
+      7.0400004386901855
+     ]
+    },
+    {
+     "offset": [
+      3.520263671875,
+      9.207000732421875,
+      -3.519989013671875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      7.0400004386901855,
+      12.770999908447266,
+      7.0400004386901855
+     ]
+    },
+    {
+     "offset": [
+      -3.520263671875,
+      9.207000732421875,
+      -3.519989013671875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      7.0400004386901855,
+      12.770999908447266,
+      7.0400004386901855
+     ]
+    },
+    {
+     "offset": [
+      -3.520263671875,
+      9.207000732421875,
+      3.519989013671875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      7.0400004386901855,
+      12.770999908447266,
+      7.0400004386901855
+     ]
+    },
+    {
+     "offset": [
+      2.74560546875,
+      16.186500549316406,
+      2.74560546875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "397155",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      5.4912004470825195,
+      12.770999908447266,
+      5.4912004470825195
+     ]
+    },
+    {
+     "offset": [
+      2.74560546875,
+      16.186500549316406,
+      -2.74560546875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "397155",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      5.4912004470825195,
+      12.770999908447266,
+      5.4912004470825195
+     ]
+    },
+    {
+     "offset": [
+      -2.74560546875,
+      16.186500549316406,
+      -2.74560546875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "397155",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      5.4912004470825195,
+      12.770999908447266,
+      5.4912004470825195
+     ]
+    },
+    {
+     "offset": [
+      -2.74560546875,
+      16.186500549316406,
+      2.74560546875
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "397155",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      5.4912004470825195,
+      12.770999908447266,
+      5.4912004470825195
+     ]
+    },
+    {
+     "offset": [
+      1.97119140625,
+      23.166000366210938,
+      1.97119140625
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      3.9424002170562744,
+      12.770999908447266,
+      3.9424002170562744
+     ]
+    },
+    {
+     "offset": [
+      1.97119140625,
+      23.166000366210938,
+      -1.97119140625
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      3.9424002170562744,
+      12.770999908447266,
+      3.9424002170562744
+     ]
+    },
+    {
+     "offset": [
+      -1.97119140625,
+      23.166000366210938,
+      -1.97119140625
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      3.9424002170562744,
+      12.770999908447266,
+      3.9424002170562744
+     ]
+    },
+    {
+     "offset": [
+      -1.97119140625,
+      23.166000366210938,
+      1.97119140625
+     ],
+     "transparency": 0,
+     "name": "PineBough",
+     "collide": false,
+     "color": "275b49",
+     "class": "CornerWedgePart",
+     "material": "Grass",
+     "size": [
+      3.9424002170562744,
+      12.770999908447266,
+      3.9424002170562744
+     ]
+    }
+   ]
+  },
+  "Divider_01": {
+   "palette": [
+    {
+     "color": "b69bd5",
+     "material": "SmoothPlastic",
+     "name": "AlpineBlossom",
+     "n": 8
+    },
+    {
+     "color": "eedc9d",
+     "material": "SmoothPlastic",
+     "name": "AlpineBlossom",
+     "n": 12
+    },
+    {
+     "color": "397155",
+     "material": "Grass",
+     "name": "AlpineLeaf",
+     "n": 20
+    },
+    {
+     "color": "ad8b4b",
+     "material": "Metal",
+     "name": "BrassLanternBase",
+     "n": 1
+    },
+    {
+     "color": "62442b",
+     "material": "Wood",
+     "name": "CedarLanternPost",
+     "n": 1
+    },
+    {
+     "color": "62442b",
+     "material": "Wood",
+     "name": "CedarTrunk",
+     "n": 4
+    },
+    {
+     "color": "7d8b8b",
+     "material": "Cobblestone",
+     "name": "DryStoneSegment",
+     "n": 3
+    },
+    {
+     "color": "2e5e63",
+     "material": "Slate",
+     "name": "LanternCap",
+     "n": 1
+    },
+    {
+     "color": "7d8b8b",
+     "material": "Slate",
+     "name": "LanternPlinth",
+     "n": 1
+    },
+    {
+     "color": "397155",
+     "material": "Grass",
+     "name": "PineBough",
+     "n": 16
+    },
+    {
+     "color": "275b49",
+     "material": "Grass",
+     "name": "PineBough",
+     "n": 32
+    },
+    {
+     "color": "474230",
+     "material": "Ground",
+     "name": "PlantingSoil",
+     "n": 4
+    },
+    {
+     "color": "b9c1b2",
+     "material": "Slate",
+     "name": "StoneCoping",
+     "n": 3
+    },
+    {
+     "color": "62442b",
+     "material": "Wood",
+     "name": "TimberEndpost",
+     "n": 7
+    },
+    {
+     "color": "ffdd9b",
+     "material": "Neon",
+     "name": "WarmLanternGlass",
+     "n": 1
+    },
+    {
+     "color": "707f81",
+     "material": "Rock",
+     "name": "WeatheredBoulder",
+     "n": 2
+    }
+   ],
+   "placedScale": 1,
+   "source": "Workspace.Sanctuary.HomePromenade.Dividers.Divider_01",
+   "count": 118,
+   "pivot": [
+    3972.365234375,
+    28.38164520263672,
+    -4.000003814697266
+   ],
+   "bounds": [
+    12.159995079040527,
+    26.28020668029785,
+    177.43028259277344
+   ]
+  }
+ }
+}

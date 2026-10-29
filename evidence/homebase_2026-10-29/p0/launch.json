@@ -1,0 +1,20 @@
+{
+ "date": "2026-10-29",
+ "branch": "codex/homebase-c",
+ "head": "9ba2d11 (plan commit on 9e05af5)",
+ "copy": "outputs/ClimbCollect.HomeBase.Review01.rbxl",
+ "sha256": "249a2786f622d0cb31e34dcb71d16fbfbbeb03e02062d9d3fd0ab8cb542e705a",
+ "sha256_match": true,
+ "baseline_copy": "outputs/ClimbCollect.HomeBase.Review01.base.rbxl (read-only, same hash)",
+ "launch": "RobloxStudioBeta.exe <abs path> (new process, PID 9788); other window (integration Glassbloom, PID 2060, id 173421a6) untouched",
+ "studio_id": "c7a0a682-e3cc-46eb-be16-0add7d9ef30c",
+ "processes_for_file": 1,
+ "studio": {
+  "StudioAids": false,
+  "GameId": 0,
+  "PlaceId": 0,
+  "descendants": 15526,
+  "HttpEnabled": false
+ },
+ "all_asserts_pass": true
+}

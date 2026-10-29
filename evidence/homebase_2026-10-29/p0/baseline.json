@@ -1,0 +1,291 @@
+{
+ "date": "2026-10-29",
+ "studio_id": "c7a0a682-e3cc-46eb-be16-0add7d9ef30c",
+ "launch": {
+  "date": "2026-10-29",
+  "branch": "codex/homebase-c",
+  "head": "9ba2d11 (plan commit on 9e05af5)",
+  "copy": "outputs/ClimbCollect.HomeBase.Review01.rbxl",
+  "sha256": "249a2786f622d0cb31e34dcb71d16fbfbbeb03e02062d9d3fd0ab8cb542e705a",
+  "sha256_match": true,
+  "baseline_copy": "outputs/ClimbCollect.HomeBase.Review01.base.rbxl (read-only, same hash)",
+  "launch": "RobloxStudioBeta.exe <abs path> (new process, PID 9788); other window (integration Glassbloom, PID 2060, id 173421a6) untouched",
+  "studio_id": "c7a0a682-e3cc-46eb-be16-0add7d9ef30c",
+  "processes_for_file": 1,
+  "studio": {
+   "StudioAids": false,
+   "GameId": 0,
+   "PlaceId": 0,
+   "descendants": 15526,
+   "HttpEnabled": false
+  },
+  "all_asserts_pass": true
+ },
+ "sourceDrift": {
+  "sources": 64,
+  "match": 63,
+  "drift": [
+   [
+    "mountain/server/StudioTests.luau",
+    "missing"
+   ]
+  ]
+ },
+ "suites": {
+  "summary": "SUITES pass=40 fail=0",
+  "lines": [
+   "PASS alpine_profile.luau | PASS 4779 alpine profile checks",
+   "PASS arrival_readiness.luau | PASS arrival readiness: real completion, bounded wait, failed asset retry",
+   "PASS bat_rules.luau | PASS 30 bat rules checks",
+   "PASS compact_geometry.luau | PASS compact geometry: six connected sections, shorter route, preserved escape and hazard ",
+   "PASS egg_raids.luau | PASS 36 egg raid checks",
+   "PASS entrances_cli.luau | PASS 19 entrance geometry checks",
+   "PASS explorer_rules.luau | PASS 111 explorer rules checks",
+   "PASS free_climb_geometry.luau | PASS 62 free climb geometry checks",
+   "PASS guardian_rules.luau | PASS 12 guardian state checks",
+   "PASS home_layout.luau | PASS 105 home layout checks (farthest spawn-to-gate 534 studs)",
+   "PASS hud_layout.luau | PASS 69601 Glassbloom layout checks (rest 10.7 %, chase 11.1 %)",
+   "PASS hud_state.luau | PASS 102 hud state checks",
+   "PASS journey.luau | PASS 8 journey checks",
+   "PASS movement_cli.luau | PASS 17 movement policy checks",
+   "PASS quality_geometry.luau | PASS 98981 mountain surface geometry checks",
+   "PASS raid_hazards.luau | PASS 30 authored hazard checks",
+   "PASS route_geometry.luau | Route geometry checks passed: 657",
+   "PASS rules.luau | PASS 170 mountain rules checks",
+   "PASS run_journey.luau | PASS 6 run journey checks",
+   "PASS run_rules.luau | PASS 23 run custody checks",
+   "PASS sanctuary_sessions.luau | PASS 18 sanctuary reservation checks",
+   "PASS shop_rules.luau | PASS 234 shop rules checks",
+   "PASS traversal.luau | Traversal checks passed: 131",
+   "PASS tycoon.luau | PASS 66 tycoon checks",
+   "PASS tycoon_economy.luau | PASS 125 tycoon economy checks",
+   "PASS tycoon_progression.luau | PASS 34 tycoon progression checks",
+   "PASS tycoon_requests.luau | PASS 11 tycoon request checks",
+   "PASS ui_client_state.luau | PASS 52 UI client state checks",
+   "PASS ui_presentation.luau | PASS 50 UI presentation checks",
+   "PASS ui_protocol.luau | PASS 95 UI protocol/request checks",
+   "PASS ui_server.luau | PASS 67 server action checks",
+   "PASS run_carry_pose.py | PASS 8 legacy/current carry joint checks",
+   "PASS run_combat_raids.py | PASS 58 combat raid integration checks",
+   "PASS run_context.py | PASS 39 Main context and section checks",
+   "PASS run_lifecycle.py | PASS 8 Main lifecycle checks",
+   "PASS run_movement.py | PASS 14 movement authority checks",
+   "PASS run_origin_gates.py | PASS 8 origin grep gates",
+   "PASS run_persistence.py | PASS 61 durable exit/migration checks (isolated adapter)",
+   "PASS run_raid_events.py | PASS 33 raid hud event checks",
+   "PASS run_ui_server.py | PASS 55 profile/combat adapter checks (service fixtures, no live DataStore)"
+  ]
+ },
+ "hud": {
+  "overflow": {
+   "objects": 34496,
+   "sizes": 6,
+   "errors": 0,
+   "screens": 186
+  },
+  "state": {
+   "coverage": {
+    "rest": 10.9,
+    "chase": 10.4
+   },
+   "gates": {
+    "rest": 11.6,
+    "chase": 12
+   },
+   "sizes": 3,
+   "errors": 0
+  },
+  "perf_counts": {
+   "shopPerf": {
+    "over33": 0,
+    "avg": 16.6,
+    "worst": 20.4
+   },
+   "restPerf": {
+    "over33": 0,
+    "avg": 16.6,
+    "worst": 20.2
+   },
+   "shopDescendants": 1747,
+   "restDescendants": 499
+  },
+  "p5": {
+   "restAfterClose": 499,
+   "restBefore": 499,
+   "buttons": 300,
+   "robuxLive": [],
+   "robuxButtons": 90,
+   "screens": 31,
+   "unselectable": []
+  },
+  "consoleErrorsOrWarnings": 0
+ },
+ "place": {
+  "editDescendantsBeforeHarvest": 15526,
+  "editDescendantsAfterHarvest": 15812,
+  "workspaceEdit": 8755,
+  "workspaceRuntime": 10432,
+  "sanctuary": 2780,
+  "sanctuaryChildren": {
+   "EnchantedAlpineLodges": 1032,
+   "GrandGate": 151,
+   "SanctuaryPlots": 96,
+   "HomePromenade": 1497
+  },
+  "perPlotEdit": [
+   {
+    "plot": 1,
+    "otherPartsInRect": 35,
+    "plotFolder": 11,
+    "lodge": 128
+   },
+   {
+    "plot": 2,
+    "otherPartsInRect": 35,
+    "plotFolder": 11,
+    "lodge": 128
+   },
+   {
+    "plot": 3,
+    "otherPartsInRect": 35,
+    "plotFolder": 11,
+    "lodge": 128
+   },
+   {
+    "plot": 4,
+    "otherPartsInRect": 35,
+    "plotFolder": 11,
+    "lodge": 128
+   },
+   {
+    "plot": 5,
+    "otherPartsInRect": 36,
+    "plotFolder": 11,
+    "lodge": 128
+   },
+   {
+    "plot": 6,
+    "otherPartsInRect": 36,
+    "plotFolder": 11,
+    "lodge": 128
+   },
+   {
+    "plot": 7,
+    "otherPartsInRect": 35,
+    "plotFolder": 11,
+    "lodge": 128
+   },
+   {
+    "plot": 8,
+    "otherPartsInRect": 35,
+    "plotFolder": 11,
+    "lodge": 128
+   }
+  ],
+  "perPlotRuntime": {
+   "Plot_05": 142,
+   "Plot_08": 142,
+   "Plot_01": 142,
+   "Plot_04": 142,
+   "Plot_02": 142,
+   "Plot_07": 142,
+   "Plot_03": 142,
+   "Plot_06": 142
+  },
+  "studioMemoryMB": 8490
+ },
+ "homeViews": {
+  "method": "Play Solo, focused window (foreground PID verified), FOV 70, camera at each spawn eye +6 looking at (4096,240,-820), 120 RenderStepped frames; desktop GPU, not a device",
+  "views": [
+   {
+    "p95Ms": 17.8,
+    "gpuMs": 0.0007814720156602561,
+    "home": 1,
+    "cpuMs": 0.003031899919733405,
+    "medianMs": 16.6,
+    "worstMs": 18.5,
+    "drawcalls": 222,
+    "triangles": 477443
+   },
+   {
+    "p95Ms": 18,
+    "gpuMs": 0.0008019839879125357,
+    "home": 2,
+    "cpuMs": 0.0032822000794112682,
+    "medianMs": 16.7,
+    "worstMs": 20.5,
+    "drawcalls": 225,
+    "triangles": 467181
+   },
+   {
+    "p95Ms": 18,
+    "gpuMs": 0.0009856319520622492,
+    "home": 3,
+    "cpuMs": 0.00330369989387691,
+    "medianMs": 16.7,
+    "worstMs": 18.8,
+    "drawcalls": 334,
+    "triangles": 339531
+   },
+   {
+    "p95Ms": 17.9,
+    "gpuMs": 0.0010113919852301478,
+    "home": 4,
+    "cpuMs": 0.0031944001093506813,
+    "medianMs": 16.7,
+    "worstMs": 18.8,
+    "drawcalls": 367,
+    "triangles": 335463
+   },
+   {
+    "p95Ms": 18,
+    "gpuMs": 0.001097056083381176,
+    "home": 5,
+    "cpuMs": 0.003335400018841028,
+    "medianMs": 16.7,
+    "worstMs": 18.6,
+    "drawcalls": 444,
+    "triangles": 485545
+   },
+   {
+    "p95Ms": 18.1,
+    "gpuMs": 0.0012439358979463577,
+    "home": 6,
+    "cpuMs": 0.003342999843880534,
+    "medianMs": 16.7,
+    "worstMs": 20.6,
+    "drawcalls": 453,
+    "triangles": 499005
+   },
+   {
+    "p95Ms": 18,
+    "gpuMs": 0.0010741440346464515,
+    "home": 7,
+    "cpuMs": 0.003714699996635318,
+    "medianMs": 16.6,
+    "worstMs": 18.3,
+    "drawcalls": 525,
+    "triangles": 494775
+   },
+   {
+    "p95Ms": 18.1,
+    "gpuMs": 0.0011275520082563162,
+    "home": 8,
+    "cpuMs": 0.003600300056859851,
+    "medianMs": 16.7,
+    "worstMs": 18.4,
+    "drawcalls": 522,
+    "triangles": 513709
+   }
+  ]
+ },
+ "emulator": "viewport 750x401 in edit (emulator active; device id not exposed to script)",
+ "protos": {
+  "PlantingBed": 11,
+  "Lodge_01": 126,
+  "Boulder": 1,
+  "Lantern": 5,
+  "Tree": 13,
+  "Divider_01": 116
+ }
+}
