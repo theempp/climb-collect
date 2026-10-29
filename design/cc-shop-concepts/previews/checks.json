@@ -1,0 +1,118 @@
+{
+  "responsive": [
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Summit Superstore",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Expedition Exchange",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Aurora Gallery",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Foothold Market",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Pocket Provisions",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Crown Vault",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Summit Superstore",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Expedition Exchange",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Aurora Gallery",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Foothold Market",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Pocket Provisions",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "pageOverflow": false,
+      "stageOverflow": false,
+      "title": "Crown Vault",
+      "width": 390
+    }
+  ],
+  "tierResults": [
+    {
+      "bought": "Upgrade to 2× · 3 Robux",
+      "updated": "2× → 4× COINS"
+    },
+    {
+      "bought": "Upgrade to 4× · 9 Robux",
+      "updated": "4× → 6× COINS"
+    },
+    {
+      "bought": "Upgrade to 6× · 19 Robux",
+      "updated": "6× → 8× COINS"
+    },
+    {
+      "bought": "Upgrade to 8× · 39 Robux",
+      "updated": "8× → 10× COINS"
+    },
+    {
+      "bought": "Upgrade to 10× · 79 Robux",
+      "updated": "10× → 12× COINS"
+    },
+    {
+      "bought": "Upgrade to 12× · 149 Robux",
+      "updated": "12× COINS · MAX"
+    }
+  ],
+  "cancel": "Verified no grant",
+  "coinPackAt12x": "1250 to 1350 for 100 coin pack",
+  "bundle": "Bundle, lantern, banner become owned",
+  "runtimeErrors": []
+}

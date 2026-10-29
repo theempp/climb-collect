@@ -1,0 +1,38 @@
+{
+  "homeIncomeLive": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"efficiency\":1.25,\"returned\":false,\"companion\":\"1d5ed804-27c1-42e1-9383-bf488fabaf0c\",\"spaces\":4,\"distantBank\":{\"ok\":false,\"reason\":\"bank_distance\"},\"pos\":\"-113.1640625, 56.15604019165039, 2236.484375\",\"coinsBefore\":49,\"coinsAfterUpgrade\":35,\"coinsAfterCollect\":95}"
+      }
+    ],
+    "isError": false
+  },
+  "hatchLive": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"remainingStones\":0,\"stoneId\":\"d46ee180-8fc1-45c0-a8f9-e4127c63cb56\",\"collection\":{\"1\":{\"rarity\":\"Common\",\"creatureId\":\"51bec262-5917-4f80-aa91-98627897930a\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"tut_common\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645658,\"discovery\":{\"id\":\"51bec262-5917-4f80-aa91-98627897930a\",\"at\":1792645658,\"method\":\"encounter\",\"place\":\"tut_common\"}},\"3\":{\"rarity\":\"Common\",\"creatureId\":\"0221440f-25b5-4681-a16b-28df207e8f3b\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"dev\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645690,\"discovery\":{\"id\":\"0221440f-25b5-4681-a16b-28df207e8f3b\",\"at\":1792645690,\"method\":\"encounter\",\"place\":\"dev\"}},\"2\":{\"rarity\":\"Common\",\"creatureId\":\"f3506d9c-3d45-4fa4-80b0-b32a656d9a89\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"dev\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645690,\"discovery\":{\"id\":\"f3506d9c-3d45-4fa4-80b0-b32a656d9a89\",\"at\":1792645690,\"method\":\"encounter\",\"place\":\"dev\"}},\"5\":{\"rarity\":\"Rare\",\"creatureId\":\"e2f55b8a-0ae6-4a72-aab3-cb22e8826651\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"nook_rare_r1\",\"species\":\"stub_rare_1\",\"acquiredAt\":1792645693,\"discovery\":{\"id\":\"e2f55b8a-0ae6-4a72-aab3-cb22e8826651\",\"at\":1792645693,\"method\":\"encounter\",\"place\":\"nook_rare_r1\"}},\"4\":{\"rarity\":\"Common\",\"creatureId\":\"5ed279c6-9c4a-4789-88ed-3a82079dcd4c\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"dev\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645690,\"discovery\":{\"id\":\"5ed279c6-9c4a-4789-88ed-3a82079dcd4c\",\"at\":1792645690,\"method\":\"encounter\",\"place\":\"dev\"}},\"7\":{\"rarity\":\"Common\",\"creatureId\":\"7c3e16ea-8596-4ecf-a26c-6891d243203e\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"dev\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645884,\"discovery\":{\"id\":\"7c3e16ea-8596-4ecf-a26c-6891d243203e\",\"at\":1792645884,\"method\":\"encounter\",\"place\":\"dev\"}},\"6\":{\"rarity\":\"Epic\",\"creatureId\":\"1d5ed804-27c1-42e1-9383-bf488fabaf0c\",\"companion\":true,\"favorite\":true,\"mutation\":\"\",\"source\":\"pup:nest_r1_hollow\",\"species\":\"stub_epic_1\",\"acquiredAt\":1792645809,\"discovery\":{\"id\":\"1d5ed804-27c1-42e1-9383-bf488fabaf0c\",\"at\":1792645809,\"method\":\"net capture\",\"place\":\"Hollow nest\"}},\"9\":{\"rarity\":\"Common\",\"creatureId\":\"211691b0-0588-4bb8-a296-30d3fff97e74\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"dev\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645884,\"discovery\":{\"id\":\"211691b0-0588-4bb8-a296-30d3fff97e74\",\"at\":1792645884,\"method\":\"encounter\",\"place\":\"dev\"}},\"8\":{\"rarity\":\"Common\",\"creatureId\":\"208ed581-27a6-46d3-ae02-eb902e16d724\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"dev\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645884,\"discovery\":{\"id\":\"208ed581-27a6-46d3-ae02-eb902e16d724\",\"at\":1792645884,\"method\":\"encounter\",\"place\":\"dev\"}},\"11\":{\"rarity\":\"Common\",\"creatureId\":\"d46ee180-8fc1-45c0-a8f9-e4127c63cb56\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"nest_r1_hollow\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645737,\"discovery\":{\"id\":\"d46ee180-8fc1-45c0-a8f9-e4127c63cb56\",\"at\":1792645737,\"method\":\"guardian distraction\",\"place\":\"Hollow nest\"}},\"10\":{\"rarity\":\"Common\",\"creatureId\":\"4f2d4083-26cf-4718-aba3-4879a9b717c3\",\"companion\":false,\"favorite\":false,\"mutation\":\"\",\"source\":\"dev\",\"species\":\"stub_common_1\",\"acquiredAt\":1792645884,\"discovery\":{\"id\":\"4f2d4083-26cf-4718-aba3-4879a9b717c3\",\"at\":1792645884,\"method\":\"encounter\",\"place\":\"dev\"}}},\"afterBank\":11,\"beforeBank\":10,\"nests\":{\"1\":{\"progress\":0,\"ready\":false,\"required\":0,\"slot\":1},\"2\":{\"progress\":0,\"ready\":false,\"required\":0,\"slot\":2}}}"
+      }
+    ],
+    "isError": false
+  },
+  "lockerShuttleLive": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"remoteTakeUsed\":1,\"id\":\"071fa297-8ea5-4bd9-b485-33032d822864\",\"carriedAfterShuttle\":1,\"stored\":{\"items\":{\"1\":{\"uid\":\"071fa297-8ea5-4bd9-b485-33032d822864\",\"rarity\":\"Common\",\"kind\":\"creature\",\"slots\":1,\"species\":\"stub_common_1\"}},\"camp\":\"Camp1\",\"label\":\"Meadow Lodge\",\"used\":1,\"slots\":1},\"carriedBeforeShuttle\":1,\"bankBefore\":11,\"bankAfter\":11,\"lockers\":{\"1\":{\"camp\":\"Camp1\",\"count\":1,\"label\":\"Meadow Lodge\"}},\"pos\":\"0, 65.984375, 2246.8515625\"}"
+      }
+    ],
+    "isError": false
+  },
+  "flightLandingLive": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"practice\":true,\"position\":\"150.73828125, 510.6484375, 1502.33203125\",\"used\":1,\"mode\":\"ground\",\"bank\":11,\"canopy\":false}"
+      }
+    ],
+    "isError": false
+  }
+}

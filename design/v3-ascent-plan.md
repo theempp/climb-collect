@@ -1,4 +1,4 @@
-# V3 Ascent plan — taller mountain, 4 routes, hazards, checkpoints (written 2026-10-20, AWAITING APPROVAL)
+# V3 Ascent plan — taller mountain, 4 routes, hazards, checkpoints (written 2026-10-20, APPROVED 2026-10-20; P0–P3, P4a, P5 built as first drafts — see `design/v3-morning-report.md`)
 
 Supersedes the unbuilt P3–P5 of `design/traversal-plan.md`. Reuses its tooling (see "Reuse"). Nothing here is built yet. All numbers are ESTIMATES/PROPOSED until measured. **LOCKED** = chosen by the user in the 2026-10-20 interview. **PROPOSED** = my derived detail.
 

@@ -4,6 +4,9 @@ local RS=game:GetService("ReplicatedStorage")
 local SS=game:GetService("ServerStorage")
 local Run=game:GetService("RunService")
 local Rules=require(RS:WaitForChild("CC_Core"):WaitForChild("TraversalRules"))
+local MovementRules=require(RS.CC_Core:WaitForChild('MovementRules'))
+local MovementConfig=require(RS.CC_Core:WaitForChild('MovementConfig'))
+local Movement=require(game.ServerScriptService:WaitForChild('CC_CoreServer'):WaitForChild('Movement'))
 local FALL_DROP=24
 local states={}
 local function make(parent,class,name)
@@ -31,22 +34,38 @@ local function safeMode(ch)
 end
 local function resetBaseline(plr,pos)
  local s=state(plr); s.groundY=pos and pos.Y or nil; s.airY=nil; s.prev=pos; s.prevAt=os.clock(); s.grace=os.clock()+0.5
+ s.credit=MovementConfig.distanceBurst;s.wasGround=false
 end
 local function spawnAt(plr,pos)
  local ch,_,r=root(plr)
  if r then travelBE:Fire(plr,'respawn',pos);resetBaseline(plr,pos); r.AssemblyLinearVelocity=Vector3.zero; ch:PivotTo(CFrame.new(pos)) end
 end
 local function validObservedMove(plr)
- local s=state(plr); local _,_,r=root(plr)
- if not r then return false end
+ local s=state(plr); local ch,h,r=root(plr)
+ if not r or not h then return false end
+ local now=os.clock()
+ local ground=h.FloorMaterial~=Enum.Material.Air and not h.PlatformStand and not safeMode(ch)
+ local speed=ground and Movement.approvedSpeed(plr) or 42
+ local distance=s.prev and (r.Position-s.prev).Magnitude or 0
  if s.prev and s.prevAt then
   local delta=r.Position-s.prev
-  if not Rules.movementAllowed((delta*Vector3.new(1,0,1)).Magnitude,delta.Y,os.clock()-s.prevAt) then
+  local horizontal=(delta*Vector3.new(1,0,1)).Magnitude
+  local allowed=Rules.movementAllowed(horizontal,delta.Y,now-s.prevAt,speed)
+  if ground and s.wasGround then
+   local credit,within=MovementRules.advanceBudget(s.credit or 0,math.min(now-s.prevAt,1),speed,horizontal,MovementConfig)
+   s.credit=credit;allowed=allowed and within
+  end
+  if not allowed then
    plr:SetAttribute("CC_MovementInvalidUntil",workspace:GetServerTimeNow()+8)
    observedBE:Fire(plr,r.Position,false,false,0)
-   s.pending=nil; spawnAt(plr,s.prev); return false
+   local credit=s.credit
+   s.pending=nil; spawnAt(plr,s.prev);s.credit=credit;return false
   end
  end
+ -- Every segment is consumed once, including synchronous bank/checkpoint validation.
+ s.prev,s.prevAt,s.wasGround=r.Position,now,ground
+ local mode=ch:GetAttribute('CC_TraversalState')
+ observedBE:Fire(plr,r.Position,workspace:GetServerTimeNow()>=(plr:GetAttribute('CC_MovementInvalidUntil') or 0),not ch:GetAttribute('CC_HomeVisit') and (mode==nil or mode=='ground' or mode=='climb' or mode=='rope') and (ground or mode=='climb' or mode=='rope'),distance)
  return true
 end
 validateMove.OnInvoke=function(plr)
@@ -138,17 +157,12 @@ Run.Heartbeat:Connect(function(dt)
   if h and r and h.Health>0 then
    local now=os.clock(); local pos=r.Position
    local mode=ch:GetAttribute('CC_TraversalState')
-   local distance=s.prev and (pos-s.prev).Magnitude or 0
-   local continuity=not s.prev or Rules.movementAllowed(((pos-s.prev)*Vector3.new(1,0,1)).Magnitude,pos.Y-s.prev.Y,now-(s.prevAt or now))
-   observedBE:Fire(plr,pos,continuity and workspace:GetServerTimeNow()>=(plr:GetAttribute('CC_MovementInvalidUntil') or 0),not ch:GetAttribute('CC_HomeVisit') and (mode==nil or mode=='ground' or mode=='climb' or mode=='rope') and (h.FloorMaterial~=Enum.Material.Air or mode=='climb' or mode=='rope'),distance)
+   if not validObservedMove(plr) then continue end
    if ch:GetAttribute("CC_HomeVisit") or safeMode(ch) then
     s.groundY=pos.Y; s.airY=nil; s.prev=pos; s.prevAt=now
    else
     local grounded=h.FloorMaterial~=Enum.Material.Air
-    -- Reject implausible horizontal moves; large legitimate vertical falls remain real falls.
-    if s.prev and s.prevAt and now>=(s.grace or 0) then
-     if not validObservedMove(plr) then continue end
-    end
+    -- Movement was consumed above; large downward falls still receive their normal outcome.
     if grounded then
      local baseline=s.airY or s.groundY
      if baseline and baseline-pos.Y>FALL_DROP then acceptFall(plr,baseline-pos.Y)

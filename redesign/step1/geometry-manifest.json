@@ -1,0 +1,2326 @@
+[
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      -413,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      -413,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -430.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -395.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -413,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -413,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      -413,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -467.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -358.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -413,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -413,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Buffer_1_8studs",
+    "size": [
+      8,
+      2,
+      120
+    ],
+    "position": [
+      -354,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      -295,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      -295,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -312.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -277.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -295,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -295,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      -295,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -349.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -240.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -295,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -295,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Buffer_2_8studs",
+    "size": [
+      8,
+      2,
+      120
+    ],
+    "position": [
+      -236,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      -177,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      -177,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -194.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -159.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -177,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -177,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      -177,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -231.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -122.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -177,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -177,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Buffer_3_8studs",
+    "size": [
+      8,
+      2,
+      120
+    ],
+    "position": [
+      -118,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      -59,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      -59,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -76.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      -41.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -59,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      -59,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      -59,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -113.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      -4.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -59,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      -59,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Buffer_4_8studs",
+    "size": [
+      8,
+      2,
+      120
+    ],
+    "position": [
+      0,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      59,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      59,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      41.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      76.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      59,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      59,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      59,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      4.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      113.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      59,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      59,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Buffer_5_8studs",
+    "size": [
+      8,
+      2,
+      120
+    ],
+    "position": [
+      118,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      177,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      177,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      159.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      194.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      177,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      177,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      177,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      122.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      231.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      177,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      177,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Buffer_6_8studs",
+    "size": [
+      8,
+      2,
+      120
+    ],
+    "position": [
+      236,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      295,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      295,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      277.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      312.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      295,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      295,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      295,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      240.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      349.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      295,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      295,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Buffer_7_8studs",
+    "size": [
+      8,
+      2,
+      120
+    ],
+    "position": [
+      354,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Plot_110x120",
+    "size": [
+      110,
+      2,
+      120
+    ],
+    "position": [
+      413,
+      -1,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearLodgeFootprint_35x30",
+    "size": [
+      35,
+      0.2,
+      30
+    ],
+    "position": [
+      413,
+      0.1,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      395.75,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      0.5,
+      0.6,
+      30
+    ],
+    "position": [
+      430.25,
+      0.4,
+      100
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      413,
+      0.4,
+      85.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "LodgeFootprintEdge",
+    "size": [
+      35,
+      0.6,
+      0.5
+    ],
+    "position": [
+      413,
+      0.4,
+      114.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Spawn",
+    "size": [
+      6,
+      0.2,
+      6
+    ],
+    "position": [
+      413,
+      0.1,
+      76
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      358.25,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotEdge",
+    "size": [
+      0.5,
+      0.1,
+      120
+    ],
+    "position": [
+      467.75,
+      0.05,
+      60
+    ],
+    "angle": 0
+  },
+  {
+    "name": "FrontEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      413,
+      0.05,
+      0.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearEdge",
+    "size": [
+      110,
+      0.1,
+      0.5
+    ],
+    "position": [
+      413,
+      0.05,
+      119.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "AccessGround",
+    "size": [
+      956,
+      4,
+      78
+    ],
+    "position": [
+      0,
+      -2,
+      -39
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WestDirectAccess",
+    "size": [
+      430,
+      0.16,
+      12
+    ],
+    "position": [
+      -253,
+      0.08,
+      -10
+    ],
+    "angle": 0
+  },
+  {
+    "name": "EastDirectAccess",
+    "size": [
+      430,
+      0.16,
+      12
+    ],
+    "position": [
+      253,
+      0.08,
+      -10
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_1",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      -413,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_2",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      -295,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_3",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      -177,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_4",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      -59,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_5",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      59,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_6",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      177,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_7",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      295,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "PlotLink_8",
+    "size": [
+      12,
+      0.16,
+      16
+    ],
+    "position": [
+      413,
+      0.08,
+      -4
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Terrace_Surface16",
+    "size": [
+      220,
+      20,
+      48
+    ],
+    "position": [
+      0,
+      6,
+      -90
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Ramp_20wide_18deg",
+    "size": [
+      20,
+      1,
+      50.59644256269407
+    ],
+    "position": [
+      -72,
+      7.5256583509747434,
+      -42.15811388300842
+    ],
+    "angle": 0.3217505543966422
+  },
+  {
+    "name": "Ramp_20wide_18deg",
+    "size": [
+      20,
+      1,
+      50.59644256269407
+    ],
+    "position": [
+      72,
+      7.5256583509747434,
+      -42.15811388300842
+    ],
+    "angle": 0.3217505543966422
+  },
+  {
+    "name": "WideStep_01",
+    "size": [
+      40,
+      0.5,
+      1.5
+    ],
+    "position": [
+      0,
+      0.25,
+      -18.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_02",
+    "size": [
+      40,
+      1.0,
+      1.5
+    ],
+    "position": [
+      0,
+      0.5,
+      -20.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_03",
+    "size": [
+      40,
+      1.5,
+      1.5
+    ],
+    "position": [
+      0,
+      0.75,
+      -21.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_04",
+    "size": [
+      40,
+      2.0,
+      1.5
+    ],
+    "position": [
+      0,
+      1.0,
+      -23.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_05",
+    "size": [
+      40,
+      2.5,
+      1.5
+    ],
+    "position": [
+      0,
+      1.25,
+      -24.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_06",
+    "size": [
+      40,
+      3.0,
+      1.5
+    ],
+    "position": [
+      0,
+      1.5,
+      -26.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_07",
+    "size": [
+      40,
+      3.5,
+      1.5
+    ],
+    "position": [
+      0,
+      1.75,
+      -27.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_08",
+    "size": [
+      40,
+      4.0,
+      1.5
+    ],
+    "position": [
+      0,
+      2.0,
+      -29.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_09",
+    "size": [
+      40,
+      4.5,
+      1.5
+    ],
+    "position": [
+      0,
+      2.25,
+      -30.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_10",
+    "size": [
+      40,
+      5.0,
+      1.5
+    ],
+    "position": [
+      0,
+      2.5,
+      -32.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_11",
+    "size": [
+      40,
+      5.5,
+      1.5
+    ],
+    "position": [
+      0,
+      2.75,
+      -33.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_12",
+    "size": [
+      40,
+      6.0,
+      1.5
+    ],
+    "position": [
+      0,
+      3.0,
+      -35.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_13",
+    "size": [
+      40,
+      6.5,
+      1.5
+    ],
+    "position": [
+      0,
+      3.25,
+      -36.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_14",
+    "size": [
+      40,
+      7.0,
+      1.5
+    ],
+    "position": [
+      0,
+      3.5,
+      -38.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_15",
+    "size": [
+      40,
+      7.5,
+      1.5
+    ],
+    "position": [
+      0,
+      3.75,
+      -39.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_16",
+    "size": [
+      40,
+      8.0,
+      1.5
+    ],
+    "position": [
+      0,
+      4.0,
+      -41.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_17",
+    "size": [
+      40,
+      8.5,
+      1.5
+    ],
+    "position": [
+      0,
+      4.25,
+      -42.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_18",
+    "size": [
+      40,
+      9.0,
+      1.5
+    ],
+    "position": [
+      0,
+      4.5,
+      -44.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_19",
+    "size": [
+      40,
+      9.5,
+      1.5
+    ],
+    "position": [
+      0,
+      4.75,
+      -45.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_20",
+    "size": [
+      40,
+      10.0,
+      1.5
+    ],
+    "position": [
+      0,
+      5.0,
+      -47.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_21",
+    "size": [
+      40,
+      10.5,
+      1.5
+    ],
+    "position": [
+      0,
+      5.25,
+      -48.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_22",
+    "size": [
+      40,
+      11.0,
+      1.5
+    ],
+    "position": [
+      0,
+      5.5,
+      -50.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_23",
+    "size": [
+      40,
+      11.5,
+      1.5
+    ],
+    "position": [
+      0,
+      5.75,
+      -51.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_24",
+    "size": [
+      40,
+      12.0,
+      1.5
+    ],
+    "position": [
+      0,
+      6.0,
+      -53.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_25",
+    "size": [
+      40,
+      12.5,
+      1.5
+    ],
+    "position": [
+      0,
+      6.25,
+      -54.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_26",
+    "size": [
+      40,
+      13.0,
+      1.5
+    ],
+    "position": [
+      0,
+      6.5,
+      -56.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_27",
+    "size": [
+      40,
+      13.5,
+      1.5
+    ],
+    "position": [
+      0,
+      6.75,
+      -57.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_28",
+    "size": [
+      40,
+      14.0,
+      1.5
+    ],
+    "position": [
+      0,
+      7.0,
+      -59.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_29",
+    "size": [
+      40,
+      14.5,
+      1.5
+    ],
+    "position": [
+      0,
+      7.25,
+      -60.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_30",
+    "size": [
+      40,
+      15.0,
+      1.5
+    ],
+    "position": [
+      0,
+      7.5,
+      -62.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_31",
+    "size": [
+      40,
+      15.5,
+      1.5
+    ],
+    "position": [
+      0,
+      7.75,
+      -63.75
+    ],
+    "angle": 0
+  },
+  {
+    "name": "WideStep_32",
+    "size": [
+      40,
+      16.0,
+      1.5
+    ],
+    "position": [
+      0,
+      8.0,
+      -65.25
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Pier",
+    "size": [
+      5,
+      29,
+      8
+    ],
+    "position": [
+      -92.0,
+      30.5,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Pier",
+    "size": [
+      5,
+      29,
+      8
+    ],
+    "position": [
+      -52.0,
+      30.5,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Lintel",
+    "size": [
+      45,
+      5,
+      8
+    ],
+    "position": [
+      -72,
+      42.5,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Pier",
+    "size": [
+      5,
+      38,
+      8
+    ],
+    "position": [
+      -27.5,
+      35.0,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Pier",
+    "size": [
+      5,
+      38,
+      8
+    ],
+    "position": [
+      27.5,
+      35.0,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Lintel",
+    "size": [
+      60,
+      5,
+      8
+    ],
+    "position": [
+      0,
+      51.5,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Pier",
+    "size": [
+      5,
+      29,
+      8
+    ],
+    "position": [
+      52.0,
+      30.5,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Pier",
+    "size": [
+      5,
+      29,
+      8
+    ],
+    "position": [
+      92.0,
+      30.5,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "Lintel",
+    "size": [
+      45,
+      5,
+      8
+    ],
+    "position": [
+      72,
+      42.5,
+      -91
+    ],
+    "angle": 0
+  },
+  {
+    "name": "BasinSideLower",
+    "size": [
+      48,
+      32,
+      244
+    ],
+    "position": [
+      -502,
+      8,
+      16
+    ],
+    "angle": 0
+  },
+  {
+    "name": "BasinSideUpper",
+    "size": [
+      68,
+      66,
+      280
+    ],
+    "position": [
+      -552,
+      25,
+      0
+    ],
+    "angle": 0
+  },
+  {
+    "name": "BasinSideLower",
+    "size": [
+      48,
+      32,
+      244
+    ],
+    "position": [
+      502,
+      8,
+      16
+    ],
+    "angle": 0
+  },
+  {
+    "name": "BasinSideUpper",
+    "size": [
+      68,
+      66,
+      280
+    ],
+    "position": [
+      552,
+      25,
+      0
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearTerraceLower",
+    "size": [
+      1024,
+      22,
+      32
+    ],
+    "position": [
+      0,
+      5,
+      141
+    ],
+    "angle": 0
+  },
+  {
+    "name": "RearTerraceUpper",
+    "size": [
+      1136,
+      42,
+      40
+    ],
+    "position": [
+      0,
+      15,
+      177
+    ],
+    "angle": 0
+  },
+  {
+    "name": "GateFlankTerrace",
+    "size": [
+      360,
+      36,
+      70
+    ],
+    "position": [
+      -300,
+      10,
+      -101
+    ],
+    "angle": 0
+  },
+  {
+    "name": "GateFlankUpper",
+    "size": [
+      390,
+      70,
+      80
+    ],
+    "position": [
+      -315,
+      27,
+      -176
+    ],
+    "angle": 0
+  },
+  {
+    "name": "GateFlankTerrace",
+    "size": [
+      360,
+      36,
+      70
+    ],
+    "position": [
+      300,
+      10,
+      -101
+    ],
+    "angle": 0
+  },
+  {
+    "name": "GateFlankUpper",
+    "size": [
+      390,
+      70,
+      80
+    ],
+    "position": [
+      315,
+      27,
+      -176
+    ],
+    "angle": 0
+  },
+  {
+    "name": "BeyondGateLanding",
+    "size": [
+      220,
+      20,
+      60
+    ],
+    "position": [
+      0,
+      6,
+      -144
+    ],
+    "angle": 0
+  },
+  {
+    "name": "MountainSilhouette",
+    "size": [
+      270,
+      180,
+      220
+    ],
+    "position": [
+      -380,
+      82.0,
+      -290
+    ],
+    "angle": 0
+  },
+  {
+    "name": "MountainSilhouette",
+    "size": [
+      250,
+      260,
+      220
+    ],
+    "position": [
+      -180,
+      122.0,
+      -350
+    ],
+    "angle": 0
+  },
+  {
+    "name": "MountainSilhouette",
+    "size": [
+      310,
+      360,
+      220
+    ],
+    "position": [
+      50,
+      172.0,
+      -420
+    ],
+    "angle": 0
+  },
+  {
+    "name": "MountainSilhouette",
+    "size": [
+      290,
+      280,
+      220
+    ],
+    "position": [
+      290,
+      132.0,
+      -360
+    ],
+    "angle": 0
+  },
+  {
+    "name": "MountainSilhouette",
+    "size": [
+      220,
+      185,
+      220
+    ],
+    "position": [
+      460,
+      84.5,
+      -290
+    ],
+    "angle": 0
+  }
+]

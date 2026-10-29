@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-22",
+  "compiled": 104,
+  "compileFailures": [],
+  "existingCliChecks": [
+    {
+      "file": "tools/traversal_rules_cli.luau",
+      "exitCode": 0,
+      "output": "Traversal rules: 14/14 passed (pure Luau)\n"
+    },
+    {
+      "file": "tools/traversal_access_cli.luau",
+      "exitCode": 0,
+      "output": "Traversal route access: 11/11 passed\n"
+    },
+    {
+      "file": "tools/summit_finish_cli.luau",
+      "exitCode": 0,
+      "output": "Summit run rules 8/8\n"
+    },
+    {
+      "file": "tools/summit_flight_cli.luau",
+      "exitCode": 0,
+      "output": "Summit flight: continuity at five shot boundaries, lift, boarding and departure PASS\n"
+    }
+  ],
+  "runtimeVerified": false
+}

@@ -1,30 +1,34 @@
 --!native
--- MountainGen: heightfield + voxel writer for the CLIMB & COLLECT mountain.
+-- MountainGen (V3 Ascent): heightfield + voxel writer for the CLIMB & COLLECT mountain.
 -- Usage (edit mode, via execute_luau):
 --   local Gen = require(folderClone.MountainGen)
---   Gen.computeField()            -- builds _G.CC_HF (heights, water, materials) and _G.CC_PATHS
+--   Gen.computeField(opts)        -- builds _G.CC_HF (heights, water, materials) and _G.CC_PATHS
+--                                 -- opts.routes = false skips stamping the four routes (P1 terrain-only)
 --   Gen.writeRows(bj0, bj1)       -- writes voxel rows of 32x32-cell blocks
+--   Gen.writeCrown()              -- voxel features a heightfield can't hold (the crown arch)
 --   Gen.applyColors()
 local C = require(script.Parent.WorldConfig)
 local Gen = {}
 
 local noise = math.noise
-local sqrt, atan2, sin, cos, abs = math.sqrt, math.atan2, math.sin, math.cos, math.abs
+local sqrt, atan2, sin, cos, abs, exp = math.sqrt, math.atan2, math.sin, math.cos, math.abs, math.exp
 local floor, ceil, min, max, clamp = math.floor, math.ceil, math.min, math.max, math.clamp
 local PI, TAU = math.pi, 2 * math.pi
 local readf32, writef32, readu8, writeu8 = buffer.readf32, buffer.writef32, buffer.readu8, buffer.writeu8
 
 local CELL, HALF, N, BLOCK = C.CELL, C.HALF, C.N, C.BLOCK
 local NN = N * N
+Gen.CELL, Gen.HALF, Gen.N = CELL, HALF, N
 
 local MAT = {
 	Enum.Material.Grass, Enum.Material.LeafyGrass, Enum.Material.Ground, Enum.Material.Mud,
 	Enum.Material.Rock, Enum.Material.Sandstone, Enum.Material.Slate, Enum.Material.Basalt,
 	Enum.Material.Snow, Enum.Material.Glacier, Enum.Material.Ice, Enum.Material.Cobblestone,
-	Enum.Material.Sand, Enum.Material.Limestone,
+	Enum.Material.Sand, Enum.Material.Limestone, Enum.Material.Salt, Enum.Material.Asphalt,
 }
 local M_GRASS, M_LEAFY, M_GROUND, M_MUD, M_ROCK, M_SAND_STONE, M_SLATE, M_BASALT = 1, 2, 3, 4, 5, 6, 7, 8
-local M_SNOW, M_GLACIER, M_ICE, M_COBBLE, M_SAND, M_LIME = 9, 10, 11, 12, 13, 14
+local M_SNOW, M_GLACIER, M_ICE, M_COBBLE, M_SAND, M_LIME, M_SALT = 9, 10, 11, 12, 13, 14, 15
+local M_MARK = 16 -- v5: marked (climbable) rock under ledge edges, CoreConfig.CLIMB.terrainMaterial
 Gen.MAT = MAT
 
 local function smoothstep(e0, e1, x)
@@ -62,7 +66,7 @@ end
 Gen.cellC = cellC
 
 ---------------------------------------------------------------- profile (monotone cubic LUT)
-local LUT_MAX = 3500
+local LUT_MAX = 4000
 local PROFILE_LUT
 local function buildProfile()
 	local P = C.PROFILE
@@ -120,56 +124,122 @@ end
 
 ---------------------------------------------------------------- shape
 function Gen.rwarp(x, z, r)
-	local a = 55 * clamp((r - 150) / 500, 0, 1) * (1 - smoothstep(2000, 2200, r))
+	local a = 70 * clamp((r - 180) / 600, 0, 1) * (1 - smoothstep(2450, 2700, r))
 	if a == 0 then
 		return 0
 	end
 	-- low-order lobes break the concentric "layer cake" read
 	local th = atan2(x, z)
-	local lobes = r * (0.08 * sin(2 * th + 0.7) + 0.05 * sin(3 * th + 2.1)) * clamp((r - 250) / 400, 0, 1)
-	return lobes + a * (noise(x / 1000 + 0.37, z / 1000 + 0.11, 9.3) * 2 + 0.35 * noise(x / 330 + 0.2, z / 330 + 0.6, 4.1) * 2)
+	local lobes = r * (0.10 * sin(2 * th + 0.7) + 0.065 * sin(3 * th + 2.1) + 0.03 * sin(5 * th + 0.9)) * clamp((r - 300) / 500, 0, 1)
+		* (1 - 0.5 * smoothstep(2000, 2500, r))
+	return lobes + a * (noise(x / 1200 + 0.37, z / 1200 + 0.11, 9.3) * 2 + 0.35 * noise(x / 400 + 0.2, z / 400 + 0.6, 4.1) * 2)
 end
 
 -- polar (theta, effective radius) -> world x, z (inverts rwarp by fixed-point iteration)
 function Gen.toWorld(th, re)
 	local s, c = sin(th), cos(th)
 	local r = re
-	for _ = 1, 5 do
+	for _ = 1, 6 do
 		r = re - Gen.rwarp(r * s, r * c, r)
 	end
 	return r * s, r * c
 end
 
+-- rib (gully/ridge) amplitude by re: strong on the steep bands, weak on the shelves
 local RIB = {
-	{0, 0}, {40, 0}, {120, 30}, {290, 35}, {305, 10}, {370, 12}, {400, 70}, {470, 60}, {485, 20},
-	{535, 20}, {560, 90}, {690, 80}, {710, 15}, {795, 15}, {820, 110}, {940, 100}, {960, 14},
-	{1180, 14}, {1220, 0},
+	{0, 0}, {40, 0}, {140, 70}, {380, 80}, {420, 10}, {530, 12}, {560, 80}, {780, 70}, {800, 18}, {880, 18},
+	{900, 60}, {945, 55}, {960, 14}, {1050, 14}, {1070, 110}, {1250, 100}, {1280, 14}, {1520, 14}, {1550, 70},
+	{1610, 60}, {1640, 8}, {1880, 8}, {1910, 30}, {2100, 26}, {2140, 5}, {2600, 5},
 }
 local DETAIL = {
-	{0, 6}, {300, 12}, {370, 18}, {700, 20}, {950, 14}, {1200, 10}, {1300, 6}, {1660, 2.5},
-	{2060, 3}, {2300, 28}, {3400, 40},
+	{0, 6}, {400, 12}, {480, 18}, {900, 20}, {1250, 14}, {1550, 10}, {1650, 6}, {2050, 4}, {2450, 4}, {2600, 30}, {3800, 40},
 }
-local SP = C.SPIRE
+local SP, CR = C.SPIRE, C.CROWN
+local SPCA, SPSA = cos(SP.angle), sin(SP.angle)
 
--- sub-peaks break the radial symmetry (world positions resolved lazily: toWorld needs rwarp)
+-- massifs (world positions resolved lazily: toWorld needs rwarp)
 local PEAKS
 local function peakBonus(x, z)
 	if not PEAKS then
 		PEAKS = {}
 		for _, pk in ipairs(C.PEAKS) do
 			local px, pz = Gen.toWorld(pk.theta, pk.re)
-			PEAKS[#PEAKS + 1] = { px, pz, pk.height, pk.radius }
+			local L = sqrt(px * px + pz * pz)
+			PEAKS[#PEAKS + 1] = { px, pz, pk.height, pk.radius, px / L, pz / L, pk.stretch or 1 }
 		end
 	end
 	local add = 0
 	for _, pk in ipairs(PEAKS) do
 		local dx, dz = x - pk[1], z - pk[2]
-		local d2 = dx * dx + dz * dz
-		if d2 < pk[4] * pk[4] then
-			add += pk[3] * (1 - sqrt(d2) / pk[4]) ^ 1.6
+		local R = pk[4] * pk[7]
+		if dx * dx + dz * dz < R * R then
+			-- radial component at full radius, tangential stretched: a ridge along the contour
+			local rad = dx * pk[5] + dz * pk[6]
+			local tan = -dx * pk[6] + dz * pk[5]
+			local d = sqrt(rad * rad + (tan / pk[7]) ^ 2)
+			if d < pk[4] then
+				add += pk[3] * (1 - d / pk[4]) ^ 1.6
+			end
 		end
 	end
 	return add
+end
+
+-- crown: twin horns + notch, 3 fins, 4 buttress roots (the Crown Gate arch is voxels, writeCrown)
+local function crownBonus(x, z, r, re, th)
+	local add = 0
+	local u, v = x * SPCA + z * SPSA, -x * SPSA + z * SPCA
+	if r < 140 then
+		local H = CR.horns
+		local R2 = H.radius * H.radius
+		local du1, du2 = u - H.offset, u + H.offset
+		add += H.height * (exp(-(du1 * du1 + v * v) / R2) + exp(-(du2 * du2 + v * v) / R2))
+		local Nt = CR.notch
+		add -= Nt.depth * max(0, 1 - abs(u) / Nt.halfWidth) * (1 - smoothstep(Nt.radius * 0.5, Nt.radius, r))
+	end
+	for _, f in ipairs(CR.fins) do
+		if re > f.re0 and re < f.re1 then
+			local d = abs(angDiff(th, f.theta)) * r
+			if d < f.halfWidth then
+				local env = smoothstep(f.re0, f.re0 + 50, re) * (1 - smoothstep(f.re1 - 70, f.re1, re))
+				add += f.height * (1 - d / f.halfWidth) ^ 1.2 * env
+			end
+		end
+	end
+	local B = CR.buttress
+	if re > B.re0 and re < B.re1 then
+		local q = (th - SP.angle) % (PI / 2)
+		local d = min(q, PI / 2 - q) * r
+		local env = smoothstep(B.re0, B.re0 + 60, re) * (1 - smoothstep(B.re1 - 90, B.re1, re))
+		add += B.height * exp(-(d / B.halfWidth) ^ 2) * env
+	end
+	return add
+end
+
+-- dark-rock mask for the crown materials: fins and buttress ridges read as basalt against the ice
+function Gen.crownRock(x, z)
+	local r = sqrt(x * x + z * z)
+	if r < 60 or r > 560 then
+		return 0
+	end
+	local th = atan2(x, z)
+	local re = r + Gen.rwarp(x, z, r)
+	local m = 0
+	for _, f in ipairs(CR.fins) do
+		if re > f.re0 and re < f.re1 then
+			local d = abs(angDiff(th, f.theta)) * r
+			if d < f.halfWidth * 1.3 then
+				m = max(m, 1 - d / (f.halfWidth * 1.3))
+			end
+		end
+	end
+	local B = CR.buttress
+	if re > B.re0 and re < B.re1 + 40 then
+		local q = (th - SP.angle) % (PI / 2)
+		local d = min(q, PI / 2 - q) * r
+		m = max(m, exp(-(d / (B.halfWidth * 0.55)) ^ 2))
+	end
+	return m
 end
 
 local F = C.FALL
@@ -188,7 +258,7 @@ local function applyFall(h, re, th)
 	if re < rLip then
 		return lerp(h, max(h, F.lipY), w)
 	end
-	local floorY = F.poolY + 1 + max(0, re - rLip - 40) * 0.12
+	local floorY = F.poolY + 1 + max(0, re - rLip - 50) * 0.12
 	return lerp(h, min(h, floorY), w)
 end
 function Gen.fallLip(th)
@@ -204,62 +274,82 @@ function Gen.baseHeight(x, z)
 	local reh = re
 	if re < SP.outer and r > 0.001 then
 		-- superellipse metric: ridges on the rotated axes, recessed faces between (4 aretes)
-		local ca, sa = cos(SP.angle), sin(SP.angle)
-		local u, v = abs(x * ca + z * sa) / r, abs(-x * sa + z * ca) / r
-		local f = (u ^ SP.p + v ^ SP.p) ^ (1 / SP.p) / SP.norm
+		local uu, vv = abs(x * SPCA + z * SPSA) / r, abs(-x * SPSA + z * SPCA) / r
+		local f = (uu ^ SP.p + vv ^ SP.p) ^ (1 / SP.p) / SP.norm
 		reh = lerp(re * f, re, smoothstep(SP.inner, SP.outer, re))
 	end
-	-- wavy band edges: buttresses and recesses so the cliff and storm bands aren't cylinders
-	local bw = 40 * smoothstep(805, 840, re) * (1 - smoothstep(925, 955, re))
-		+ 30 * smoothstep(545, 575, re) * (1 - smoothstep(665, 695, re))
+	-- wavy band edges: buttresses and recesses so the bands aren't cylinders
+	local bw = 95 * smoothstep(1085, 1120, re) * (1 - smoothstep(1225, 1260, re))
+		+ 80 * smoothstep(560, 600, re) * (1 - smoothstep(760, 800, re))
+		+ 45 * smoothstep(1545, 1570, re) * (1 - smoothstep(1600, 1625, re))
+		+ 40 * smoothstep(1900, 1930, re) * (1 - smoothstep(2090, 2125, re))
 	if bw > 0 then
 		reh += bw * (0.6 * sin(5 * th + 1.3) + 0.4 * sin(9 * th + 0.4))
 	end
 	local h = Gen.profile(reh)
 	local ct, st = cos(th), sin(th)
+	-- asymmetry: the mid mountain leans (one flank higher), so shelves and bands aren't level rings
+	local tiltA = 150 * smoothstep(380, 700, re) * (1 - smoothstep(1500, 1950, re))
+	if tiltA > 0 then
+		h += tiltA * (0.6 * sin(th - 0.8) + 0.4 * sin(2 * th + 0.3))
+	end
 
 	local ribA = plin(RIB, re)
 	if ribA > 0 then
-		local n1 = noise(ct * 2.2 + 11.3, st * 2.2 + 3.7, re / 260 + 0.31)
-		local n2 = noise(ct * 5.1 + 2.9, st * 5.1 + 7.1, re / 140 + 0.77)
+		local n1 = noise(ct * 2.2 + 11.3, st * 2.2 + 3.7, re / 300 + 0.31)
+		local n2 = noise(ct * 5.1 + 2.9, st * 5.1 + 7.1, re / 160 + 0.77)
 		local rib = 1 - min(1, abs(n1) * 2.2)
 		h += ribA * ((rib - 0.45) * 1.2 + n2 * 0.8)
 	end
 
 	h += peakBonus(x, z)
+	if re < 560 then
+		h += crownBonus(x, z, r, re, th)
+	end
 
 	local dA = plin(DETAIL, re)
 	h += dA * (noise(x / 170 + 0.13, z / 170 + 0.71, 5.5) * 1.4 + noise(x / 70 + 0.41, z / 70 + 0.29, 2.7) * 0.6)
 
-	-- rolling meadow hills (Green Valley)
-	local mw = smoothstep(1300, 1380, re) * (1 - smoothstep(1600, 1720, re))
+	-- rolling meadow hills (Green Valley shelf)
+	local mw = smoothstep(1640, 1700, re) * (1 - smoothstep(1840, 1900, re))
 	if mw > 0 then
-		h += mw * 22 * noise(x / 420 + 0.3, z / 420 + 0.9, 2.2) * 2
+		h += mw * 20 * noise(x / 420 + 0.3, z / 420 + 0.9, 2.2) * 2
+	end
+	-- dry foothills: low rounded hills and gullies
+	local fw = smoothstep(2150, 2230, re) * (1 - smoothstep(2580, 2680, re))
+	if fw > 0 then
+		h += fw * (26 * noise(x / 300 + 0.71, z / 300 + 0.17, 3.9) * 2 + 8 * noise(x / 90 + 0.5, z / 90 + 0.2, 1.1) * 2)
 	end
 
-	-- outer rim peaks frame the valley
-	if r > 1980 then
-		local wr = smoothstep(1980, 2420, r)
-		local n = noise(x / 520 + 0.5, z / 520 + 0.25, 6.6)
+	-- outer rim peaks frame the mountain
+	if r > 2600 then
+		local wr = smoothstep(2600, 2850, r)
+		local n = noise(x / 560 + 0.5, z / 560 + 0.25, 6.6)
 		local ridge = 1 - min(1, abs(n) * 2)
-		h += wr * (240 * ridge * ridge + 50 * noise(x / 210 + 0.1, z / 210 + 0.3, 1.9) * 2)
+		h += wr * (360 * ridge * ridge + 60 * noise(x / 210 + 0.1, z / 210 + 0.3, 1.9) * 2)
 	end
 
 	h = applyFall(h, re, th)
 	return h, re, r, th
 end
 
-local R_VALLEY, R_FOREST, R_CLIFFS, R_STORM = C.REGION.valley, C.REGION.forest, C.REGION.cliffs, C.REGION.storm
-function Gen.regionOf(re, r)
-	if r > 2060 then
+-- biome by altitude (edges wobble with noise n in [-1, 1]); 6 = rim backdrop
+local BI = C.BIOME
+function Gen.regionOf(h, r, n)
+	n = n or 0
+	if r > BI.rimR then
 		return 6
-	elseif re >= R_VALLEY then
+	end
+	local y = h + n * 45
+	if y < BI.foothills then
+		return 7
+	elseif y < BI.valley then
 		return 1
-	elseif re >= R_FOREST then
+	elseif y < BI.forest then
 		return 2
-	elseif re >= R_CLIFFS then
+	elseif y < BI.cliffs then
 		return 3
-	elseif re >= R_STORM then
+	elseif y < BI.storm then
 		return 4
 	end
 	return 5
@@ -290,12 +380,12 @@ local function densifyPolar(pts, step, ctrlIdx)
 	return out
 end
 
-local function smoothXZ(pts, k, iters, closed)
+local function smoothXZ(pts, k, iters, closed, lock)
 	for _ = 1, iters do
 		local n = #pts
 		local o = table.create(n)
 		for i = 1, n do
-			if not closed and (i == 1 or i == n) then
+			if (not closed and (i == 1 or i == n)) or (lock and lock[i]) then
 				o[i] = pts[i]
 			else
 				local sx, sz, c = 0, 0, 0
@@ -347,6 +437,7 @@ local function resample(pts, step, closed)
 end
 
 local STEP = 3
+Gen.STEP = STEP
 -- grade: number, or per-sample array of max rise per stud
 local function pathHeights(pts, win, grade, closed)
 	local n = #pts
@@ -383,6 +474,7 @@ local function pathHeights(pts, win, grade, closed)
 	end
 	for i = 1, n do
 		pts[i][3] = sm[i]
+		pts[i][4] = raw[i]
 	end
 	return pts
 end
@@ -394,7 +486,7 @@ local function clampPinned(pts, pins, grade)
 	for i, y in pairs(pins) do
 		pts[i][3] = y
 	end
-	for _ = 1, 3 do
+	for _ = 1, 4 do
 		for i = 2, n do
 			if not pins[i] then
 				local g = (ga and grade[i] or grade) * STEP
@@ -410,41 +502,17 @@ local function clampPinned(pts, pins, grade)
 	end
 end
 
--- pin the contiguous run of samples around the nearest sample that lies inside the disc
+-- pin every sample inside the disc to height y
 local function pinDisc(pts, pins, x, z, rad, y, soft, id)
-	local n = #pts
-	local best, c = math.huge, nil
+	local r2 = rad * rad
 	for i, p in ipairs(pts) do
 		local dx, dz = p[1] - x, p[2] - z
-		local d = dx * dx + dz * dz
-		if d < best then
-			best, c = d, i
+		if dx * dx + dz * dz <= r2 then
+			pins[i] = y
+			if soft then
+				soft[i] = id
+			end
 		end
-	end
-	local r2 = rad * rad
-	if not c or best > r2 then
-		return
-	end
-	local function inside(i)
-		local p = pts[i]
-		local dx, dz = p[1] - x, p[2] - z
-		return dx * dx + dz * dz <= r2
-	end
-	local i = c
-	while i >= 1 and inside(i) do
-		pins[i] = y
-		if soft then
-			soft[i] = id
-		end
-		i -= 1
-	end
-	i = c + 1
-	while i <= n and inside(i) do
-		pins[i] = y
-		if soft then
-			soft[i] = id
-		end
-		i += 1
 	end
 end
 
@@ -456,6 +524,7 @@ local function cumulative(pts)
 	end
 	return s
 end
+Gen.cumulative = cumulative
 
 local function nearestIdx(pts, x, z)
 	local best, bi = math.huge, 1
@@ -487,8 +556,9 @@ end
 local function queryHash(H, pts, x, z, rad)
 	local best, bi = rad * rad, nil
 	local cx, cz = floor(x / 32), floor(z / 32)
-	for ox = -1, 1 do
-		for oz = -1, 1 do
+	local reach = ceil(rad / 32)
+	for ox = -reach, reach do
+		for oz = -reach, reach do
 			local b = H[(cx + ox + 200) * 1000 + (cz + oz + 200)]
 			if b then
 				for _, i in ipairs(b) do
@@ -505,33 +575,57 @@ local function queryHash(H, pts, x, z, rad)
 end
 Gen.hashPts, Gen.queryHash = hashPts, queryHash
 
-function Gen.buildPaths()
-	local P = { rings = {}, branches = {} }
-	-- main route + summit spiral (control points carry optional waypoint names)
-	local ctrl = {}
-	for _, c in ipairs(C.ROUTE) do
-		ctrl[#ctrl + 1] = { c[1], c[2], c[3] }
-	end
-	for _, S in ipairs(C.SUMMIT_SPIRAL) do
-		local th = S.theta0 + S.step
-		local first = true
-		while th <= S.theta1 + 1e-6 do
-			local t = (th - S.theta0) / (S.theta1 - S.theta0)
-			ctrl[#ctrl + 1] = { th, lerp(S.re0, S.re1, t), first and S.name or nil }
-			first = false
-			th += S.step
+-- hairpins: each unnamed switchback apex becomes a semicircle (radius >= trail width + 2) so the two arms
+-- stay apart up to the turn. Smoothing alone collapsed apexes into a V with a height step between the arms
+-- (P4a bot stucks at s 7,586 / 17,126). Returns the expanded ctrl list and the ctrl index ranges to lock.
+local function expandHairpins(ctrl, hw)
+	local out, locks, orig = {}, {}, {}
+	for k, c in ipairs(ctrl) do
+		local a, b = ctrl[k - 1], ctrl[k + 1]
+		if a and b and not c[3] and (c[1] - a[1]) * (b[1] - c[1]) < 0 then
+			local leg = math.min(abs(a[2] - c[2]), abs(b[2] - c[2]))
+			local r = clamp(max(leg * 0.5, hw * 2 + 2), 8, 26)
+			local sg = (a[1] > c[1]) and 1 or -1 -- the arms lie on this side of the apex (theta)
+			local ia = (a[2] >= b[2]) and 1 or -1 -- incoming arm on this side (radius)
+			local hp = clamp(floor(math.min(abs(c[1] - a[1]), abs(b[1] - c[1])) * c[2] / STEP / 10), 2, 8)
+			local k0 = #out + 1
+			for d = 90, -90, -30 do
+				local ph = math.rad(d)
+				local u = sg * r * (1 - math.cos(ph))
+				out[#out + 1] = { c[1] + u / c[2], c[2] + ia * r * math.sin(ph), hp = (d == 0) and hp or nil }
+				if d == 0 then
+					orig[k] = #out -- the apex of the semicircle stands for the original hairpin point
+				end
+			end
+			locks[#locks + 1] = { k0, #out }
+		else
+			out[#out + 1] = c
+			orig[k] = #out
 		end
 	end
+	return out, locks, orig
+end
+
+-- one route: polar control points -> resampled {x, z, y, raw} samples with pins at pads and hairpins
+local function buildRoute(def, pads)
+	local ctrl, locks, orig = expandHairpins(def.ctrl, def.hw or 4)
 	local ctrlIdx = {}
-	local dense = smoothXZ(densifyPolar(ctrl, 8, ctrlIdx), 3, 2, false)
+	local d0 = densifyPolar(ctrl, 8, ctrlIdx)
+	local lock = {}
+	for _, l in ipairs(locks) do
+		for i = ctrlIdx[l[1]], ctrlIdx[l[2]] do
+			lock[i] = true
+		end
+	end
+	local dense = smoothXZ(d0, 3, 2, false, lock)
 	local denseS = cumulative(dense)
-	local main = resample(dense, STEP, false)
-	-- expected resampled index of each control point (avoids snapping to a neighbouring switchback leg)
-	local function ctrlSample(k, x, z)
+	local pts = resample(dense, STEP, false)
+	local function ctrlSample(k)
+		local x, z = Gen.toWorld(ctrl[k][1], ctrl[k][2])
 		local est = floor(denseS[ctrlIdx[k]] / STEP) + 1
 		local best, bi = math.huge, est
-		for i = max(1, est - 30), min(#main, est + 30) do
-			local dx, dz = main[i][1] - x, main[i][2] - z
+		for i = max(1, est - 30), min(#pts, est + 30) do
+			local dx, dz = pts[i][1] - x, pts[i][2] - z
 			local d = dx * dx + dz * dz
 			if d < best then
 				best, bi = d, i
@@ -539,75 +633,51 @@ function Gen.buildPaths()
 		end
 		return bi
 	end
-	P.main = main
-	P.mainS = cumulative(main)
-	P.wp = {}
+	local wp = {}
 	for k, c in ipairs(ctrl) do
 		if c[3] then
-			local x, z = Gen.toWorld(c[1], c[2])
-			P.wp[c[3]] = ctrlSample(k, x, z)
+			wp[c[3]] = ctrlSample(k)
 		end
 	end
-	P.wp.Summit = #main
-
-	-- per-sample grade limits: stair sections beside the falls and on the summit crown
-	local G = C.GRADE
-	local grade = table.create(#main, G.default)
-	for i = P.wp.Camp1, P.wp.ForestEdge do
-		grade[i] = G.stairs
-	end
-	for i = P.wp.SummitStairs, #main do
-		grade[i] = G.summitStairs
-	end
-	P.grade = grade
-	pathHeights(main, 16, grade, false)
-
-	-- hairpin landings: flat 84-stud landing at every switchback apex so the two arms meet level
+	pathHeights(pts, 14, def.grade, false)
 	local pins, soft = {}, {}
-	local R = C.ROUTE
-	for k = 2, #R - 1 do
-		if (R[k][1] - R[k - 1][1]) * (R[k + 1][1] - R[k][1]) < 0 then
-			local x, z = Gen.toWorld(R[k][1], R[k][2])
-			local a = ctrlSample(k, x, z)
-			-- wide average so rib bumps don't set the landing height
+	-- hairpin landings: short flat landing at each switchback apex so the two arms meet level
+	for k = 2, #ctrl - 1 do
+		if (ctrl[k][1] - ctrl[k - 1][1]) * (ctrl[k + 1][1] - ctrl[k][1]) < 0 then
+			local a = ctrlSample(k)
 			local s, c = 0, 0
-			for i = max(1, a - 30), min(#main, a + 30) do
-				s += main[i][3]
+			for i = max(1, a - 20), min(#pts, a + 20) do
+				s += pts[i][3]
 				c += 1
 			end
 			local y = s / c
-			local leg = min(abs(R[k][1] - R[k - 1][1]), abs(R[k + 1][1] - R[k][1])) * R[k][2]
-			local half = clamp(floor(leg / STEP / 8), 3, 14)
-			for i = max(1, a - half), min(#main, a + half) do
+			local half = ctrl[k].hp or clamp(floor(math.min(abs(ctrl[k][1] - ctrl[k - 1][1]), abs(ctrl[k + 1][1] - ctrl[k][1])) * ctrl[k][2] / STEP / 10), 2, 8)
+			for i = max(1, a - half), min(#pts, a + half) do
 				pins[i] = y
 				soft[i] = k
 			end
 		end
 	end
-	-- pads: route-height pads pin the route flat across the pad; fixed pads pin to their height
-	P.pads = {}
-	for _, pad in ipairs(C.PADS) do
-		local x, z = pad.x, pad.z
-		if not x then
-			x, z = Gen.toWorld(pad.theta, pad.re)
-		end
-		local y = pad.height
-		if y == "route" then
-			y = main[P.wp[pad.name] or nearestIdx(main, x, z)][3]
-		elseif y == "h0" then
-			y = Gen.baseHeight(x, z)
-		end
-		P.pads[pad.name] = { x = x, y = y, z = z, radius = pad.radius, blend = pad.blend, kind = pad.kind }
-		local isSoft = pad.kind == 4 and pad.height == "route"
-		pinDisc(main, pins, x, z, pad.radius, y, isSoft and soft or nil, pad.name)
+	-- pads: camps and the Foothold pin the route flat across the pad core
+	for name, pad in pairs(pads) do
+		-- pin across the pad core plus its blend ring (whole ring for the Foothold), so trailheads sit on the pad
+		pinDisc(pts, pins, pad.x, pad.z, pad.radius + pad.blend * ((pad.kind == 5) and 1 or 0.35), pad.y)
 	end
-	clampPinned(main, pins, grade)
-	-- drop soft pins (landings, feature pads) that make the grade infeasible, then re-clamp
+	clampPinned(pts, pins, def.grade)
 	for _ = 1, 8 do
 		local dropped = false
-		for i = 2, #main do
-			if abs(main[i][3] - main[i - 1][3]) > grade[i] * STEP * 1.25 + 0.01 then
+		for i = 2, #pts do
+			if abs(pts[i][3] - pts[i - 1][3]) > def.grade * STEP * 1.25 + 0.01 then
 				local id = soft[i] or soft[i - 1]
+				if not id then
+					-- the conflict sits at a hard pin: drop the nearest soft landing instead
+					for o = 1, 400 do
+						id = soft[i + o] or soft[i - 1 - o]
+						if id then
+							break
+						end
+					end
+				end
 				if id then
 					for k2, v in pairs(soft) do
 						if v == id then
@@ -621,53 +691,119 @@ function Gen.buildPaths()
 		if not dropped then
 			break
 		end
-		clampPinned(main, pins, grade)
+		clampPinned(pts, pins, def.grade)
 	end
-	local mainHash = hashPts(main)
-	P.mainHash = mainHash
-
-	-- rings: closed loops, heights pulled to the main route where they meet it
-	for _, rg in ipairs(C.RINGS) do
-		local ctl = {}
-		for k = 0, 125 do
-			ctl[#ctl + 1] = { k / 126 * TAU, rg.re }
+	-- v4 P3: sample index + arc length of every ORIGINAL ctrl point (route "lines" in WorldConfig refer to them)
+	local S = cumulative(pts)
+	local ctrlI, ctrlS = {}, {}
+	for k = 1, #def.ctrl do
+		local e = orig[k]
+		if e then
+			ctrlI[k] = ctrlSample(e)
+			ctrlS[k] = S[ctrlI[k]]
 		end
-		local pts = densifyPolar(ctl, 8)
-		table.remove(pts) -- duplicate of first point
-		pts = smoothXZ(pts, 2, 1, true)
-		pts = resample(pts, STEP, true)
-		pathHeights(pts, 20, 0.25, true)
-		local rpins = {}
-		for i, p in ipairs(pts) do
-			local mi, d = queryHash(mainHash, main, p[1], p[2], 36)
-			if mi then
-				p[3] = lerp(main[mi][3], p[3], smoothstep(10, 36, d))
-				if d < 12 then
-					rpins[i] = main[mi][3]
+	end
+	return { name = def.name, def = def, pts = pts, S = S, wp = wp, ctrlI = ctrlI, ctrlS = ctrlS }
+end
+
+-- opts.skip = { [name] = true }: v4 routes not built (v5: gated routes and routes rebuilt on the spline kit)
+function Gen.buildPaths(opts)
+	local skip = (opts and opts.skip) or {}
+	local P = { routes = {}, routeList = {}, rings = {}, branches = {} }
+	-- pads first: camps sit at their natural height, every route is pinned to them
+	P.pads = {}
+	for _, pad in ipairs(C.PADS) do
+		local x, z = pad.x, pad.z
+		if pad.camp then
+			local cp = C.CAMPS[pad.name]
+			x, z = Gen.toWorld(cp.theta, cp.re)
+		elseif not x then
+			x, z = Gen.toWorld(pad.theta, pad.re)
+		end
+		local y = pad.height
+		if y == "h0" then
+			-- wide average so a rib bump doesn't set the pad height
+			local s, c = 0, 0
+			for ox = -1, 1 do
+				for oz = -1, 1 do
+					s += Gen.baseHeight(x + ox * pad.radius * 0.6, z + oz * pad.radius * 0.6)
+					c += 1
 				end
 			end
+			y = s / c
 		end
-		for _, pad in pairs(P.pads) do
-			pinDisc(pts, rpins, pad.x, pad.z, pad.radius, pad.y)
-		end
-		clampPinned(pts, rpins, 0.25)
-		P.rings[rg.name] = pts
+		P.pads[pad.name] = { x = x, y = y, z = z, radius = pad.radius, blend = pad.blend, kind = pad.kind }
 	end
-	for _, br in ipairs(C.BRANCHES) do
-		local pts = resample(smoothXZ(densifyPolar(br.pts, 8), 2, 1, false), STEP, false)
-		pathHeights(pts, 10, 0.3, false)
-		local bpins = {}
-		local mi = queryHash(mainHash, main, pts[1][1], pts[1][2], 40)
-		if mi then
-			bpins[1] = main[mi][3]
+	for _, def in ipairs(C.ROUTES) do
+		if not skip[def.name] then
+			local R = buildRoute(def, P.pads)
+			P.routes[def.name] = R
+			P.routeList[#P.routeList + 1] = R
 		end
-		for _, pad in pairs(P.pads) do
-			pinDisc(pts, bpins, pad.x, pad.z, pad.radius, pad.y)
+	end
+	-- shared summit stair: spiral from the merge pad to the crown notch
+	local S = C.SUMMIT_STAIR
+	local ctrl = {}
+	local th = S.theta0
+	while th <= S.theta1 + 1e-6 do
+		local t = (th - S.theta0) / (S.theta1 - S.theta0)
+		ctrl[#ctrl + 1] = { th, lerp(S.re0, S.re1, t) }
+		th += S.step
+	end
+	local stair = buildRoute({ name = "SummitStair", ctrl = ctrl, grade = S.grade, hw = 5, blend = 6 }, {
+		Merge = P.pads.Merge,
+		SummitCrown = P.pads.SummitCrown,
+	})
+	P.routes.SummitStair = stair
+	-- checkpoints (RouteNet): camps + evenly spaced mini-checkpoints per leg, ~cpTarget s of skilled time apart
+	local RM = C.ROUTE_MODEL
+	local legs = { "Gate", "Camp1", "Camp2", "Camp3", "Camp4", "Merge" }
+	local walk = C.PLAYER.walkSpeed
+	for _, R in ipairs(P.routeList) do
+		local total = R.S[#R.S] + stair.S[#stair.S]
+		local k = (total / walk + RM.segMin[R.name] * 60) / (total / walk)
+		R.skilledMin = (total / walk) * k / 60
+		R.walkMin = total / walk / 60
+		R.checkpoints = {}
+		for li = 1, #legs - 1 do
+			local i0, i1 = R.wp[legs[li]], R.wp[legs[li + 1]]
+			local legT = (R.S[i1] - R.S[i0]) / walk * k
+			-- fewest checkpoints that keep every gap <= cpMax (gaps land between ~2.5 and 5 min)
+			local n = math.max(0, math.ceil(legT / RM.cpMax) - 1)
+			for c = 1, n do
+				local s = R.S[i0] + (R.S[i1] - R.S[i0]) * c / (n + 1)
+				local bi = i0
+				while bi < i1 and R.S[bi] < s do
+					bi += 1
+				end
+				R.checkpoints[#R.checkpoints + 1] = { i = bi, leg = li, name = string.format("%s_CP%d_%d", R.name, li, c) }
+			end
+			if li < #legs - 1 then
+				R.checkpoints[#R.checkpoints + 1] = { i = i1, leg = li, name = legs[li + 1], camp = true }
+			end
 		end
-		clampPinned(pts, bpins, 0.3)
-		P.branches[br.name] = pts
+	end
+	if P.routes.Shepherd then
+		Gen.buildMain(P)
 	end
 	return P
+end
+
+-- legacy single-route view (TraverseKit, exportRoute): Shepherd's Road + summit stair
+function Gen.buildMain(P)
+	local sh = P.routes.Shepherd
+	local stair = P.routes.SummitStair
+	local main = table.clone(sh.pts)
+	for i = 2, #stair.pts do
+		main[#main + 1] = stair.pts[i]
+	end
+	P.main = main
+	P.mainS = cumulative(main)
+	P.wp = table.clone(sh.wp)
+	P.wp.FootholdGate = sh.wp.Gate
+	P.wp.SummitStairs = #sh.pts
+	P.wp.Summit = #main
+	P.mainHash = hashPts(main)
 end
 
 ---------------------------------------------------------------- field
@@ -715,6 +851,34 @@ local function stampPath(F_, pts, hw, blend, kind, prio)
 	for i = 1, #pts do
 		local p = pts[i]
 		stampDisc(F_, p[1], p[2], hw, blend, p[3], kind, prio)
+	end
+end
+
+-- knife-edge crest along a route: the ground falls away at `slope` on both sides of the trail
+local function stampCrest(F_, pts, hw, reach, slope)
+	local H = F_.H
+	for k = 1, #pts, 2 do
+		local p = pts[k]
+		local i0, i1 = cellRange(p[1], reach)
+		local j0, j1 = cellRange(p[2], reach)
+		for j = j0, j1 do
+			local dz = cellC(j) - p[2]
+			for i = i0, i1 do
+				local dx = cellC(i) - p[1]
+				local d = sqrt(dx * dx + dz * dz)
+				if d < reach then
+					local idx = j * N + i
+					local h = readf32(H, idx * 4)
+					local ridge = p[3] - slope * max(0, d - hw)
+					local w = 1 - smoothstep(reach * 0.6, reach, d)
+					local target = lerp(h, ridge, w)
+					-- only lower (cut couloirs beside the crest) or raise up to the crest line
+					if (d < reach * 0.6) or (target < h) then
+						writef32(H, idx * 4, target)
+					end
+				end
+			end
+		end
 	end
 end
 
@@ -801,7 +965,9 @@ local function waterLevels(F_, pts, first, last, drop)
 	return wl
 end
 
-function Gen.computeField()
+function Gen.computeField(opts)
+	opts = opts or {}
+	local withRoutes = opts.routes ~= false
 	local t0 = os.clock()
 	local F_ = {}
 	F_.H = newF32(0)
@@ -829,13 +995,73 @@ function Gen.computeField()
 	end
 	local tBase = os.clock() - t0
 
-	local P = Gen.buildPaths()
-	stampPath(F_, P.main, 8, 10, 1, 3)
-	for _, pts in pairs(P.rings) do
-		stampPath(F_, pts, 5, 7, 2, 1)
+	-- v5 (opts.v5): live routes are spline routes (RouteSpline + SplineGen), gated routes are not built at all
+	local RSd = opts.v5 and require(script.Parent.RouteSpline)
+	local skip = {}
+	if RSd then
+		for _, name in ipairs(RSd.LIVE) do
+			skip[name] = true
+		end
+		for name in pairs(RSd.GATED) do
+			skip[name] = true
+		end
+		for _, name in ipairs(opts.v4Keep or {}) do
+			skip[name] = nil -- a live route not rebuilt yet keeps its v4 path (P1 prototype: Waterfall)
+		end
 	end
-	for _, pts in pairs(P.branches) do
-		stampPath(F_, pts, 4, 6, 2, 2)
+	local P = Gen.buildPaths({ skip = skip })
+	P.withRoutes = withRoutes
+	if withRoutes then
+		-- unstamped stretches: stampSkip = { s0, s1 } (v4 P1) and every v4 route line with stamp ~= true
+		-- (lines = { { kind, c0, c1 } }, ctrl indices): the line there is an authored climb, so the natural
+		-- cliff stays and no stamped trail is left as a bypass
+		local function skipList(R)
+			local d, out = R.def, {}
+			if d.stampSkip then
+				out[#out + 1] = { d.stampSkip[1], d.stampSkip[2] }
+			end
+			for _, ln in ipairs(d.lines or {}) do
+				-- a line by absolute arc length (s0 / s1, hang lines) or by control points (c0 / c1 + pads, stacks)
+				if ln.stamp ~= true and ln.s0 and ln.s1 then
+					out[#out + 1] = { ln.s0, ln.s1 }
+				elseif ln.stamp ~= true and R.ctrlS[ln.c0] and R.ctrlS[ln.c1] then
+					out[#out + 1] = { R.ctrlS[ln.c0] + (ln.pad0 or 0), R.ctrlS[ln.c1] - (ln.pad1 or 0) }
+				end
+			end
+			R.skips = out
+			return out
+		end
+		local function kept(R)
+			local sk = R.skips or skipList(R)
+			if #sk == 0 then
+				return R.pts
+			end
+			local pts = {}
+			for i, p in ipairs(R.pts) do
+				local skip = false
+				for _, r in ipairs(sk) do
+					if R.S[i] >= r[1] and R.S[i] <= r[2] then
+						skip = true
+						break
+					end
+				end
+				if not skip then
+					pts[#pts + 1] = p
+				end
+			end
+			return pts
+		end
+		for _, R in ipairs(P.routeList) do
+			if R.def.crest then
+				stampCrest(F_, kept(R), R.def.hw + 1, R.def.crest + 16, 1.25)
+			end
+		end
+		for _, R in ipairs(P.routeList) do
+			local d = R.def
+			stampPath(F_, kept(R), d.hw, d.blend, (d.hw <= 3) and 6 or ((d.name == "Shepherd") and 1 or 2), d.prio)
+		end
+		local st = P.routes.SummitStair
+		stampPath(F_, st.pts, 5, 6, 1, 4)
 	end
 	task.wait()
 
@@ -843,28 +1069,32 @@ function Gen.computeField()
 		stampDisc(F_, pad.x, pad.z, pad.radius, pad.blend, pad.y, pad.kind, 5 + pad.kind)
 	end
 
-	-- apply stamps
-	local SW, SH = F_.SW, F_.SH
+	-- apply stamps (ledge stamps, kind 6, only cut outside their core: the drop side stays a drop)
+	local SW, SH, SK = F_.SW, F_.SH, F_.SK
 	for idx = 0, NN - 1 do
 		local w = readf32(SW, idx * 4)
 		if w > 0 then
 			w = min(1, w)
 			local h = readf32(H, idx * 4)
-			writef32(H, idx * 4, h + (readf32(SH, idx * 4) - h) * w)
+			local y = readf32(SH, idx * 4)
+			if not (readu8(SK, idx) == 6 and w < 0.95 and y > h) then
+				writef32(H, idx * 4, h + (y - h) * w)
+			end
 		end
 	end
 	task.wait()
 
-	-- water: lake
+	-- water: foothill lake
 	local L = C.LAKE
+	local lx, lz = Gen.toWorld(L.theta, L.re)
 	do
 		local R = L.radius * 1.15 + 45
-		local i0, i1 = cellRange(L.x, R)
-		local j0, j1 = cellRange(L.z, R)
+		local i0, i1 = cellRange(lx, R)
+		local j0, j1 = cellRange(lz, R)
 		for j = j0, j1 do
-			local dz = cellC(j) - L.z
+			local dz = cellC(j) - lz
 			for i = i0, i1 do
-				local dx = cellC(i) - L.x
+				local dx = cellC(i) - lx
 				local d = sqrt(dx * dx + dz * dz)
 				local a = atan2(dx, dz)
 				local Rr = L.radius * (1 + 0.24 * noise(cos(a) * 1.4 + 0.3, sin(a) * 1.4 + 0.7, 3.3))
@@ -891,6 +1121,7 @@ function Gen.computeField()
 			end
 		end
 	end
+	P.lake = { x = lx, z = lz, level = L.level, radius = L.radius }
 
 	-- falls pool
 	local PL = C.POOL
@@ -920,12 +1151,13 @@ function Gen.computeField()
 			end
 		end
 	end
+	P.pool = { x = px, z = pz, level = PL.level, radius = PL.radius }
 
-	-- creek (forest shelf -> falls lip) and river (pool -> lake)
-	local CR = C.CREEK
-	local creek = resample(smoothXZ(densifyPolar(CR.pts, 6), 2, 2, false), STEP, false)
+	-- creek (forest band -> falls lip) and river (pool -> lake)
+	local CRK = C.CREEK
+	local creek = resample(smoothXZ(densifyPolar(CRK.pts, 6), 2, 2, false), STEP, false)
 	local creekWl = waterLevels(F_, creek, nil, nil, 1.2)
-	carveChannel(F_, creek, creekWl, CR.halfWidth, CR.blend, CR.depth)
+	carveChannel(F_, creek, creekWl, CRK.halfWidth, CRK.blend, CRK.depth)
 	local RV = C.RIVER
 	local river = resample(smoothXZ(densifyPolar(RV.pts, 6), 3, 2, false), STEP, false)
 	local riverWl = waterLevels(F_, river, RV.startLevel, L.level, 1.8)
@@ -940,16 +1172,16 @@ function Gen.computeField()
 
 	-- waterfall sheet: vertical water against the lip wall
 	do
-		local x0, z0 = Gen.toWorld(F.theta, 1200)
-		local i0, i1 = cellRange(x0, 60)
-		local j0, j1 = cellRange(z0, 60)
+		local x0, z0 = Gen.toWorld(F.theta, F.lipOuter - 10)
+		local i0, i1 = cellRange(x0, 70)
+		local j0, j1 = cellRange(z0, 70)
 		for j = j0, j1 do
 			local z = cellC(j)
 			for i = i0, i1 do
 				local x = cellC(i)
 				local idx = j * N + i
 				local th = atan2(x, z)
-				if abs(angDiff(th, F.theta)) < 0.013 then
+				if abs(angDiff(th, F.theta)) < 0.011 then
 					local re = readf32(RE, idx * 4)
 					local rl = Gen.fallLip(th)
 					if re >= rl - 0.5 and re <= rl + 7 and readf32(H, idx * 4) < F.lipY - 1 then
@@ -965,8 +1197,8 @@ function Gen.computeField()
 	local CH = C.CHASM
 	do
 		local x0, z0 = Gen.toWorld(CH.theta, (CH.reIn + CH.reOut) / 2)
-		local i0, i1 = cellRange(x0, 230)
-		local j0, j1 = cellRange(z0, 230)
+		local i0, i1 = cellRange(x0, 260)
+		local j0, j1 = cellRange(z0, 260)
 		for j = j0, j1 do
 			local z = cellC(j)
 			for i = i0, i1 do
@@ -976,7 +1208,7 @@ function Gen.computeField()
 				if re > CH.reIn and re < CH.reOut then
 					local th = atan2(x, z)
 					local d = abs(angDiff(th, CH.theta) * re)
-					local hw = (32 + (re - CH.reIn) * 0.06 + 7 * noise(re / 60 + 0.3, 4.4, 0.7) * 2)
+					local hw = (34 + (re - CH.reIn) * 0.06 + 7 * noise(re / 60 + 0.3, 4.4, 0.7) * 2)
 						* smoothstep(CH.reIn, CH.reIn + 28, re)
 					if d < hw + 6 then
 						local floorY = CH.floor + (CH.reOut - re) * 0.3
@@ -993,10 +1225,130 @@ function Gen.computeField()
 	end
 	task.wait()
 
-	-- crossings that need bridges (route/rings vs river, creek, chasm)
+	-- v5 spline routes: built and stamped after water and chasm carving (their cross-sections win)
+	if RSd and withRoutes then
+		local SG = require(script.Parent.SplineGen)
+		P.v5 = {}
+		-- v6: creek gorges (enforced crossings on open ground) before the routes that cross them
+		P.gorges = {}
+		for _, g in ipairs(RSd.GORGES or {}) do
+			P.gorges[#P.gorges + 1] = SG.gorge(F_, Gen, g)
+		end
+		for _, def in ipairs(RSd.ROUTES) do
+			if skip[def.name] then
+				local R = SG.build(def, Gen, P.pads)
+				P.routes[def.name] = R
+				P.routeList[#P.routeList + 1] = R
+				P.v5[#P.v5 + 1] = def.name
+				R.stamped = SG.stamp(F_, R, Gen)
+				task.wait()
+			end
+		end
+		if P.routes.Shepherd and P.routes.Shepherd.v5 then
+			Gen.buildMain(P)
+		end
+	end
+
+	-- pit fill (v4 run 2): overlapping switchback cuts left narrow shafts and slots 25-190 studs deep beside hairpins
+	-- on the Waterfall / Ledge summit approaches (players fell in). Near every route point but off the trail core
+	-- (hw + 3, so a trail cut through a spur is never filled), a cell is raised when it is surrounded on >= 10 of 12
+	-- sides by ground > 10 higher (a shaft), or sits > 20 below both sides of a narrow (<= 16 studs) slot. Changed
+	-- cells are listed in F_.pitFixes (world x, z) so a rebuild can rewrite just those.
+	F_.pitFixes = {}
+	if P.routeList then
+		local near, core = {}, {}
+		local function markAround(set, x, z, rad)
+			local i0, i1 = cellRange(x, rad)
+			local j0, j1 = cellRange(z, rad)
+			for j = j0, j1 do
+				local dz = cellC(j) - z
+				for i = i0, i1 do
+					local dx = cellC(i) - x
+					if dx * dx + dz * dz <= rad * rad then
+						set[j * N + i] = true
+					end
+				end
+			end
+		end
+		-- only around hairpin apexes (heading turns > 120 deg over ~24 points): gullies, the falls slot and the chasm
+		-- beside straight trail are left alone; never on the trail core of any route
+		for _, R in pairs(P.routes) do
+			local hw = (R.def and (R.def.hw or (R.def.w and R.def.w / 2 + 2))) or 5
+			local pts = R.pts
+			for k = 1, #pts, 2 do
+				markAround(core, pts[k][1], pts[k][2], hw + 3)
+			end
+			-- two scales: long arms (+-12 points) and the short summit-approach arms (+-5)
+			for _, w in ipairs({ 12, 5 }) do
+				for k = w + 1, #pts - w, 2 do
+					local a, b, c = pts[k - w], pts[k], pts[k + w]
+					local ux, uz = b[1] - a[1], b[2] - a[2]
+					local vx, vz = c[1] - b[1], c[2] - b[2]
+					local lu, lv = sqrt(ux * ux + uz * uz), sqrt(vx * vx + vz * vz)
+					if lu > 1 and lv > 1 and (ux * vx + uz * vz) / (lu * lv) < -0.5 then
+						markAround(near, b[1], b[2], 26)
+					end
+				end
+			end
+		end
+		local DIRS = {}
+		for a = 0, 11 do
+			DIRS[#DIRS + 1] = { math.cos(a * math.pi / 6), math.sin(a * math.pi / 6) }
+		end
+		local function hAt(i, j)
+			return readf32(H, (clamp(j, 0, N - 1) * N + clamp(i, 0, N - 1)) * 4)
+		end
+		for _ = 1, 4 do
+			local changed = 0
+			for idx in pairs(near) do
+				if not core[idx] and readf32(F_.W, idx * 4) < readf32(H, idx * 4) + 0.5 then
+					local i, j = idx % N, idx // N
+					local h = readf32(H, idx * 4)
+					local target = nil
+					for _, rc in ipairs({ 3, 5 }) do
+						local higher, lo = 0, math.huge
+						for _, d in ipairs(DIRS) do
+							local hn = hAt(i + floor(d[1] * rc + 0.5), j + floor(d[2] * rc + 0.5))
+							if hn > h + 10 then
+								higher += 1
+							end
+							if hn < lo then
+								lo = hn
+							end
+						end
+						if higher >= 10 and lo > h + 1 then
+							target = math.max(target or -math.huge, lo)
+						end
+					end
+					-- a narrow slot across one of 6 axes (both sides within 8 studs stand > 20 higher)
+					for a = 1, 6 do
+						local d = DIRS[a]
+						local ha = hAt(i + floor(d[1] * 2 + 0.5), j + floor(d[2] * 2 + 0.5))
+						local hb = hAt(i - floor(d[1] * 2 + 0.5), j - floor(d[2] * 2 + 0.5))
+						local m = math.min(ha, hb)
+						if m > h + 20 then
+							target = math.max(target or -math.huge, m - 2)
+						end
+					end
+					if target and target > h + 1 then
+						writef32(H, idx * 4, target)
+						changed += 1
+						F_.pitFixes[#F_.pitFixes + 1] = { cellC(i), cellC(j) }
+					end
+				end
+			end
+			task.wait()
+			if changed == 0 then
+				break
+			end
+		end
+	end
+
+	-- crossings that need bridges (each route vs water, chasm, or a dip it can't stand on)
 	P.crossings = {}
 	local function findCross(pathName, pts)
 		local inRun, startI = false, 0
+		local found = {}
 		for i = 1, #pts do
 			local p = pts[i]
 			local ci = clamp(floor((p[1] + HALF) / CELL), 0, N - 1)
@@ -1009,30 +1361,35 @@ function Gen.computeField()
 			elseif not gap and inRun then
 				inRun = false
 				if i - startI >= 2 then
-					table.insert(P.crossings, { path = pathName, i0 = startI, i1 = i })
+					found[#found + 1] = { path = pathName, i0 = startI, i1 = i }
 				end
 			end
 		end
-	end
-	findCross("Main", P.main)
-	for name, pts in pairs(P.rings) do
-		findCross(name, pts)
-	end
-	-- merge runs split by a short bank (one bridge per crossing)
-	local merged = {}
-	for _, c in ipairs(P.crossings) do
-		local last = merged[#merged]
-		if last and last.path == c.path and c.i0 - last.i1 <= 5 then
-			last.i1 = c.i1
-		else
-			merged[#merged + 1] = c
+		local merged = {}
+		for _, c in ipairs(found) do
+			local last = merged[#merged]
+			if last and c.i0 - last.i1 <= 5 then
+				last.i1 = c.i1
+			else
+				merged[#merged + 1] = c
+			end
+		end
+		for _, c in ipairs(merged) do
+			P.crossings[#P.crossings + 1] = c
 		end
 	end
-	P.crossings = merged
+	if withRoutes then
+		for name, R in pairs(P.routes) do
+			if not R.v5 then
+				findCross(name, R.pts)
+			end
+		end
+	end
 
 	-- surfaces
-	local K, Rg, FL, SK = F_.K, F_.R, F_.FL, F_.SK
-	local TRAIL = { M_GROUND, M_GROUND, M_SLATE, M_LIME, M_SLATE, M_GROUND }
+	local K, Rg, FL = F_.K, F_.R, F_.FL
+	-- trail material per biome: valley, forest, cliffs, storm, summit, rim, foothills
+	local TRAIL = { M_GROUND, M_GROUND, M_SLATE, M_LIME, M_SLATE, M_GROUND, M_MUD }
 	for j = 0, N - 1 do
 		local z = cellC(j)
 		local jm, jp = max(0, j - 1), min(N - 1, j + 1)
@@ -1044,38 +1401,52 @@ function Gen.computeField()
 			local sx = (readf32(H, (j * N + ip) * 4) - readf32(H, (j * N + im) * 4)) / ((ip - im) * CELL)
 			local sz = (readf32(H, (jp * N + i) * 4) - readf32(H, (jm * N + i) * 4)) / ((jp - jm) * CELL)
 			local slope = sqrt(sx * sx + sz * sz)
-			local re = readf32(RE, idx * 4)
 			local r = sqrt(x * x + z * z)
-			local reg = Gen.regionOf(re, r)
+			local n = noise(x / 90 + 0.17, z / 90 + 0.53, 8.8)
+			local nb = noise(x / 380 + 0.41, z / 380 + 0.83, 2.6)
+			local reg = Gen.regionOf(h, r, nb)
 			writeu8(Rg, idx, reg)
 			local sw = min(1, readf32(SW, idx * 4))
 			local sk = readu8(SK, idx)
-			local n = noise(x / 90 + 0.17, z / 90 + 0.53, 8.8)
 			local k
+			local tr = F_.TR and readu8(F_.TR, idx) or 0
 			if readu8(FL, idx) ~= 0 then
 				k = M_SAND
-			elseif sw > 0.55 and (sk == 1 or sk == 2) and slope < 1.2 then
+			elseif tr == 2 then
+				k = M_MARK
+			elseif tr == 1 and slope < 1.3 then
+				k = TRAIL[reg]
+			elseif sw > 0.55 and (sk == 1 or sk == 2 or sk == 6) and slope < 1.3 then
 				k = TRAIL[reg]
 			elseif sk == 3 and sw > 0.975 then
-				-- camp pads: cobbled core, trodden ring; the blend slopes fall through to grass/rock
+				-- camp pads: cobbled core, trodden ring; the blend slopes fall through to the biome
 				k = (sw > 0.988) and M_COBBLE or M_GROUND
 			elseif sk == 5 and sw > 0.5 then
-				local dz = z - 1880
-				k = (sqrt(x * x + dz * dz) < 70) and M_COBBLE or M_GRASS
-			elseif sk == 4 and sw > 0.8 and reg <= 2 then
-				k = M_GROUND
+				k = M_SALT -- Foothold pad: dry grass; FootholdV3 paints the plaza and paths
+			elseif sk == 4 and sw > 0.8 then
+				k = (reg >= 4 and reg ~= 7) and M_SLATE or M_GROUND
+			elseif reg == 7 then
+				-- dry foothills: dry grass with red-brown earth patches and gullies, rock on steep faces
+				local n2 = noise(x / 160 + 0.61, z / 160 + 0.19, 4.4)
+				if slope > 1.4 then
+					k = (n > 0.1) and M_ROCK or M_MUD
+				elseif slope > 0.7 or n2 > 0.28 then
+					k = M_MUD
+				else
+					k = M_SALT
+				end
 			elseif reg == 1 then
 				-- meadow emerald with deeper leafy patches so open meadows aren't one flat colour
 				local n2 = noise(x / 240 + 0.61, z / 240 + 0.19, 4.4)
-				k = (slope > 1.6) and M_ROCK or (((re < 1330 and n > 0.18) or n2 > 0.22) and M_LEAFY or M_GRASS)
+				k = (slope > 2.4) and M_ROCK or ((n > 0.2 or n2 > 0.24 or slope > 1.3) and M_LEAFY or M_GRASS)
 			elseif reg == 2 then
-				k = (slope > 1.6) and M_ROCK or ((n > 0.3) and M_GRASS or M_LEAFY)
+				k = (slope > 2.6) and M_ROCK or ((n > 0.3 and slope < 1.2) and M_GRASS or M_LEAFY)
 			elseif reg == 3 then
 				if slope > 0.8 then
-					local b = floor((h + n * 20) / 24) % 5
+					local b = floor((h + n * 5) / 26) % 5
 					k = (b == 2 or b == 4) and M_SLATE or M_SAND_STONE
 				else
-					k = (n > 0.32) and M_GRASS or M_SAND_STONE
+					k = (n > 0.3) and M_GRASS or M_SAND_STONE
 				end
 			elseif reg == 4 then
 				if slope > 0.75 then
@@ -1083,27 +1454,29 @@ function Gen.computeField()
 					if n > 0.3 and slope < 1.7 then
 						k = M_SNOW
 					else
-						k = (floor((h + n * 24) / 36) % 3 == 2) and M_SLATE or M_BASALT
+						k = (floor((h + n * 24) / 40) % 3 == 2) and M_SLATE or M_BASALT
 					end
 				else
-					k = (n + (h - 1250) / 300 * 0.6 > 0.35) and M_SNOW or M_SLATE
+					k = (n + (h - 1900) / 450 * 0.6 > 0.35) and M_SNOW or M_SLATE
 				end
 			elseif reg == 5 then
-				-- icy spire (§4 "Luminous ice blue"), dark rock only as sparse accents
-				if slope < 0.9 then
-					k = M_SNOW
-				elseif slope > 1.2 and n > 0.38 then
+				-- icy spire (§4 "Luminous ice blue"); fins and buttress ridges are dark rock, faces carry
+				-- vertical rock streaks (no blotches)
+				if Gen.crownRock(x, z) > 0.45 and slope > 0.6 then
 					k = M_BASALT
+				elseif slope < 0.9 then
+					k = M_SNOW
 				else
-					k = (slope < 2.4) and M_GLACIER or M_ICE
+					k = M_GLACIER
 				end
 			else
-				-- rim backdrop: green lower slopes, rock only on steep faces, snow caps
-				local n2 = noise(x / 240 + 0.61, z / 240 + 0.19, 4.4)
-				if h > 430 + n * 60 then
+				-- rim backdrop: dry lower slopes like the foothills, rock on steep faces, snow caps
+				if h > 520 + n * 70 then
 					k = (slope > 1.6) and M_ROCK or M_SNOW
+				elseif h > 260 + n * 60 then
+					k = (slope > 1.1) and M_ROCK or M_LEAFY
 				else
-					k = (slope > 1.35) and M_ROCK or ((n2 > 0.1) and M_LEAFY or M_GRASS)
+					k = (slope > 1.2) and M_ROCK or ((n > 0.15) and M_MUD or M_SALT)
 				end
 			end
 			writeu8(K, idx, k)
@@ -1115,7 +1488,11 @@ function Gen.computeField()
 
 	_G.CC_HF = F_
 	_G.CC_PATHS = P
-	return { seconds = os.clock() - t0, baseSeconds = tBase, mainSamples = #P.main, crossings = #P.crossings }
+	local lens = {}
+	for name, R in pairs(P.routes) do
+		lens[name] = floor(R.S[#R.S])
+	end
+	return { seconds = os.clock() - t0, baseSeconds = tBase, routes = lens, crossings = #P.crossings }
 end
 
 ---------------------------------------------------------------- voxel writer
@@ -1126,12 +1503,14 @@ local AIR, WATER = Enum.Material.Air, Enum.Material.Water
 local SURF = 1.7
 
 local function deepMat(reg, y, depth, sn)
-	if reg == 1 or reg == 6 then
+	if reg == 7 then
+		return depth < 12 and M_MUD or M_ROCK
+	elseif reg == 1 or reg == 6 then
 		return depth < 12 and M_GROUND or M_ROCK
 	elseif reg == 2 then
 		return depth < 10 and M_GROUND or M_ROCK
 	elseif reg == 3 then
-		local b = floor((y + sn * 18) / 22) % 5
+		local b = floor((y + sn * 4) / 22) % 5
 		return (b == 2 or b == 4) and M_SLATE or M_SAND_STONE
 	elseif reg == 4 then
 		return (floor((y + sn * 16) / 30) % 3 == 2) and M_SLATE or M_BASALT
@@ -1139,13 +1518,12 @@ local function deepMat(reg, y, depth, sn)
 	return depth < 12 and M_GLACIER or M_BASALT
 end
 
-function Gen.writeBlock(bi, bj)
+-- writes the voxel columns of cells i0..i1 x j0..j1 (extraAir: also clear that many studs above the top)
+local function writeCells(i0, i1, j0, j1, extraAir)
 	local F_ = _G.CC_HF
 	local H, W, K, Rg = F_.H, F_.W, F_.K, F_.R
-	local i0, j0 = bi * BLOCK, bj * BLOCK
-	local i1, j1 = min(i0 + BLOCK, N) - 1, min(j0 + BLOCK, N) - 1
 	local nx, nz = i1 - i0 + 1, j1 - j0 + 1
-	local tops, bots, wts, ks, rs, sns = {}, {}, {}, {}, {}, {}
+	local tops, bots, wts, ks, rs, sns, exps = {}, {}, {}, {}, {}, {}, {}
 	local ymin, ymax = math.huge, -math.huge
 	for jj = 0, nz - 1 do
 		local j = j0 + jj
@@ -1169,6 +1547,14 @@ function Gen.writeBlock(bi, bj)
 			local t = max(h, w)
 			tops[c], bots[c], wts[c] = h, b, w
 			ks[c], rs[c] = readu8(K, idx), readu8(Rg, idx)
+			-- exposed side of a steep column keeps the surface material (strata regions show layered rock)
+			local rg = rs[c]
+			exps[c] = (rg == 3 or rg == 4) and 13 or max(13, h + SURF - nb + 8)
+			-- v6: trail tread columns show the trail material only near the top (a ledge on a cliff hung dirt "drips"
+			-- the whole height of its outer face)
+			if F_.TR and readu8(F_.TR, idx) == 1 then
+				exps[c] = 4
+			end
 			sns[c] = noise(i * 0.045 + 0.31, j * 0.045 + 0.77, 1.3)
 			if b < ymin then
 				ymin = b
@@ -1179,7 +1565,7 @@ function Gen.writeBlock(bi, bj)
 		end
 	end
 	local y0 = floor(ymin / 4) * 4
-	local y1 = ceil(ymax / 4) * 4
+	local y1 = ceil((ymax + (extraAir or 0)) / 4) * 4
 	if y1 <= y0 then
 		y1 = y0 + 4
 	end
@@ -1198,7 +1584,7 @@ function Gen.writeBlock(bi, bj)
 						local o = min(1, (h - yb) / 4)
 						if o > 0.02 then
 							local depth = h - yb - 2
-							local m = (depth < 13) and ks[c] or deepMat(rs[c], yb, depth, sns[c])
+							local m = (depth < exps[c]) and ks[c] or deepMat(rs[c], yb, depth, sns[c])
 							mXY[jj] = MAT[m]
 							oXY[jj] = o
 						end
@@ -1223,6 +1609,28 @@ function Gen.writeBlock(bi, bj)
 	return nx * ny * nz
 end
 
+function Gen.writeBlock(bi, bj)
+	local i0, j0 = bi * BLOCK, bj * BLOCK
+	return writeCells(i0, min(i0 + BLOCK, N) - 1, j0, min(j0 + BLOCK, N) - 1)
+end
+
+-- rewrite only the cells inside a world-space box from the current field (local re-stamps, e.g. a route stretch
+-- that is no longer stamped); clears 160 studs of air above so an old raised stamp can't survive
+function Gen.writeBox(x0, z0, x1, z1)
+	local function ci(v)
+		return clamp(floor((v + HALF) / CELL), 0, N - 1)
+	end
+	local i0, i1, j0, j1 = ci(min(x0, x1)), ci(max(x0, x1)), ci(min(z0, z1)), ci(max(z0, z1))
+	local total = 0
+	for jb = j0, j1, BLOCK do
+		for ib = i0, i1, BLOCK do
+			total += writeCells(ib, min(ib + BLOCK - 1, i1), jb, min(jb + BLOCK - 1, j1), 160)
+			task.wait()
+		end
+	end
+	return total
+end
+
 function Gen.writeRows(bj0, bj1)
 	local nb = ceil(N / BLOCK)
 	local total = 0
@@ -1236,6 +1644,44 @@ function Gen.writeRows(bj0, bj1)
 		task.wait()
 	end
 	return total
+end
+Gen.BLOCK_ROWS = ceil(N / BLOCK)
+
+-- Crown Gate: a free-standing voxel rock arch on the crown shoulder, straddling the summit stair
+function Gen.writeCrown()
+	local A = C.CROWN.arch
+	local T = workspace.Terrain
+	local st = _G.CC_PATHS.routes.SummitStair
+	local best, bi = math.huge, 2
+	for i = 2, #st.pts - 1 do
+		local p = st.pts[i]
+		local d = abs(sqrt(p[1] * p[1] + p[2] * p[2]) + Gen.rwarp(p[1], p[2], sqrt(p[1] * p[1] + p[2] * p[2])) - A.atRe)
+		if d < best then
+			best, bi = d, i
+		end
+	end
+	local p, q = st.pts[bi - 1], st.pts[bi + 1]
+	local c = st.pts[bi]
+	local dx, dz = q[1] - p[1], q[2] - p[2]
+	local L = sqrt(dx * dx + dz * dz)
+	local nx, nz = -dz / L, dx / L
+	local base = c[3]
+	local n = 0
+	for a = 0, PI + 1e-6, PI / 40 do
+		local x = c[1] + nx * cos(a) * A.halfSpan
+		local z = c[2] + nz * cos(a) * A.halfSpan
+		local y = base + sin(a) * A.height
+		T:FillBall(Vector3.new(x, y, z), A.thickness * (1 + 0.35 * (1 - sin(a))), Enum.Material.Basalt)
+		n += 1
+	end
+	-- legs root into the shoulder
+	for side = -1, 1, 2 do
+		local x = c[1] + nx * side * A.halfSpan
+		local z = c[2] + nz * side * A.halfSpan
+		T:FillBlock(CFrame.new(x, base - 8, z), Vector3.new(A.thickness * 2.4, 20, A.thickness * 2.4), Enum.Material.Basalt)
+	end
+	_G.CC_PATHS.crownGate = { x = c[1], y = base, z = c[2], i = bi }
+	return n
 end
 
 function Gen.applyColors()

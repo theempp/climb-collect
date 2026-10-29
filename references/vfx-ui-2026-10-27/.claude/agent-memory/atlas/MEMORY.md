@@ -1,0 +1,1 @@
+- [VFX/UI refs process](project_vfx_ui_refs_process.md) — frame sheet layout, fps per video, intel output path, open palette conflict (2026-10-27)

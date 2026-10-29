@@ -1,0 +1,11 @@
+{
+  "changedExistingFiles": [
+    "src\\runtime\\CC_CoreClient.client.luau",
+    "src\\runtime\\CC_CoreService.server.luau",
+    "src\\core\\server\\Bank.luau",
+    "src\\core\\server\\Home.luau",
+    "src\\core\\server\\Profile.luau",
+    "src\\core\\shared\\HomeConfig.luau"
+  ],
+  "preservedConceptAndCreatureFiles": 1663
+}

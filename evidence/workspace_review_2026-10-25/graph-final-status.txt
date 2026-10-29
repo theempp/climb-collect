@@ -1,0 +1,6 @@
+Project: 3280 nodes / 5759 edges
+Vault: 201 nodes / 254 edges
+Merged: 3481 nodes / 6127 edges / 114 cross links
+Global: 3481 nodes / 5979 edges
+Input drift: changed=0 new=0 removed=0 vault-changed=0 vault-removed=0
+Status: CURRENT for all intended inputs

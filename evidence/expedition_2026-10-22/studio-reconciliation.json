@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"sourcesMatched\":62,\"errors\":[],\"placeId\":0,\"http\":false,\"maxPlayers\":30,\"checkpoints\":2,\"legacyControllerDisabled\":true,\"gameId\":0,\"orientation\":\"Enum.ScreenOrientation.LandscapeSensor\",\"creatures\":179,\"stage\":186,\"world\":4379}"
+    }
+  ],
+  "isError": false
+}

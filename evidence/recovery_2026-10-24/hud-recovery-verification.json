@@ -1,0 +1,110 @@
+{
+  "path": "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect",
+  "head": "6019525bd8bcdc0e1aed775e6ba71b890f80c155",
+  "branch": "",
+  "clean_before": true,
+  "clean_after": true,
+  "review_sha256": "7f45b6d844cee26b84e8984076e7bf50d0d8e5d6c4d5c01dac88194917a8a3a4",
+  "runtime_sources_matched": 21,
+  "checks": [
+    {
+      "name": "rules",
+      "cmd": [
+        "C:\\Users\\HOME!\\Desktop\\climb&collect\\tools\\.luau\\luau.exe",
+        "mountain/tests/rules.luau",
+        "mountain/tests/traversal.luau",
+        "mountain/tests/ui_presentation.luau",
+        "mountain/tests/ui_client_state.luau",
+        "mountain/tests/ui_protocol.luau",
+        "mountain/tests/ui_server.luau"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS 120 mountain rules checks\nTraversal checks passed: 131\nPASS 39 UI presentation checks\nPASS 48 UI client state checks\nPASS 39 UI protocol/request checks\nPASS 25 server action checks\n",
+      "stderr": ""
+    },
+    {
+      "name": "adapters",
+      "cmd": [
+        "python",
+        "mountain/tests/run_ui_server.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS 17 profile/combat adapter checks (service fixtures, no live DataStore)\n",
+      "stderr": ""
+    },
+    {
+      "name": "compile",
+      "cmd": [
+        "C:\\Users\\HOME!\\Desktop\\climb&collect\\tools\\.luau\\luau-compile.exe",
+        "--null",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\CreatureMotion.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\HUD.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\Combat.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\Competition.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\Main.server.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\Profiles.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\Store.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\StudioTests.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\Traversal.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\server\\UIRequests.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\shared\\Catalog.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\shared\\Rules.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\shared\\TraversalRules.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\shared\\UIPresentation.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\shared\\UIProtocol.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tests\\rules.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tests\\traversal.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tests\\ui_client_state.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tests\\ui_presentation.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tests\\ui_protocol.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tests\\ui_server.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\acceptance_run.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\art_motion.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\audit_backdrop_clearance.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\audit_protected_voxels.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\branch_run.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\egg_loop.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\full_ascent.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\kingdom_mover.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\mover_run.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\natural_walk.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\optional_matrix.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\rebuild_isolated_edit.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\sync_edit.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\ui_audit.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\ui_smoke.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\tools\\upper_continuation.client.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\Art.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\CreatureDetails.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\Environment.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\Landmarks.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\Polish.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\Sculpt.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\TraversalArt.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\world\\World.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\UI\\ClientState.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\UI\\Controller.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\UI\\Feedback.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\UI\\Screens.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\UI\\Theme.luau",
+        "C:\\Users\\HOME!\\.codex\\worktrees\\mountain-hud-recovered\\climb&collect\\mountain\\client\\UI\\Widgets.luau"
+      ],
+      "exit_code": 0,
+      "stdout": "Compiled 4 KLOC into 382 KB bytecode (read 0.26s, parse 0.01s, compile 0.02s)\n",
+      "stderr": ""
+    },
+    {
+      "name": "rojo",
+      "cmd": [
+        "C:\\Users\\HOME!\\.rokit\\tool-storage\\rojo-rbx\\rojo\\7.6.1\\rojo.exe",
+        "build",
+        "mountain.project.json",
+        "-o",
+        "C:\\Users\\HOME!\\Documents\\ClimbCollect-Recovery\\2026-10-24-030555Z\\HUD.Recovered.SourceBuild.rbxlx"
+      ],
+      "exit_code": 0,
+      "stdout": "Building project 'ImpossibleMountain.FirstDraft'\nBuilt project to HUD.Recovered.SourceBuild.rbxlx\n",
+      "stderr": ""
+    }
+  ]
+}

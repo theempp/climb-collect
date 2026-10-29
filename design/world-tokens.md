@@ -46,6 +46,20 @@ All values are PROPOSED until the user approves them.
 | Sand | lake and river beds | 222,206,160 | makes water read §3 "clear turquoise" |
 | Water (WaterColor) | lake, river, falls | turquoise 46,196,182 | §3 "clear turquoise falls" |
 
+## Dry foothills (V3, PROPOSED — awaiting a reference image)
+
+`references/` is still empty. These three values are derived **only** from the user's interview words
+("scrub, dry grass, red-brown earth") and sit in `WorldConfig` (`C.DRY` + `MATERIAL_COLORS.Salt/Mud`) so a
+reference can replace them in one place. Not copied from any other project.
+
+| Token | RGB | Derived from | Used as |
+|---|---|---|---|
+| dryGrass | 192, 166, 96 | "dry grass": cured straw, warmed by goldenDaylight | terrain `Salt` (foothill ground, Foothold pad edge) |
+| redEarth | 150, 82, 54 | "red-brown earth" | terrain `Mud` (foothill patches, gullies, foothill trails, gully floors) |
+| scrub | 118, 126, 70 | "scrub": dusty olive between meadowEmerald and dryGrass | scrub props (P6) |
+
+Trail contrast in the foothills uses redEarth on dryGrass (darker, redder path on straw ground).
+
 ## Lighting baseline (lower mountain)
 
 - ClockTime 15.4, warm sun: §3 "golden daylight".

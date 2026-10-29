@@ -1,0 +1,1 @@
+- [HUD v2 intel location](project_hud_v2_intel.md) — design/hud-v2-intel.md, pins-only source, excluded pins, open conflicts

@@ -1,0 +1,17 @@
+# Graph quality
+
+Generated 2026-10-24T23:01:11-04:00.
+
+- Indexed project inputs: 350/350
+- Indexed vault notes: 7/7
+- Cross-links: 108; without provenance: 0
+- Broken edges: 0; weak community labels: 0
+- Luau files with no symbols: 0
+- Source-only code files: 0; supplemented declarations: 29
+- Ambiguous document mentions for review: 0
+
+- Unresolved Markdown/wiki links for review: 1
+
+## Review candidates
+
+- `Climb & Collect/Climb & Collect.md`: Latest status heading dated 2026-10-22; compare with current source before updating

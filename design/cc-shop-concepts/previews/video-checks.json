@@ -1,0 +1,84 @@
+{
+  "responsive": [
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Prism Superstore",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Expedition Exchange",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Aurora Gallery",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Foothold Market",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Pocket Provisions",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Crown Vault",
+      "width": 801
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Prism Superstore",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Expedition Exchange",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Aurora Gallery",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Foothold Market",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Pocket Provisions",
+      "width": 390
+    },
+    {
+      "escapedButtons": [],
+      "overflow": false,
+      "title": "Crown Vault",
+      "width": 390
+    },
+    {
+      "card": "×\nYOU HAVE ENOUGH!\n\nYou can buy this cabin upgrade with your earned coins.\n\nNO ROBUX NEEDED\nKeep exploring, or choose another cosmetic.",
+      "contextOverflow": false,
+      "width": 390
+    }
+  ],
+  "flow": "HUD -> insufficient Robux -> handoff -> return -> simulated receipt -> reward -> next tier; passed",
+  "coinOffer": "250 short -> 350 pack -> 1600 balance -> no Robux needed; passed",
+  "errors": []
+}

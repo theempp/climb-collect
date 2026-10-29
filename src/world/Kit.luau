@@ -450,7 +450,8 @@ function Kit.sign(parent, cf, lines, width)
 	Kit.part(m, { Name = "Post", Size = Vector3.new(0.8, 7, 0.8), CFrame = cf * CFrame.new(0, 3.5, 0), Material = Enum.Material.Wood, Color = COL.timberDark })
 	for i, line in ipairs(lines) do
 		local text, dir = line[1], line[2] or 0
-		local board = Kit.part(m, { Name = "Board", Size = Vector3.new(width, 1.5, 0.35), CFrame = cf * CFrame.new(0, 6.6 - (i - 1) * 1.8, 0) * CFrame.Angles(0, dir, 0) * CFrame.new(width / 2 - 0.6, 0, 0), Material = Enum.Material.WoodPlanks, Color = COL.timber })
+		-- boards don't collide: stacked boards formed a ladder the Humanoid climbed (Camp 2 sign on the Waterfall line, run 2)
+		local board = Kit.part(m, { Name = "Board", Size = Vector3.new(width, 1.5, 0.35), CFrame = cf * CFrame.new(0, 6.6 - (i - 1) * 1.8, 0) * CFrame.Angles(0, dir, 0) * CFrame.new(width / 2 - 0.6, 0, 0), Material = Enum.Material.WoodPlanks, Color = COL.timber, CanCollide = false })
 		for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
 			local g = Instance.new("SurfaceGui")
 			g.Face = face

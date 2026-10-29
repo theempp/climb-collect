@@ -1,0 +1,167 @@
+Claude Code has finished the CLIMB & COLLECT rebuild and is no longer working on this project. I am going to bed. Take over and carry out the full player-feature and UI implementation described below so I can review and playtest it when I wake up.
+
+Project: C:\Users\HOME!\Desktop\climb&collect
+
+This is implementation authorization, not a request for another proposal. Audit the completed rebuild, make a practical implementation plan, and execute it through integration, testing, fixes, source/Studio reconciliation, and saving a playable result. Do not stop after planning or after the first milestone. Use your judgment for routine design and engineering decisions. You may use parallel subagents for independent work with clear ownership.
+
+Treat my authorization as approval to proceed through internal planning and implementation review gates for this scope. Preserve explicit human playtest gates for expanding the world beyond the completed rebuild. If one such gate remains, preserve that world boundary and continue all independent player-feature/UI work. Do not claim that I have playtested or approved anything.
+
+START WITH THE ACTUAL FINISHED STATE
+
+Read applicable AGENTS.md, CLAUDE.md, the master plan, decision log, latest rebuild plans, completion reports, evidence, source, and sync/save tooling. Find Claude’s final handoff and determine what actually finished. Earlier observations in another chat are provisional, not current facts.
+
+Identify the correct Roblox Studio project before operating it; other projects may be open. Reconcile local source, live Studio scripts/world, and the saved place before modifying anything. Preserve newer unsaved Studio work. Do not blindly push stale local files into Studio.
+
+Use the project’s established synchronization and backup workflow. Respect its checkpoint limit and preserve a recoverable starting state. Do not assume this project uses Git or Rojo.
+
+Preserve Claude’s completed terrain, routes, art, Foothold, tutorials, and validated work wherever possible. Integrate into the existing game rather than starting over. Do not modify the separate protected creature project: creatures/, ServerStorage.CC_Creatures, or Workspace.CC_CreatureStage1.
+
+Give a brief initial assessment and execution plan, then continue working without waiting for my reply. Keep concise milestone updates.
+
+PRODUCT DIRECTION
+
+Build a relaxed climbing-and-collecting adventure with polished, readable, landscape-phone-first UI.
+
+Stamina is the only survival resource. Remove oxygen/thin-air survival requirements, canisters/refills, and related obsolete UI or purchases. Do not add warmth, hunger, thirst, batteries, durability, or upkeep.
+
+Preserve the five-region structure and four route identities. Launch routes are Shepherd and Waterfall; Ledge and Spire remain Coming Soon and cannot be bypassed. Shops and monetization are postponed. Preserve existing currency balances and unrelated saved progress.
+
+Preserve the completed rebuild’s natural rock/earth treatment, meaningful short jump gaps, fall rules, checkpoints, tutorial Rare encounter, creature nooks, and performance constraints. Do not restore invisible safety rails or a plank layer over natural paths. Walking off an edge must remain a real fall.
+
+IMPLEMENT THE COMPLETE CONNECTED EXPERIENCE
+
+1. Climbing and equipment
+
+Replace continuous upward climbing with authored holds and generous alternating left/right rhythm inputs. Support readable fork choices and occasional choices between two visible footholds. Stable footholds provide a modest stamina benefit.
+
+Use one coherent traversal state machine with authored hold/anchor identifiers. Avoid competing controllers or excessive geometry per hold.
+
+Mistakes cost a small amount of extra stamina; a single timing error must not cause an immediate fall. Waiting must not repeatedly count as mistakes. Include timing assistance without reward penalties. Do not add countdown pressure.
+
+Ice uses the same controls with an automatically equipped axe. Crampons activate on actual icy surfaces, reduce ground sliding, and reduce ice-climbing stamina cost. Avoid altitude-only activation.
+
+Headlamp activates automatically in darkness. Allow an optional toggle when dark or at night, with no battery mechanic.
+
+Introduce the harness at the first protected climb. Clip once at a marked anchor for that protected section. Climbing slips catch below the anchor without cargo loss; players recover while hanging and regain a hold. Harness protection must not turn ordinary walkoffs into catches.
+
+Shared ropes deploy from authored top anchors. Other players attach automatically and ascend more easily. Keep shared ropes distinct from personal harness protection. Make expiry, owner departure, and rope limits safe for current occupants.
+
+2. Parachute, return travel, and cargo
+
+Introduce the parachute at the first major camp with safe practice. Deploy after an intentional grounded jump using a contextual action. It is not an emergency rescue for walkoffs or climbing slips.
+
+Provide gentle steering, preserve carried cargo, and automatically pack the parachute after valid landing. Landing does not bank items. Prevent short-gap, route-gate, and checkpoint bypasses using explicit traversal rules rather than clearance alone.
+
+Add camp shuttle travel carrying cargo to the Foothold entrance. Players still walk to the bank. Integrate legitimate travel with movement validation and fall detection.
+
+When the backpack is full, offer compare, swap, or leave. Replaced creatures return safely to the world. Validate swaps atomically on the server and preserve item identity and provenance.
+
+Camp lockers hold a few finds locally. Players must physically return to retrieve them and carry them to the bank. Communicate stored items clearly; do not add remote retrieval.
+
+Preserve existing beginner protection, tutorial protection, checkpoint behavior, and intended fall/drop penalties. Route harness catches, parachuting, shuttles, ordinary falls, death, and disconnect through consistent outcome rules.
+
+3. Banking, collection, and persistence
+
+Banking is authoritative on the server. Show success only after a durable successful transaction. Handle retries, uncertain save outcomes, reconnects, and duplicate requests without item duplication or loss.
+
+Preserve item identifiers and original discovery information. Rebanking, releasing/reclaiming, swapping, or hatching must not manufacture new adventure progress.
+
+Make backpack, locker, travel, and banking persistence coherent. Do not leave crash/rejoin behavior dependent solely on temporary server memory.
+
+Collection is accessible anywhere. Keep home management at physical home stations.
+
+4. Heartstones and home
+
+Provide two home Heartstone nests. Players manually place banked stones into them. Replace incubation timers with adventure progress: banking newly discovered expedition items advances BOTH nests that were occupied before that banking transaction.
+
+Newly banked stones do not automatically occupy nests or advance themselves. Hatching does not generate more nest progress. Hatching is deliberate and safe.
+
+Migrate existing timer-based stones without wiping progress, rerolling outcomes, duplicating creatures, or losing excess stones. Preserve ready stones, identities, stored species, and mutations. Put excess stones in safe storage.
+
+Nest upgrades improve adventure-progress efficiency and expand the limited creature earning spaces.
+
+Players settle creatures into suitable habitats, favorite them, pet them, and observe them without upkeep.
+
+Only creatures assigned to limited displayed earning spaces generate income. Support manual assignment and an explicit Equip Best action. Keep all other creatures safe in the collection. Do not continuously replace the player’s choices automatically.
+
+Use one collect pad and capped offline income. Settle accrued income correctly before assignment and upgrade changes. Keep income separate from banking and adventure progress.
+
+Make homes work with the project’s actual player capacity. Visitors are read-only for ownership-sensitive actions. Avoid expensive distant simulation.
+
+5. Practice, discovery, and social features
+
+Create or adapt a home practice crag with purchasable sections that teach actual traversal mechanics. This is a finite progression system, not an idle treadmill. Validate challenge completion on the server.
+
+Reconcile existing stamina progression into one finite cap. Preserve earned upgrades and avoid accidentally granting the same progression twice.
+
+Creatures appear in authored, visible nooks. Do not add tracks, calls, or clue-hunting systems.
+
+Guardians use brief environmental distraction puzzles with one clear interaction. No combat. Make encounters work solo and avoid multiplayer griefing. Preserve the creature capture/net interaction where appropriate.
+
+Record first-discovery memories with place and discovery method. Add viewpoint journal stamps and brief, unobtrusive new-species and welcome feedback.
+
+Allow one purely cosmetic favorite companion on safe ground. Tuck it away during climbing and flight. Include rescue interactions and home visits without cooperative income bonuses or exploitable reward loops.
+
+6. Full UI implementation
+
+Create a cohesive Expedition interface with:
+- Backpack
+- Collection
+- Routes/Map
+- Settings
+
+Home management remains at physical stations.
+
+Persistent HUD: stamina, altitude, backpack capacity, level, and slim XP progress. Replace Heartstone timers with adventure progress. Keep currency secondary and avoid clutter.
+
+Use contextual actions appropriate to the active input device. Support keyboard/mouse, gamepad, and touch with no conflicts with interaction prompts or default movement/camera controls. Update prompts when the active device changes.
+
+During climbs, show clear left/right inputs, the next rhythm cue, and relevant foothold choices. Keep the deliberate release action separate from primary actions. Cancel held input safely on state, device, or focus changes.
+
+Design for landscape phones first with safe insets, genuinely usable touch targets, scrolling content, and pinned primary actions. Do not shrink desktop layouts until touch targets become tiny.
+
+Visual direction: slate panels, warm trim, restrained rope/stone ornament, readable typography, clear hierarchy, consistent borders and shadows. Rarity uses labels/shapes/pips as well as color.
+
+Provide loading, empty, full, unavailable, error, success, and retry states. Prioritize messages so overlapping systems do not cover each other.
+
+Support text-size preferences, reduced motion, non-color-only cues, and non-audio-only feedback. Keep the live world running while menus are open; do not falsely present a multiplayer pause.
+
+Queue large reveals until the player is safe. Do not interrupt climbing, falls, or flight with camera takeovers or blocking celebrations.
+
+Use existing approved/licensed audio where available. Do not invent an audio-sourcing approval gate. If appropriate audio is unavailable, complete the functional feedback with visual/haptic support where available and document the remaining asset need.
+
+IMPLEMENTATION JUDGMENT
+
+The requirements above are approved. Exact tuning values and previously suggested defaults are implementation choices, not immutable specifications. Choose sensible conservative defaults, centralize them, and tune through testing.
+
+Do not expand obsolete oxygen, refill, shop, or timer systems. Preserve unrelated functioning dependencies while replacing the affected paths coherently.
+
+Prefer complete, connected systems over UI mockups or isolated scripts. Do not leave visible buttons with placeholder behavior or claim unfinished systems are implemented.
+
+If a choice genuinely requires my input, record the question and continue independent work. If safe completion of an affected feature is impossible, isolate the incomplete feature without corrupting existing gameplay and clearly report it. Do not abandon the rest of the build.
+
+VERIFICATION AND DELIVERY
+
+Validate as you implement:
+- Server authority and remote-input validation.
+- Save/load, migration, retries, duplicate requests, and reconnect behavior.
+- Traversal transitions, fall protection, cargo outcomes, ropes, parachute, and shuttle.
+- Both launch routes and gated-route bypass prevention.
+- Home ownership, visits, earning assignments, banking, and Heartstone progress.
+- Keyboard/mouse, gamepad, and landscape touch layouts.
+- Performance against the project’s recorded P0 baseline plus 15% caps where applicable.
+
+Use meaningful automated checks and Studio playtests where available. Distinguish actual testing from code inspection. Desktop phone emulation is not a real-device performance test. Never invent successful tests or human playtest approval.
+
+Fix regressions and complete integration before declaring the build ready. Reconcile local source with Studio and save the intended playable place. Do not publish publicly, change access, or expand testing permissions.
+
+Maintain a concise implementation/handoff record so another session can resume if interrupted. Record completed work, outstanding work, current saved artifact, verification evidence, and exact next steps.
+
+When finished, provide:
+1. What is implemented and playable.
+2. Which saved place/build I should open and how to start.
+3. A short, ordered playtest checklist covering the complete loop.
+4. Tests performed and their results.
+5. Any genuine limitations, unfinished items, or decisions needing my review.
+
+The goal is a saved, integrated, newly playable game for me to review when I wake up. Start now and work through the entire authorized build.

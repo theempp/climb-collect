@@ -1,0 +1,9 @@
+# Paste into the fresh overnight chat
+
+Implement the mountain quality upgrade autonomously overnight. Read and follow `C:/Users/HOME!/Desktop/climb&collect/docs/superpowers/plans/2026-10-26-mountain-quality-overnight.md`, plus project AGENTS/CLAUDE/master/vault startup instructions. This is my execution request for that brief; do not repeat the interview or stop for routine design/phase approval.
+
+My choices: major terrain/route/art improvement across all six sections; sculpted fantasy with natural rock, lush detail and distinct magical biomes; readable balanced climbs, dependable footing and fast downhill escapes. KEEP THE CURRENT OVERALL SILHOUETTE. Improve the terrain and detail within it. Bring all six sections to a consistent standard before fine detail. Preserve the free-climb → egg → downhill escape loop and existing ownership rules.
+
+Two other active chats own creatures and sprint/home-base work. Inspect current context read-only and protect their work. Use your own durable checkout/branch and separate numbered Studio review. Do not change their assets, movement tuning, home base or Studio sessions. Verify the current baseline rather than assuming the navigation repo's older src is current. The last inspected mountain report is `C:/Users/HOME!/Desktop/climb-collect-free-climb-build/design/free-climb-build-report.md`; active work may have advanced it.
+
+You may complete and judge local iterations yourself using free/local assets. No purchases or publishing. Finish the upgrade, relevant gameplay/geometry/performance checks, a saved-and-cold-reopened playable review, before/after views of the whole mountain and all six sections, and a concise morning report with exact output paths, changes, evidence, remaining limitations and scoped integration instructions. Do not claim physical device, hosted-save or my aesthetic acceptance without evidence. Follow the plan's preservation and record/graph refresh requirements.

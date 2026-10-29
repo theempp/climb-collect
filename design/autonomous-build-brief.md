@@ -1,18 +1,23 @@
 # CLIMB & COLLECT — Autonomous build brief (DRAFT, 2026-10-20)
 
-**Status:** DRAFT. Not yet runnable: §0 authorization is OPEN and the routes interview (§8) is pending. Do not launch until both are closed.
+**Status:** §0 CLOSED 2026-10-20 for **Run 1 (A0 + A1 + B), backend/systems chat only**. Creatures (Phase C) are built by Codex in a separate chat; the routes redesign waits for §8 and is not part of any run here.
 **Legend:** LOCKED = user answer in `core-loop-plan.md` / `v4-climb-concept.md` / `master.md` §1 · PROPOSED = my default, agent may change and log it · OPEN = needs the user · ESTIMATE = not measured.
 **Facts vs interpretation:** facts cite a source file; anything else is marked PROPOSED/ESTIMATE. Design values come only from user answers, docs or verified facts (no house style).
 
-## 0. Autonomy authorization (OPEN, user must confirm before launch)
+## 0. Autonomy authorization (CLOSED 2026-10-20, user answers via AskUserQuestion)
 | Item | Value |
 |---|---|
-| Unattended run authorized? | **OPEN.** `CLAUDE.md` says stop for approval at each gate; this run needs an explicit override like `OVERNIGHT_BRIEF.md` had. Not given yet. |
-| Run length | PROPOSED: up to ~6 h, one phase-group per run, hard stop at the end of the group. |
-| Checkpoints | PROPOSED: before each phase, `ServerStorage.CC_Checkpoints/<Phase>_<date>` + a file copy `ClimbAndCollect.<Phase>.rbxl`. Never overwrite an existing checkpoint. |
-| Agent may decide (log as PROPOSED) | numbers inside §3 ranges, naming, layouts of new UI, species look details, tuning, bug fixes, internal architecture. |
+| Unattended run authorized? | **YES, for Run 1 only** (phases A0, A1, B). Overrides `CLAUDE.md`'s per-gate stop for this run only, like `OVERNIGHT_BRIEF.md` did. After the run the per-gate stop applies again. |
+| Run length / phases | **Run 1: A0 + A1 + B**, up to ~6 h, hard stop after B. D + E and F are later runs, each needing its own authorization. C (creatures) is Codex's track, not this agent's. |
+| Checkpoints / hard stops | **Confirmed as written:** before each phase, `ServerStorage.CC_Checkpoints/<Phase>_<date>` + file copy `ClimbAndCollect.<Phase>.rbxl`, never overwrite. Hard stops = §5 as written. |
+| Defaults | **Confirmed as written:** the 43-creature split (§1) and all §3 defaults stay PROPOSED and tunable within range, logged. |
+| Launch method | User wants to start the build in a **fresh chat** with a copy-paste prompt: `design/core-run-launch-prompt.md`. |
+| Agent may decide (log as PROPOSED) | numbers inside §3 ranges, naming, layouts of new UI, tuning, bug fixes, internal architecture. |
 | Must wait for user | anything LOCKED, monetization, changing the Foothold layout, deleting content, identity-changing look changes, spending/publishing/uploading to Roblox, any real-device claim. |
 | Evidence rule | Never invent test evidence; never mark unfinished content complete; label bot times BOT, emulation as emulation, numbers not measured as ESTIMATE. |
+| Creature interface (Codex) | Species referenced only by snake_case id in a species table. Server owns rarity, yield and mutation; the client never sends them. Stub species (`stub_common_1` ...) until `creatures/roster.json` exists; never touch `creatures/` or `ServerStorage.CC_Creatures`. |
+
+**Preflight facts (2026-10-20, read-only):** Studio MCP connected, one Studio instance, open place = `ClimbAndCollect.rbxl` (correct), 11 checkpoints exist, no `CC_Creatures`, `creatures/` absent, `CC_CheckpointService` is the only server script. `game.PlaceId = 0` (unpublished), so **real DataStore calls cannot be verified in Studio** and publishing is a §5 stop. A1 must therefore put persistence behind a store adapter (DataStore implementation + in-memory mock used by tests); real-DataStore behavior stays UNVERIFIED until the user publishes and tests.
 
 ## 1. Final scope (core loop), LOCKED unless marked
 Climb routes -> discover (commons, hidden Rares, nests) -> hold-claim or net -> take Heartstone from a guarded per-player nest -> guardians chase/escalate -> bank at the Foothold -> Heartstone ripens in real time (Common 5 min / Rare 30 min / Legendary 4 h) -> creature joins a habitat and yields Cairn Coins (8 h offline cap, 2x if collected within 1 h) -> upgrades (habitat slots, cabin, tents, nets, cosmetics) -> repeat via weather mutations, legendary events, daily goal (non-punishing streak).
@@ -53,6 +58,7 @@ Routes redesign (V4 climb controller, narrow ledges, summit gauntlet) is a separ
 ## 5. Stop conditions (hard)
 - Any LOCKED rule would be violated; any phase's acceptance fails twice after fixes; data-loss path found; FPS floor missed with no cheaper fix; Studio MCP disconnected or wrong place open; a spend/publish/upload step is required; a required decision is not in §0/§3 or LOCKED docs.
 - On stop: write a status note, checkpoint, do not continue to the next phase.
+- **Self-recovery exception (user, 2026-10-20, decision log "Review"):** a Studio crash or MCP disconnect may be self-recovered only if all three hold: a checkpoint is present, the World is verified unchanged, and the preflight passes (correct place, Edit mode, MCP connected). Log the incident and the checks in `design/decision-log.md`. If any check fails, stop.
 
 ## 6. Decision log template (append to `design/decision-log.md`)
 `| Date | Phase | Decision | Why | Status (PROPOSED/LOCKED-ref) | Evidence |`
@@ -64,6 +70,6 @@ Rules: never change LOCKED items; take a checkpoint (ServerStorage.CC_Checkpoint
 ```
 
 ## 8. Pending before launch
-1. Routes/trails/suspense/summit-gauntlet interview (next chat). Must reconcile with LOCKED 25-30 min, beginner protection, fall rules and V4 climb concept.
-2. User confirms §0 authorization, run length and phases.
-3. User confirms the 43-creature split (§1) and §3 defaults, or edits them.
+1. Routes/trails/suspense/summit-gauntlet interview (separate track; not needed for Run 1).
+2. ~~User confirms §0 authorization, run length and phases.~~ DONE 2026-10-20 (Run 1: A0+A1+B).
+3. ~~User confirms the 43-creature split (§1) and §3 defaults.~~ DONE 2026-10-20 (as written).

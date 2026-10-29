@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"gateWidth\":{\"East\":45,\"Center\":60,\"West\":45},\"buffers\":7,\"plots\":8,\"scripts\":0,\"placeId\":0,\"routes\":{\"1\":{\"plot\":\"Plot_01\",\"estimateSecondsAt16\":27.162277660168379,\"frontToGatePathStuds\":434.59644256269407},\"8\":{\"plot\":\"Plot_08\",\"estimateSecondsAt16\":27.162277660168379,\"frontToGatePathStuds\":434.59644256269407},\"3\":{\"plot\":\"Plot_03\",\"estimateSecondsAt16\":12.41227766016838,\"frontToGatePathStuds\":198.59644256269409},\"2\":{\"plot\":\"Plot_02\",\"estimateSecondsAt16\":19.787277660168379,\"frontToGatePathStuds\":316.59644256269407},\"5\":{\"plot\":\"Plot_05\",\"estimateSecondsAt16\":6.66227766016838,\"frontToGatePathStuds\":106.59644256269408},\"4\":{\"plot\":\"Plot_04\",\"estimateSecondsAt16\":6.66227766016838,\"frontToGatePathStuds\":106.59644256269408},\"7\":{\"plot\":\"Plot_07\",\"estimateSecondsAt16\":19.787277660168379,\"frontToGatePathStuds\":316.59644256269407},\"6\":{\"plot\":\"Plot_06\",\"estimateSecondsAt16\":12.41227766016838,\"frontToGatePathStuds\":198.59644256269409}},\"parts\":172}"
+    }
+  ],
+  "isError": false
+}

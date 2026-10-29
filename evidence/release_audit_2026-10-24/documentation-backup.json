@@ -1,0 +1,20 @@
+{
+  "backup": "C:\\Users\\HOME!\\Documents\\climb-collect-before-release-organization-20261025-030003Z.zip",
+  "backup_verified": true,
+  "before_sha256": {
+    "C:\\Users\\HOME!\\Desktop\\climb&collect\\CLAUDE.md": "5e4cce41895d58b717d17e60145f734c6c511624e07c33a91fddb4fef52cfa7d",
+    "C:\\Users\\HOME!\\Desktop\\climb&collect\\master.md": "06c3ec2afbe1701bec1569a738bfc90b010fbb76cc4913e118093c249ba2149b",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Climb & Collect.md": "bb1843e01decf967ba4bc36e4dfa65785aba2f5c7257c33316cd585e244ffffa",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Decisions.md": "8d4053e8b7c264eafa381a324c0dfb6ff2581b1bdcc572abe4a5b493145cd204",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Milestones.md": "31c291f8d8b19b53dc929f0561272c110f9e7aee974375d6f2bf6ad7ca69e006",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Open Questions.md": "ecaea03a44cc4dfb10bbab40715ff6bb84f49afa8e6f7c6a48ad06a37941cdec"
+  },
+  "changed_documents": [
+    "C:\\Users\\HOME!\\Desktop\\climb&collect\\CLAUDE.md",
+    "C:\\Users\\HOME!\\Desktop\\climb&collect\\master.md",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Climb & Collect.md",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Decisions.md",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Milestones.md",
+    "C:\\Users\\HOME!\\Documents\\Obsidian Vault\\Climb & Collect\\Open Questions.md"
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "suiteFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"traversal\":{\"kind\":\"pure rules + authored graph invariants; not human feel test\",\"passed\":10,\"sections\":57},\"A1\":{\"text\":\"A1 persistence tests: 12 pass, 0 fail (store = in-memory mock; real DataStore UNVERIFIED)\\n[PASS] rejoin keeps bank (same server and another server) (0.00 s)\\n    same server: bank 2->2 coins 11->11 xp 75->75 heartstones 1\\n    other server: bank 2 coins 11\\n[PASS] double deposit yields once (0.01 s)\\n    r1 creatures 2 coins 4 | r2 dup true creatures 0 | r3 creatures 0\\n    concurrent: 3 + 0 = 3 (expected 3); bank 5\\n[PASS] store failure: load refused safely, data untouched, retries on save (0.16 s)\\n    load while down -> session false reason store; stored bank 1 -> 1\\n    release with 2 transient failures -> true (update calls 11, failed 5)\\n[PASS] Heartstone waits for adventure progress and deliberate hatch across offline gaps (0.00 s)\\n    offline 100 s: 0 auto-hatched, 4.0 adventure remaining | after explicit completion: 1 hatched -> stub_uncommon_1 (Uncommon); repeat auto-pass 0; stored stones 0\\n[PASS] session lock: live lock blocks a second server, release unblocks (0.18 s)\\n    second server while locked -> locked\\n[PASS] session lock: stale lock is taken over; the old server can't overwrite (0.00 s)\\n    B stole lock true; A save -> false (lost); stored bank 2 (expected 2: A's 1st + B's)\\n[PASS] migration + sanitize keep valid data and quarantine junk (0.00 s)\\n    version 2 coins 0 xp 120 level 2 bank 1 quarantine 3 heartstones 0\\n[PASS] UpdateAsync retry semantics: transform runs twice, result applied once (0.00 s)\\n    bank 1, lock nil, saves 2\\n[PASS] review: shutdown covers a leave-release already in flight (profiles.active) (1.31 s)\\n    shutdown save -> true (released); leave done true; stored bank 1, lock nil\\n[PASS] review: a newer-schema profile is never downgraded by an older server (0.00 s)\\n    load -> newer, stored unchanged true\\n[PASS] review: a save queued behind a release does not re-take the lock (0.68 s)\\n    queued autosave -> true (released), lock nil\\n[PASS] review: no deposit acknowledged while closing; malformed items stay in the pack (0.00 s)\\n    closing -> unavailable; malformed: deposited 1, kept 1, left in pack 1\",\"passed\":12,\"failed\":0},\"expedition\":{\"text\":\"PASS bank never acknowledges unavailable storage\\nPASS commit then response loss reconciles once\\nPASS uncertain bank survives server loss without duplicate cargo or credit\\nPASS both previously occupied nests advance; incoming stones stay stored\\nPASS legacy stones preserve elapsed progress, ready outcomes, overflow and balances\\nPASS reconnect preserves cargo and original discovery\\nPASS locker and released world manifests retain unique identities on reconnect\\nPASS hatch is deliberate, keeps identity and never advances another nest\\nPASS income settles old choices before reassignment and caps offline time\\nPASS refresh preserves previously earned finite level and pack upgrades\\nPASS fall during uncertain commit survives reconnect and consumes exact identities once\\nPASS departing uncertain claimant cannot strand or immediately reopen a shared occurrence\\nPASS physical practice flags and home departure survive uncertain replay and reconnect\\nPASS binding a deposit never overwrites restored durable cargo with an empty legacy bag\\nPASS invalid recovery manifests and duplicate bank stone identities are quarantined\",\"passed\":15,\"failed\":0}}"
+      }
+    ],
+    "isError": false
+  },
+  "practiceFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[{\"gear\":{\"training\":{\"max\":3,\"level\":0,\"bonus\":6},\"owned\":[],\"equipped\":{\"eyes\":\"\",\"body\":\"\",\"head\":\"\"},\"kit\":{\"headlamp\":{\"owned\":true},\"crampons\":{\"owned\":true},\"axe\":{\"owned\":true}},\"points\":0,\"staminaMax\":106,\"summits\":[]},\"mode\":\"ground\",\"lesson\":1},{\"gear\":{\"training\":{\"max\":3,\"level\":0,\"bonus\":13},\"owned\":[],\"equipped\":{\"eyes\":\"\",\"body\":\"\",\"head\":\"\"},\"kit\":{\"headlamp\":{\"owned\":true},\"crampons\":{\"owned\":true},\"axe\":{\"owned\":true}},\"points\":0,\"staminaMax\":113,\"summits\":[]},\"mode\":\"ground\",\"lesson\":2},{\"gear\":{\"training\":{\"max\":3,\"level\":0,\"bonus\":20},\"owned\":[],\"equipped\":{\"eyes\":\"\",\"body\":\"\",\"head\":\"\"},\"kit\":{\"headlamp\":{\"owned\":true},\"crampons\":{\"owned\":true},\"axe\":{\"owned\":true}},\"points\":0,\"staminaMax\":120,\"summits\":[]},\"mode\":\"ground\",\"lesson\":3}]"
+      }
+    ],
+    "isError": false
+  },
+  "route53Fixed": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"total\":57,\"kind\":\"scripted actual rig/section test, not whole-route walking or human feel\",\"elapsed\":11.280201800022042,\"rows\":[{\"entryPosition\":[-355.80078125,2007.8671875,-440.6015625],\"floor\":\"Slate\",\"id\":\"Waterfall:storm:45\",\"selectedSection\":\"Waterfall:storm:45\",\"pass\":true,\"catches\":0,\"index\":53,\"holds\":11,\"entryDelta\":1.8671883344650269,\"position\":[-350.73828125,2042.62109375,-434.359375],\"stamina\":82,\"mode\":\"ground\",\"exitDelta\":0.12110734730958939,\"attempts\":12}],\"done\":false,\"nextIndex\":54}"
+      }
+    ],
+    "isError": false
+  },
+  "landing53Soak": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"delta\":0.08986207842826843,\"mode\":\"ground\",\"floor\":\"Rock\",\"fallsAdded\":0}"
+      }
+    ],
+    "isError": false
+  },
+  "gatesFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"rows\":[{\"returned\":false,\"anchored\":false,\"mode\":\"ground\",\"pass\":true,\"case\":\"sharedOpenControl\"},{\"returned\":true,\"anchored\":false,\"mode\":\"ground\",\"pass\":true,\"case\":\"Spire:outsideEntranceBox\"},{\"returned\":true,\"anchored\":false,\"mode\":\"ground\",\"pass\":true,\"case\":\"Spire:farAlongPath\"},{\"returned\":true,\"anchored\":false,\"mode\":\"ground\",\"pass\":true,\"case\":\"Ledge:outsideEntranceBox\"},{\"returned\":true,\"anchored\":false,\"mode\":\"ground\",\"pass\":true,\"case\":\"Ledge:farAlongPath\"}],\"immediateReentry\":{\"kind\":\"closedRoute\",\"anchored\":false,\"mode\":\"ground\"},\"soak\":{\"anchored\":false,\"mode\":\"ground\"}}"
+      }
+    ],
+    "isError": false
+  },
+  "bankFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"before\":{\"tutorial\":2,\"saveState\":\"ok\",\"capacity\":4,\"xp\":0,\"coins\":0,\"firstBank\":false,\"heartstones\":0,\"name\":\"Actuallytherealzo\",\"highestCamp\":0,\"used\":1,\"level\":1,\"session\":\"ace090f7\",\"bank\":0},\"rejoined\":{\"tutorial\":2,\"saveState\":\"ok\",\"capacity\":4,\"xp\":15,\"coins\":1,\"firstBank\":true,\"heartstones\":0,\"name\":\"Actuallytherealzo\",\"highestCamp\":0,\"used\":0,\"level\":1,\"session\":\"7229279d\",\"bank\":1},\"movement\":{\"rolledBack\":true,\"rejected\":true},\"committed\":{\"tutorial\":2,\"saveState\":\"ok\",\"capacity\":4,\"xp\":15,\"coins\":1,\"firstBank\":true,\"heartstones\":0,\"name\":\"Actuallytherealzo\",\"highestCamp\":0,\"used\":0,\"level\":1,\"session\":\"ace090f7\",\"bank\":1},\"pending\":{\"tutorial\":2,\"saveState\":\"unavailable\",\"capacity\":4,\"xp\":0,\"coins\":0,\"firstBank\":false,\"heartstones\":0,\"name\":\"Actuallytherealzo\",\"highestCamp\":0,\"used\":1,\"level\":1,\"session\":\"ace090f7\",\"bank\":0},\"failed\":{\"ok\":false,\"pending\":true,\"txId\":\"final-live-failure\",\"reason\":\"store\"},\"bankUI\":{\"status\":\"uncertain\",\"retryable\":true,\"message\":\"Confirming the save. Please wait or retry here.\"}}"
+      }
+    ],
+    "isError": false
+  },
+  "fallFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"after\":{\"guardians\":[],\"netTier\":\"cloth\",\"saveState\":\"ok\",\"slots\":4,\"routes\":[{\"difficulty\":\"Gentle\",\"name\":\"Shepherd's Road\",\"pips\":1,\"id\":\"Shepherd\",\"status\":\"Open\",\"description\":\"Natural trails, short gaps and protected practice climbs.\"},{\"difficulty\":\"Moderate\",\"name\":\"Waterfall Stair\",\"pips\":2,\"id\":\"Waterfall\",\"status\":\"Open\",\"description\":\"Falls-side pitches and visible rock holds.\"},{\"difficulty\":\"Hard\",\"name\":\"Cliff Ledge Line\",\"pips\":3,\"id\":\"Ledge\",\"status\":\"Coming Soon\",\"description\":\"This route is closed.\"},{\"difficulty\":\"Expert\",\"name\":\"Spire Ridge\",\"pips\":4,\"id\":\"Spire\",\"status\":\"Coming Soon\",\"description\":\"This route is closed.\"}],\"gear\":{\"training\":{\"max\":3,\"level\":0,\"bonus\":0},\"owned\":[],\"equipped\":{\"eyes\":\"\",\"body\":\"\",\"head\":\"\"},\"kit\":{\"headlamp\":{\"owned\":true},\"crampons\":{\"owned\":true},\"axe\":{\"owned\":true}},\"points\":0,\"staminaMax\":100,\"summits\":[]},\"lockers\":[],\"bank\":{\"status\":\"success\",\"retryable\":false,\"message\":\"Saved at the bank.\"},\"resumeOffer\":false,\"packs\":[{\"count\":1,\"id\":\"63276d61-23fd-4590-9701-4fc4fcdf7223\",\"expiresAt\":1792648024,\"reason\":\"fall\"}],\"capacity\":4,\"codexCount\":1,\"items\":[{\"rarity\":\"Common\",\"slots\":1,\"uid\":\"7745e2ed-434b-40fb-93e5-f04c47a38dda\",\"species\":\"stub_common_1\",\"discovery\":{\"at\":1792647843,\"place\":\"dev\",\"method\":\"encounter\",\"id\":\"7745e2ed-434b-40fb-93e5-f04c47a38dda\"},\"kind\":\"creature\",\"mutation\":\"\",\"acquiredAt\":1792647843,\"source\":\"dev\"}],\"used\":1,\"levelXp\":0,\"traversal\":{\"mode\":\"ground\",\"stamina\":100,\"clipped\":false,\"hand\":\"L\",\"maxStamina\":100},\"tutorial\":2,\"heartstones\":[],\"coins\":1,\"settings\":{\"timingAssist\":true,\"headlampMode\":\"auto\",\"reducedMotion\":false,\"textScale\":1.3},\"serverNow\":1792647847,\"bankCount\":1,\"firstBank\":true,\"storeKind\":\"memory\",\"xp\":15,\"level\":1,\"memories\":{\"stub_common_1\":{\"id\":\"a3dee215-eaec-4101-844d-fbbcf2cb1320\",\"at\":1792647613,\"method\":\"encounter\",\"place\":\"dev\"}},\"collection\":[{\"source\":\"dev\",\"creatureId\":\"a3dee215-eaec-4101-844d-fbbcf2cb1320\",\"companion\":false,\"species\":\"stub_common_1\",\"acquiredAt\":1792647613,\"discovery\":{\"place\":\"dev\",\"id\":\"a3dee215-eaec-4101-844d-fbbcf2cb1320\",\"method\":\"encounter\",\"at\":1792647613},\"mutation\":\"\",\"favorite\":false,\"rarity\":\"Common\"}],\"hiddenSpawns\":[],\"regions\":[\"Green Valley\",\"Whispering Forest\",\"Broken Cliffs\",\"Storm Ridge\",\"Frozen Summit\"],\"tut\":{\"line\":\"A creature! Walk up and hold to claim it.\",\"label\":\"Creature\",\"step\":2,\"total\":11},\"highestCamp\":0,\"journal\":[],\"nextXp\":100,\"inHome\":false,\"nests\":{\"nest_r1_hollow\":{\"pupAt\":0,\"heartstoneAt\":0},\"nest_r1_lip\":{\"pupAt\":0,\"heartstoneAt\":0}}},\"beforeItems\":[{\"rarity\":\"Common\",\"slots\":1,\"uid\":\"7745e2ed-434b-40fb-93e5-f04c47a38dda\",\"species\":\"stub_common_1\",\"discovery\":{\"id\":\"7745e2ed-434b-40fb-93e5-f04c47a38dda\",\"place\":\"dev\",\"method\":\"encounter\",\"at\":1792647843},\"kind\":\"creature\",\"mutation\":\"\",\"acquiredAt\":1792647843,\"source\":\"dev\"},{\"rarity\":\"Common\",\"slots\":1,\"uid\":\"6bce6612-76ca-4a99-8cf4-a0de9426d7b8\",\"species\":\"stub_common_1\",\"discovery\":{\"id\":\"6bce6612-76ca-4a99-8cf4-a0de9426d7b8\",\"place\":\"dev\",\"method\":\"encounter\",\"at\":1792647843},\"kind\":\"creature\",\"mutation\":\"\",\"acquiredAt\":1792647843,\"source\":\"dev\"}],\"status\":{\"tutorial\":2,\"saveState\":\"ok\",\"capacity\":4,\"xp\":15,\"coins\":1,\"firstBank\":true,\"heartstones\":0,\"name\":\"Actuallytherealzo\",\"highestCamp\":0,\"used\":1,\"level\":1,\"session\":\"7229279d\",\"bank\":1},\"attemptMode\":\"fall\",\"fallsAdded\":1}"
+      }
+    ],
+    "isError": false
+  },
+  "recoveryFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"used\":2,\"ids\":[\"7745e2ed-434b-40fb-93e5-f04c47a38dda\",\"6bce6612-76ca-4a99-8cf4-a0de9426d7b8\"],\"packs\":[]}"
+      }
+    ],
+    "isError": false
+  },
+  "phoneSmallNormal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[{\"tab\":\"Backpack\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":7,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":313,\"viewHeight\":142},{\"tab\":\"Collection\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":12,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":281,\"viewHeight\":142},{\"tab\":\"Routes\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":7,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":785,\"viewHeight\":142},{\"tab\":\"Settings\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":15,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":762,\"viewHeight\":142}]"
+      }
+    ],
+    "isError": false
+  },
+  "phoneSmallLarge": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[{\"tab\":\"Backpack\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":7,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":357,\"viewHeight\":142},{\"tab\":\"Collection\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":12,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":307,\"viewHeight\":142},{\"tab\":\"Routes\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":7,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":913,\"viewHeight\":142},{\"tab\":\"Settings\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":15,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":863,\"viewHeight\":142}]"
+      }
+    ],
+    "isError": false
+  },
+  "phoneIphoneLarge": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[{\"tab\":\"Backpack\",\"textOverflows\":[],\"panelSize\":\"725, 314\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":7,\"smallTargets\":[],\"viewport\":\"749, 330\",\"mode\":\"expedition\",\"scrollHeight\":357,\"viewHeight\":192},{\"tab\":\"Collection\",\"textOverflows\":[],\"panelSize\":\"725, 314\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":12,\"smallTargets\":[],\"viewport\":\"749, 330\",\"mode\":\"expedition\",\"scrollHeight\":307,\"viewHeight\":192},{\"tab\":\"Routes\",\"textOverflows\":[],\"panelSize\":\"725, 314\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":7,\"smallTargets\":[],\"viewport\":\"749, 330\",\"mode\":\"expedition\",\"scrollHeight\":913,\"viewHeight\":192},{\"tab\":\"Settings\",\"textOverflows\":[],\"panelSize\":\"725, 314\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":15,\"smallTargets\":[],\"viewport\":\"749, 330\",\"mode\":\"expedition\",\"scrollHeight\":844,\"viewHeight\":192}]"
+      }
+    ],
+    "isError": false
+  },
+  "phoneTouch": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"input\":\"Touch\",\"textScale\":1.3,\"audit\":{\"tab\":\"Settings\",\"textOverflows\":[],\"panelSize\":\"681, 264\",\"saveState\":\"ok\",\"panelPosition\":\"12, 8\",\"visibleButtons\":15,\"smallTargets\":[],\"viewport\":\"705, 280\",\"mode\":\"expedition\",\"scrollHeight\":863,\"viewHeight\":142}}"
+      }
+    ],
+    "isError": false
+  },
+  "phoneClimb": {
+    "content": [
+      {
+        "type": "text",
+        "text": "[{\"fits\":true,\"text\":\"CLIPPED  •  Moving to your foothold…\",\"size\":\"369.47998, 44\",\"pos\":\"189.76001, 194\"},{\"fits\":true,\"text\":\"LEFT\",\"size\":\"104.949188, 58\",\"pos\":\"183.760025, 242\"},{\"fits\":true,\"text\":\"RIGHT\",\"size\":\"104.949188, 58\",\"pos\":\"296.709167, 242\"},{\"fits\":true,\"text\":\"Release\\nLet go\",\"size\":\"69.8959961, 58\",\"pos\":\"495.343994, 242\"}]"
+      }
+    ],
+    "isError": false
+  },
+  "desktopFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"audit\":{\"tab\":\"Collection\",\"textOverflows\":[],\"panelSize\":\"920, 650\",\"saveState\":\"ok\",\"panelPosition\":\"387.5, 123.5\",\"visibleButtons\":12,\"smallTargets\":[],\"viewport\":\"1695, 897\",\"mode\":\"expedition\",\"scrollHeight\":473,\"viewHeight\":473},\"stopped\":true,\"err\":\"nil\"}"
+      }
+    ],
+    "isError": false
+  },
+  "syncFinal": {
+    "content": [
+      {
+        "type": "text",
+        "text": "src/core/shared/HomeConfig.luau\t328608356\t392\nsrc/core/shared/TraversalConfig.luau\t780896661\t652\nsrc/core/shared/TraversalRules.luau\t1137439283\t3659\nsrc/core/server/Cargo.luau\t186703059\t3819\nsrc/core/server/Home.luau\t2010227290\t24528\nsrc/core/server/Traversal.luau\t1413926831\t28392\nsrc/core/server/Discovery.luau\t1860174382\t1994\nsrc/core/server/ExpeditionTests.luau\t829004347\t12263\nsrc/core/server/TraversalTests.luau\t242616943\t3665\ntools/author_traversal.luau\t1492822530\t14059\ntools/traversal_smoke.luau\t1796018384\t3301\ntools/traversal_route_smoke.luau\t1707454250\t4075\ntools/traversal_gate_probe.luau\t1319163241\t4336\nsrc/core/shared/CoreConfig.luau\t1227188146\t11789\nsrc/core/shared/Species.luau\t607184538\t4424\nsrc/core/shared/Net.luau\t346077228\t1412\nsrc/core/server/Clock.luau\t1045756021\t302\nsrc/core/server/Store.luau\t1368213415\t4743\nsrc/core/server/Profile.luau\t1987507286\t30294\nsrc/core/server/Progression.luau\t1793016165\t1644\nsrc/core/server/Inventory.luau\t1594148484\t4407\nsrc/core/server/Bank.luau\t1074650709\t7033\nsrc/core/server/Gear.luau\t2147103478\t8338\nsrc/core/server/Coop.luau\t963104057\t1002\nsrc/core/server/Training.luau\t1659465049\t5511\nsrc/core/server/Weather.luau\t153424931\t2782\nsrc/world/TrainingYard.luau\t1819094143\t5986\nsrc/runtime/CC_WeatherClient.client.luau\t855651092\t6862\nsrc/core/server/Tests.luau\t1848780647\t15706\nsrc/core/server/Prompts.luau\t1285897614\t2485\nsrc/core/server/Visuals.luau\t2142857522\t9291\nsrc/core/server/DropPacks.luau\t191079920\t10121\nsrc/core/server/Camps.luau\t939456038\t12597\nsrc/core/server/Claims.luau\t238127877\t7841\nsrc/core/server/Nests.luau\t483167712\t8630\nsrc/core/server/Tutorial.luau\t344487401\t12654\nsrc/world/CoreProps.luau\t1877144859\t16575\nsrc/world/MountainGen.luau\t810998287\t52137\nsrc/world/WorldConfig.luau\t1454229505\t16190\nsrc/world/BuildAll.luau\t2071292587\t6517\nsrc/world/Kit.luau\t833747898\t31882\nsrc/world/RouteKit.luau\t1485275127\t20594\nsrc/world/LedgeP1.luau\t1945409411\t24524\nsrc/world/ShepherdP2.luau\t1304850801\t7709\nsrc/world/ClimbKit.luau\t1935551945\t52062\nsrc/world/LedgeRoute.luau\t1389905344\t6591\nsrc/world/RouteLines.luau\t156468282\t5122\nsrc/world/RouteSpline.luau\t453516131\t12696\nsrc/world/SplineGen.luau\t259633208\t30928\nsrc/world/SplineKit.luau\t935154703\t28178\nsrc/world/FootholdV3.luau\t255616029\t26341\ntools/route_climb_bot.luau\t2020838040\t17047\nsrc/runtime/CC_CoreService.server.luau\t1218253884\t26257\nsrc/runtime/CC_CoreClient.client.luau\t1179102343\t57959\nsrc/runtime/CC_CheckpointService.server.luau\t1384086987\t8288\nsrc/runtime/CC_AscentClient.client.luau\t1459533446\t11606\nsrc/runtime/CC_ClimbClient.client.luau\t1238833214\t14385\ntools/sync_core.luau\t1338350871\t8379\ntools/tutorial_bot.luau\t1724766671\t15164\ntools/b_checks.luau\t176842306\t14674\ntools/perf_probe.luau\t747989767\t3396\ntools/ledge_bot.luau\t70427008\t7532"
+      }
+    ],
+    "isError": false
+  }
+}

@@ -27,7 +27,7 @@ local preferences = { textScale = 1, reducedMotion = false, timingAssist = true,
 local clockSkew = 0
 local ui = { tab = "Backpack", page = 1, mode = "expedition", device = "keyboard", notices = {}, holding = {}, deferred = {}, renderAt = 0 }
 local render, openPanel, closePanel, refreshHud
-local profileUI,nameTags,newHUD,dailyUI
+local profileUI,nameTags,newHUD,dailyUI,movementUI
 local function request(action, payload) reqEv:FireServer(action, payload or {}) end
 local function now() return os.time() + clockSkew end
 local function fmtTime(sec)
@@ -568,7 +568,7 @@ fxEv.OnClientEvent:Connect(function(p)
 	if nameTags then nameTags.fx(p) end
 	if profileUI and p.kind=="profileOwn" then profileUI.own() end
 	CommerceUI.fx(p)
-	if p.kind == "stagger" then cancelHolds()
+	if p.kind == "stagger" then cancelHolds(); if movementUI then movementUI.suppress(tonumber(p.secs) or 1.2) end
 	elseif p.kind == "loss" then ui.deferred[#ui.deferred + 1] = { kind = "loss", payload = p }
 	elseif p.kind == "claim" or p.kind == "heartstone" or p.kind == "hatch" then ui.deferred[#ui.deferred + 1] = { kind = "discovery", payload = p }
 	elseif p.kind == "bank" then notify("Bank confirmed. Your finds are safe in your collection.", "good", 5, 3)
@@ -743,4 +743,5 @@ newHUD=require(CoreRS.Client.ExpeditionHUD).mount({parent=gui,ui=ui,profile=prof
 if Run:IsStudio() then local r=Instance.new("BindableFunction");r.Name="PortfolioReview";r.OnInvoke=function(action) if action=="open" then profileUI.own() elseif action=="close" then profileUI.close() end end;r.Parent=gui end
 dailyUI=require(CoreRS.Client.DailyPracticeUI).mount({parent=gui,request=request,modal=function(open) plr:SetAttribute("CC_MenuOpen",open);cancelHolds() end,closeOthers=function() profileUI.close();CommerceUI.close();if ui.panel.Visible then closePanel() end end})
 resultsUI=require(CoreRS.Client.ResultsUI).mount({parent=gui,request=request,settings=function() return state.settings or {} end,modal=function(open) plr:SetAttribute('CC_MenuOpen',open);cancelHolds() end,closeOthers=function() profileUI.close();dailyUI.close();CommerceUI.close();closePanel() end})
+movementUI=require(CoreRS.Client.MovementClient).mount({parent=gui,request=request,blocked=function() return plr:GetAttribute("CC_MenuOpen")==true or plr:GetAttribute("CC_SummitPresentation")==true end})
 fit(); refreshHud(); request("state")

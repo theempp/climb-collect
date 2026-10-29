@@ -1,0 +1,126 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>HUD v2 mocks</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Luckiest+Guy&display=swap" rel="stylesheet">
+<style>
+/* Tokens: design/hud-v2-intel.md (est. hex) */
+:root{--cta:#FFC414;--cta-sh:#F29A00;--cta-lip:#8C4A1C;--cta-ink:#4A230E;--ok:#3FC53A;--ok-lip:#23892A;--no:#EC3B4E;--close:#E43A36;--dot:#EE3A48;--ready:#48C83C;
+--alt:#3D8EF2;--tert:#C66CF2;--blue:#2E6FE2;--navy:#1B2B5A;--purple:#7A3EE2;--row:#D5E0F3;--ink:#14203F;--gold:#FFD23C;--bar:#3BB6F0;--barok:#5CCB3A;--plus:#45C43A;
+--common:#3A8BEE;--golden:#F7A21B;--royal:#8A4BE6}
+*{box-sizing:border-box;margin:0}
+body{background:#0c1224;font-family:Fredoka,sans-serif;color:#fff;padding:20px;display:flex;flex-direction:column;gap:22px;align-items:center}
+.cap{font:600 14px Fredoka;color:#b9c3d2;width:844px}
+.scr{position:relative;width:844px;height:390px;overflow:hidden;border-radius:18px;background-size:cover;background-position:center}
+.scr.s{background-image:url(bg-sanctuary.jpg)} .scr.m{background-image:url(bg-mountain.jpg)}
+.t{-webkit-text-stroke:0;text-shadow:-2px -2px 0 var(--ink),2px -2px 0 var(--ink),-2px 2px 0 var(--ink),2px 2px 0 var(--ink),0 3px 0 var(--ink);text-transform:uppercase;letter-spacing:.3px}
+/* candy button */
+.btn{position:absolute;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--ink);border-radius:13px;font-weight:700;
+ box-shadow:0 7px 0 var(--lip,var(--ok-lip)),0 7px 0 2.5px var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.45) 0 38%,transparent 40%),linear-gradient(180deg,var(--f,var(--ok)),var(--fs,var(--ok-lip)) 140%)}
+.btn.y{--f:var(--cta);--fs:var(--cta-sh);--lip:var(--cta-lip);border-color:var(--cta-ink);box-shadow:0 7px 0 var(--cta-lip),0 7px 0 2.5px var(--cta-ink);
+ background:repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0 8px,transparent 8px 16px),linear-gradient(180deg,rgba(255,255,255,.45) 0 38%,transparent 40%),linear-gradient(180deg,var(--cta),var(--cta-sh))}
+.btn.y .t{text-shadow:-2px -2px 0 var(--cta-ink),2px -2px 0 var(--cta-ink),-2px 2px 0 var(--cta-ink),2px 2px 0 var(--cta-ink),0 3px 0 var(--cta-ink)}
+.btn.b{--f:var(--alt);--fs:#2361c4;--lip:#1d4f9e} .btn.p{--f:var(--tert);--fs:#9a46cf;--lip:#6b2d93} .btn.r{--f:var(--no);--fs:#c42a3c;--lip:#A61E33}
+/* tiles */
+.tile{position:absolute;width:56px;height:56px;border:2.5px solid var(--ink);border-radius:14px;box-shadow:0 5px 0 var(--lip),0 5px 0 2.5px var(--ink);
+ background:linear-gradient(180deg,rgba(255,255,255,.4) 0 36%,transparent 38%),var(--f);display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.tile .i{font-size:27px;line-height:34px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+.tile .l{font-size:10.5px;margin-top:-2px}
+.dot{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:var(--dot);border:2px solid #fff;font:700 11px Fredoka;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1.5px var(--ink)}
+.dot.g{background:var(--ready)}
+/* pills */
+.pill{position:absolute;height:26px;background:var(--navy);border:2.5px solid var(--ink);border-radius:13px;display:flex;align-items:center;padding:0 30px 0 30px;font-size:15px;font-weight:700}
+.pill .ic{position:absolute;left:-12px;top:-8px;font-size:30px;filter:drop-shadow(0 2px 0 var(--ink))}
+.pill .pl{position:absolute;right:-3px;top:-3px;width:28px;height:28px;border-radius:8px;background:var(--plus);border:2.5px solid var(--ink);box-shadow:0 3px 0 #2a8a25;display:flex;align-items:center;justify-content:center;font-size:20px}
+.hearts{position:absolute;font-size:22px;letter-spacing:-3px;filter:drop-shadow(0 2px 0 var(--ink))}
+/* quest card */
+.quest{position:absolute;background:linear-gradient(180deg,#24396f,var(--navy));border:2.5px solid var(--ink);border-radius:14px;padding:7px 10px 8px 52px;box-shadow:0 4px 0 var(--ink)}
+.quest .qi{position:absolute;left:8px;top:6px;font-size:34px}
+.quest .qt{font-size:13px} .bar{height:12px;border-radius:6px;background:#0e1a3d;border:2px solid var(--ink);margin-top:5px;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;background:linear-gradient(180deg,#7fd8ff,var(--bar));border-radius:4px}
+.bar span{position:absolute;inset:0;font:700 9px Fredoka;display:flex;align-items:center;justify-content:center}
+/* creature slot */
+.slot{position:absolute;width:52px;height:52px;border-radius:13px;border:2.5px solid var(--ink);background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.5),transparent 60%),var(--c);box-shadow:0 4px 0 var(--ink);display:flex;align-items:center;justify-content:center;font-size:30px}
+.slot b{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:var(--navy);border:2px solid #fff;font:700 11px Fredoka;display:flex;align-items:center;justify-content:center}
+.round{position:absolute;border-radius:50%;border:3px solid var(--ink);background:radial-gradient(circle at 50% 30%,rgba(255,255,255,.55),transparent 55%),var(--f);box-shadow:0 5px 0 var(--lip),0 5px 0 3px var(--ink);display:flex;align-items:center;justify-content:center}
+.stick{position:absolute;left:60px;bottom:40px;width:110px;height:110px;border-radius:50%;background:rgba(20,32,63,.35);border:3px solid rgba(255,255,255,.5)}
+.stick:after{content:"";position:absolute;left:31px;top:31px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.6)}
+/* panel */
+.dim{position:absolute;inset:0;background:rgba(10,16,40,.55)}
+.panel{position:absolute;background:var(--blue);border:3px solid var(--ink);border-radius:18px;box-shadow:0 6px 0 var(--ink)}
+.ribbon{position:absolute;left:50%;transform:translateX(-50%);top:-20px;background:linear-gradient(180deg,#ff9a2e,#f27a12);border:3px solid var(--ink);border-radius:10px;padding:3px 28px;font:26px 'Luckiest Guy';box-shadow:0 4px 0 #a2470d,0 4px 0 3px var(--ink)}
+.x{position:absolute;top:-12px;right:-12px;width:32px;height:32px;border-radius:8px;background:var(--close);border:3px solid var(--ink);box-shadow:0 4px 0 #8f1d1d;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.card{position:absolute;width:112px;height:150px;border:3px solid var(--ink);border-radius:12px;background:var(--c);box-shadow:0 5px 0 var(--ink);overflow:hidden}
+.card .art{height:92px;display:flex;align-items:center;justify-content:center;font-size:54px;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.55),transparent 62%)}
+.card .lv{position:absolute;left:4px;top:4px;width:28px;height:28px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--navy);display:flex;align-items:center;justify-content:center;font:700 13px Fredoka}
+.card .nm{position:absolute;bottom:0;left:0;right:0;height:26px;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;font-size:13px}
+.card .bar{position:absolute;left:8px;right:8px;top:96px;margin:0}
+.card.lock{filter:grayscale(.9) brightness(.65)}
+.tag{position:absolute;font:700 10px Fredoka;background:var(--ink);padding:2px 6px;border-radius:6px}
+.rays{position:absolute;left:50%;top:50%;width:900px;height:900px;margin:-450px 0 0 -450px;background:repeating-conic-gradient(rgba(255,230,120,.22) 0 8deg,transparent 8deg 18deg);border-radius:50%;mask:radial-gradient(circle,#000 20%,transparent 60%)}
+.big{font:64px 'Luckiest Guy';position:absolute;left:0;right:0;text-align:center;color:var(--gold);
+ text-shadow:-4px -4px 0 var(--ink),4px -4px 0 var(--ink),-4px 4px 0 var(--ink),4px 4px 0 var(--ink),0 7px 0 var(--ink)}
+</style></head><body>
+
+<div class="cap">MOCK 1 — Sanctuary HUD (approved B+E layout, new pin style). Icons are emoji placeholders for the illustrated 3D icon set still to be made.</div>
+<div class="scr s" id="m1">
+  <div class="tile" style="left:14px;top:12px;--f:#3c4f86;--lip:#22305a;width:40px;height:40px"><div class="i" style="font-size:20px;line-height:36px">☰</div></div>
+  <div class="hearts" style="left:66px;top:15px">❤️❤️❤️❤️❤️</div>
+  <div class="pill t" style="left:500px;top:16px;width:118px"><span class="ic">🪙</span>12,450<span class="pl">+</span></div>
+  <div class="pill t" style="left:648px;top:16px;width:100px"><span class="ic">💎</span>1,250<span class="pl">+</span></div>
+  <div class="tile" style="left:772px;top:10px;--f:#3c4f86;--lip:#22305a;width:44px;height:44px"><div class="i" style="font-size:22px;line-height:40px">⚙️</div></div>
+  <div class="tile t" style="left:16px;top:84px;--f:var(--golden);--lip:#a35c0c"><div class="i">🧰</div><div class="l">Shop</div><div class="dot">1</div></div>
+  <div class="tile t" style="left:84px;top:84px;--f:var(--common);--lip:#1d4f9e"><div class="i">🐣</div><div class="l">Creatures</div></div>
+  <div class="tile t" style="left:16px;top:154px;--f:var(--tert);--lip:#6b2d93"><div class="i">🥚</div><div class="l">Eggs</div><div class="dot g">2</div></div>
+  <div class="tile t" style="left:84px;top:154px;--f:var(--ok);--lip:var(--ok-lip)"><div class="i">🗺️</div><div class="l">Map</div></div>
+  <div class="tile t" style="left:16px;top:224px;--f:#FF8A3C;--lip:#a5491a"><div class="i">📜</div><div class="l">Quests</div><div class="dot">3</div></div>
+  <div class="tile t" style="left:84px;top:224px;--f:#F2467C;--lip:#9b1f4b"><div class="i">🎁</div><div class="l">Daily</div></div>
+  <div class="quest" style="left:600px;top:58px;width:228px"><div class="qi">🏔️</div><div class="qt t">Climb to Blossom</div><div class="bar"><i style="width:35%"></i><span class="t">320m / 1,000m</span></div></div>
+  <div class="slot t" style="left:330px;top:318px;--c:var(--common)">🐰<b>1</b></div>
+  <div class="slot t" style="left:394px;top:318px;--c:var(--golden)">🦊<b>2</b></div>
+  <div class="slot t" style="left:458px;top:318px;--c:var(--royal)">🐉<b>3</b></div>
+  <div class="btn y t" style="left:310px;top:262px;width:220px;height:40px;font-size:18px">Manage Sanctuary</div>
+  <div class="round t" style="left:744px;top:282px;width:80px;height:80px;--f:var(--alt);--lip:#1d4f9e;font-size:38px">⬆️</div>
+  <div class="round t" style="left:676px;top:300px;width:58px;height:58px;--f:var(--ok);--lip:var(--ok-lip);font-size:26px">🏃</div>
+  <div class="stick" style="left:170px;bottom:16px"></div>
+</div>
+
+<div class="cap">MOCK 2 — On the mountain, carrying a creature home (danger state: guardian chasing, bat button, sprint).</div>
+<div class="scr m" id="m2">
+  <div class="hearts" style="left:16px;top:14px">❤️❤️❤️🤍🤍</div>
+  <div class="pill t" style="left:620px;top:16px;width:118px"><span class="ic">🪙</span>12,450<span class="pl">+</span></div>
+  <div class="tile" style="left:772px;top:10px;--f:#3c4f86;--lip:#22305a;width:44px;height:44px"><div class="i" style="font-size:22px;line-height:40px">☰</div></div>
+  <div class="t" style="position:absolute;left:300px;top:12px;width:244px;height:40px;background:linear-gradient(180deg,#ff5a64,var(--no));border:3px solid var(--ink);border-radius:12px;box-shadow:0 5px 0 #A61E33,0 5px 0 3px var(--ink);display:flex;align-items:center;justify-content:center;gap:8px;font-size:17px">⚠️ Guardian chasing!</div>
+  <div class="quest" style="left:16px;top:56px;width:210px;padding-left:50px"><div class="qi">🐰</div><div class="qt t">Carry Mossbun home</div><div class="bar"><i style="width:68%;background:linear-gradient(180deg,#a6ef8d,var(--barok))"></i><span class="t">Gate 84m</span></div></div>
+  <div class="tag t" style="left:16px;top:118px;background:var(--common)">Common · Floravelle</div>
+  <div class="round t" style="left:744px;top:282px;width:80px;height:80px;--f:var(--alt);--lip:#1d4f9e;font-size:38px">⬆️</div>
+  <div class="round t" style="left:668px;top:300px;width:62px;height:62px;--f:var(--ok);--lip:var(--ok-lip);font-size:28px">🏃<div class="dot g" style="font-size:9px;width:auto;padding:0 4px;border-radius:8px;right:-14px">ON</div></div>
+  <div class="round t" style="left:760px;top:196px;width:62px;height:62px;--f:var(--off-base,#AEB6C0);--lip:#6f7884;font-size:28px;opacity:.9">🏏<div class="tag" style="bottom:-8px;top:auto;left:50%;transform:translateX(-50%);white-space:nowrap">Arms full</div></div>
+  <div class="stick"></div>
+</div>
+
+<div class="cap">MOCK 3 — Creatures panel + "NEW CREATURE!" reward moment (rarity-colour cards, level hex, progress bar, red close X).</div>
+<div class="scr s" id="m3">
+  <div class="dim"></div>
+  <div class="panel" style="left:60px;top:40px;width:724px;height:330px">
+    <div class="ribbon t">Creatures 7/36</div><div class="x t">✕</div>
+    <div style="position:absolute;left:18px;top:30px;display:flex;gap:8px">
+      <div class="btn b t" style="position:relative;width:96px;height:30px;font-size:13px">All</div>
+      <div class="btn t" style="position:relative;width:96px;height:30px;font-size:13px;--f:#24396f;--fs:var(--navy);--lip:#0e1a3d">Team</div>
+      <div class="btn t" style="position:relative;width:96px;height:30px;font-size:13px;--f:#24396f;--fs:var(--navy);--lip:#0e1a3d">Index</div>
+    </div>
+    <div class="card t" style="left:18px;top:84px;--c:var(--common)"><div class="lv">3</div><div class="art">🐰</div><div class="bar"><i style="width:60%"></i><span>6/10</span></div><div class="nm">Mossbun</div></div>
+    <div class="card t" style="left:138px;top:84px;--c:var(--golden)"><div class="lv">5</div><div class="art">🦊</div><div class="bar"><i style="width:100%;background:linear-gradient(180deg,#a6ef8d,var(--barok))"></i><span>Upgrade!</span></div><div class="nm">Fernox</div><div class="dot g" style="top:4px;right:4px">!</div></div>
+    <div class="card t" style="left:258px;top:84px;--c:var(--royal)"><div class="lv">2</div><div class="art">🐉</div><div class="bar"><i style="width:20%"></i><span>2/10</span></div><div class="nm">Petalyn</div></div>
+    <div class="card t" style="left:378px;top:84px;--c:linear-gradient(135deg,#FF5FA0,#FFC93C,#4FD8F0,#9A5CF0)"><div class="lv">1</div><div class="art">🦄</div><div class="bar"><i style="width:10%"></i><span>1/10</span></div><div class="nm">Starmane</div></div>
+    <div class="card lock t" style="left:498px;top:84px;--c:var(--common)"><div class="art">❔</div><div class="nm">???</div></div>
+    <div class="card lock t" style="left:618px;top:84px;--c:var(--golden)"><div class="art">🔒</div><div class="nm">Locked</div></div>
+    <div class="btn y t" style="left:262px;top:260px;width:200px;height:44px;font-size:20px">Equip Team</div>
+  </div>
+</div>
+<div class="scr s" id="m4">
+  <div class="dim" style="background:rgba(40,12,80,.72)"></div><div class="rays"></div>
+  <div class="big" style="top:28px">New Creature!</div>
+  <div class="card t" style="left:352px;top:110px;width:140px;height:180px;--c:var(--golden);transform:rotate(-4deg)"><div class="lv">1</div><div class="art" style="height:118px;font-size:72px">🦊</div><div class="nm" style="height:32px;font-size:16px">Fernox</div></div>
+  <div class="tag t" style="left:378px;top:296px;background:var(--golden);font-size:12px">★ Golden</div>
+  <div class="btn t" style="left:322px;top:324px;width:200px;height:44px;font-size:20px">Collect!</div>
+</div>
+</body></html>

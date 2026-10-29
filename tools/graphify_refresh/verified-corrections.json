@@ -1,0 +1,12 @@
+{
+  "protected_sources": [
+    "src/world/MountainGen.luau",
+    "src_legacy_v2/MountainGen.luau"
+  ],
+  "luau_supplement_paths": [
+    "src/world/SplineGen.luau",
+    "tools/fairground_approach_path.luau"
+  ],
+  "evidence": "design/graphify-refresh-2026-10-22.md",
+  "reason": "Retain reviewed MountainGen repairs and recheck declarations the Luau AST previously missed. Supplements require exact declarations in current source."
+}

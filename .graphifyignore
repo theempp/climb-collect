@@ -1,0 +1,20 @@
+# Scope the knowledge graph to Climb & Collect's own source + docs.
+# creatures/ is Codex-owned and read-only: code (*.py) only, no docs/json/images.
+creatures/**
+!creatures/
+!creatures/**/
+!creatures/**/*.py
+references/
+evidence/**/*.png
+evidence/**/*.jpg
+evidence/**/*.jpeg
+evidence/**/*.mp4
+*.rbxl
+*.rbxlx
+graphify-out/
+evidence/workspace_review_2026-10-25/note-backups/
+*.rbxl.lock
+*.rbxl.bak
+design/graphify-vault-merge-prompt.md
+**/node_modules/
+**/.tools/

@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-25",
+  "artifact_audit": "Three saved files each match 30 runtime sources; HUD ordinary output drift preserved and exact recovery linked",
+  "visual_bytes": 517185,
+  "visual_review": "Rendered in IAB; egg choices, Replay B control, mountain tab and Blossom capture inspected; color resolution corrected after screenshot",
+  "source_changes": "Organization/audit only; no gameplay code or existing place edits",
+  "graph": "CURRENT zero drift; isolated clone source excluded",
+  "retrieval_benchmark": {
+    "recall_at_8": 1.0,
+    "MRR": 0.75
+  }
+}

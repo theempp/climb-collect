@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"lines\":{\"23\":\"PASS server verified permanent pass commits before reveal\",\"22\":\"PASS yielded checkout revalidates lost profile and ownership\",\"21\":\"PASS metadata and ownership failures disable checkout without revocation\",\"20\":\"PASS native product prompt completion grants nothing; only valid receipt grants\",\"19\":\"PASS native cancel and duplicate clicks never grant or double prompt\",\"18\":\"PASS native flow adapter supports isolated Studio fakes\",\"9\":\"PASS receipt failure and timeout-after-commit never acknowledge early\",\"1\":\"PASS catalogue and canonical rules exist\",\"15\":\"PASS lamp is separate exact 1500-coin one-time sink\",\"3\":\"PASS external upper pass remains pending until contiguous prerequisites\",\"2\":\"PASS six next-only total tiers; 298 draft Robux; 12x cap\",\"5\":\"PASS exact packs and smallest sufficient shortfall\",\"4\":\"PASS bundle union, partial direction and full ownership\",\"7\":\"PASS durable commerce service exists\",\"6\":\"PASS v2 migration twice preserves legacy state and commerce ledger\",\"14\":\"PASS old-rate settlement, fractional income and offline cap\",\"8\":\"PASS exact paid coins at 12x; durable replay beyond 96 general receipts\",\"16\":\"PASS presentation modules exist without replacing legacy gear\",\"17\":\"PASS concurrent receipts share atomic grant and isolated balances\",\"13\":\"PASS earned bank rewards multiply once without XP or point changes\",\"12\":\"PASS size cap rejects grant without ledger eviction\",\"11\":\"PASS permanent grant union and reveal ack preserve ownership\",\"10\":\"PASS unknown, malformed, lost, closing and absent sessions fail closed\"},\"pass\":23,\"fail\":0}"
+    }
+  ],
+  "isError": false
+}

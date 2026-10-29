@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#482580"><title>CLIMB & COLLECT · Foothold Exchange</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+ <main>
+  <header class="studio"><a class="brand" href="#">C<span>▲</span>C <small>CLIMB & COLLECT</small></a><span class="edition">FOOTHOLD EXCHANGE <i>/</i> CONCEPT 01</span><span class="draft">Draft economy · no real purchases</span></header>
+  <div class="intro"><div><p class="eyebrow">A LITTLE GLOW FOR THE NEXT CLIMB</p><h1>The mountain has a market.</h1></div><p>One world. Good finds.<br>Yours on every expedition.</p></div>
+  <section class="workbench" aria-label="Interactive concept">
+   <div class="toolbar"><div class="live"><i></i> INTERACTIVE CONCEPT <span>Explore every price tag</span></div><div class="tools"><button id="world-view">Gameplay</button><button id="shop-view" class="selected">Shop</button><button id="phone-mode" aria-pressed="false">Phone layout</button><button id="reset">Reset demo</button></div></div>
+   <div id="stage" class="stage">
+    <div id="world" class="world"></div>
+    <section id="shop" class="shop" aria-label="Foothold Exchange shop">
+     <header class="shop-head"><div class="shop-emblem">▲</div><div><span class="shop-kicker">PROVISIONS • TREASURES • LITTLE LUXURIES</span><h2>FOOTHOLD EXCHANGE</h2></div><div id="shop-wallet" class="shop-wallet"></div><button id="close-shop" class="close" aria-label="Close shop">×</button></header>
+     <nav id="categories" class="categories" aria-label="Shop categories"><button data-section="featured" class="active">✦ Featured</button><button data-section="upgrades">↗ Coin upgrades</button><button data-section="coins">● Coin packs</button><button data-section="cosmetics">⚑ Cosmetics</button></nav>
+     <div id="catalogue" class="catalogue" tabindex="0" aria-label="Scrollable shop catalogue"></div>
+     <footer class="shop-foot"><span>✦ Every reward shown is guaranteed</span><span>Permanent cosmetics & upgrades</span></footer>
+    </section>
+    <div id="toast" role="status" aria-live="polite"></div>
+   </div>
+   <div class="caption"><span><b>ONE CONNECTED CATALOGUE</b> Shop, HUD and map share your purchases.</span><span id="session-caption">Local simulation · saved in this browser</span></div>
+  </section>
+  <section class="notes"><div><p class="eyebrow">THE CONCEPT</p><h2>See the reward.<br>Keep the reward.</h2><p>Prism’s bright storefront, Expedition’s featured offers, Foothold’s physical displays and Crown’s permanent progression, brought into one mountain market.</p></div><div><h3>Draft economy</h3><p>Permanent earned-coin tiers: <b>2× → 4× → 6× → 8× → 10× → 12×</b>. Prices: <b>3 / 9 / 19 / 39 / 79 / 149 Robux</b>. Only the next tier is available. Purchased coin packs never multiply; Summit Points stay earned.</p><p>Camp Glow saves 50% versus the two separate items at 19 Robux each. “Best value” compares coins per Robux across the four packs. The timely-collection bonus remains an unresolved proposal and is not changed here.</p></div><div><h3>Purchase-flow laboratory</h3><p>All checkout screens are <b>simulations</b>. Choose enough or insufficient Robux inside an offer, cancel, or simulate a return from top-up. No real balance, payment or Roblox connection is used.</p><p>Eventually: native MarketplaceService prompts, server-validated receipts and durable ownership. Roblox controls top-up packages and account/device restrictions; an exact-shortfall top-up is never promised.</p><a href="https://create.roblox.com/docs/production/monetization/developer-products" target="_blank" rel="noreferrer">Roblox purchase documentation ↗</a></div></section>
+  <footer class="page-foot">CLIMB & COLLECT · Original concept artwork · 22 October 2026 <a href="../cc-shop-concepts/CC-Shop-Artboards.html">Original six concepts ↗</a></footer>
+ </main>
+ <dialog id="purchase" aria-labelledby="purchase-title"><button id="close-dialog" class="close" aria-label="Close purchase">×</button><div id="purchase-body"></div></dialog>
+ <script src="model.js"></script><script src="art.js"></script><script src="app.js"></script>
+</body></html>

@@ -1,0 +1,25 @@
+CLIMB & COLLECT — resume Stage 4, then Stage 5 (new chat). Working folder: Desktop\climb&collect. Keep chat output short.
+
+AUTHORIZATION: unchanged from design/stage3-4-launch-prompt.md (read it in full; its STAGE 4, STAGE 5, RULES and FINAL REPORT sections still apply). Finish Stage 4, then run Stage 5 (v4 P0 + P1 + P2) back to back without waiting for me, then STOP and report. Do not start v4 P3. If Stage 4 leaves a perf regression or a failing check you can't fix within LOCKED limits, stop before Stage 5 and report.
+
+READ FIRST: CLAUDE.md, design/stage3-4-launch-prompt.md, design/decision-log.md (rows from "Stage 3" down), evidence/perf_P1/perf_report.md, evidence/core_P2/B_test_log.md, design/v4-plan.md, design/v4-climb-concept.md, design/autonomous-build-brief.md §5.
+
+STATE (end of previous chat, 2026-10-20 ~22:30)
+- Stage 3 DONE: evidence/perf_P1/perf_report.md + P1_01..04 captures. Cause #1 = 15 whole-map checkpoints inside the place (69.5 of 79.2 MB, 245k of 252k instances).
+- Stage 4 perf fix DONE: checkpoint S4_PrePerf_2026-10-20 + byte-identical copies ClimbAndCollect.S4_PrePerf.rbxl and ClimbAndCollect.CheckpointArchive_2026-10-20.rbxl (all 16 checkpoints, verified with tools/rbxl_audit.py). 14 old checkpoints removed from the place (kept: C_2026-10-20_Stage1_01, S4_PrePerf_2026-10-20). Saved 21:49: file 84.8 -> 18.0 MB. Play Solo start -> playable 19.9 s -> 6.5 / 6.1 s (Studio desktop, upper bound incl. ~1.4 s MCP overhead). Play memory 13.3 -> 9.8 GB (Edit still 8.7 GB until Studio reopens: undo history). Not fixed, listed for me: QL1 hides the mountain, streaming settings, Foothold draw calls, post FX.
+- B-polish code DONE and synced to Studio (checksums matched): XP 10/20/40/80/300 x1.5 first-of-species (tutorial ends L2, 220 XP); tutorial Rare protected from guardian/fall shakes until banked once; tutorial beats 9 "claim two finds around the Foothold" + 10 "bank them" (cliffhanger 11, done 12, flags.tutorialV migration); live-server dev-tool strip in CC_CoreService + tools/publish_strip.luau; brief §5 self-recovery rule added; cliffhanger FOV auto (8-24) in CC_CoreClient.
+- Measured on that code: A1 12/12; B checks 12/12 (new check 9 FAILED once from my test setup — bank travel-time check — fixed with a clock offset, re-run PASS); tutorial_bot timing 6:09.5 BOT (Rare 2:06.6, 0 stuck, 0 hits, step 12, L2). Human time UNMEASURED.
+- Lip nest walk: road leg (speed 36, stuck check) to Shepherd s~5559 OK; descent reaches a lower shelf (y~341) SW of the nest; a ~34-stud rock step blocks the nest. I added a LipRope to src/world/CoreProps.luau. Studio has the FIRST version (rope only 11.4 studs, top detection wrong). src now has the refined "follow the step until it flattens" version, NOT synced; the sync+rebuild call was stopped by me. Next: sync CoreProps, rebuild (require(ServerStorage.CC_Generators:Clone().CoreProps).build(require(ServerStorage.CC_Generators.Kit))), walk shelf -> rope -> nest with tools/lip_walk_bot.luau logic, then capture the cliffhanger.
+- NOT SAVED: everything after 21:49 (B-polish code, CoreProps rebuild, client FOV) lives only in the open Studio session. Verify Studio vs src checksums, then save (Ctrl+S, window visible, check mtime).
+- Docs NOT yet updated: CLAUDE.md evidence log + gotchas, master.md status, decision-log rows for the lip rope / cliffhanger FOV / check-9 test fix, evidence/perf_P1/perf_after.md (already referenced in the decision log), B_test_log.md B-polish section, core-run-report perf section.
+
+REMAINING STAGE 4: sync + rebuild CoreProps, lip walk on foot, cliffhanger capture (FOV auto) at avatar scale + phone aspect into evidence/core_P2/; re-run A1, B checks, tutorial_bot timing, perf pass (5 spots, tools/perf_probe.luau via ReplicatedStorage.CC_DevTools.PerfProbe); save; docs. Then Stage 5 exactly as in design/stage3-4-launch-prompt.md.
+
+NEW GOTCHAS (add to CLAUDE.md)
+- MCP Client threads only run while an MCP call is active: poll bots back-to-back with ~28 s in-call waits.
+- A Client execute_luau resets CameraType when it ends: for camera shots, fire CoreFx from the Server MCP and screenshot with computer-use (core_P2 92_/95_ rejects were this artifact).
+- Streaming/Lighting properties aren't readable via MCP: python tools/rbxl_audit.py <file> (needs lz4 + zstandard; pip install --target <scratchpad>/pylib, PYTHONPATH it). Checksums: recreate <scratchpad>/cksum.py per CLAUDE.md. Sync server: python -m http.server 8771 --bind 127.0.0.1 in the project root.
+- settings().Rendering.QualityLevel is writable from the Client MCP (Studio setting): set back to Automatic after.
+- A Codex creature session ("Plan creature Phase C next steps") shares this Studio; its leftover "Open 3D File" dialog blocked Play once. Don't touch Workspace.CC_CreatureStage1, ServerStorage.CC_Creatures or creatures/.
+- Clicking in the play viewport right as Play starts stopped a playtest once; use keyboard focus.
+- Keep at most 2 checkpoints in the place; older ones go to a verified archive file.

@@ -1,0 +1,164 @@
+{
+  "samsung_galaxy_a06": {
+    "Cosmetics": {
+      "small": [],
+      "shop": "689, 268",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 1766,
+      "outside": [],
+      "viewport": "705, 280",
+      "view": 128
+    },
+    "Upgrades": {
+      "small": [],
+      "shop": "689, 268",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 680,
+      "outside": [],
+      "viewport": "705, 280",
+      "view": 128
+    },
+    "detail": {
+      "small": [],
+      "canvas": 458,
+      "scroll": 280,
+      "outside": [],
+      "shop": "689, 268",
+      "overflow": [],
+      "viewport": "705, 280",
+      "selected": "coins100",
+      "view": 128
+    },
+    "Coins": {
+      "small": [],
+      "shop": "689, 268",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 1122,
+      "outside": [],
+      "viewport": "705, 280",
+      "view": 128
+    },
+    "checkoutDisabled": true,
+    "Featured": {
+      "small": [],
+      "shop": "689, 268",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 0,
+      "outside": [],
+      "viewport": "705, 280",
+      "view": 128
+    }
+  },
+  "iphone_13": {
+    "Cosmetics": {
+      "small": [],
+      "shop": "733, 319",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 1766,
+      "outside": [],
+      "viewport": "749, 331",
+      "view": 179
+    },
+    "Upgrades": {
+      "small": [],
+      "shop": "733, 319",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 680,
+      "outside": [],
+      "viewport": "749, 331",
+      "view": 179
+    },
+    "detail": {
+      "small": [],
+      "canvas": 458,
+      "scroll": 279,
+      "outside": [],
+      "shop": "733, 319",
+      "overflow": [],
+      "viewport": "749, 331",
+      "selected": "coins100",
+      "view": 179
+    },
+    "Coins": {
+      "small": [],
+      "shop": "733, 319",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 1122,
+      "outside": [],
+      "viewport": "749, 331",
+      "view": 179
+    },
+    "checkoutDisabled": true,
+    "Featured": {
+      "small": [],
+      "shop": "733, 319",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 0,
+      "outside": [],
+      "viewport": "749, 331",
+      "view": 179
+    }
+  },
+  "iphone_7": {
+    "Cosmetics": {
+      "small": [],
+      "shop": "650, 304",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 1766,
+      "outside": [],
+      "viewport": "666, 316",
+      "view": 164
+    },
+    "Upgrades": {
+      "small": [],
+      "shop": "650, 304",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 680,
+      "outside": [],
+      "viewport": "666, 316",
+      "view": 164
+    },
+    "detail": {
+      "small": [],
+      "canvas": 458,
+      "scroll": 280,
+      "outside": [],
+      "shop": "650, 304",
+      "overflow": [],
+      "viewport": "666, 316",
+      "selected": "coins100",
+      "view": 164
+    },
+    "Coins": {
+      "small": [],
+      "shop": "650, 304",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 1122,
+      "outside": [],
+      "viewport": "666, 316",
+      "view": 164
+    },
+    "checkoutDisabled": true,
+    "Featured": {
+      "small": [],
+      "shop": "650, 304",
+      "canvas": 2416,
+      "overflow": [],
+      "scroll": 0,
+      "outside": [],
+      "viewport": "666, 316",
+      "view": 164
+    }
+  }
+}

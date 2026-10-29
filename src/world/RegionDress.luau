@@ -12,7 +12,8 @@ local D = {}
 local noise = math.noise
 local floor, sqrt, atan2, clamp = math.floor, math.sqrt, math.atan2, math.clamp
 local readf32, readu8 = buffer.readf32, buffer.readu8
-local N, CELL, HALF = 1200, 4, 2400
+local WC = require(script.Parent.WorldConfig)
+local N, CELL, HALF = WC.N, WC.CELL, WC.HALF
 
 local function smooth(e0, e1, x)
 	local t = clamp((x - e0) / (e1 - e0), 0, 1)

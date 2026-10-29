@@ -65,6 +65,7 @@ local function clearFlight(plr)
 end
 local function leave(plr, mode)
 	local s = get(plr)
+	if ctx.Movement then ctx.Movement.cancel(plr) end
 	detachRope(s)
 	clearHarness(s)
 	clearFlight(plr)
@@ -172,6 +173,7 @@ local function begin(plr, sec, clip, descending)
 	if (r.Position - start).Magnitude > K.entryRange + 2 then return false end
 	local rope = currentRope(sec.id)
 	if sec.protected and not clip and not rope then return false end
+	if ctx.Movement then ctx.Movement.cancel(plr) end
 	s.section, s.direction, s.hand = sec, descending and -1 or 1, "L"
 	s.index = descending and #sec.holds or 1
 	s.hold = sec.holds[s.index]
@@ -364,6 +366,11 @@ local function isDark(pos, plr)
 end
 local function update(plr, s, dt, now)
 	local ch, h, r = actor(plr)
+	local onGround=grounded(plr)
+	if ctx.Movement then
+	 local movement=ctx.Movement.step(plr,s,dt,now,onGround)
+	 s.stamina=movement.stamina
+	end
 	if not r or not h or h.Health <= 0 then return end
 	if s.mode == "travel" then return end
 	local maxSt = plr:GetAttribute("CC_StaminaMax") or 100
@@ -418,11 +425,11 @@ local function update(plr, s, dt, now)
 		elseif now - s.flightAt > K.flightMaxSeconds or r.Position.Y < -100 then
 			T.travel(plr, s.launch.center + Vector3.yAxis * 4, "practiceReturn")
 		end
-	elseif grounded(plr) then
+	elseif onGround then
 		if s.mode ~= "ground" or not s.groundSince then s.groundSince=now end
 		s.mode = "ground"
 		if s.jumpAirborne then s.jumpAt, s.jumpAirborne = nil, nil end
-		s.stamina = math.min(maxSt, s.stamina + K.groundRegen * dt)
+		-- Shared ground regeneration/drain already applied by Movement above.
 		s.lastGround = r.Position
 		-- Actual ice only: counter ground drift when no movement is requested.
 		if s.ice and h.MoveDirection.Magnitude < 0.1 then local v=r.AssemblyLinearVelocity; r.AssemblyLinearVelocity=Vector3.new(v.X*0.25,v.Y,v.Z*0.25) end
@@ -466,9 +473,10 @@ function T.onCharacter(plr, ch)
 	states[plr] = nil
 	local s = get(plr)
 	local h = ch:WaitForChild("Humanoid",10)
+	if plr.Character ~= ch then return end
 	if h then
 		h:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
-		h.Died:Connect(function() leave(plr,"fall") end)
+		h.Died:Connect(function() if plr.Character==ch and states[plr]==s then leave(plr,"fall") end end)
 	end
 	publish(plr,s)
 end

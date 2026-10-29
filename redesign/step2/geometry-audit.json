@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"errors\":[],\"anchored\":true,\"unchangedLayoutParts\":123,\"scriptCount\":0,\"frontWalkSamples\":380,\"maxPlayers\":12,\"placeId\":0,\"parts\":1171,\"lodges\":[{\"plot\":1,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":-658},{\"plot\":2,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":-470},{\"plot\":3,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":-282},{\"plot\":4,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":-94},{\"plot\":5,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":94},{\"plot\":6,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":282},{\"plot\":7,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":470},{\"plot\":8,\"doorHeight\":9,\"footprintCenterZ\":200,\"entranceSamples\":30,\"doorWidth\":5.8,\"cornerChecks\":1008,\"parts\":126,\"centerX\":658}]}"
+    }
+  ],
+  "isError": false
+}

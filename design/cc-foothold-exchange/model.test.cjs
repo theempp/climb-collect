@@ -1,0 +1,12 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const M=require('./model.js');
+function buy(s,id,r='r'+s.receipts.length){return M.confirm(s,M.quote(s,id),r);}
+test('six sequential permanent upgrades and cap',()=>{const s=M.initial();let spent=0;[3,9,19,39,79,149].forEach((p,i)=>{assert.equal(M.quote(s,'upgrade'+i).price,p);assert.equal(M.status(s,'upgrade'+i),'next');if(i<5)assert.equal(M.status(s,'upgrade'+(i+1)),'locked');assert.equal(buy(s,'upgrade'+i).ok,true);spent+=p;assert.equal(M.multiplier(s),[2,4,6,8,10,12][i]);});assert.equal(spent,298);assert.equal(s.robux,202);assert.equal(M.status(s,'upgrade5'),'current');assert.equal(M.quote(s,'upgrade5'),null);});
+test('purchased packs are exact at 12x, earned coins multiply',()=>{const s=M.initial();s.tier=6;s.robux=1000;for(const n of [100,350,900,2000]){const before=s.coins;assert.ok(buy(s,'coins'+n).ok);assert.equal(s.coins-before,n);}const before=s.coins;M.collect(s);assert.equal(s.coins-before,600);});
+test('receipt replay and double-click grant only once',()=>{const s=M.initial(),q=M.quote(s,'coins100');assert.ok(M.confirm(s,q,'same').ok);const copy=JSON.stringify(s);assert.equal(M.confirm(s,q,'same').ok,false);assert.equal(JSON.stringify(s),copy);});
+test('bundle grants both cosmetics and blocks repeat charges',()=>{const s=M.initial();buy(s,'bundle');assert.deepEqual(s.owned.sort(),['banner','lantern']);assert.equal(M.quote(s,'lantern'),null);assert.equal(M.quote(s,'bundle'),null);});
+test('partial bundle directs to missing item, no duplicate charge',()=>{const s=M.initial();buy(s,'lantern');assert.equal(M.status(s,'bundle'),'partial');assert.equal(M.quote(s,'bundle'),null);assert.ok(buy(s,'banner').ok);assert.equal(M.status(s,'bundle'),'owned');});
+test('insufficient and unconfirmed selections do not grant; return can buy',()=>{const s=M.initial();s.robux=0;const q=M.quote(s,'flag'),copy=JSON.stringify(s);assert.equal(M.confirm(s,q,'short').ok,false);assert.equal(JSON.stringify(s),copy);s.robux=50;assert.ok(M.confirm(s,q,'returned').ok);assert.equal(s.robux,47);});
+test('stale tier quotes and owned cosmetics cannot be charged twice',()=>{const s=M.initial(),q=M.quote(s,'upgrade0');buy(s,'upgrade0');assert.equal(M.confirm(s,q,'stale').ok,false);buy(s,'flag');assert.equal(M.quote(s,'flag'),null);});
+test('cabin spends coins once and requires balance',()=>{const s=M.initial();assert.equal(M.cabin(s),false);buy(s,'coins350');assert.equal(M.cabin(s),true);assert.equal(s.coins,100);assert.equal(M.cabin(s),false);});

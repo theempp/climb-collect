@@ -569,7 +569,7 @@ reqEv.OnServerEvent:Connect(function(plr, action, payload)
 		return
 	end
  local s=ctx.sessions[plr]
- if s and (s.pending or s.busy or s.saving or s.outcomePending) and action~="traversal" and action~="bankRetry" then
+ if s and (s.pending or s.busy or s.saving or s.outcomePending) and action~="traversal" and action~="movement" and action~="bankRetry" then
   ctx.toast(plr,"Finishing a save. Please try again in a moment.","info") return
  end
  local h = ctx.handlers[action]
@@ -604,7 +604,7 @@ end
 ---------------------------------------------------------------- gameplay modules (B)
 -- v4 P4 (run 2): Gear (shop, kit, canisters, Summit Points), Coop (rescue + party ropes), Training (Yard annex),
 -- Weather (day/night + weather states)
-for _, name in ipairs({ "Visuals", "Cargo", "DropPacks", "Camps", "Claims", "Nests", "Tutorial", "Gear", "Traversal", "Coop", "Training", "Home", "Discovery", "Weather", "CommerceCosmetics", "CommerceDisplays", "Commerce", "PublicProfile", "DailyPractice", "ExpeditionRun", "SummitFinish" }) do
+for _, name in ipairs({ "Visuals", "Cargo", "DropPacks", "Camps", "Claims", "Nests", "Tutorial", "Gear", "Movement", "Traversal", "Coop", "Training", "Home", "Discovery", "Weather", "CommerceCosmetics", "CommerceDisplays", "Commerce", "PublicProfile", "DailyPractice", "ExpeditionRun", "SummitFinish" }) do
 	local m = SrvF:FindFirstChild(name)
 	if m then
 		local ok, mod = pcall(require, m)
@@ -728,7 +728,7 @@ if Run:IsStudio() then
 		end
 		return true
 	end
-	-- fast bots (WalkSpeed > 12) scale the bank travel check; Studio only
+	-- Legacy bot timing metadata only; active movement/bank validation never consumes this.
 	ctx.devHandlers.botSpeed = function(_, p)
 		ctx.devSpeed = math.clamp(tonumber(p.factor) or 1, 1, 6)
 		return ctx.devSpeed

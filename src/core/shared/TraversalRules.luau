@@ -28,9 +28,12 @@ function R.checkpointAllowed(mode, grounded, route, campIndex, highestCamp)
 	if not grounded or route == "Ledge" or route == "Spire" then return false end
 	return not campIndex or campIndex <= (highestCamp or 0) + 1
 end
-function R.movementAllowed(horizontal,upward,elapsed)
-	return R.finite(horizontal) and R.finite(upward) and R.finite(elapsed)
-		and horizontal<=math.max(18,elapsed*42+8) and upward<=math.max(14,elapsed*20+8)
+function R.movementAllowed(horizontal,upward,elapsed,approvedSpeed)
+ approvedSpeed=approvedSpeed or 16
+ return R.finite(horizontal) and R.finite(upward) and R.finite(elapsed) and R.finite(approvedSpeed)
+  and horizontal>=0 and elapsed>=0 and approvedSpeed>=0
+  and horizontal<=math.max(18,math.min(elapsed,1)*approvedSpeed*1.25+8)
+  and upward<=math.max(14,math.min(elapsed,1)*20+8)
 end
 -- Static route segments are binned once; runtime queries only inspect the player's cell.
 -- Numeric coordinates keep this geometry testable without a Roblox runtime.

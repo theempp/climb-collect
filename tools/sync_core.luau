@@ -7,6 +7,12 @@ local HS = game:GetService("HttpService")
 local BASE = "http://127.0.0.1:8771/"
 local only = nil
 local MAN = {
+ { "src/core/shared/MovementConfig.luau", "ReplicatedStorage/CC_Core", "MovementConfig", "ModuleScript" },
+ { "src/core/shared/MovementRules.luau", "ReplicatedStorage/CC_Core", "MovementRules", "ModuleScript" },
+ { "src/core/server/Movement.luau", "ServerScriptService/CC_CoreServer", "Movement", "ModuleScript" },
+ { "src/core/server/MovementTests.luau", "ServerScriptService/CC_CoreServer", "MovementTests", "ModuleScript" },
+ { "src/core/client/MovementClient.luau", "ReplicatedStorage/CC_Core/Client", "MovementClient", "ModuleScript" },
+ { "tools/movement_checks.luau", "ReplicatedStorage/CC_DevTools", "MovementChecks", "ModuleScript" },
  { "src/world/FairgroundFinish.luau", "ServerStorage/CC_Generators", "FairgroundFinish", "ModuleScript" },
  { "src/world/ShepherdClearanceWalk.luau", "ServerStorage/CC_Generators", "ShepherdClearanceWalk", "ModuleScript" },
  { "src/core/shared/SummitFlight.luau", "ReplicatedStorage/CC_Core", "SummitFlight", "ModuleScript" },

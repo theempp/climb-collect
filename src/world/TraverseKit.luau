@@ -77,7 +77,7 @@ rp.FilterType = Enum.RaycastFilterType.Include
 rp.FilterDescendantsInstances = { workspace.Terrain }
 -- terrain height under (x, z); unlike Gen.heightAt it sees carved terrain
 function Ctx:ground(x, z, fromY)
-	fromY = fromY or 2300
+	fromY = fromY or C.TOP
 	local r = workspace:Raycast(Vector3.new(x, fromY, z), Vector3.new(0, -fromY - 50, 0), rp)
 	return r and r.Position.Y or self.Gen.heightAt(x, z)
 end
