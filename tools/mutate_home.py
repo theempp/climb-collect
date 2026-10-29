@@ -29,6 +29,7 @@ M = [  # (file, old, new, gate)
  ('shared/Tycoon.luau', "if path=='habitat' and level+1>comfortCap(p) then", "if false then", 'comfort tier cap'),
  ('shared/TycoonConfig.luau', "costs={50,120,250,450}}", "costs={50,120,250,450,750,1200}}", 'six module cap'),
  ('shared/ExplorerRules.luau', "e.repeatXp+=X.secureFor(species)", "e.repeatXp+=10*k", 'secure XP by rarity'),
+ ('shared/ExplorerRules.luau', "e.secures=math.min(e.secures+1,X.secureCountMax);e.repeatXp+=X.secureFor(species)", "if e.secures<20 then e.secures+=1;e.repeatXp+=X.secureFor(species) end", 'no daily secure cap (STOP 3)'),
  ('server/UIRequests.luau', "if not context.atHome or not context.atHome(player) then return false,'Use your own sanctuary plot.' end\n   if P.pending", "if P.pending", 'Home needs own plot'),
  ('server/UIRequests.luau', "   if p.run then return false,'Finish your current creature run first.' end\n   local bought", "   local bought", 'Home refused mid-run'),
  ('server/UIRequests.luau', "if now<(inspectAt[player] or -math.huge) then return false,'Please wait a moment.' end;", "", 'Inspect rate limit'),

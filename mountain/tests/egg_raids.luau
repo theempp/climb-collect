@@ -37,7 +37,7 @@ exit=false;failSave=false;now+=120;e.forfeit(b,'reset');e.strike(b,'b')
 available=false;now+=120;e.tick(now);available=true;e.tick(now)
 check(not ps[b].run,'expiry_deferred_until_mutation_resumes')
 now+=120;check(e.strike(b,'b'),'failed_save_expiry_does_not_strand_full_hands')
--- Player XP on secure (C3, C4; home-base P2 rarity table): Common 6 once, +50 new species, Trial only its derived 150k, stolen 0, 20/day.
+-- Player XP on secure (C3, C4; home-base P2 rarity table): Common 6 once, +50 new species, Trial only its derived 150k, stolen 0, no daily cap (STOP 3).
 local X=require('../shared/ExplorerRules')
 local day=20000;local c={UserId=3};local d={UserId=4};local twice=false;local huds={}
 ps[c]=R.newProfile(100);ps[d]=R.newProfile(100);alive[c]=true;alive[d]=true;distance[c]=0;distance[d]=0;exit=false;failSave=false
@@ -82,8 +82,8 @@ for _,bad in ipairs({'junk',{repeatXp=0/0,secures=-4,day=-1,species='x',won=5}})
  ps[c].explorer=bad;local okM,whyM,_,addedM=bank(c,carry(c,'s1'))
  check(okM and whyM=='secured' and addedM==1 and not ps[c].run and type(ps[c].explorer)=='table','malformed_explorer_secures_once_'..type(bad))
 end
--- Daily cap: the 21st secure of the day pays 0; the next day pays again.
+-- No daily cap: the 21st secure of the day still pays; the next day resets the count.
 ps[c].explorer.secures=20;ps[c].explorer.day=day
-local okC,_,gainC=bank(c,carry(c,'s1'));check(okC and gainC==0 and ps[c].explorer.secures==20,'twenty_first_secure_pays_0')
+local okC,_,gainC=bank(c,carry(c,'s1'));check(okC and gainC==6 and ps[c].explorer.secures==21,'twenty_first_secure_pays')
 day+=1;local _,_,gainN=bank(c,carry(c,'s1'));check(gainN==6 and ps[c].explorer.secures==1,'next_day_secure_pays')
 print('PASS '..n..' egg raid checks')

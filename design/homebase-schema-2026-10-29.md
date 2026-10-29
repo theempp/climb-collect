@@ -1,6 +1,6 @@
 # Home-base schema and rules (P2) — 2026-10-29
 
-Code: `mountain/shared/HomeTiers.luau` (data), `mountain/shared/HomeRules.luau` (pure rules), wired in `Profiles.luau`, `Tycoon.luau`, `ExplorerRules.luau`, `UIProtocol.luau`, `UIRequests.luau`, `Main.server.luau`. Commit `88eb572`. Every number below is **PROPOSED** until STOP 3.
+Code: `mountain/shared/HomeTiers.luau` (data), `mountain/shared/HomeRules.luau` (pure rules), wired in `Profiles.luau`, `Tycoon.luau`, `ExplorerRules.luau`, `UIProtocol.luau`, `UIRequests.luau`, `Main.server.luau`. Commit `88eb572`. **STOP 3 approved (owner popup, 2026-10-29)**: tiers, props, rarity XP and migration as built, except the secure daily cap is removed (owner: players should have a reason to grind).
 
 ## `p.home` (v1)
 ```
@@ -42,7 +42,7 @@ p.home = { v = 1, tier = 1..4,
 - Robux-origin creatures may be displayed (looks only, earn nothing).
 
 ## Secure XP by rarity (replaces `10 x section`)
-Common 6 · Uncommon 12 · Rare 30 · Epic 70 · Mythic 150 · Legendary 0 (never an egg; Trials keep their derived 150k). Unchanged: first carrier only (stolen = 0), 20 secures/day, +50 new ledger species, Robux origin 0. Daily max 20 x 150 = 3,000 XP (all Mythic; the plan's "1,400" assumed Epic). Stored `explorer.repeatXp` shape unchanged: no XP migration.
+Common 6 · Uncommon 12 · Rare 30 · Epic 70 · Mythic 150 · Legendary 0 (never an egg; Trials keep their derived 150k). **No daily cap** (STOP 3): every secure pays; `explorer.secures` is only today's count (resets daily, bounded at 1,000,000 for storage; an older build clamps it to 20 without refusing the load). Unchanged: first carrier only (stolen = 0), +50 new ledger species, Robux origin 0, total XP cap L50 = 49,980. Repeat Guardian wins keep their 5/day. Stored `explorer.repeatXp` shape unchanged: no XP migration.
 
 ## Habitats capped at 6 (owner Q10) — load migration table
 `TycoonConfig.habitats.costs` = {50,120,250,450} (modules 7-8 at 750/1,200 removed). Stored array stays 8 entries; `T.snapshot` shows 6.
@@ -68,4 +68,4 @@ Idempotent: a replayed UpdateAsync or a later load pays nothing more. Coins clam
 Refusals return a message and change nothing. `s.ui.home` = `{tier,name,habitatCap,usable,slots,decor[1..14]|false,stock,next={tier,name,rank,fee,level,ready,reason}}`.
 
 ## Tests (all pass, 42/42 suites)
-New: `home_rules` 91, `home_profile` 15. Extended: `explorer_rules` 115 (was 111), `egg_raids` 36, `tycoon` 71, `tycoon_economy` 109, `ui_protocol` 126 (95), `ui_server` 87 (66), `run_persistence` 73 (61). Mutation check `tools/mutate_home.py`: 30/30 gates killed (`evidence/homebase_2026-10-29/p2/mutation.json`).
+New: `home_rules` 91, `home_profile` 15. Extended: `explorer_rules` 116 (was 111), `egg_raids` 36, `tycoon` 71, `tycoon_economy` 109, `ui_protocol` 126 (95), `ui_server` 87 (66), `run_persistence` 73 (61). Mutation check `tools/mutate_home.py`: 31/31 gates killed (incl. the removed daily cap) (`evidence/homebase_2026-10-29/p2/mutation.json`).

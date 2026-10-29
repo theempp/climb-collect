@@ -26,7 +26,7 @@ local full=fresh();for k=1,6 do for _,kind in ipairs({'entrance','recovery','gua
 local pool=0;for _,sp in ipairs(C.species) do if X.ledgerable(sp.id) then full.explorer.species[sp.id]=true;pool+=1 end end
 check(pool==33 and X.xp(full)==8475,'one_time_pool_8475_over_33_species')
 check(not X.ledgerable('mossbun') and not X.ledgerable('petalyn') and not X.ledgerable('fernox') and not X.ledgerable('floravelle') and not X.ledgerable('nope') and not X.ledgerable(7) and X.ledgerable('glimfox'),'ledger_pool_excludes_starters_legendary_unknown')
--- X4/X5 (home-base P2): secure pays by rarity (20/day); a new ledgerable species +50 on first insert only.
+-- X4/X5 (home-base P2): secure pays by rarity, no daily cap (STOP 3); a new ledgerable species +50 on first insert only.
 check(X.secureXp.Common==6 and X.secureXp.Uncommon==12 and X.secureXp.Rare==30 and X.secureXp.Epic==70 and X.secureXp.Mythic==150 and X.secureXp.Legendary==nil,'secure_rarity_table')
 check(X.secureFor('mossbun')==6 and X.secureFor('fernox')==12 and X.secureFor('glimfox')==30 and X.secureFor('thorncub')==70 and X.secureFor('floramoth')==150,'secure_for_species')
 check(X.secureFor('caeloryn')==0 and X.secureFor('nope')==0 and X.secureFor(nil)==0 and X.secureFor(7)==0,'secure_for_legendary_unknown_is_0')
@@ -39,10 +39,11 @@ check(X.award(p,'secure',1,D,'glimfox')==30 and X.award(p,'secure',1,D,'mossbun'
 check(X.award(p,'secure',6,D,'caeloryn')==0 and not p.explorer.species.caeloryn,'legendary_never_in_ledger_and_pays_0')
 p=fresh();p.explorer.secures=19;p.explorer.day=D
 check(X.award(p,'secure',2,D,'mossbun')==6 and p.explorer.secures==20,'twentieth_secure_pays')
-p=fresh();for i=1,25 do X.award(p,'secure',1,D,'floramoth') end
-check(p.explorer.secures==20 and p.explorer.repeatXp==3000,'daily_secure_max_20_mythic_3000')
-check(X.award(p,'secure',2,D,'mossbun')==0 and p.explorer.secures==20,'secure_cap_20_per_day')
-check(X.award(p,'secure',2,D,'coralfen')==50 and p.explorer.species.coralfen,'capped_secure_still_ledgers_a_new_species')
+check(X.award(p,'secure',2,D,'mossbun')==6 and p.explorer.secures==21,'no_daily_cap_twenty_first_pays')
+p=fresh();for i=1,100 do X.award(p,'secure',1,D,'floramoth') end
+check(p.explorer.secures==100 and p.explorer.repeatXp==15000,'hundred_mythic_secures_pay_15000')
+check(X.award(p,'secure',2,D,'coralfen')==62 and p.explorer.species.coralfen,'late_secure_pays_and_ledgers')
+p.explorer.secures=X.secureCountMax;check(X.award(p,'secure',2,D,'mossbun')==6 and p.explorer.secures==X.secureCountMax,'count_bounded_never_the_xp')
 -- X2/X3: first win per section 100k (derived from won), repeats 10k up to 5/day.
 p=fresh()
 check(X.award(p,'win',2,D)==200 and p.explorer.won['2'] and p.explorer.repeats==0,'first_win_100k')
@@ -63,7 +64,7 @@ for _,bad in ipairs({'junk',42,true,{repeatXp=0/0,day=-3,secures=-9,repeats=1e9,
  p=fresh();p.explorer=bad
  local ok=pcall(X.ensure,p,D)
  local e=p.explorer
- check(ok and type(e)=='table' and e.v==1 and e.repeatXp>=0 and e.repeatXp==math.floor(e.repeatXp) and e.day>=0 and e.secures>=0 and e.secures<=20 and e.repeats>=0 and e.repeats<=5,'malformed_normalized_'..type(bad))
+ check(ok and type(e)=='table' and e.v==1 and e.repeatXp>=0 and e.repeatXp==math.floor(e.repeatXp) and e.day>=0 and e.secures>=0 and e.secures<=X.secureCountMax and e.repeats>=0 and e.repeats<=5,'malformed_normalized_'..type(bad))
  for id in pairs(e.species) do check(X.ledgerable(id),'malformed_species_dropped') end
  for key in pairs(e.won) do check(key=='1' or key=='2' or key=='3' or key=='4' or key=='5' or key=='6','malformed_won_keys_dropped') end
 end

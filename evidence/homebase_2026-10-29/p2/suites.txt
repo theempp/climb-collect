@@ -4,7 +4,7 @@ PASS bat_rules.luau | PASS 30 bat rules checks
 PASS compact_geometry.luau | PASS compact geometry: six connected sections, shorter route, preserved escape and hazard 
 PASS egg_raids.luau | PASS 36 egg raid checks
 PASS entrances_cli.luau | PASS 19 entrance geometry checks
-PASS explorer_rules.luau | PASS 115 explorer rules checks
+PASS explorer_rules.luau | PASS 116 explorer rules checks
 PASS free_climb_geometry.luau | PASS 62 free climb geometry checks
 PASS guardian_rules.luau | PASS 12 guardian state checks
 PASS home_layout.luau | PASS 105 home layout checks (farthest spawn-to-gate 534 studs)

@@ -1,7 +1,8 @@
 -- Player (explorer) XP (Glassbloom P2 §2). One-time XP is derived on every read from durable flags
 -- (rest-point discoveries, explorer.won, the species ledger, Trial captures); only capped repeat XP is stored.
 local C=if script then require(script.Parent.Catalog) else require('./Catalog')
-local X={cap=49980,maxLevel=50,secureCap=20,repeatCap=5,restKinds={entrance=true,recovery=true,guardian=true}}
+-- STOP 3 (owner): secures have no daily XP cap; `secures` is only today's count (bounded for storage).
+local X={cap=49980,maxLevel=50,secureCountMax=1000000,repeatCap=5,restKinds={entrance=true,recovery=true,guardian=true}}
 X.starters={mossbun=true,petalyn=true,fernox=true}
 -- Home-base P2 (PROPOSED): a secure pays by the creature's rarity, not its section. Legendary is never an egg (Trials stay derived).
 X.secureXp={Common=6,Uncommon=12,Rare=30,Epic=70,Mythic=150}
@@ -51,7 +52,7 @@ end
 -- creatures (origin nil, ledgerable), won from p.wins. Unknown ids and non-true values are dropped.
 local function normalize(p)
  local e=if type(p.explorer)=='table' then p.explorer else {}
- local n={v=1,repeatXp=count(e.repeatXp,X.cap),day=if finite(e.day) and e.day>=0 then math.floor(e.day) else 0,secures=count(e.secures,X.secureCap),repeats=count(e.repeats,X.repeatCap),species={},won={}}
+ local n={v=1,repeatXp=count(e.repeatXp,X.cap),day=if finite(e.day) and e.day>=0 then math.floor(e.day) else 0,secures=count(e.secures,X.secureCountMax),repeats=count(e.repeats,X.repeatCap),species={},won={}}
  if type(e.species)=='table' then for id,v in pairs(e.species) do if v==true and X.ledgerable(id) then n.species[id]=true end end
  elseif type(p.creatures)=='table' then for _,c in ipairs(p.creatures) do if type(c)=='table' and c.origin==nil and X.ledgerable(c.species) then n.species[c.species]=true end end end
  if type(e.won)=='table' then for k=1,6 do if e.won[tostring(k)]==true then n.won[tostring(k)]=true end end
@@ -70,7 +71,7 @@ function X.ensure(p,today)
 end
 -- Total: never errors, never returns false; returns the XP gained (0 when nothing is paid).
 -- kind 'win' (k = section): first engaged win sets won[k] (100k, derived), later ones pay 10k up to 5/day.
--- kind 'secure' (k = run.section): X.secureXp[rarity] up to 20/day; species is first-inserted into the ledger (+50, derived).
+-- kind 'secure' (k = run.section): X.secureXp[rarity], no daily cap; species is first-inserted into the ledger (+50, derived).
 function X.award(p,kind,k,today,species)
  local ok,gained=pcall(function()
   local before=X.xp(p);local e=normalize(p);p.explorer=e
@@ -81,7 +82,7 @@ function X.award(p,kind,k,today,species)
    if not e.won[tostring(k)] then e.won[tostring(k)]=true
    elseif e.repeats<X.repeatCap then e.repeats+=1;e.repeatXp+=10*k end
   elseif section and kind=='secure' then
-   if e.secures<X.secureCap then e.secures+=1;e.repeatXp+=X.secureFor(species) end
+   e.secures=math.min(e.secures+1,X.secureCountMax);e.repeatXp+=X.secureFor(species)
    if X.ledgerable(species) then e.species[species]=true end
   end
   e.repeatXp=math.min(e.repeatXp,math.max(0,X.cap-X.derived(p)))

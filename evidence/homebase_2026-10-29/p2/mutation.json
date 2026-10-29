@@ -1,6 +1,6 @@
 {
- "mutants": 30,
- "killed": 30,
+ "mutants": 31,
+ "killed": 31,
  "rows": [
   {
    "gate": "tier rank gate",
@@ -119,6 +119,11 @@
   },
   {
    "gate": "secure XP by rarity",
+   "file": "shared/ExplorerRules.luau",
+   "caught_by": "explorer_rules.luau"
+  },
+  {
+   "gate": "no daily secure cap (STOP 3)",
    "file": "shared/ExplorerRules.luau",
    "caught_by": "explorer_rules.luau"
   },

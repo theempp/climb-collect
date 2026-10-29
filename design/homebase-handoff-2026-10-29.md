@@ -34,3 +34,4 @@ Plan: `design/homebase-build-plan-2026-10-29.md` (§6 owner answers). Branch `co
 - Gotcha: the Bash tool unescapes `\` and `\n` inside heredocs; write patch scripts with Write, then run them.
 - Not live-verified (needs coins/XP fixtures in Play): successful tier raise and prop buy, 7-8 refund on a real saved profile. Covered by run_persistence/ui_server.
 - Open: no player notice for the 7-8 refund (P6); `TycoonWorld` still builds 8 habitat pads (P4 rewrite).
+- **STOP 3 approved** (owner popup): all as built except **no daily secure-XP cap** (owner wants grind; monetisation later). `ExplorerRules.secureCountMax` bounds the daily counter only. 42/42 suites (explorer_rules 116), 31/31 mutants.
