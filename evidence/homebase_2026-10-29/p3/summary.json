@@ -1,0 +1,15 @@
+{
+ "phase": "P3 layout C grey-box", "date": "2026-10-29",
+ "studio_id": "2b170ad3-ccbf-4036-910c-158f7a568684",
+ "asserts": {"PlaceId": 0, "StudioAids": false, "HttpEnabled": false},
+ "commits": ["5002538 atlas intel v2", "5785a99 HomeLayout layout C + tests + scene check", "3fdae1f HomeCommons v2 grey-box"],
+ "layout_tests": "PASS 230 home layout checks (farthest spawn-to-gate 422 studs)",
+ "scene_check": {"checks": 1349, "failures": 0},
+ "walk": {"passed": true, "legs": 121, "failures": 0, "walkSpeed": 16, "homeToGate_s": [8.7, 8.6, 14.6, 14.6, 23.2, 23.2, 29.1, 29.2]},
+ "instances_edit": {"place": 15095, "P0_place": 15812, "delta": -717, "sanctuary": 2059, "P0_sanctuary": 2780, "homeCommons": 776, "v1_promenade_removed_parts": 1463, "commons_parts": 761, "per_plot": "folder 11 + lodge 128 + 17-18 shell parts in rect (~157) <= 750"},
+ "home_views": {"median_ms": "16.5-16.8", "drawcalls": "150-283 (P0 222-525)", "note": "views 5-7 p95/worst include 15 FPS throttle frames while the Claude app took focus; medians unaffected; desktop, not a device measurement"},
+ "drift": "64/65 (StudioTests absent by design)",
+ "console_play": "0 errors / 0 warnings",
+ "incident": "22:51 an external RobloxStudioInstaller.exe ran and crashed (WER 1000/1001), closing both Studio windows incl. the integration Glassbloom window (not opened, synced or saved by this chat). HomeBase file hash unchanged (4017297b...), relaunched and re-synced.",
+ "not_saved": "copy not saved (save after STOP 4 approval)"
+}
