@@ -113,4 +113,7 @@ S.caps={
 }
 S.sign={maxDistance=45,radius=11,stroke=1.5,textSize=12} -- B4
 S.fonts={display='LuckiestGuy',body='FredokaOne'} -- A Fonts (GB:227, 229)
+-- C world.tierup: the server swaps the House at this point of the swirl (inside 2.5-4.5, PLAN:162 ~3.0 s), independent
+-- of any client. Shared so the client driver hides the arriving House until its reconstruct beat.
+S.tierUpSwap=3.0
 return S

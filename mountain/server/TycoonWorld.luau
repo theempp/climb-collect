@@ -206,13 +206,24 @@ function W.new(home)
  -- B11 home: House rebuilt only on a tier change; banner + ring only with a rank band (recoloured in place on a band
  -- change). Plot attributes DevTier / DevRank (Studio dev action below) win over the profile; any override shows the
  -- plot undimmed. Unowned, no override: dimmed Hut, no banner / ring, CrestGem untagged.
- local function setHome(plot)
+ local TIER={};for i,k in ipairs(Kit.houseTiers) do TIER[k]=i end
+ local function setHome(plot,swapNow)
   local h,p=plot.home,plot.owned and plot.profile
   local dt,dr=plot.model:GetAttribute('DevTier'),plot.model:GetAttribute('DevRank')
   local key=Kit.houseTiers[dt or (p and HR.tier(p)) or 1];local level=dr or (p and X.summary(p).level)
-  if h.key~=key then
-   if h.house then h.house:Destroy() end
-   h.house=Kit.house(plot.root,h.cf,key);remember(h.house);h.key=key;h.dimmed=nil;h.crest=nil
+  if h.key~=key and not h.swap then
+   -- C world.tierup: a raise on a shown (undimmed) plot keeps the old House for S.tierUpSwap s while clients play the
+   -- swirl from TierUpAt (server time); then the swap. Tier down, clear and first show swap at once.
+   if not swapNow and h.house and h.dimmed==false and TIER[key]>TIER[h.key] then
+    plot.model:SetAttribute('TierUpFrom',h.key);plot.model:SetAttribute('TierUpTo',key);plot.model:SetAttribute('TierUpAt',workspace:GetServerTimeNow())
+    -- QA time scale (evidence only, StudioAids): the client reads the same k (Motion.speed) for its beats.
+    local RS=game.ReplicatedStorage;local k=if RS:GetAttribute('StudioAids')==true then RS:GetAttribute('MotionTimeScale') else nil
+    k=if type(k)=='number' and k>0 then k else 1
+    h.swap=true;task.delay(S.tierUpSwap/k,function() h.swap=nil;setHome(plot,true) end)
+   else
+    if h.house then h.house:Destroy() end
+    h.house=Kit.house(plot.root,h.cf,key);remember(h.house);h.key=key;h.dimmed=nil;h.crest=nil
+   end
   end
   local crest=plot.owned==true
   if h.crest~=crest then h.house.CrestGem:SetAttribute('WorldMotion',if crest then 'crestPulse' else nil);h.crest=crest end

@@ -123,6 +123,18 @@ M.tokens={
  ['reveal.slam']={kind='shot',at=3.8,dur=.5,ease='back',keys={{0,a=0,s=2.6,y=12},{.4,a=1,s=1},{.5,y=12},{.5,y=0}}},
  ['reveal.name']={kind='shot',at=4.3,dur=.4,ease='ease',keys={{0,a=0,y=10},{.4,a=1,y=0}}}, -- L349-352
  ['reveal.cta']={kind='shot',at=5.7,dur=.4,ease='ease',keys={{0,a=0,y=12,s=.9},{.4,a=1,y=0,s=1}}}, -- L353-354
+ -- World tokens (home-base P7, kind='world'): data only, read by WorldFx.client.luau (the one world-motion driver). No keys /
+ -- dur / steps / show, so play, show, to, value, loops, scan and the reveal timeline all pass them by (they test kind / keys /
+ -- dur). Beats in s of effect time from the plot's TierUpAt (WorldFx: (server now - TierUpAt) * M.speed()).
+ ['world.tierup']={kind='world',endT=6.5,reducedFade=.15, -- homebase-world-style-intel §C world.tierup (hold 6.5, Reduce .15 s crossfade)
+  beats={idle={0,1},anticipation={1,1.5},deconstruct={1.5,2.5},swirl={2.5,4.5},contract={4.5,5},reconstruct={5,6},hold={6,6.5}}, -- homebase-intel §D beats 1-7
+  caps={high={cubes=48,orbs=10},med={cubes=24,orbs=5}},visitor=.5,visitorRange=150,rings=3, -- homebase-intel §F VFX cube pool (PLAN:76); rings: P7 brief
+  -- Shape (PROPOSED, no spec source; owner check at STOP 8). Radii x half the old House footprint (max of x / z bounding size / 2).
+  shape={cube=2.2,orb=1.2,ringStart=1.05,ringOrbit=1.35,ringGap=2.5,ringLine=.35,ringThick=.9,ringH=.2,ringT=.3,ringPulse=.15,
+   shockFrom=.6,shockTo=2.4,cloud=1,cloudJitter=.2,cloudLow=.2,cloudHigh=.7,orbR=.7,orbLow=.55,orbHigh=.85,lift=6,
+   spin=1.6,orbSpin=2.4,ringSpin=.8,tumble=2,contract=.35,lagMax=.5,wave=.5,cubeFade=.6,orbIn=.3,fill=.8},
+  pulse=1.2, -- ring / orb glow period = the `pulse` token's reversing cycle (.6 s x 2, L39/L253)
+  ease={widen='out',lift='inOut',shock='out',contract='inOut',settle='out',reveal='out',fade='linear'}}, -- M.ease keys; reveal / settle = entries (ease-out)
 }
 for k,v in pairs(M.tokens) do v.id=k;if v.show then v.show.id=k..'.show' end;if v.hide then v.hide.id=k..'.hide' end end -- stats names
 local AUTO_SHOT={toast=true,banner=true,moment=true,['carry.pop']=true,['carry.iconTwist']=true,['run.slam']=true,['run.awake']=true,['run.shock']=true}
@@ -135,6 +147,10 @@ local function readScale() local v=RS:GetAttribute('MotionTimeScale');M.timeScal
 readScale();RS:GetAttributeChangedSignal('MotionTimeScale'):Connect(readScale)
 local function speed() return if RS:GetAttribute('StudioAids')==true then M.timeScale else 1 end
 function M.setTimeScale(v) RS:SetAttribute('MotionTimeScale',if type(v)=='number' and v>0 then v else nil) end
+-- The playback speed in force now (1 live). World effects read it once at start, the server's tier swap delay uses the same rule.
+M.speed=speed
+-- Eased value of u in 0..1 for a M.ease key (world drivers step their own clock; TweenService stays in this module).
+function M.eased(name,u) local e=E[name or 'out'];return TS:GetValue(math.clamp(u,0,1),e[1],e[2]) end
 function M.after(sec,fn) return task.delay(sec/speed(),fn) end
 -- fn on a later frame than the current one, whatever phase calls it (input or Heartbeat): the second Heartbeat hop is always the
 -- next frame. Keeps capture / loop work off a build frame.
@@ -146,6 +162,15 @@ function M.reduced()
  return p.reducedMotion==true or p.simplifiedVFX==true or p.effectsTier==0 or (me~=nil and (me:GetAttribute('MountainReducedMotion')==true or me:GetAttribute('MountainSimplifiedVFX')==true))
 end
 function M.noRays() return (T.prefs or {}).effectsTier==0 end
+-- World VFX caps (homebase-intel §F): effectsTier 1 (nil = default 1, UIProtocol) = high, .5 = med, 0 or reduced = none;
+-- owner == false (a visitor within the token's visitorRange) gets the visitor share, floored. name defaults to world.tierup.
+function M.worldCaps(owner,name)
+ local tk=M.tokens[name or 'world.tierup'];local e=(T.prefs or {}).effectsTier;if type(e)~='number' then e=1 end
+ local c=tk and not M.reduced() and (if e>=1 then tk.caps.high elseif e>=.5 then tk.caps.med else nil)
+ if not c then return {cubes=0,orbs=0} end
+ local k=if owner==false then tk.visitor else 1
+ return {cubes=math.floor(c.cubes*k),orbs=math.floor(c.orbs*k)}
+end
 
 -- Tweens (stats count the ones playing).
 local live={}

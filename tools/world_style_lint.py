@@ -8,6 +8,7 @@ FILES = [  # (path, enabled) : TycoonWorld joined at S3, HomeCommons at S5
  ('mountain/shared/WorldPill.luau', True),
  ('mountain/server/TycoonWorld.luau', True),
  ('mountain/client/WorldPills.client.luau', True),
+ ('mountain/client/WorldFx.client.luau', True),
  ('mountain/world/HomeCommons.luau', False),
 ]
 BAN = re.compile(r'Color3\s*\.\s*(fromRGB|new|fromHSV|fromHex)\b|BrickColor|#[0-9A-Fa-f]{6}\b')
