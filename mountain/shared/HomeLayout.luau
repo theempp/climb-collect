@@ -49,8 +49,8 @@ L.contents={
  bank={x=31,z=-12,width=14,depth=8},
  hatchery={x=-29,z=26,size=14},
  pen={x=29,z=26,size=14},
- -- Reserved for the daily workout track (Q8, not built); too short for a run.
- workout={x=30,z=42,width=16,depth=4},
+ -- Reserved for the daily workout track (Q8, not built); too short for a run; kept clear of the side wall (x 37.2..40).
+ workout={x=29,z=42,width=14,depth=4},
  decorSize=3,
  decor={
   {x=-30,z=-44.5},{x=-22,z=-44.5},{x=-14,z=-44.5},{x=14,z=-44.5},{x=22,z=-44.5},{x=30,z=-44.5},
