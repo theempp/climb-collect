@@ -69,4 +69,26 @@ local big=P.nativeRect(jump,ref,{x=40,y=0,w=844,h=390},true)
 check(big.x==844-95 and big.y==390-90 and big.w==70,'native jump: resized root keeps the bottom-right distance')
 local stick=P.nativeRect({x=40+20,y=343-150,w=120,h=120},ref,{x=40,y=0,w=844,h=390},false)
 check(stick.x==20 and stick.y==390-150,'native thumbstick: resized root keeps the bottom-left distance')
+-- P7 R1: menus + hatch reveal: vertical from the screen edges (no double topbar inset), horizontal inside the root (device safe
+-- area). Emulator 844x391 with the topbar row (58) above the 844x333 root; iPhone 16 Pro root 750x343 in a 874x401 screen.
+local eroot,phone={x=0,y=0,w=844,h=333},{x=0,y=-58,w=844,h=391}
+local hp=P.hubPanel(eroot,phone)
+check(hp.y-phone.y==66 and hp.x==24 and hp.w==796 and hp.h==391-76,'hub panel: 66 top from the screen, 24 sides in the root')
+local iroot,ip={x=0,y=0,w=750,h=343},{x=-62,y=-58,w=874,h=401}
+local hi=P.hubPanel(iroot,ip)
+check(hi.x==24 and hi.w==702 and hi.x+hi.w==750-24 and hi.y==8 and hi.h==401-76,'hub panel: notch phone stays inside the safe area horizontally')
+check(not hp.short and not hi.short and P.hubPanel({x=0,y=0,w=844,h=390}).short==false and P.hubPanel({x=0,y=0,w=749,h=330}).short,'hub panel: compact rule on the screen height (< 390)')
+local wide=P.hubPanel({x=0,y=0,w=1920,h=1044},{x=0,y=-36,w=1920,h=1080})
+check(wide.w==850 and wide.h==660 and wide.x==535 and wide.y==-36+66+math.floor((1080-76-660)/2),'hub panel: capped 850x660, centred in the inset region')
+local ar=P.hubPanel({x=0,y=0,w=844,h=390});check(ar.y==66 and ar.h==314 and ar.x==24,'hub panel: audit root = screen keeps the 24 / 66 insets')
+local rv=P.revealFrame(eroot,phone)
+check(rv.scale==1 and rv.y==phone.y+.5 and rv.x==0,'reveal: 844x390 frame centred on the screen vertically at scale 1')
+local ri=P.revealFrame(iroot,ip)
+check(math.abs(ri.scale-750/844)<1e-9 and math.abs(ri.x)<1e-9 and ri.x+ri.w<=750+1e-9 and math.abs(ri.y-(-58+(401-390*ri.scale)/2))<1e-9,'reveal: notch phone scales to the root width, centred in the root')
+local rs=P.revealFrame({x=0,y=0,w=749,h=330});check(math.abs(rs.scale-330/390)<1e-9 and math.abs(rs.x-(749-844*rs.scale)/2)<1e-9,'reveal: scale min(1, root W/844, screen H/390)')
+-- P7 R5: coin-priced kit actions: short = "Need <shortfall>" (coin look), not ready / no price = the ghost.
+local st,lb=P.coinState(2500,300,true);check(st=='short' and lb=='Need 2,200','coin action: short reads Need + comma shortfall')
+check(P.coinState(25,25,true)=='buy' and P.coinState(25,nil,true)=='short','coin action: exact coins buy; no coins is short')
+check(P.coinState(25,0,false)=='off' and P.coinState(nil,999,true)=='off','coin action: unavailable or maxed is off, not short')
+check(P.comma(1000)=='1,000' and P.comma(27000)=='27,000' and P.comma(999)=='999','comma groups thousands like the Shop')
 print('PASS '..count..' UI presentation checks')

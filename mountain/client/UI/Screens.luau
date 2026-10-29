@@ -1,6 +1,7 @@
 local Players=game:GetService('Players')
 local GuiService=game:GetService('GuiService')
 local UIS=game:GetService('UserInputService')
+local RunService=game:GetService('RunService')
 local TextService=game:GetService('TextService')
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local R=require(game.ReplicatedStorage.MountainShared.Rules)
@@ -24,6 +25,11 @@ function S.new(root,store,feedback,onClose)
  self.touchBegin=UIS.TouchStarted:Connect(function(input) self.touches[input]=true end)
  self.touchEnd=UIS.TouchEnded:Connect(function(input) self.touches[input]=nil end)
  return self
+end
+-- Screen rect in root px (P7 R1): Controller sets self.screenRect (the full screen under CoreUISafeInsets); without it, the root.
+function S:screen()
+ local r=self.screenRect and self.screenRect();if r and r.w>0 and r.h>0 then return r end
+ local v=self.root.AbsoluteSize;return {x=0,y=0,w=v.X,h=v.Y}
 end
 -- `tab` (optional): a tab name, or a section key the content registers with S:section (e.g. Shop 'Free gifts').
 function S:open(name,tab)
@@ -58,6 +64,19 @@ function S:action(parent,name,label,action,payload,enabled,pos,size,variant)
  local b=W.button(parent,name,label,size or UDim2.new(1,-28,0,44),pos or UDim2.new(0,14,1,-56),function() self:send(action,if type(payload)=='function' then payload() else payload) end,variant or 'blue',enabled)
  table.insert(self.actionButtons,{button=b,action=action,enabled=enabled~=false,label=label});return b
 end
+-- P7 R5 (plan §14, intel §2 buy()): a coin-priced action. ready = available apart from coins; short -> the coin look reading
+-- "Need <shortfall>", a tap calls onShort (no request); not ready -> the disabled ghost as before. Same names / requests as S:action.
+function S:coinAction(parent,name,cost,label,action,payload,ready,pos,size,onShort)
+ local state,need=P.coinState(cost,self.store.profile and self.store.profile.coins,ready)
+ if state=='off' then return self:action(parent,name,label,action,payload,false,pos,size,'gold') end
+ local text=need or label
+ local b=W.button(parent,name,text,size or UDim2.new(1,-28,0,44),pos or UDim2.new(0,14,1,-56),function()
+  if state=='short' then if onShort then onShort() end else self:send(action,if type(payload)=='function' then payload() else payload) end
+ end,'gold',true)
+ W.coinLook(b);table.insert(self.actionButtons,{button=b,action=action,enabled=true,label=text});return b
+end
+-- Short-coins tap outside the Shop: open Shop › Coins (S:open lands on the Coins section).
+function S:openCoins() self:open('Shop','Coins') end
 -- Wrapped FO body text height at n px in a w px column (+2 slack) — sizes a compact strip so its text fits.
 local function wrapH(s,n,w) return math.ceil(TextService:GetTextSize(s,T.size(n),T.fontBody,Vector2.new(math.max(1,w),1e4)).Y)+2 end
 -- Info strip: navy inset with an illustrated icon, title and one short line; `reserve` keeps room on the right for a button.
@@ -178,14 +197,21 @@ end
 function S:syncTab()
  local body=self.body
  if not self.sectionMode or not body or not body.Parent or Motion.busy(body) then return end -- the tapped tab stays lit while the glide runs
- local names=tabs[self.hub];local y=body.CanvasPosition.Y;local first,last,active
+ local names=tabs[self.hub];local y=body.CanvasPosition.Y;local first,last,active,prev
+ -- P7 R2: a section added this frame is not laid out yet (its offset reads ≈ the scroll), so offsets must rise in tab order;
+ -- the first one that doesn't ends the scan.
  for _,n in ipairs(names) do
   local s=self.sections[n]
-  if s and s.tab then first=first or n;last=n;local o=self:sectionOffset(n);if o and o-10<=y then active=n end end
+  if s and s.tab then
+   local o=self:sectionOffset(n);if o and prev and o<prev then break end
+   first=first or n;last=n;if o then prev=o;if o-10<=y then active=n end end
+  end
  end
  local canvas,window=body.AbsoluteCanvasSize.Y,body.AbsoluteWindowSize.Y
  if last and not self.sectionsPending and canvas>window+1 and y>=canvas-window-1 then active=last end
  active=active or first
+ -- P7 R2: until the player scrolls, a landing on a tab keeps that tab lit (late section layout can't steal it).
+ local land=self.landing;if land and land.key and self.sections[land.key] and self.sections[land.key].tab then active=land.key end
  if active and active~=self.tab then self.tab=active;self:highlight(active) end
 end
 -- Side footer CTA (board .side .btn, L186: h 36, LG 16) pinned under the tabs, outside the Tabs scroll (which gives up 36 + gap 5).
@@ -227,20 +253,21 @@ function S:render(preserve)
  self.tickers={};self.actionButtons={};self.sections={};self.tabButtons={};self.landing=nil;self.footer=nil
  -- Progressive content (Shop): restoreY = the scroll a refresh restores, so the content can build that view synchronously.
  self.complete=nil;self.sectionsPending=nil;self.restoreY=if preserve then scroll.Y else nil
- local data=self.store.profile;local view=self.root.AbsoluteSize
+ local data=self.store.profile;local scr=self:screen();local rv=self.root.AbsoluteSize
  -- Glassbloom (intel §2 panel(), L177-181): mtint backdrop (no blur; the world shows through), glass panel r22 (shop: gold glass).
- self.shade=W.frame(self.root,'HubShade',UDim2.fromScale(1,1));W.tint(self.shade,T.gradMtint);self.shade.ZIndex=20;self.shade.Active=true
- -- G14 (plan §17): board insets 24 sides / 66 top / 10 bottom up to 850×660, then that size, centred in the inset region.
- local width=math.min(850,view.X-48);local height=math.min(660,view.Y-76)
- local px=math.floor((view.X-width)/2);local py=66+math.floor((view.Y-76-height)/2)
+ -- P7 R1: the shade covers the whole screen (board tint is full-screen), so no untinted band sits over the topbar row.
+ self.shade=W.frame(self.root,'HubShade',UDim2.fromOffset(scr.w,scr.h),UDim2.fromOffset(scr.x,scr.y));W.tint(self.shade,T.gradMtint);self.shade.ZIndex=20;self.shade.Active=true
+ -- G14 (plan §17): board insets 24 sides in the root (device safe area) / 66 top / 10 bottom from the screen edges up to
+ -- 850×660, centred (P.hubPanel).
+ local panel=P.hubPanel({x=0,y=0,w=rv.X,h=rv.Y},scr);local width,height=panel.w,panel.h
  local shop=self.hub=='Shop'
- local f=W.glass(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.fromOffset(px,py),{radius=T.r.panel,variant=if shop then 'shop' else nil,glow=if shop then nil else T.glowGlass});f.ZIndex=21
+ local f=W.glass(self.shade,'Hub',UDim2.fromOffset(width,height),UDim2.fromOffset(panel.x-scr.x,panel.y-scr.y),{radius=T.r.panel,variant=if shop then 'shop' else nil,glow=if shop then nil else T.glowGlass});f.ZIndex=21
  local title=if self.detail then 'Creature details' else self.hub
  if self.hub=='Creatures' and not self.detail then local owned={};for _,c in ipairs(data.creatures) do owned[c.species]=true end;local n=0;for _ in pairs(owned) do n+=1 end;title='Creatures '..n..'/'..#C.species end
  self:titlePlate(f,string.upper(title))
  -- X (L181): 36 circle at top −13 / right −10; the 44 hit button is centred on it. Back leaves a creature detail first.
  local back=W.closeX(f,'Back',UDim2.new(1,10-36-4,0,-13-4),function() self:back() end);back.ZIndex=3;back:SetAttribute('Overhang',true)
- local short=view.Y<390;self.compact=short
+ local short=panel.short;self.compact=short
  self.sectionMode=sectionHubs[self.hub]==true and not self.detail
  -- Columns (L177-179): padding 26 top / 12 sides+bottom, side column 128, gap 12, scroll area = the rest.
  local side=128;local sx=12+side+12;local sw=width-sx-12;local sh=height-26-12
@@ -351,7 +378,7 @@ function S:creatures(data,width)
   local pw=math.floor((cw-36)/2)
   W.pill(train,'Coin','15',pw,26,UDim2.fromOffset(14,40))
   W.pill(train,'Scroll','+80 XP',pw,26,UDim2.fromOffset(cw-14-pw,40))
-  if at then self:action(train,'Train','Train · 15 coins','Train',c.id,data.coins>=15 and c.level<50,UDim2.new(0,12,1,-54),UDim2.new(1,-24,0,44),'gold')
+  if at then self:coinAction(train,'Train',15,'Train · 15 coins','Train',c.id,c.level<50,UDim2.new(0,12,1,-54),UDim2.new(1,-24,0,44),function() self:openCoins() end) -- P7 R5
   else
    self:action(train,'Train','Train · 15 coins','Train',c.id,false,UDim2.new(0,12,1,-54),UDim2.new(.5,-18,0,44),'gold')
    W.label(train,'Visit the training station on your plot or the refuge.',UDim2.new(.5,-18,0,44),UDim2.new(.5,6,1,-54),nil,12,T.ink,nil,true)
@@ -598,20 +625,25 @@ function S:mountain(data)
   self:action(slot,'ReturnRefuge','Return to sanctuary','Travel','refuge',data.ui and (data.ui.atRefuge or data.ui.nearCheckpoint),UDim2.new(),UDim2.fromOffset(sw,44),'gold')
   -- Route rows: number badge, name, status chip + resource pill, three travel stops.
   local h=if compact then 66 else 76
+  -- P7 R6: sibling row titles share one size: the largest (≤ 20) at which every name fits the title box on one line (1 px ink
+  -- outline each side, line ≤ the 24 box), instead of each row fitting on its own.
+  local leftW=math.floor(self.rowW*.46)-56;local titleN=20
+  local function over(s) local v=TextService:GetTextSize(s,T.size(titleN),T.label,Vector2.new(1e4,1e4));return v.X+2>leftW or v.Y+2>24 end
+  for _,kingdom in ipairs(C.kingdoms) do local s=string.upper(kingdom.name);while titleN>8 and over(s) do titleN-=1 end end
   for k,kingdom in ipairs(C.kingdoms) do
    local unlocked=R.canEnter(data,k);local won=data.wins[tostring(k)]
    local row=W.card(self.body,'Kingdom_'..k,UDim2.new(1,-8,0,h),nil,if won then T.cta.base else T.alt);row.LayoutOrder=k+1
    local num=W.round(W.frame(row,'Number',UDim2.fromOffset(36,36),UDim2.new(0,10,.5,-18),T.navy),18);W.stroke(num,T.outline,2)
    W.label(num,tostring(k),UDim2.fromScale(1,1),nil,T.display,20,T.ink,Enum.TextXAlignment.Center)
-   local leftW=math.floor(self.rowW*.46)-56
-   W.label(row,string.upper(kingdom.name),UDim2.fromOffset(leftW,24),UDim2.fromOffset(56,7),T.label,20,T.ink).Name='Name'
+   W.label(row,string.upper(kingdom.name),UDim2.fromOffset(leftW,24),UDim2.fromOffset(56,7),T.label,titleN,T.ink).Name='Name'
    local half=math.floor((leftW-8)/2)
    W.chip(row,if won then 'Guardian defeated' else 'Open',if won then T.ok.base else T.navy,UDim2.fromOffset(half,22),UDim2.new(0,56,1,-30))
    W.pill(row,'Gem',(data.resources[tostring(k)] or 0)..(if half>=110 then ' '..kingdom.resource:match('%S+$') else ''),half,22,UDim2.new(0,56+half+10,1,-30))
    local bx=math.floor(self.rowW*.46);local bw=math.floor((self.rowW-bx-12-16)/3)
    for i,point in ipairs({'entrance','recovery','guardian'}) do
     local id=k..':'..point;local found=data.discoveries[id]==true
-    self:action(row,'Travel_'..k..'_'..point,if found then point:gsub('^%l',string.upper) else 'Undiscovered','Travel',id,unlocked and found and data.ui and (data.ui.atRefuge or data.ui.nearCheckpoint),UDim2.new(0,bx+(i-1)*(bw+8),.5,-24),UDim2.fromOffset(bw,44))
+    -- P7 R6 (plan §17, Collection's ???): an undiscovered stop reads "?" (the word word-fit to ≈7 px, below t.micro).
+    self:action(row,'Travel_'..k..'_'..point,if found then (point:gsub('^%l',string.upper)) else '?','Travel',id,unlocked and found and data.ui and (data.ui.atRefuge or data.ui.nearCheckpoint),UDim2.new(0,bx+(i-1)*(bw+8),.5,-24),UDim2.fromOffset(bw,44))
    end
   end
  end
@@ -656,7 +688,13 @@ function S:social(data)
   W.label(f,'CHALLENGE A DEFENSE',UDim2.new(.4,-14,0,24),UDim2.fromOffset(14,8),T.label,20,T.ink).Name='Title'
   W.label(f,'Enter a numeric UserId. 0 = practice defense.',UDim2.new(.4,-14,0,30),UDim2.fromOffset(14,34),nil,12,T.muted,nil,true)
   local timer=W.label(f,'',UDim2.new(.4,-14,0,18),UDim2.new(0,14,1,-24),T.display,13,T.gold)
-  local box=W.round(W.new('TextBox',f,{Name='OpponentId',Size=UDim2.new(.36,-10,0,44),Position=UDim2.new(.4,0,.5,-22),Text=self.opponent or '',PlaceholderText='Player UserId (0 = practice)',ClearTextOnFocus=false,TextColor3=T.ink,PlaceholderColor3=T.muted,BackgroundColor3=T.outline,Font=T.body,TextSize=T.size(15),TextTruncate=Enum.TextTruncate.AtEnd,BorderSizePixel=0}),8)
+  -- P7 R10a (intel §3: text fits, no ellipsis): the longest placeholder that fits the box (.36 × row − 10, 4 px slack); the label
+  -- beside it keeps the full "0 = practice defense" line.
+  local boxW=math.floor(self.rowW*.36)-10-4;local hint='UserId'
+  for _,s in ipairs({'Player UserId (0 = practice)','UserId (0 = practice)','UserId or 0'}) do
+   if TextService:GetTextSize(s,T.size(15),T.body,Vector2.new(1e4,1e4)).X<=boxW then hint=s;break end
+  end
+  local box=W.round(W.new('TextBox',f,{Name='OpponentId',Size=UDim2.new(.36,-10,0,44),Position=UDim2.new(.4,0,.5,-22),Text=self.opponent or '',PlaceholderText=hint,ClearTextOnFocus=false,TextColor3=T.ink,PlaceholderColor3=T.muted,BackgroundColor3=T.outline,Font=T.body,TextSize=T.size(15),TextTruncate=Enum.TextTruncate.AtEnd,BorderSizePixel=0}),8)
   box.FocusLost:Connect(function() self.opponent=box.Text;if self.deferredRender then task.defer(function() self:render(true) end) end end)
   self:action(f,'ChallengeDefense','Challenge','ChallengeDefense',function() self.opponent=box.Text;return tonumber(box.Text) end,data.ui and data.ui.atRefuge,UDim2.new(.76,0,.5,-24),UDim2.new(.24,-12,0,44),'gold')
   table.insert(self.tickers,function() local n=P.remaining(data.competitionAt,self.store:now());timer.Text=if n>0 then 'Next challenge in '..P.formatTime(n) else 'Ready at refuge' end)
@@ -754,6 +792,8 @@ function S:settings(data)
   self.feedback:confirm('Reset settings?','Every setting goes back to its default.',function() set(table.clone(defaults)) end)
  end,{n=T.t.pbtn,padX=12})
  -- Save-mode note (intel note: FO 11 T.15, margin-top 10; the row's 7 bottom margin collapses into it, so 3 more here).
+ -- P7 R10e (owner): a developer storage note (Profiles mode), so Studio only; players get no row.
+ if not RunService:IsStudio() then return end
  local note=put(W.new('Frame',self.body,{Name='SaveNote',Size=UDim2.fromScale(1,0),AutomaticSize=Enum.AutomaticSize.Y,BackgroundTransparency=1,BorderSizePixel=0}))
  W.new('UIPadding',note,{PaddingTop=UDim.new(0,3)})
  local l=W.text(note,data.saveMode or 'Preferences follow your profile save status.',UDim2.fromScale(1,0),nil,T.fontBody,T.t.small)

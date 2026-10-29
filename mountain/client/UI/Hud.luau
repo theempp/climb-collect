@@ -10,6 +10,7 @@ local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
 local M=require(script.Parent.Motion)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
+local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
 local Hud={};Hud.__index=Hud
 local center=Enum.TextXAlignment.Center;local left=Enum.TextXAlignment.Left
 local NODE_GLOW={color=T.pk,t=0,b=10,s=0} -- rail node on: pk + glow 10 (L105; opaque hex, so T 0)
@@ -82,11 +83,16 @@ function Hud.new(root,cb)
  local layer=frame(root,'Hud',{Size=UDim2.fromScale(1,1),ZIndex=30});self.layer=layer
  self.uiScale=W.new('UIScale',layer,{Scale=1})
  local function go(hub,tab) return function() cb.sound();cb.open(hub,tab) end end
- -- Chase vignette (§2): 4 edge frames, vignette colour, depth 14.6 % of W / H, T .77 at the screen edge -> 1 inside. Decor.
+ -- Chase vignette (§2, P7 R4 owner: board strength): 4 edge frames, vignette colour, depth 14.6 % of W / H, T `vignette.T` .45
+ -- at the screen edge -> 1 inside (1c, L139 corner α .55). Corner cap: Left/Right are CanvasGroups whose group gradient fades
+ -- them out toward the top/bottom (w = v/(.45+.55v) over the corner depth), so Top/Bottom over them stays ≤ α .55. Decor.
  local vig=frame(layer,'Vignette',{Visible=false,ZIndex=0});vig:SetAttribute('Decor',true);vig:SetAttribute('Motion','vignette.pulse');e.vignette=vig
- for _,v in ipairs({{'Left',UDim2.new(.146,0,1,0),UDim2.new(),0,{.77,1}},{'Right',UDim2.new(.146,0,1,0),UDim2.fromScale(.854,0),0,{1,.77}},
-  {'Top',UDim2.new(1,0,.146,0),UDim2.new(),90,{.77,1}},{'Bottom',UDim2.new(1,0,.146,0),UDim2.fromScale(0,.854),90,{1,.77}}}) do
-  local f=W.new('Frame',vig,{Name=v[1],Size=v[2],Position=v[3],BackgroundColor3=T.vignette,BorderSizePixel=0})
+ local vt,d=T.vignetteT,.146;local cap={1,.5745,.3103,.1304,0} -- group T at v 0,¼,½,¾,1 of the corner depth (1 - w)
+ local ks={};for i=1,5 do table.insert(ks,NumberSequenceKeypoint.new(d*(i-1)/4,cap[i])) end;for i=5,1,-1 do table.insert(ks,NumberSequenceKeypoint.new(1-d*(i-1)/4,cap[i])) end
+ for _,v in ipairs({{'Left',UDim2.new(d,0,1,0),UDim2.new(),0,{vt,1}},{'Right',UDim2.new(d,0,1,0),UDim2.fromScale(1-d,0),0,{1,vt}},
+  {'Top',UDim2.new(1,0,d,0),UDim2.new(),90,{vt,1}},{'Bottom',UDim2.new(1,0,d,0),UDim2.fromScale(0,1-d),90,{1,vt}}}) do
+  local host=vig;if v[4]==0 then host=W.new('CanvasGroup',vig,{Name=v[1],Size=v[2],Position=v[3],BackgroundTransparency=1,BorderSizePixel=0});W.new('UIGradient',host,{Rotation=90,Transparency=NumberSequence.new(ks)}) end
+  local f=W.new('Frame',host,{Name=if host==vig then v[1] else 'Fill',Size=if host==vig then v[2] else UDim2.fromScale(1,1),Position=if host==vig then v[3] else UDim2.new(),BackgroundColor3=T.vignette,BorderSizePixel=0})
   W.new('UIGradient',f,{Rotation=v[4],Transparency=NumberSequence.new(v[5][1],v[5][2])})
  end
  -- B.tr (L97-100): coin pill (glass h34 r18, padding L38 R14, FO 15, coin icon 40 at x -2) + gear (glass circle 44, icon 26), gap 8.
@@ -117,6 +123,8 @@ function Hud.new(root,cb)
  -- Rail label (L108, transient): pill h25, padX 9, night2 T.15, stroke 1.5 pk, r11, FO 11.5.
  local rl=pill(layer,'RailLabel',25,9,T.night2,T.pillT.rail,T.s.thin,T.pk,T.r[11],T.fontBody,T.t.railLabel,T.text,'')
  rl.Visible=false;rl.ZIndex=3;rl:SetAttribute('Motion','rail.label');tag(rl,'transient','railLabel');e.railLabel=rl
+ -- P7 E cap after the pill's own width fit (connected after it, so it runs second under deferred signals too).
+ for _,k in ipairs({'Text','TextSize'}) do rl.Label:GetPropertyChangedSignal(k):Connect(function() self:_fitRailLabel() end) end
  -- B.dock (L110-115) in a CanvasGroup (group T for the chase fade, dock.chaseFade); 18 px canvas margin keeps the glass glow.
  local dc=W.new('CanvasGroup',layer,{Name='DockFade',BackgroundTransparency=1,BorderSizePixel=0,GroupTransparency=0,ZIndex=2})
  dc:SetAttribute('Motion','dock.chaseFade');e.dockCanvas=dc
@@ -146,8 +154,10 @@ function Hud.new(root,cb)
  -- G8 pick-up orb = bat recipe 52, 10 px above the bat orb. D4: the only context action on the mountain. Name kept: Context.
  -- GAP: the pick-up icon is not specified; the kit's Interact (climb) icon is used.
  e.pickup=tag(W.orb(layer,'Context',52,{preset='bat',icon='Interact',fn=function() cb.pickup() end}),'permanent','pickup');e.pickup.Text='Pick up creature'
- -- G6 battle: Dodge = bat recipe 52 in the bat slot. GAP: the Dodge icon is not specified; the kit's Jump icon is used.
- e.dodge=tag(W.orb(layer,'Dodge',52,{preset='bat',icon='Jump',fn=function() cb.dodge() end}),'permanent','dodge');e.dodge.Text='Dodge [Q]'
+ -- G6 battle: Dodge = bat recipe 52 in the bat slot. P7 R7 owner: no icon (the Jump arrow read as a 2nd jump); the word
+ -- "DODGE" in LG `t.claim` 13 (1i), word-fit to one line inside the 3 px stroke + 1. Name/input/cooldown unchanged.
+ e.dodge=tag(W.orb(layer,'Dodge',52,{preset='bat',icon=false,fn=function() cb.dodge() end}),'permanent','dodge');e.dodge.Text='Dodge [Q]'
+ local dw=W.fit(label(e.dodge,'Word','DODGE',T.fontDisplay,T.t.claim,T.text),T.t.claim,8,false,true);dw.Size=UDim2.new(1,-2*(T.s.bold+1),1,0);dw.Position=UDim2.fromOffset(T.s.bold+1,0);dw.ZIndex=3
  e.dodge:SetAttribute('Tooltip','Dodge the highlighted danger. A successful clean dodge advances Trial mastery.')
  -- G6: 3 special orbs (sprint recipe 54) in a dock glass r30 (padding 6, gap 6). Name kept: Team/Slot1-3. The badge reuses the
  -- lv badge recipe for the key / cooldown (GAP: no special-orb cooldown look on the board).
@@ -166,6 +176,8 @@ function Hud.new(root,cb)
  -- G6: boss bar = banner glass r24 in the tier-2 slot with a 10 px gradAction bar. Banner text recipe (L144-146).
  -- GAP: the bar track is not stated; the kit's W.progress track (night T.3, stroke 1.5 white T.5) is used.
  local boss=tag(glass(layer,'Battle',UDim2.fromOffset(260,76),T.r.banner,'banner'),'transient','boss');boss.AnchorPoint=Vector2.new(.5,0);boss.ZIndex=3;e.boss=boss
+ -- P7 E (owner): top band, one factor (P.bandSlot); no Motion scale on the boss bar, so its own UIScale is the only one.
+ e.bossScale=W.new('UIScale',boss,{Name='BandScale'})
  local bk=W.textStroke(label(boss,'Kicker','',T.fontBody,T.t.smallHud,T.pinkText),nil).Parent;bk.Position=UDim2.fromOffset(30,8);bk.Size=UDim2.new(1,-60,0,12);W.fit(bk,T.t.smallHud,8);e.bossKicker=bk
  local bdrop=label(boss,'Drop','',T.fontDisplay,T.t.bannerTitle,T.lip);bdrop.Position=UDim2.fromOffset(30,23);bdrop.Size=UDim2.new(1,-60,0,29);bdrop.ZIndex=1;bdrop:SetAttribute('Decor',true);W.fit(bdrop,T.t.bannerTitle,10)
  local bt=label(boss,'Title','',T.fontDisplay,T.t.bannerTitle,T.text);bt.Position=UDim2.fromOffset(30,20);bt.Size=UDim2.new(1,-60,0,29);W.fit(bt,T.t.bannerTitle,10);e.bossTitle=bt;e.bossDrop=bdrop
@@ -252,7 +264,7 @@ function Hud:apply(l)
  place(e.xpLine,l.xpLine)
  place(e.bat,l.bat);place(e.pickup,l.pickup);place(e.dodge,l.dodge);place(e.team,l.team)
  e.ability.Position=UDim2.fromOffset(l.ability.x,l.ability.y)
- e.boss.Position=UDim2.fromOffset(l.boss.x,l.boss.y)
+ self:_seatBoss();self:_fitRailLabel()
  place(e.portrait,l.portrait);e.edge.Position=UDim2.fromOffset(l.edge.x+l.edge.w,l.edge.y);M.rebase(e.edge) -- edge.nudge restarts from the new spot
  place(e.card,l.card);local gap=UDim.new(0,l.dockGap or 6);e.dockList.Padding=gap;e.launchList.Padding=gap;e.launcher.Size=UDim2.fromOffset(l.card.w-28,42);place(e.vignette,l.screen)
  if self.view then self:render(self.view) end
@@ -270,14 +282,28 @@ function Hud:_dockTap(b,focus)
  return slim
 end
 function Hud:toggleCard(open) if open==nil then open=not self.cardOpen end;self.cardOpen=open;if self.view then self:render(self.view) end end
+-- Boss bar seat (P7 E): the top band at its fitted width, one UIScale factor.
+function Hud:_seatBoss()
+ local l=self.l;if not l then return end;local e=self.e
+ local r=P.bandSlot(l,e.boss.Size.X.Offset,76,nil,T.glowGlass.b+(T.glowGlass.s or 0)) -- drawn extent: the glass glow
+ e.boss.Position=UDim2.fromOffset(l.band.cx,r.y);e.bossScale.Scale=r.f
+end
+-- Rail label (P7 E): never wider than l.railLabelMax (6 px short of M); a longer label shrinks to fit on one line (line mode:
+-- the whole text is the word, never wraps; P7 R1 follow-up).
+function Hud:_fitRailLabel()
+ local l=self.l;if not l then return end;local rl=self.e.railLabel
+ if rl.Size.X.Offset>l.railLabelMax then rl.Size=UDim2.fromOffset(l.railLabelMax,25);if not self.railFit then self.railFit=true;W.fit(rl.Label,T.t.railLabel,8,false,true) end end
+end
 -- Feedback hooks: tier-2 band in use (hides the boss bar), sanctuary moment waiting for Collect (hides dock + card).
 function Hud:setBandBusy(on) self.bandBusy=on;if self.view then self:render(self.view) end end
 function Hud:setBlocked(on) self.blocked=on;if self.view then self:render(self.view) end end
+-- Hatch reveal (P7 R1): the HUD hides as under an open hub (board reveal has no coin pill / gear); back after Collect.
+function Hud:setRevealing(on) self.revealing=on;if self.view then self:render(self.view) end end
 -- Checkpoint (H.tiers.checkpoint, rail slot): rail bright (group T 0) + label "Checkpoint n/18 · h m" for the duration (3 s),
 -- then idle (T .7). Motion owns the ramp/fade (rail.bright, rail.label).
 function Hud:checkpoint(m,hold)
  local e=self.e;local d=m and m.data or {};local h=self.view and self.view.height or 0
- e.railLabel.Label.Text=(if d.order then 'Checkpoint '..d.order..'/18' else 'Checkpoint')..' · '..h..' m'
+ e.railLabel.Label.Text=(if d.order then 'Checkpoint '..d.order..'/18' else 'Checkpoint')..' · '..h..' m';self:_fitRailLabel()
  self.railSerial+=1;local mine=self.railSerial;self.railBright=true
  if self.view then self:render(self.view) end
  if not hold then task.delay(m and m.duration or 3,function() if self.railSerial==mine and self.alive then self.railBright=false;if self.view then self:render(self.view) end end end) end
@@ -345,7 +371,7 @@ end
 -- dodge={enabled,text}, ability}}.
 function Hud:render(v)
  self.view=v;local e=self.e;local l=self.l
- local show=v.ready==true and not v.hubOpen;local st=v.state
+ local show=v.ready==true and not v.hubOpen and not self.revealing;local st=v.state
  local battle=st=='battle';local sanctuary=st=='sanctuary';local chase=st=='chase'
  if st~=self.lastState then
   if sanctuary then self.cardOpen=true elseif self.lastState=='sanctuary' then self.cardOpen=false end -- board L628: card shown in the sanctuary
@@ -373,7 +399,7 @@ function Hud:render(v)
  local lv=v.level or 1;local up=self.ringLevel~=nil and lv>self.ringLevel;self.ringLevel=lv
  M.value(e.xpRing,v.xp or 0,'xpRing',self.setXpRing,{from=if up then 0 else nil})
  e.level.Text=tostring(lv);e.dailyDot.Visible=v.daily==true
- e.xpLine.Visible=show and self.xpShown==true
+ e.xpLine.Visible=show and self.xpShown==true and not self.blocked -- P7 E: rides with the dock; a Collect moment's CTA may sit there
  -- Orbs: bat on the mountain only (not sanctuary/battle); pick-up while a creature is revealed (D4/G8).
  local bat=v.bat or {}
  e.bat.Visible=show and not sanctuary and not battle;e.bat:SetAttribute('Enabled',bat.enabled~=false);e.bat.Text=bat.text or 'Bat'
@@ -403,7 +429,7 @@ function Hud:render(v)
   e.bossKicker.Text=b.kicker or '';e.bossTitle.Text=b.name or '';e.bossDrop.Text=e.bossTitle.Text
   e.bossFill.Size=UDim2.fromScale(math.clamp((b.hp or 0)/math.max(1,b.max or 1),0,1),1)
   local w=math.max(textW(e.bossKicker.Text,T.fontBody,T.t.smallHud),textW(e.bossTitle.Text,T.fontDisplay,T.t.bannerTitle))+2*(2+28)
-  e.boss.Size=UDim2.fromOffset(math.min(if l then l.bandMax else w,w),76)
+  e.boss.Size=UDim2.fromOffset(math.min(if l then l.bandMax else w,w),76);self:_seatBoss()
  end
  -- Player card (D2 launcher): opened by the ring; open by default in the sanctuary (L628); not in chase or battle.
  -- pcard.open (§19 as rendered): from (-115, +40) α 0 in .2 s ease-out; hide instant. Its ring tweens like the dock ring while

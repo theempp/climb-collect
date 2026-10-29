@@ -13,6 +13,12 @@ function Hub.render(screen,data)
   if not at then label='Return to your plot' end
   return screen:action(card,name,label,'Tycoon',payload,at and enabled~=false,pos,size,variant)
  end
+ -- P7 R5: coin-priced upgrades take the buy() coin recipe; short reads "Need N" and a tap opens Shop › Coins (S:openCoins).
+ -- ready = available apart from coins; away from home the ghost "Return to your plot" stays.
+ local function coinAction(card,name,cost,label,payload,ready,pos,size)
+  if not at then return action(card,name,label,payload,false,pos,size,'gold') end
+  return screen:coinAction(card,name,cost,label,'Tycoon',payload,ready,pos,size,function() screen:openCoins() end)
+ end
  -- Upgrade tile (cc/05 LV4 Forge tiles): level chip, path art, effect line, price CTA; gold when maxed.
  local function upgradeTile(g,order,path,slot)
   local q=T.quote(data,path,slot);local def=T.config.paths[path]
@@ -22,7 +28,7 @@ function Hub.render(screen,data)
   W.chip(card,if q then 'Lv '..q.level..' → '..q.next else 'Max',if q then Theme.navy else Theme.ok.base,UDim2.new(1,-a-30,0,22),UDim2.fromOffset(a+20,36))
   local effect=if q then T.upgradeEffect(data,path)..(if q.requirement~='' then ' · '..q.requirement else '') else 'Maximum level reached. No resets.'
   local e=W.label(card,effect,UDim2.new(1,-20,1,-(a+96)),UDim2.fromOffset(10,a+40),nil,12,Theme.ink,center,true);e.TextYAlignment=Enum.TextYAlignment.Top
-  action(card,'Upgrade_'..path..tostring(slot or ''),if q then q.cost..' coins' else 'Maximum level',{op='upgrade',path=path,slot=slot},q~=nil and q.ready and data.coins>=q.cost,UDim2.new(0,10,1,-52),UDim2.new(1,-20,0,44),'gold')
+  coinAction(card,'Upgrade_'..path..tostring(slot or ''),q and q.cost,if q then q.cost..' coins' else 'Maximum level',{op='upgrade',path=path,slot=slot},q~=nil and q.ready,UDim2.new(0,10,1,-52),UDim2.new(1,-20,0,44))
   return card
  end
  if not at then screen:info('Map','Manage from your sanctuary','You can inspect production anywhere. Return to your own plot to collect, bank, assign and upgrade.',64) end
@@ -74,7 +80,7 @@ function Hub.render(screen,data)
     action(card,'Unassign_'..i,'Unassign',{op='assign',slot=i},c~=nil,at_(2),size,'quiet')
     action(card,'Collect_'..i,if h.eggs==0 then 'Producing' elseif s.bag.eggs>=s.bagCapacity then 'Bag full' else 'Collect',{op='collect',slot=i},h.eggs>0 and s.bag.eggs<s.bagCapacity,at_(3),size,'ok')
     local q=T.quote(data,'habitat',i)
-    local up=action(card,'Upgrade_habitat'..i,if q then q.cost..' coins' else 'Max level',{op='upgrade',path='habitat',slot=i},q~=nil and q.ready and data.coins>=q.cost,at_(4),size,'gold')
+    local up=coinAction(card,'Upgrade_habitat'..i,q and q.cost,if q then q.cost..' coins' else 'Max level',{op='upgrade',path='habitat',slot=i},q~=nil and q.ready,at_(4),size)
     up:SetAttribute('Tooltip',if q then T.upgradeEffect(data,'habitat')..(if q.requirement~='' then ' · '..q.requirement else '') else 'Maximum level reached.')
     action(card,'Attune_'..i,if data.unlocked<=1 then 'Need kingdom' else 'Attune',{op='attune',slot=i,kingdom=h.kingdom%data.unlocked+1},data.unlocked>1,at_(5),size,'tert')
    else screen:info('Padlock','Habitat '..i..' · locked','Expand habitat modules in Upgrades. Creatures and progress are never reset.',56) end
@@ -96,7 +102,9 @@ function Hub.render(screen,data)
   local n=W.label(note,'Offline production stops at eight hours or full storage. Automation resumes online; stored eggs never expire.',UDim2.new(1,-74,1,-42),UDim2.fromOffset(64,36),nil,13,Theme.muted,nil,true);n.TextYAlignment=Enum.TextYAlignment.Top
  elseif screen.tab=='Cosmetics' then
   screen:banner('Gift','Sanctuary palettes','Free palettes reuse your kingdoms. They never affect production or combat.',Theme.panelPurple)
-  local g=screen:grid('Palettes',#T.config.cosmetics,150,if compact then 150 else 170)
+  -- P7 R10c: the Selected chip sits 8 above the Apply button (row() controls gap 8, L311-314); compact cards grow to hold it:
+  -- swatches 34+40, gap 8, chip 20, gap 8, button 44 + 8 = 162.
+  local g=screen:grid('Palettes',#T.config.cosmetics,150,if compact then 162 else 170)
   for i,id in ipairs(T.config.cosmetics) do
    local kingdom=nil;for _,k in ipairs(C.kingdoms) do if k.element==id then kingdom=k end end
    local selected=t.cosmetic==id
@@ -105,7 +113,7 @@ function Hub.render(screen,data)
    if kingdom then
     for j,col in ipairs({kingdom.color,kingdom.accent}) do local d=W.round(W.frame(card,'Swatch'..j,UDim2.fromOffset(40,40),UDim2.new(.5,(j-1)*34-37,0,34),Color3.fromRGB(table.unpack(col))),20);W.stroke(d,Theme.outline,2) end
    end
-   if selected then W.chip(card,'Selected',Theme.ok.base,UDim2.new(1,-30,0,20),UDim2.new(0,15,0,80)) end
+   if selected then W.chip(card,'Selected',Theme.ok.base,UDim2.new(1,-30,0,20),UDim2.new(0,15,1,-52-8-20)) end
    action(card,'Palette_'..id,if selected then 'Applied' else 'Apply '..id,{op='cosmetic',id=id},not selected,UDim2.new(0,10,1,-52),UDim2.new(1,-20,0,44),'gold')
   end
  elseif screen.tab=='Facilities' then

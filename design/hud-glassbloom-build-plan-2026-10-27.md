@@ -296,3 +296,23 @@ P5 built in 6 component-builder tasks (A frame, B Collection, C Settings, D Shop
 
 ## 20. P6 result (2026-10-28) — STOP 4 approved
 P6 built by the motion specialist in tasks A (Motion.luau + HUD), B (menus/shop), C (reveal) + perf/budget fixes, commits `91d8b02`, `67a7fee`, `392b8d0`. All §4 P6 done-checks pass (handoff "P6 results"); Shop open +1.0 ms vs no motion. STOP 4 approved (popup): motion as captured; first tap on the faded chase dock only restores it. Copy saved after P6 (SHA256 249a2786…705a). Next: P7 design-reviewer (new chat).
+
+## 21. P7 design review answers (popups, 2026-10-28)
+Review `evidence/hud_glassbloom_2026-10-27/final/design_review.md` (R1–R10). Owner picked every recommendation:
+- R3 egg card: plinth glow only (no glow box on the egg icon).
+- R4 chase vignette: board strength (CSS corner α .55 → edge `vignette.T` .45), still pulses, off under Reduce effects.
+- R6 Map: undiscovered chips show "?" like Collection, at a readable size.
+- R7 Dodge orb: Luckiest Guy text "DODGE" (no new upload).
+- R8 coin packs: board height steps (+0/+10/+20/+38) on top of the content minimum, so packs rise left to right.
+- R10 Settings › Account storage note: Studio only.
+- R10 "Tycoon" renders "Ty coon" (FredokaOne spacing at ~11 px): 7 Shop strings now say "sanctuary" (kept, popup).
+- R5 coin buttons outside the Shop: gold buy look, "Need N" when short, a short tap opens Shop › Coins (kept, popup).
+
+## 22. Owner requests during P7 (2026-10-28)
+- "Consistent look; settings button + coins widget cut out towards the bottom; smooth, full icons": the kit lip was a flat clipped strip, which reads as a slab on round shapes. Every lip is now the true `box-shadow 0 Y 0` crescent (opaque: a same-shape frame behind; translucent glass: a CanvasGroup rounded clip + outer-stroke ring). Widgets `lip()`.
+- "Pop-ups (RUN! and more) tucked to the top as close as possible; middle clear at all times": overrides intel §4 slots and plan §5 "transients may cross M". Every mountain transient sits in the top strip (coin-pill row top when it fits between zone C and the coin pill, else just below it), scaled by one factor so it ends above M (x .28–.72W, y .24–.70H); the tests and state audit now flag transients that enter M. Sanctuary Collect sits below M (no room above it on phones).
+- Popup: RUN! word and the "<GUARDIAN> IS AWAKE" pill side by side in one row (stacked would shrink the pill text to ~6–7 px). Carry pop-up shrinks/fades in place at the top while the portrait pops in (no flight through the centre).
+- Custom emulator devices GB_844x411 / GB_932x430 reserve a top safe inset that clips the coin row (ClipToDeviceSafeArea); real device profiles (iPhone 16 Pro / Pro Max) don't. Final phone evidence uses the real profiles.
+
+## 23. P7 result (2026-10-28) — STOP 4-final pending
+Design review R1–R10 fixed (R9 left: world sign); owner requests (smooth crescent lips everywhere, pop-ups in the top band with the centre clear) built by component-builder tasks A–F and motion task G, verified in Studio. All checks green (handoff "P7 results"); copy saved (SHA256 9d37d9b4…688b). Publishing not in scope.

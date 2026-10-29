@@ -3,13 +3,16 @@
 -- timings win over the CSS, plan §12). Builders leave each piece in its static end state tagged Motion=<token>; Motion plays on
 -- top and hands the piece back in that state. Two engines: loops = real Tweens, gated by visibility, the cover rule and the
 -- plan §6 budget; one-shots = a keyframe timeline (alpha/scale/x/y/rot, per-segment easing) on one RenderStepped connection
--- that exists only while a one-shot plays. Requires Theme only (Widgets will require Motion).
+-- that exists only while a one-shot plays. Requires Theme + MountainShared.MotionBand (Widgets will require Motion).
+-- P7 G (owner, plan §22): the band one-shots' keys come from MotionBand (pure, CLI-sampled) and never reach below their static
+-- bottom, so nothing animates into the keep-clear centre M; Motion.tokens is still the one table every caller reads.
 local Players=game:GetService('Players')
 local RS=game:GetService('ReplicatedStorage')
 local Run=game:GetService('RunService')
 local TS=game:GetService('TweenService')
 local TextService=game:GetService('TextService')
 local T=require(script.Parent.Theme)
+local Band=require(RS.MountainShared.MotionBand)
 local M={}
 local S,D=Enum.EasingStyle,Enum.EasingDirection
 -- Easing map (brief): CSS ease-out → Quad Out · ease-in-out → Sine InOut · default `ease` → Sine Out · linear · cubic-bezier
@@ -19,41 +22,53 @@ M.ease=E
 local MID=Vector2.new(.5,.5);local ZERO=UDim2.new()
 local weak={__mode='k'}
 
--- Carry pop-up target (L685): the HUD CarryPortrait ring centre (ring top + 26) minus the pop centre, from AbsolutePositions,
--- in the pop's virtual px (k = pop.AbsoluteSize.X / pop.Size.X.Offset). Missing portrait: shrinks in place.
+-- The HUD CarryPortrait (carry.portraitIn starts with the pop-up; P7 §22: the pop-up no longer flies to it).
 local function portraitOf(o) local layer=o:FindFirstAncestor('Hud');return layer and layer:FindFirstChild('CarryPortrait') end
-local function carryTarget(o)
- local cp=portraitOf(o);local w=o.Size.X.Offset;local a,s=o.AbsolutePosition,o.AbsoluteSize
- if not cp or w<=0 or s.X<=0 then return 0,0 end
- local k=s.X/w;local b,bs=cp.AbsolutePosition,cp.AbsoluteSize
- return ((b.X+bs.X/2)-(a.X+s.X/2))/k,((b.Y+26*k)-(a.Y+s.Y/2))/k
-end
 local function sibling(suffixOf,pos) return function(o) local d=o.Parent and o.Parent:FindFirstChild(suffixOf(o));return if d then {d,pos} else nil end end
+-- Decor reach (MotionBand e): how far o's direct children (W.glow (1,2e) at -e, a lip +5) reach below its box, o's own px.
+local function reach(o)
+ local h=o.Size.Y.Offset;local e=0
+ for _,c in ipairs(o:GetChildren()) do
+  if c:IsA('GuiObject') and c.Visible then local sz=c.Size.Y.Scale*h+c.Size.Y.Offset;e=math.max(e,c.Position.Y.Scale*h+c.Position.Y.Offset+(1-c.AnchorPoint.Y)*sz-h) end
+ end
+ return e
+end
+-- A band one-shot (P7 §22): MotionBand's spec (dur / ease / inEnd / pivot / keys from the piece's own box and decor) + extras.
+local function band(name,extra)
+ local b=Band.spec[name]
+ local tk={kind='shot',dur=b.dur,ease=b.ease,inEnd=b.inEnd,pivot=Vector2.new(.5,b.py),keys=function(o)
+  return b.keys(o.Size.X.Offset,o.Size.Y.Offset,reach(o),if (T.prefs or {}).cameraShake==false then 0 else 1) end}
+ for k,v in pairs(extra or {}) do tk[k]=v end
+ return tk
+end
 
--- Tokens. kind: shot (keys = {t, a=alpha, s=scale, x/y=offset px, r=rot°}; inEnd = end of the in part, played alone under
--- MotionHold) · show (show/hide shots) · tween (Motion.to / Motion.value) · loop (to/rev, or steps; cat = plan §6 budget) ·
--- hold (a timer) · mark / timeline (reveal, Task C). Durations in s; ease = a key of M.ease.
+-- Tokens. kind: shot (keys = {t, a=alpha, s=scale, x/y=offset px, r=rot°}, or keys(o); inEnd = end of the in part, played alone
+-- under MotionHold; pivot = the scale's AnchorPoint, default centre) · show (show/hide shots) · tween (Motion.to / Motion.value)
+-- · loop (to/rev, or steps; cat = plan §6 budget) · hold (a timer) · mark / timeline (reveal, Task C). Durations in s; ease = a
+-- key of M.ease. Band one-shots (banner, moment, carry.pop, run.*): band() = MotionBand.spec (P7 §22 amplitudes named there).
 M.tokens={
  -- Tier messages (§4). Lifetimes stay in HudState/Feedback; each one-shot ends inside them.
+ -- Toast (top right, clear of M by its width cap): y -8 up, x +16 toward the screen edge, both away from M (P7 §22 checked).
  toast={kind='shot',dur=1.5,ease='out',inEnd=.225,keys={{0,a=0,x=0,y=-8},{.225,a=1,y=0},{1.17,a=1,x=0},{1.5,a=0,x=16,y=0}}}, -- L142-143 (15 %/78 %)
- banner={kind='shot',dur=2.5,ease='out',inEnd=.4,keys={{0,a=0,y=-30,s=.8},{.25,a=1,y=0,s=1.05},{.4,s=1},{2.1,a=1,y=0},{2.5,a=0,y=-30,s=1}}}, -- L147-148 (10/16/84 %)
+ banner=band('banner'), -- L147-148 (10/16/84 %)
  ['banner.danger']={kind='alias',of={'run.slam','run.awake','run.shock'}}, -- RUN! is the danger banner (L415)
- -- Moment (L152-153, 12/18/82 %): the title's drop label (Position-synced by Feedback) follows scale/alpha.
- moment={kind='shot',dur=2.5,ease='out',inEnd=.45,keys={{0,a=0,s=2.4},{.3,a=1,s=.94},{.45,s=1},{2.05,a=1,s=1},{2.5,a=0,s=1.08}},follow=sibling(function(o) return o.Name..'Drop' end,false)},
- -- Carry pop-up, board text timing (in at .35 s, plan §12 / G4) on the L686 path: .55 of the way at s .45 α .9, then the portrait.
- ['carry.pop']={kind='shot',dur=2.5,ease='out',inEnd=.35,keys=function(o) local dx,dy=carryTarget(o)
-  return {{0,a=0,x=0,y=-24,s=.5},{.25,a=1,y=0,s=1.08},{.35,s=1},{2.0,a=1,x=0,y=0,s=1},{2.3,a=.9,x=.55*dx,y=.55*dy,s=.45},{2.5,a=0,x=dx,y=dy,s=.12}} end},
+ -- Moment (L152-153, 12/18/82 %): the title's drop label (Position-synced by Feedback) follows scale/alpha. Title + sub pill.
+ moment=band('moment',{follow=sibling(function(o) return o.Name..'Drop' end,false)}),
+ -- The moment's sanctuary Collect (HudPiece collect, Motion='moment'): no growth past its box (P7 §22; it may sit below M).
+ ['moment.collect']=band('moment.collect'),
+ -- The legacy reward modal (F:reveal Dialog, Motion='moment', no HudPiece): a shaded, player-dismissed dialog like the player
+ -- card, exempt from M; keeps the P6 centre pop (intel §6 moment keys).
+ ['moment.modal']={kind='shot',dur=2.5,ease='out',inEnd=.45,keys={{0,a=0,s=2.4},{.3,a=1,s=.94},{.45,s=1},{2.05,a=1,s=1},{2.5,a=0,s=1.08}}},
+ -- Carry pop-up, board text timing (in at .35 s, plan §12 / G4); P7 §22: shrinks and fades in place (no flight to the portrait).
+ ['carry.pop']=band('carry.pop'),
  -- L687 WAAPI keys (default linear): scale 0 until .9 → 1.3 at .96 → 1 of 2.6 s; opacity 0 → 1 on the same keys.
  ['carry.portraitIn']={kind='shot',dur=2.6,ease='linear',keys={{0,a=0,s=0},{2.34,a=0,s=0},{2.496,a=1,s=1.3},{2.6,a=1,s=1}}},
  ['carry.iconTwist']={kind='shot',dur=.45,ease='linear',inEnd=.45,keys={{0,r=-14,s=.7},{.25,r=8,s=1.15},{.45,r=0,s=1}}}, -- L688 (.1/.18 of 2.5 s)
  -- RUN! (L165 at 1.5 s = the first 30 % of the 5 s demo): RunDrop follows every channel. Shake keys (.65/.8 s) zero with
- -- cameraShake off.
- ['run.slam']={kind='shot',dur=1.5,ease='inOut',inEnd=.95,follow=sibling(function() return 'RunDrop' end,true),keys=function()
-  local k=if T.prefs.cameraShake==false then 0 else 1
-  return {{0,a=0,s=3.4,r=-8,x=0,y=0},{.1,a=1},{.25,s=.86,r=2},{.4,s=1.1,r=-1.5},{.5,s=1,r=0,x=0,y=0},{.65,x=-4*k,y=2*k,r=-k},{.8,x=4*k,y=-2*k,r=k},
-   {.95,x=0,y=0,r=0},{1.3,a=1,s=1},{1.5,a=0,s=1.12,r=0,x=0,y=0}} end},
- ['run.awake']={kind='shot',dur=1.5,ease='inOut',inEnd=.5,keys={{0,a=0,y=8},{.3,a=0,y=8},{.5,a=1,y=0},{1.3,a=1},{1.5,a=0,y=0}}}, -- L166
- ['run.shock']={kind='shot',dur=1,ease='out',keys={{0,a=0,s=.2},{.2,a=0,s=.2},{.25,a=.9},{1,a=0,s=2.6}}}, -- L168; a burst: held = played whole
+ -- cameraShake off. P7 §22: word + ring pivot on their bottom edge, the pill slides out of the word's side (MotionBand).
+ ['run.slam']=band('run.slam',{follow=sibling(function() return 'RunDrop' end,true)}),
+ ['run.awake']=band('run.awake'), -- L166
+ ['run.shock']=band('run.shock'), -- L168; a burst: held = played whole
  -- HUD state transitions.
  xpLine={kind='shot',dur=1.5,ease='out',inEnd=.18,keys={{0,a=0},{.18,a=1},{1.125,a=1},{1.5,a=0}}}, -- L120 on the board-text 1.5 s (12/75 %)
  ['xpLine.fill']={kind='tween',dur=.675,delay=.225,ease='out'}, -- L121 15 %→60 % of 1.5 s
@@ -170,8 +185,9 @@ local function snap(o,list,prune)
  walk(o);return list
 end
 local function fade(list,a) for _,v in ipairs(list) do v[1][v[2]]=math.max(0,1-(1-v[3])*a) end end -- a > 1: undim, Back overshoot
--- Centre pivot for scale: AnchorPoint (.5,.5) and Position shifted by (.5 - anchor) * Size; scale = a Motion-owned UIScale.
-local function shiftOf(sz,ap) local ax,ay=.5-ap.X,.5-ap.Y;return UDim2.new(ax*sz.X.Scale,ax*sz.X.Offset,ay*sz.Y.Scale,ay*sz.Y.Offset) end
+-- Scale pivot pv (default centre; P7 §22 band pieces: bottom edge): AnchorPoint pv and Position shifted by (pv - anchor) * Size;
+-- scale = a Motion-owned UIScale.
+local function shiftOf(sz,ap,pv) pv=pv or MID;local ax,ay=pv.X-ap.X,pv.Y-ap.Y;return UDim2.new(ax*sz.X.Scale,ax*sz.X.Offset,ay*sz.Y.Scale,ay*sz.Y.Offset) end
 local scalers=setmetatable({},weak) -- live MotionScale UIScales -> host (Widgets skips size refits under them)
 local function scaler(o) local u=o:FindFirstChild('MotionScale');if not (u and u:IsA('UIScale')) then u=Instance.new('UIScale');u.Name='MotionScale';u.Parent=o end;scalers[u]=o;return u end
 local function dropScale(u)
@@ -182,15 +198,7 @@ end
 function M.scaling() return next(scalers)~=nil end
 
 -- One-shot engine. Position is driven as an offset on top of the base; a write from outside (layout) becomes the new base.
-local CH={'a','s','x','y','r'}
-local function tracks(keys,ease)
- local tr={}
- for _,c in ipairs(CH) do
-  local pts={};for _,k in ipairs(keys) do if k[c]~=nil then table.insert(pts,{k[1],k[c],k.e or ease or 'out'}) end end
-  if #pts>0 then tr[c]=pts end
- end
- return tr
-end
+local tracks=Band.tracks -- the same track builder the CLI samples (mountain/tests/motion_band.luau)
 local function at(pts,t)
  if t<=pts[1][1] then return pts[1][2] end
  for i=1,#pts-1 do
@@ -214,7 +222,7 @@ local function apply(s,t)
   if g.u then g.u.Scale=sc end
   if g.pos then
    local cur=o.Position;local base=if same(cur,g.last) then cur-g.off else cur
-   local off=UDim2.fromOffset(x,y);if g.u then off+=shiftOf(o.Size,g.ap) end
+   local off=UDim2.fromOffset(x,y);if g.u then off+=shiftOf(o.Size,g.ap,g.pv) end
    local p=base+off;o.Position=p;g.last=p;g.off=off
   end
   if tr.r then o.Rotation=o.Rotation-g.rot+r;g.rot=r end
@@ -256,7 +264,7 @@ local function tick()
 end
 local function target(s,o,pos)
  local g={o=o,off=ZERO,rot=0,last=o.Position,pos=pos and (s.tr.x~=nil or s.tr.y~=nil or s.tr.s~=nil)}
- if s.tr.s then g.ap=o.AnchorPoint;g.u=scaler(o);o.AnchorPoint=MID end
+ if s.tr.s then g.ap=o.AnchorPoint;g.pv=s.pivot;g.u=scaler(o);o.AnchorPoint=s.pivot end -- a follower shares the pivot
  if s.tr.a then snap(o,s.alpha,true) end
  table.insert(s.targets,g)
 end
@@ -272,7 +280,7 @@ function M.play(o,name,opts)
  if M.reduced() then if opts.done then opts.done() end;return end
  local tr
  if type(tk.keys)=='function' then tr=tracks(tk.keys(o),tk.ease) else tr=tk._tr;if not tr then tr=tracks(tk.keys,tk.ease);tk._tr=tr end end
- local s={tr=tr,t0=os.clock(),sp=speed(),delay=opts.delay or tk.delay or 0,endT=if opts.hold then tk.inEnd or tk.dur else tk.dur,alpha={},targets={},restore=opts.restore,hide=opts.hide,done=opts.done,cancel=opts.cancel,hush=tk.hush,id=tk.id}
+ local s={tr=tr,t0=os.clock(),sp=speed(),delay=opts.delay or tk.delay or 0,endT=if opts.hold then tk.inEnd or tk.dur else tk.dur,alpha={},targets={},restore=opts.restore,hide=opts.hide,done=opts.done,cancel=opts.cancel,hush=tk.hush,id=tk.id,pivot=tk.pivot or MID}
  target(s,o,true)
  local f=tk.follow and tk.follow(o);if f then target(s,f[1],f[2]) end
  shots[o]=s;apply(s,0)
@@ -556,7 +564,9 @@ local function scan(o)
  if next(reveals)~=nil and not reveals[o] and inReveal(o) then return end -- the reveal timeline owns its pieces (Task C)
  if AUTO_SHOT[name] then
   local hold=o:GetAttribute('MotionHold')==true
-  M.play(o,name,{hold=hold})
+  -- 'moment' variants by piece (P7 §22): the sanctuary Collect never grows; the reward modal (no HudPiece) keeps the centre pop.
+  local piece=o:GetAttribute('HudPiece')
+  M.play(o,if name=='moment' and piece=='collect' then 'moment.collect' elseif name=='moment' and piece==nil then 'moment.modal' else name,{hold=hold})
   if name=='carry.pop' and not hold then local cp=portraitOf(o);if cp then M.play(cp,'carry.portraitIn') end end
  elseif M.tokens[name] and M.tokens[name].kind=='loop' then
   -- Loops register a frame later (ancestry watchers, visibility, tweens stay off the build frame); one-shots start now so their

@@ -29,7 +29,8 @@ studio, preview, dry = args[0], '--preview-icons' in args, '--dry' in args
 files = list(HUD)
 if '--changed' in args:
     rev = args[args.index('--changed') + 1]
-    names = subprocess.run(['git', 'diff', '--name-only', rev + '..HEAD', '--', *ROOTS], capture_output=True, text=True, check=True).stdout.split()
+    names = subprocess.run(['git', 'diff', '--name-only', rev, '--', *ROOTS], capture_output=True, text=True, check=True).stdout.split()
+    names += subprocess.run(['git', 'ls-files', '--others', '--exclude-standard', '--', *ROOTS], capture_output=True, text=True, check=True).stdout.split()  # P7: working tree + new files
     files += [n for n in names if n.endswith('.luau') and n not in files]
 out = ["assert(game.PlaceId==0,'PlaceId is '..game.PlaceId..': refusing to sync into a linked place')", 'local r={}']
 skipped = []

@@ -12,7 +12,9 @@ local Hud=require(script.Parent.Hud)
 local Motion=require(script.Parent.Motion)
 local pg=player:WaitForChild('PlayerGui')
 if pg:FindFirstChild('MountainHUD') then return {} end
-local gui=W.new('ScreenGui',pg,{Name='MountainHUD',ResetOnSpawn=false,DisplayOrder=10,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets,ClipToDeviceSafeArea=true})
+local gui=W.new('ScreenGui',pg,{Name='MountainHUD',ResetOnSpawn=false,DisplayOrder=10,ZIndexBehavior=Enum.ZIndexBehavior.Sibling,ScreenInsets=Enum.ScreenInsets.CoreUISafeInsets,ClipToDeviceSafeArea=false})
+-- P7 R1: no safe-area clip, so the full-screen pieces (hub tint, reveal backdrop, chase vignette at l.screen) reach the device
+-- edges; everything else is placed in SafeRoot coordinates (CoreUISafeInsets) and stays inside the safe area.
 gui:SetAttribute('BlueprintVersion',2);gui:SetAttribute('VisualSystem','Glassbloom')
 local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
 Motion.attach(root) -- P6: every Motion-tagged piece under SafeRoot (HUD, messages, hubs, reveal)
@@ -62,7 +64,8 @@ store=ClientState.new(remotes)
 local memory=H.new()
 local connections={};local saveFailed=false;local previousProfile;local memberStamp='';local wasInBattle=false;local age=0;local lastSecond=-1;local fixture=nil
 local function connect(signal,fn) local c=signal:Connect(fn);table.insert(connections,c);return c end
--- Hint card (hints pref): not on the board; kept on tall screens, in the tier-2 band while it is free.
+-- Hint card (hints pref): not on the board; kept on tall screens (>= 550, where it ends above M), in the band's low row while
+-- the band is free (no tier-2 message or moment).
 local hint=W.panel(root,'Hint',UDim2.fromOffset(320,64),UDim2.new(.5,-160,0,78));hint.Visible=false;hint.ZIndex=25
 local hintText=W.text(hint,'',UDim2.new(1,-60,1,-12),UDim2.fromOffset(12,6),nil,13,T.ink)
 local dismissHint=false
@@ -73,7 +76,7 @@ local retry=W.button(loading,'RetryLoad','Retry connection',UDim2.fromOffset(210
 end,'gold');retry.Visible=false
 screens=Screens.new(root,store,feedback,function() GuiService.SelectedObject=nil end)
 feedback.hooks={xpLine=function(m,hold) hud:xpLine(m,hold) end,rail=function(m,hold) hud:checkpoint(m,hold) end,
- band=function(on) hud:setBandBusy(on) end,blocking=function(on) hud:setBlocked(on) end}
+ band=function(on) hud:setBandBusy(on) end,blocking=function(on) hud:setBlocked(on) end,reveal=function(on) hud:setRevealing(on) end}
 local defaultEffects={};local soundBases={};local settingsStamp=''
 local layout
 local function applyPreferences(prefs)
@@ -107,6 +110,11 @@ local function screenRect()
  local o=screenOrigin.AbsolutePosition-root.AbsolutePosition
  return {x=o.X,y=o.Y,w=screenProbe.AbsoluteSize.X,h=screenProbe.AbsoluteSize.Y}
 end
+-- QA audits resize SafeRoot to simulate a phone: the resized root is then the whole screen, with no topbar row.
+local function simulated() return root.Size~=UDim2.fromScale(1,1) end
+-- Menus + hatch reveal (P7 R1): board insets / tint / backdrop are measured from the screen edges, not the inset root.
+local function fullScreen() local v=root.AbsoluteSize;return if simulated() then {x=0,y=0,w=v.X,h=v.Y} else screenRect() end
+screens.screenRect=fullScreen;feedback.screenRect=fullScreen
 local function bx(o) return {x=o.AbsolutePosition.X,y=o.AbsolutePosition.Y,w=o.AbsoluteSize.X,h=o.AbsoluteSize.Y} end
 layout=function()
  local v=root.AbsoluteSize;if v.X<=0 then return end
@@ -124,14 +132,13 @@ layout=function()
    end
   end
  end
- -- QA audits resize SafeRoot to simulate a phone: the resized root is then the whole screen, with no topbar row.
- local simulated=root.Size~=UDim2.fromScale(1,1)
+ local sim=simulated()
  local s=P.hudScale(T.prefs.hudScale,v.X);hud:setScale(s)
  local m=hud:measure()
- local l=P.hudLayout(v.X,v.Y,obstacles,UIS.TouchEnabled,if simulated then nil else topbarRect(),{scale=s,screen=if simulated then {x=0,y=0,w=v.X,h=v.Y} else screenRect(),coinW=m.coinW,edgeW=m.edgeW,abilityW=m.abilityW})
- hud:apply(l);feedback:layout(l)
+ local l=P.hudLayout(v.X,v.Y,obstacles,UIS.TouchEnabled,if sim then nil else topbarRect(),{scale=s,screen=fullScreen(),coinW=m.coinW,edgeW=m.edgeW,abilityW=m.abilityW})
+ hud:apply(l);feedback:layout(l) -- also re-places the hatch reveal on the screen rect
  gui:SetAttribute('HudScale',s)
- hint.Size=UDim2.fromOffset(math.min(360,v.X-380),54);hint.Position=UDim2.fromOffset(v.X/2-hint.Size.X.Offset/2,l.banner.y*s)
+ hint.Size=UDim2.fromOffset(math.min(360,v.X-380),54);hint.Position=UDim2.fromOffset(v.X/2-hint.Size.X.Offset/2,l.band.low*s) -- P7 E: the band's low row (hidden while the band is busy)
  if screens.hub then screens:render(true) end
 end
 local function sectionFallback(rr)
@@ -194,6 +201,10 @@ connect(UIS.InputBegan,function(input,processed)
 end)
 connect(root:GetPropertyChangedSignal('AbsoluteSize'),layout)
 connect(GuiService:GetPropertyChangedSignal('TopbarInset'),function() task.defer(layout) end)
+-- P7 R1: the screen rect can move without a root resize (topbar row appearing, probe resize); one deferred layout per frame.
+local layoutQueued=false
+local function queueLayout() if layoutQueued then return end;layoutQueued=true;task.defer(function() layoutQueued=false;layout() end) end
+connect(root:GetPropertyChangedSignal('AbsolutePosition'),queueLayout);connect(screenProbe:GetPropertyChangedSignal('AbsoluteSize'),queueLayout)
 connect(pg.DescendantAdded,function(o) if o.Name=='JumpButton' or o.Name=='DynamicThumbstickFrame' or o.Name=='ThumbstickFrame' then task.defer(layout) end end)
 connect(UIS:GetPropertyChangedSignal('TouchEnabled'),layout)
 -- HUD view model (5 Hz). Distance/edge/beacon run in Hud's own 10 Hz carry tick.
@@ -213,10 +224,11 @@ local function liveView(data,rr)
   local slots={}
   for i=1,3 do
    local c=R.find(data.creatures,data.team[i]);local remain=c and P.remaining(cooldowns[c.id..':'..selectedAbility(i)] or 0,clock) or 0
-   slots[i]={text=if c then (if remain>0 then remain..'s' else 'GO') else tostring(i),enabled=c~=nil and remain==0,label=if c then C.byId[c.species].name else 'Empty slot'}
+   -- Badge (P7 R7): slot number when ready or empty, cooldown seconds + "s" while cooling ("GO" read as "CC" at FO 10).
+   slots[i]={text=if c and remain>0 then remain..'s' else tostring(i),enabled=c~=nil and remain==0,label=if c then C.byId[c.species].name else 'Empty slot'}
   end
   local dr=P.remaining(ui.dodgeReadyAt or 0,clock)
-  local kicker='Phase '..math.max(1,((b.phase or 1)-1)%4+1)..' · '..#(b.members or {})..' climber(s)'
+  local n=#(b.members or {});local kicker='Phase '..math.max(1,((b.phase or 1)-1)%4+1)..' · '..n..(if n==1 then ' climber' else ' climbers') -- P7 R7
   if b.trial then kicker..=' · '..(b.dodges or 0)..'/3 dodges · '..(b.resolved or 0)..'/4 patterns · '..(if b.captureOwned then 'Already captured' elseif b.objective then 'Objective complete' else b.objectiveText or 'Master the patterns') end
   v.battle={name=tostring(b.name)..(if b.trial then ' · TRIAL' else ''),hp=b.hp,max=b.max,kicker=kicker,slots=slots,
    dodge={enabled=dr==0,text=if dr>0 then 'Dodge · '..dr..'s' else 'Dodge [Q]'},ability='Ability '..activeAbility}
@@ -231,8 +243,8 @@ local function fixtureView(name,data)
   creatures=data and #(data.creatures or {}) or 7,summit=false,section=2,height=320,rail=true,daily=true,pickup=name=='rest',bat={enabled=true,text='Bat'}}
  if name=='carry' or name=='regrab' or name=='chase' or name=='battle' then v.carry={species=rare and rare.id,runId='fixture',exits=exits,fixed={distance=84,progress=.4,offscreen=name=='chase'}} end
  if name=='battle' then
-  v.battle={name=C.guardians[1].name,hp=640,max=1000,kicker='Phase 2 · 1 climber(s)',ability='Ability 1',dodge={enabled=true,text='Dodge [Q]'},
-   slots={{text='GO',enabled=true,label='Slot 1'},{text='3s',enabled=false,label='Slot 2'},{text='3',enabled=true,label='Slot 3'}}}
+  v.battle={name=C.guardians[1].name,hp=640,max=1000,kicker='Phase 2 · 1 climber',ability='Ability 1',dodge={enabled=true,text='Dodge [Q]'},
+   slots={{text='1',enabled=true,label='Slot 1'},{text='3s',enabled=false,label='Slot 2'},{text='3',enabled=true,label='Slot 3'}}}
  end
  return v,rare
 end
@@ -252,7 +264,7 @@ connect(Run.Heartbeat,function(dt)
  local data=store.profile;local rr=rootPart();ready=data~=nil and rr~=nil
  loading.Visible=not ready;retry.Visible=not ready and os.clock()-start>8
  if not ready then loadStatus.Text=if data then 'Waiting for your character…' elseif store.status=='error' then 'Connection delayed. Retry when ready.' else 'Synchronizing your collection…' end
- feedback.inSanctuary=inSanctuary()
+ feedback.inSanctuary=inSanctuary();feedback:setHubOpen(screens.hub~=nil)
  if data then
   if fixture then local v=fixtureView(fixture,data);v.hubOpen=screens.hub~=nil;hud:render(v) else hud:render(liveView(data,rr)) end
   game:GetService('ProximityPromptService').Enabled=not screens.hub and not feedback.modal

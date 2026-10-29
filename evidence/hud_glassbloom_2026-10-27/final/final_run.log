@@ -1,0 +1,104 @@
+skipped: mountain/server/StudioTests.luau
+ok
+on iphone_16_pro
+Game Started
+root 750x343 vp 750x401
+rest True
+carry True
+regrab True
+chase True
+sanctuary True
+battle True
+dock Players.Actuallytherealzo.PlayerGui.MountainHUD.SafeRoot.Hud.DockFade.Dock.Buttons.Creatures True
+tab Players.Actuallytherealzo.PlayerGui.MountainHUD.SafeRoot.HubShade.Hub.Tabs.TabAudio True
+buy Players.Actuallytherealzo.PlayerGui.MountainHUD.SafeRoot.HubShade.Hub.Content.Scroll.Eggs.Egg_meadow_egg.Body.Buy True
+reveal landed True
+reduced rest True
+reduced carry True
+reduced chase True
+reduced sanctuary True
+reduced battle True
+reduced shop True
+reduced reveal True
+carry 125
+run 72
+banner 120
+toast 62
+moment 120
+reveal 262
+chaseTap 68
+card 35
+xp 62
+rail 97
+shop 28
+run 72
+banner 120
+moment 120
+carry 124
+on iphone_16_pro_max
+Game Started
+root 830x381 vp 830x439
+rest True
+carry True
+regrab True
+chase True
+sanctuary True
+battle True
+on GB_844x411
+Game Started
+root 844x333 vp 844x391
+rest True
+carry True
+regrab True
+chase True
+sanctuary True
+battle True
+01_Creatures_Collection True
+02_Creatures_Team True
+03_Creatures_Training True
+04_Creatures_Evolution True
+05_Discovery_Eggs True
+06_Discovery_Fieldguide True
+07_Sanctuary_Overview True
+08_Sanctuary_Habitats True
+09_Sanctuary_Upgrades True
+10_Sanctuary_Automation True
+11_Sanctuary_Cosmetics True
+12_Sanctuary_Facilities True
+13_Mountain_Map True
+14_Mountain_Quests True
+15_Mountain_Trials True
+16_Social_Party True
+17_Social_Challenges True
+18_Social_Defense True
+19_Profile_Overview True
+20_Profile_Achievements True
+21_Profile_Recognition True
+22_Shop_Featured True
+23_Shop_Coins True
+24_Shop_Passes True
+25_Shop_Eggs True
+26_Shop_Skins True
+27_Settings_Audio True
+28_Settings_Graphics True
+29_Settings_HUD True
+30_Settings_Controls True
+31_Settings_Account True
+detail True
+top True
+mini True
+COINS ok True
+COINS low True
+PASSES ok True
+PASSES low True
+BOOSTS ok True
+BOOSTS low True
+EGGS ok True
+EGGS low True
+BAT SKINS ok True
+BAT SKINS low True
+BATS ok True
+BATS low True
+reveal True
+{"1":0,"3":"iphone_16_pro","2":false}
+FINAL_DONE

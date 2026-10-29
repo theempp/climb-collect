@@ -278,14 +278,16 @@ local function ticket(cx)
 end
 -- Coin packs (cpk(), L261-271): one row, bottom-aligned, gap 8, columns from min 104. Card r16, padding 8/6/10, gap 3, stroke 2 gold
 -- T.45, gradCpk + gold radial; best = stroke white, glowBest, ribbon h18. Pile h46 (coin 34, overlap -17), amount LG 19 goldText + drop
--- 2 lip, "coins" FO 10.5 T.15, Robux buy (disabled). Heights are CSS min-heights (112/122/132/150): content taller than that wins.
+-- 2 lip, "coins" FO 10.5 T.15, Robux buy (disabled). Heights are CSS min-heights (112/122/132/150) and the content (≈141) is taller,
+-- so P7 R8 keeps the content minimum and adds the board's steps on top (+0/+10/+20/+38 = each height − 112): the stacks still rise.
 local function coinPacks(cx)
  local cw=cx.cw;local n,w=columns(cw,104,8);n=math.max(n,4);w=math.floor((cw-8*(n-1))/n)
  local st=T.s.glass;local ah=lineH(T.fontDisplay,T.t.coinPack);local mh=lineH(T.fontBody,T.t.micro)
  local content=46+3+ah+3+mh+3+32
  local packs={{'1,000',1,nil,112},{'4,400',2,'+10%',122},{'9,600',3,'+20%',132},{'27,000',4,'+50%',150,true}}
  local hs,top={},0
- for i,p in ipairs(packs) do hs[i]=math.max(p[4],math.ceil(content+8+10+2*st+(if p[5] then 18-8+3 else 0)));top=math.max(top,hs[i]) end
+ local base=math.max(packs[1][4],math.ceil(content+8+10+2*st))
+ for i,p in ipairs(packs) do hs[i]=math.max(base+p[4]-packs[1][4],math.ceil(content+8+10+2*st+(if p[5] then 18-8+3 else 0)));top=math.max(top,hs[i]) end
  -- GAP: "Coming soon" (LG 16) is wider than a 104-125 px pack; the board has no rule (CSS would clip it), so the button is capped to the
  -- pack's content width and its label shrinks (kit W.fit).
  local bw=soon(nil,nil,w-2*st-12)
@@ -322,7 +324,7 @@ end
 -- gap 4. Orb 58 rcg + U8 gloss T.25 + stroke 3 white + glow 16, icon 36 (bob.pass). FOREVER h16 padX 7 r8 night T.25 FO 9.5 gold. Name
 -- LG 15 + drop 2 lip, desc FO 11 T.1, Robux buy (disabled).
 local function passes(cx)
- local items={{'gold','Coin','2× Coins','Tycoon income'},{'blue','Chest','Auto-Bank','Tycoon banks while you climb'},{'violet','EggCracked','Incubator +1','Hatch two eggs at once'},{'prism','Heart','VIP Lounge','Sanctuary rooftop. Cosmetic.'}}
+ local items={{'gold','Coin','2× Coins','Sanctuary income'},{'blue','Chest','Auto-Bank','Sanctuary banks while you climb'},{'violet','EggCracked','Incubator +1','Hatch two eggs at once'},{'prism','Heart','VIP Lounge','Sanctuary rooftop. Cosmetic.'}}
  -- GAP: no before/after row: Tycoon gives eggs/h per habitat (snapshot.rate), not a coin income, and no 2× Coins rule exists.
  local n,cell=columns(cx.cw,122,10);local iw=cell-22;local nh=lineH(T.fontDisplay,T.t.passName);local bw=soon(nil,nil,iw)
  local cellH=0;for _,v in ipairs(items) do cellH=math.max(cellH,15+58+4+16+4+nh+4+paraH(v[4],T.t.small,iw)+4+32+21) end
@@ -355,7 +357,7 @@ end
 -- Boosts (bst(), L280-286): grid min 112 gap 10. U4 fill night T.45 + U9b rim white T.8 (SliceScale W/240 under 120 px). Padding
 -- 10/6/12 (+1.5 rim), gap 4. Timer ring(62,4,go,.82,deep) full (no boost system: none active), icon 32. Name FO 13, desc FO 10.5 T.15.
 local function boosts(cx)
- local items={{'Sprint','Coin Rush','15 min · tycoon ×1.5'},{'Egg','Hatch Speed','30 min · tycoon hatching'},{'Scroll','Egg Luck','30 min · tycoon rolls, odds shown first'}}
+ local items={{'Sprint','Coin Rush','15 min · sanctuary ×1.5'},{'Egg','Hatch Speed','30 min · sanctuary hatching'},{'Scroll','Egg Luck','30 min · sanctuary rolls, odds shown first'}}
  local n,cell=columns(cx.cw,112,10);local s=T.s.thin;local iw=cell-12-2*s;local nh=lineH(T.fontBody,T.t.bstName);local bw=soon(nil,nil,iw)
  local cellH=0;for _,v in ipairs(items) do cellH=math.max(cellH,math.ceil(s+10+62+4+nh+4+paraH(v[3],T.t.micro,iw)+4+32+12+s)) end
  local scale=if cell<120 then cell/240 else .5
@@ -376,8 +378,8 @@ local function boosts(cx)
  end
 end
 -- Eggs (egg(), L287-295, L308-310, D8): grid min 150 gap 10. Card r18, padding 8/8/12, gap 5, gradEggCard, stroke 1.5 white T.8.
--- Pedestal 96×92: plinth 88×20 (U11 heroFrom T.4 under U11 gold T.3 at 60 %), egg 62×78 with hollow glowRarity 'egg' rc (rarity by glow
--- only, G12) + "?" LG 30 + drop 2 outline T.3 (egg.wobble). Name LG 16 + drop 2 lip. Odds bar h8 r4 stroke 1 white T.6 from the real roll
+-- Pedestal 96×92: plinth 88×20 (U11 heroFrom T.4 under U11 gold T.3 at 60 %) carries the glow, egg 62×78 + "?" LG 30 + drop 2 outline
+-- T.3 (egg.wobble). P7 R3 (owner, G12): no U1 glowRarity box around the egg icon (it drew a rectangle); plinth glow only. Name LG 16 + drop 2 lip. Odds bar h8 r4 stroke 1 white T.6 from the real roll
 -- table (EggOdds.display); legend FO 11 swatch 8 r2. Buy + ×3 (inert: ShopRules sells one at a time), gap 6, wrapping.
 local oddsKey={Blue='blue',Gold='gold',Violet='violet',Prismatic='prism'}
 local function eggs(cx)
@@ -401,7 +403,7 @@ local function eggs(cx)
  return gridH(#items,n,10,cellH),function(parent)
   local g=grid(parent,'Eggs',#items,n,cell,10,cellH)
   for i,v in ipairs(items) do
-   local rc,p=T.rarityColor[v[1]].rc,plan[i]
+   local p=plan[i]
    local o,b=card(g,'Egg_'..v[3],T.r.glass,s);o.LayoutOrder=i
    W.grad(b,T.gradEggCard);stroke(b,T.text,s,.8)
    local ped=frame(b,'Pedestal',{Size=UDim2.fromOffset(96,92),Position=UDim2.new(.5,-48,0,8)})
@@ -409,7 +411,7 @@ local function eggs(cx)
     W.new('ImageLabel',ped,{Name='Plinth',Size=UDim2.fromOffset(l[3],l[4]),Position=UDim2.fromOffset(48-l[3]/2,82-l[4]/2),BackgroundTransparency=1,Image=asset(T.images.radial),ImageColor3=l[1],ImageTransparency=l[2]})
    end
    local egg=frame(ped,'Egg',{Size=UDim2.fromOffset(62,78),Position=UDim2.fromOffset(17,6),ZIndex=2});egg:SetAttribute('Motion','egg.wobble')
-   W.glow(egg,egg,T.glowRarity,rc,'egg');W.icon(egg,'Egg',UDim2.fromScale(1,1),UDim2.new()).ZIndex=0
+   W.icon(egg,'Egg',UDim2.fromScale(1,1),UDim2.new()).ZIndex=0
    display(egg,'Q','?',T.t.eggQ,UDim2.fromScale(1,1),nil,T.outline,2,.3)
    local y=8+92+5
    display(b,'Name',v[2],T.t.eggName,UDim2.fromOffset(iw,nh),UDim2.fromOffset(8,y),T.lip,2)
@@ -499,7 +501,8 @@ local function bats(cx)
     end
     local half=UDim2.new(.5,-14,0,44)
     screen:action(card_,'Equip_'..bat.id,if bat.equipped then 'Equipped' else 'Equip','Bat',{op='equip',id=bat.id},not bat.equipped,UDim2.new(0,10,1,-52),half,'blue')
-    screen:action(card_,'Upgrade_'..bat.id,if bat.cost then bat.cost..' coins' else 'Max level','Bat',{op='upgrade',id=bat.id},bat.equipped and bat.cost~=nil and (data.coins or 0)>=bat.cost,UDim2.new(.5,4,1,-52),half,'gold')
+    -- P7 R5: buy() coin recipe; short reads "Need N" and a tap jumps to Coins like coinBuy. Not equipped / max = the ghost.
+    screen:coinAction(card_,'Upgrade_'..bat.id,bat.cost,if bat.cost then bat.cost..' coins' else 'Max level','Bat',{op='upgrade',id=bat.id},bat.equipped and bat.cost~=nil,UDim2.new(.5,4,1,-52),half,function() screen:jumpToSection('Coins') end)
    else
     W.icon(card_,'Padlock',UDim2.fromOffset(34,34),UDim2.fromOffset(10+math.floor((sideW-34)/2),34))
     W.chip(card_,'Locked',T.navy,UDim2.fromOffset(sideW,22),UDim2.fromOffset(10,72))
@@ -530,8 +533,8 @@ local sections={
  {'Free gifts','one every 15 min · coming soon',{Featured=true,['Free gifts']=false},ladder}, -- Featured = top; 'Free gifts' = Daily dock target
  {'Daily deal','coming soon',{},ticket},
  {'Coins','bonus vs the smallest pack',{Coins=true},coinPacks},
- {'Passes','forever · tycoon only',{Passes=true},passes},
- {'Boosts','timed · tycoon only',{},boosts},
+ {'Passes','forever · sanctuary only',{Passes=true},passes},
+ {'Boosts','timed · sanctuary only',{},boosts},
  {'Eggs','odds on every egg',{Eggs=true},eggs},
  {'Bat skins','looks only',{Skins=true},skins},
  {'Bats','earned with coins',{Bats=false},bats},
@@ -577,6 +580,7 @@ function Shop.render(screen,data)
    if built<#steps then buildNext() end
   end
   finish()
+  RunService.Heartbeat:Wait() -- the last section lays out first (P7 R2)
   if live() then screen:syncTab() end -- the end-of-list rule applies again
  end)
 end
