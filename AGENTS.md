@@ -1,5 +1,7 @@
 # Climb & Collect working context
 
+Workspace map (folders, branches, archives): `C:\Users\HOME!\Desktop\ClimbCollect\README.md`. Read it first; the live game work is in the worktrees it lists, not in this legacy repo's `src/`.
+
 At the start of project work, read `CLAUDE.md`, `master.md`, and the Obsidian vault's `Home.md` and `Climb & Collect/Climb & Collect.md`. Read `Climb & Collect/Decisions.md`, `Milestones.md`, and `Open Questions.md` for the area being changed. The repo source and current evidence are authoritative when a vault note or graph disagrees with them.
 
 The project graph is `graphify-out/graph.json`; the project and vault merge is `C:\Users\HOME!\Documents\graphify-vault-out\merged-graph.json`. The Obsidian entry point is `C:\Users\HOME!\Documents\Obsidian Vault\Climb & Collect\graphify\Graph Index.md`. Use the graph to discover related modules, decisions, and tests, then verify claims in current source or notes. Query with `python -m graphify query "term" --graph graphify-out/graph.json` or pass the merged graph path. Both graphs are also registered globally as `climb-collect-project` and `climb-collect-vault`.
