@@ -47,3 +47,7 @@ Plan: `design/homebase-build-plan-2026-10-29.md` (§6 owner answers). Branch `co
 - Evidence `p3/`: home_layout.txt, scene_check.json, walk.json, home_views.json, plot_counts.json, drift.json, console_play.txt, captures/01-08, suites.txt (42/42).
 - Perf gotcha: the Claude app retakes focus mid-sample; a PowerShell background job re-focusing the HomeBase PID every 0.5 s during the call works (views 5-7 still show a few throttle frames at p95).
 - **STOP 4 approved** (owner popup): layout as built, paved crossing kept. **Saved** 23:15 (PowerShell foreground on PID 33312 only, title verified; PlaceId 0, StudioAids false, Http off, not running, one process). SHA256 `829a5a9c1e1d97cf21167d78dc71564769e5b9640801e71efacdbad253270b79`, 1,483,149 bytes; base copy unchanged (`249a2786…`). Contains HomeCommons v2 + `ServerStorage.MountainWorld.HomeCommons`. Next: P4 plot build (TycoonWorld rewrite to the 6-habitat yard first).
+
+## Glassbloom P7 merged (2026-10-28)
+- Merge `e124b97` of `codex/hud-glassbloom` `e6695c1` (P7 sign-off). Conflicts: `Screens.luau` social() kept P1 Leaderboard-only (P7 edits there touched only removed tabs); `x.sh` kept local id. Suites 43/43 (+ motion_band).
+- Synced into `outputs/ClimbCollect.HomeBase.Review01.rbxl` (PlaceId 0, opened from the P3 save 829a5a9c…): overflow 174 screens × 6 sizes 0 errors, state audit 0, p7_centre intrusion 0 (all four moments), p7_insets pass, tab sync pass, console errors 0. Evidence `evidence/homebase_2026-10-29/p7merge/`. **Copy NOT saved** (owner OK needed); StudioAids back off.
