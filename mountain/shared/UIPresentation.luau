@@ -196,26 +196,109 @@ function P.hudLayout(w,h,obstacles,touch,topbar,opts)
  local portrait=rect(dock.x+dock.w+9,H-10-62,52,62) -- = W/2+134 at the board pitch; follows the wider S-scale dock
  local ew=opts.edgeW or 100
  local edgeArrow=rect(W-8-ew,.36*H,ew,36)
- -- Transient slots (§4): tier 1 under the coin pill (board y 60 = row 7 + 53); tier 2 band (banner 62, pop-up 60); RUN! top
- -- .19 (LG 104, line 1.2 = 125; awake pill h27, 6 below); moment top .30 (LG 64 line 77; sub pill h20, 8 below). Widths
- -- cap at the core column so a centred/right-anchored message never reaches C.
+ -- Transient slots. Tier 1 (§4): toast under the coin pill (board y 60 = row 7 + 53), right-anchored, width capped at the core
+ -- column so it never reaches C. Owner 2026-10-28 (P7 E; overrides the §4 tier-2 / RUN! .19 / tier-3 .30 slots and plan §5
+ -- "transients may cross M"): every other mountain transient sits in one TOP BAND, centred, as close to the screen top as
+ -- possible, and its static box never meets the keep-clear zone M. Row `top` = the coin-pill row's own top (trY) when the box
+ -- fits between C and the coin+gear group (8 px gaps); row `low` = just below the coin-pill row (trY + 53, the toast / pop-up
+ -- line). P.bandSlot picks the row and one size factor per transient (a UIScale) so the box ends at M's top at the latest.
  local band=W-2*(Z.C.x+Z.C.w)
- local runY=scr.y+.19*scr.h;local momentY=scr.y+.30*scr.h
+ local half=math.min(W/2-(Z.C.x+Z.C.w+8),(tr.x-8)-W/2)
+ local B={top=trY,low=trY+53,topMax=math.max(0,2*half),lowMax=math.max(0,band),keep=Z.M.y,margin=2,cx=W/2,gap=6,screenTop=scr.y}
  return {
   scale=s,topbar=inBar,zones=Z,railFits=gap>=0,railNode=node,railSummit=summit,
   tr=tr,coin=rect(tr.x,trY+5,coinW,34),gear=rect(edge-44,trY,44,44),
-  rail=rect(14,railTop,22,railH),railNodes=nodes,railLabel=rect(42,scr.y+.26*scr.h+20,0,25),
+  -- Rail label: width capped 6 px short of M (it sits at .26H, inside M's rows).
+  rail=rect(14,railTop,22,railH),railNodes=nodes,railLabel=rect(42,scr.y+.26*scr.h+20,0,25),railLabelMax=math.max(0,Z.M.x-6-42),
   dock=dock,dockChase=dockChase,dockButtons=dockButtons,xpLine=rect(W/2-118,H-72-6,236,6),
   sprint=sprint,bat=bat,pickup=pickup,dodge=bat,team=team,slots=slots,ability=ability,
   portrait=portrait,edge=edgeArrow,
-  toast=rect(edge,trY+53,0,30),toastMax=math.max(0,edge-(Z.C.x+Z.C.w)),
-  banner=rect(W/2,trY+55,0,59),carryPop=rect(W/2,trY+53,0,78),boss=rect(W/2,trY+55,0,76),bandMax=math.max(0,band),
-  run=rect(0,runY,W,125),awake=rect(W/2,runY+125+6,0,27),shock=rect(W/2-90,scr.y+.22*scr.h-90,180,180),
-  moment=rect(0,momentY,W,77),momentSub=rect(W/2,momentY+77+8,0,20),collect=rect(W/2-95,momentY+77+8+20+8,190,46),
+  -- Toast cap: the core column, or right of M by its glass glow (18) + 2 where the toast line + glow (trY+53..+101) reaches M's
+ -- rows (short phones).
+  toast=rect(edge,trY+53,0,30),toastMax=math.max(0,edge-(if trY+53+30+18>Z.M.y then Z.M.x+Z.M.w+18+2 else Z.C.x+Z.C.w)),
+  band=B,bandMax=B.lowMax,
   -- B.pcard (L170-174, G7): AP(0,1) (.5,-125, 1,-78); widened to the 5-button launcher row: 2+12+5x42+4x6+12+2 = 262; height
   -- 2+10+48 (ring row)+10 (gap)+42 (launcher)+10+2 = 124.
   card=rect(W/2-125,H-78-124,2+12+5*42+4*dgap+12+2,124),dockGap=dgap,
   screen=scr,
  }
+end
+-- Top band seat (owner 2026-10-28, P7 E). w,h = the transient's natural box (virtual px, board sizes); under = a band rect it
+-- stacks below (a moment under a tier-2 message). One factor f <= 1 per transient: the box ends at M's top at the latest and fits
+-- its row's width (top row between C and the coin pill, low row the core-column cap). The row with the larger f wins; a tie goes
+-- to the top row. e = the decor hanging past the box at rest (natural px: its W.glow extent B+S, or a lip if larger; carry
+-- pop-up 26, glass banner / boss bar 18): the DRAWN bottom (box + e, both x f) ends B.margin (2) above M's top. Returns the scaled
+-- box {x,y,w,h,f,top,e} (e scaled), centred on the root; a stacked box starts below the drawn extent of `under`.
+function P.bandSlot(l,w,h,under,e)
+ local B=l.band;e=e or 0
+ local function at(y) local f=math.min(1,(B.keep-B.margin-y)/math.max(1,h+e));if w>0 then f=math.min(f,(if y<B.low then B.topMax else B.lowMax)/w) end;return math.max(.05,f) end
+ local y,f
+ if under then y=math.max(B.top,under.y+under.h+(under.e or 0)+B.gap);f=at(y)
+ else local ft,fl=at(B.top),at(B.low);if ft>=fl then y,f=B.top,ft else y,f=B.low,fl end end
+ return {x=B.cx-w*f/2,y=y,w=w*f,h=h*f,f=f,top=y<B.low,e=e*f}
+end
+-- Size floor for a band factor: the smallest HUD-scope roles in intel 1i, display (LuckiestGuy) t.bannerTitle 28 and body
+-- (FredokaOne) t.lv 10. texts = {{size, 'display'|'body'}, ...} at board px; returns the smallest factor that keeps every text
+-- at or above its floor. Feedback stacks a moment under a tier-2 message only at or above it; a lone transient below it is reported.
+P.bandFloor={display=28,body=10}
+function P.bandFloorOf(texts) local f=0;for _,t in ipairs(texts) do f=math.max(f,P.bandFloor[t[2]]/t[1]) end;return math.min(1,f) end
+-- RUN! shock ring (Decor): centred on the scaled word (cx = the word's centre x, default the band centre; owner 2026-10-28: word
+-- and awake pill share one row, so the word sits left of centre), 180 x f, shrunk further so it stays on screen, above M and
+-- inside its row's width (the row spans B.cx +- max/2).
+function P.bandShock(l,slot,lineH,cx)
+ local B=l.band;local cy=slot.y+lineH*slot.f/2;cx=cx or B.cx
+ local half=(if slot.top then B.topMax else B.lowMax)/2
+ -- Its glow (20) never passes the ring's box bottom in motion (MotionBand shock: bottom pivot, y = -e x s), so the box alone
+ -- fits B.margin above M.
+ local d=math.max(0,math.min(180*slot.f,2*(cy-B.screenTop),2*(B.keep-B.margin-cy),2*(cx-(B.cx-half)),2*(B.cx+half-cx)))
+ return {x=cx-d/2,y=cy-d/2,w=d,h=d}
+end
+-- RUN! row (owner 2026-10-28, P7 F): word box ww x lineH and the awake pill pw x pillH side by side, 6 apart, the pill centred
+-- on the word line. Two factors: the word takes the band factor of its own box (P.bandSlot: height / width-limited); the pill
+-- only gets narrower, fp = min(1, (row width - ww x f - 6) / pw), never by height. The row is centred as one block. Returns
+-- row {x,y,w,h,f,top} (h = the word line, f = the word's), word {x,y,w,h,f,top}, pill {x,y,w,h,f=fp}.
+function P.bandRun(l,ww,pw,lineH,pillH)
+ local B=l.band;local r=P.bandSlot(l,ww,lineH);local f=r.f
+ local max=if r.top then B.topMax else B.lowMax
+ local fp=math.max(.05,math.min(1,(max-ww*f-6)/math.max(1,pw)))
+ local rw=ww*f+6+pw*fp;local x=B.cx-rw/2;local lh=lineH*f
+ local word={x=x,y=r.y,w=ww*f,h=lh,f=f,top=r.top}
+ local pill={x=x+ww*f+6,y=r.y+(lh-pillH*fp)/2,w=pw*fp,h=pillH*fp,f=fp}
+ return {x=x,y=r.y,w=rw,h=math.max(lh,pill.y+pill.h-r.y),f=f,top=r.top},word,pill
+end
+-- Sanctuary moment Collect (W.cta 190x46; never band-scaled, it is a touch target). Below the moment (8 px) when it still ends
+-- above M; otherwise centred below M (the dock and player card hide while a Collect moment waits: Hud:setBlocked). Drawn
+-- extent counts its W.cta glow (glowCta 18, past the 6 px lip): above M it ends 18 + margin over M; below M it starts 18 + margin
+-- under it.
+function P.bandCollect(l,slot)
+ local B,Mz=l.band,l.zones.M;local g=18
+ local y=slot.y+slot.h+(slot.e or 0)+8
+ if y+46+g<=B.keep-B.margin then return {x=B.cx-95,y=y,w=190,h=46,below=true} end
+ return {x=B.cx-95,y=Mz.y+Mz.h+g+B.margin,w=190,h=46,below=false}
+end
+-- Full-screen menus (P7 R1). root = {x,y,w,h} the CoreUISafeInsets root (device safe area; {0,0,W,H} in root px); screen = the
+-- whole screen in root px (y < 0 while Roblox's topbar row sits above the root, x < 0 beside a notch / dynamic island). Hub panel
+-- (G14, plan §17; intel §2 panel(), L177-181): board insets 24 sides inside the root (horizontal stays in the device safe area) /
+-- 66 top / 10 bottom from the screen edges (only the topbar row is not inset twice), capped 850x660, centred in the inset region;
+-- short = the compact rule on the screen height (< 390), so a real 844x390 phone matches its 844x390 audit. screen defaults to root.
+function P.hubPanel(root,screen)
+ screen=screen or root
+ local w=math.min(850,root.w-48);local h=math.min(660,screen.h-76)
+ return {x=root.x+math.floor((root.w-w)/2),y=screen.y+66+math.floor((screen.h-76-h)/2),w=w,h=h,short=screen.h<390}
+end
+-- Coin-priced kit action (P7 R5, plan §14). ready = available apart from coins (not maxed, requirement met, at home). 'off' = truly
+-- unavailable (ghost); 'short' = coin look, label "Need <shortfall>" (Shop comma format), no request; 'buy' = the price label.
+function P.comma(n) local s=tostring(math.floor(n));local k;repeat s,k=s:gsub('^(%d+)(%d%d%d)','%1,%2') until k==0;return s end
+function P.coinState(cost,coins,ready)
+ if not ready or type(cost)~='number' then return 'off',nil end
+ local need=cost-(tonumber(coins) or 0);if need>0 then return 'short','Need '..P.comma(math.ceil(need)) end
+ return 'buy',nil
+end
+-- Hatch reveal (P5 E): the board's one 844x390 frame, centred horizontally in the root (safe area) and vertically on the screen;
+-- UIScale min(1, root W/844, screen H/390). screen defaults to root.
+function P.revealFrame(root,screen)
+ screen=screen or root
+ local s=math.min(1,root.w/844,screen.h/390)
+ return {scale=s,x=root.x+(root.w-844*s)/2,y=screen.y+(screen.h-390*s)/2,w=844*s,h=390*s}
 end
 return P

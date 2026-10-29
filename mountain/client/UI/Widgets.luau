@@ -59,18 +59,6 @@ end
 local function body(o,r,s,color,t)
  return corner(W.new('Frame',o,{Name='Body',Size=UDim2.new(1,-2*s,1,-2*s),Position=UDim2.fromOffset(s,s),BackgroundColor3=color or T.text,BackgroundTransparency=t or 0,BorderSizePixel=0,ZIndex=0}),less(r,s))
 end
--- Lip = box-shadow 0 Y 0 (Conversions). Opaque body: same-shape Frame at +Y behind. Translucent body: inside a
--- ClipsDescendants strip spanning y H..H+Y so it never shows through. Decor: shadows are outside the board's boxes.
-local function lip(o,r,y,color,t,clipped)
- local host=o
- if clipped then host=W.new('Frame',o,{Name='LipClip',Size=UDim2.new(1,0,0,y),Position=UDim2.fromScale(0,1),BackgroundTransparency=1,BorderSizePixel=0,ClipsDescendants=true,ZIndex=-1});host:SetAttribute('Decor',true) end
- local l=corner(W.new('Frame',host,{Name='Lip',Size=UDim2.fromScale(1,1),Position=UDim2.fromOffset(0,y),BackgroundColor3=color,BackgroundTransparency=t or 0,BorderSizePixel=0,ZIndex=-1}),r)
- if clipped then
-  local function fit() local h=if o.AbsoluteSize.Y>0 then o.AbsoluteSize.Y else o.Size.Y.Offset;l.Size=UDim2.new(1,0,0,h);l.Position=UDim2.fromOffset(0,y-h) end
-  fit();o:GetPropertyChangedSignal('AbsoluteSize'):Connect(fit)
- end
- l:SetAttribute('Decor',true);return l
-end
 -- Whole words only (P5 F1; handoff gotcha "UNDISCOVERE D"). TextScaled forces wrapping on, and once UITextSizeConstraint.MinTextSize
 -- stops the shrink, Roblox breaks inside a word. wordFit caps MaxTextSize at the largest size whose longest word fits the label's
 -- width and lets MinTextSize drop to that size when it is below the floor (a smaller whole word beats a broken word); multi-word text
@@ -115,6 +103,60 @@ local function scaleOf(l)
  local p=l;while p and p:IsA('GuiObject') do local u=p:FindFirstChild('MotionScale');if u and u:IsA('UIScale') then k*=u.Scale end;p=p.Parent end
  return k
 end
+-- Lip = box-shadow 0 Y 0 (Conversions): the element's shape B = A + (0,Y), drawn only outside A (a crescent that hugs the rounded
+-- bottom and rises up both sides). Opaque body: same-shape Frame at +Y behind (the body covers A). Translucent body (P7 D: the old
+-- y H..H+Y strip cut the crescent's sides off, so the lip read as a flat slab under pills/circles): Lip = a transparent A-shaped
+-- Frame whose outer UIStroke is the ring A⊕Y∖A (B ⊂ A⊕Y, so ring ∩ B = B∖A), clipped by LipClip so nothing draws inside A:
+-- * 'canvas' (exact; permanent HUD glass/orbs, toasts, banners): LipClip = CanvasGroup + UICorner shaped like B (rounded clip, as
+--   Shop's Holo), stroke Y+1 T 0, lip alpha = GroupTransparency (applyPreferences rewrites UIStroke transparency). The crescent lies
+--   below y = H−r, so the group is only the bottom 2r+Y of B. 5 instances, 1 CanvasGroup.
+-- * 'rect' (cheap; menus/hubs, ghosts, candy ghost/off, W.lip default): LipClip = plain ClipsDescendants Frame spanning x 0..W,
+--   y H−r..H+Y, stroke Y at the lip T. Rect clipping can't round, so the ring bulges up to ≈2 px past B on the lower sides (r16 Y5:
+--   2.2 px at the side tip); still a smooth crescent, no slab. High contrast clamps the stroke T to ≤ .15 (darker lip). 4 instances.
+--   P7 D: ~100 CanvasGroups pushed Shop open to ~36 ms (gate 33), hence 'rect' everywhere under a menu.
+-- Each: 1 AbsoluteSize connection.
+local function radiusPx(r,w,h) local m=math.min(w,h);return math.min(m/2,r.Offset+r.Scale*m) end -- UICorner: scale × shorter side, capped at half
+local function localSize(o) -- o's size in its own (pre-UIScale) units, whole px; nil while a Motion scale is at 0
+ local a=o.AbsoluteSize
+ if a.X<=0 or a.Y<=0 then return o.Size.X.Offset,o.Size.Y.Offset end
+ local k=scaleOf(o);if k<=0 then return nil end
+ return math.floor(a.X/k+.5),math.floor(a.Y/k+.5)
+end
+-- Returns LipClip, Lip, stroke, place(rr, w, h, a0, yy): shape A = (0, a0) .. (w, a0+h) in o's space, radius rr; B = A + (0, yy).
+local function lipRing(o,r,y,color,t,canvas)
+ local g,gc
+ if canvas then g=W.new('CanvasGroup',o,{Name='LipClip',BackgroundTransparency=1,BorderSizePixel=0,GroupTransparency=t or 0,ZIndex=-1});gc=W.new('UICorner',g,{})
+ else g=W.new('Frame',o,{Name='LipClip',BackgroundTransparency=1,BorderSizePixel=0,ClipsDescendants=true,ZIndex=-1}) end
+ g:SetAttribute('Decor',true)
+ local l=corner(W.new('Frame',g,{Name='Lip',BackgroundTransparency=1,BorderSizePixel=0,ZIndex=-1}),r);l:SetAttribute('Decor',true)
+ local lc=l:FindFirstChildOfClass('UICorner')
+ local st=if canvas then gstroke(l,color,y+1,0) else gstroke(l,color,y,t or 0)
+ local function place(rr,w,h,a0,yy)
+  local rp=radiusPx(udim(rr),w,h);local top=if canvas then math.max(yy,h-2*rp) else math.max(0,h-rp)
+  g.Position=UDim2.fromOffset(0,a0+top);g.Size=UDim2.new(1,0,0,h+yy-top);if gc then gc.CornerRadius=UDim.new(0,rp) end
+  l.Position=UDim2.fromOffset(0,-top);l.Size=UDim2.new(1,0,0,h);lc.CornerRadius=udim(rr)
+ end
+ return g,l,st,place
+end
+-- mode: false/nil = opaque Frame; true/'rect' = rect ring; 'auto' = 'canvas' unless o is under the menu shade (HubShade), decided on
+-- the first fit with o in a ScreenGui (W.glass and flat orbs pass 'auto'; only the HUD/Feedback layers keep the CanvasGroup).
+local function lip(o,r,y,color,t,mode)
+ if not mode then
+  local l=corner(W.new('Frame',o,{Name='Lip',Size=UDim2.fromScale(1,1),Position=UDim2.fromOffset(0,y),BackgroundColor3=color,BackgroundTransparency=t or 0,BorderSizePixel=0,ZIndex=-1}),r)
+  l:SetAttribute('Decor',true);return l
+ end
+ local l,place
+ local function fit()
+  if not place then
+   if mode=='auto' and not o:FindFirstAncestorWhichIsA('LayerCollector') then return end
+   local _;_,l,_,place=lipRing(o,r,y,color,t,mode=='auto' and o:FindFirstAncestor('HubShade')==nil)
+  end
+  local w,h=localSize(o);if w then place(r,w,h,0,y) end
+ end
+ fit();o:GetPropertyChangedSignal('AbsoluteSize'):Connect(fit)
+ return l
+end
+W.lip=lip -- (o, r, y, color, t, mode): for lips built outside the kit (Feedback reveal cards, Shop hero)
 -- P6 (Studio open A/B): while a Motion scale animates (panel open, messages) every label under it changes AbsoluteSize each frame
 -- but its fit (width divided by the scale) does not change: size-driven refits wait in `held` and run once when the scale ends.
 local held=setmetatable({},{__mode='k'})
@@ -273,14 +315,15 @@ end
 local painters=setmetatable({},{__mode='k'})
 local function paint(b) local f=painters[b];if f then f() end end
 local function setGrad(u,g) local c,n,alpha=gradSeq(g);u.Color=c;u.Transparency=if alpha then n else NumberSequence.new(0);u.Rotation=g.rot or 0;u.Enabled=true end
--- Candy button, restyled in place: the TextButton is a transparent border box. Children: Glow (-2, cta/coin/mint/close), LipClip/Lip
--- (-1, clipped lip strip at the bottom of the box), Face (0: kit body inset by its stroke, UIGradient, white UIStroke, Shine = gloss
+-- Candy button, restyled in place: the TextButton is a transparent border box. Children: Glow (-2, cta/coin/mint/close), Lip
+-- (-1: opaque looks, the face shape at +lipY behind) or LipClip/Lip (-1: translucent ghost/off looks, the lip ring, made on first use),
+-- hidden while Pressed (the face drops by lipY, so the lip shrinks to 0), Face (0: kit body inset by its stroke, UIGradient, white UIStroke, Shine = gloss
 -- overlay), Drop (1) + Label (2, LuckiestGuy). Text is mirrored into Label; callers keep setting b.Text / b.BackgroundColor3.
 function W.candy(b,base)
  b.BackgroundTransparency=1;b.TextTransparency=1;b.AutoButtonColor=false;b:SetAttribute('FaceColor',base)
  local uc=b:FindFirstChildOfClass('UICorner')
- local clip=W.new('Frame',b,{Name='LipClip',BackgroundTransparency=1,BorderSizePixel=0,ClipsDescendants=true,ZIndex=-1});clip:SetAttribute('Decor',true)
- local lipF=W.new('Frame',clip,{Name='Lip',BorderSizePixel=0});local lc=W.new('UICorner',lipF,{})
+ local lipF=W.new('Frame',b,{Name='Lip',BorderSizePixel=0,ZIndex=-1});lipF:SetAttribute('Decor',true);local lc=W.new('UICorner',lipF,{})
+ local ring,ringS,ringPlace -- LipClip/Lip, made the first time a translucent look paints
  local face=W.new('Frame',b,{Name='Face',BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,ZIndex=0});local fc=W.new('UICorner',face,{})
  local fg=W.new('UIGradient',face,{Rotation=90});local fs=gstroke(face,T.text,T.s.bold,0)
  local shine=W.new('Frame',face,{Name='Shine',Size=UDim2.fromScale(1,1),BackgroundColor3=Color3.new(1,1,1),BorderSizePixel=0,ZIndex=0});local sc=W.new('UICorner',shine,{});W.grad(shine,T.gradGloss)
@@ -289,10 +332,15 @@ function W.candy(b,base)
  local cap=W.new('UITextSizeConstraint',label,{MaxTextSize=b.TextSize+3,MinTextSize=9});W.wordFit(label,cap,b.TextSize+3,9,true)
  local drop,glow
  local function fit()
-  local L=lookOf(b);local h=if b.AbsoluteSize.Y>0 then b.AbsoluteSize.Y else b.Size.Y.Offset
+  local L=lookOf(b)
   local s=L.stroke;local ly=L.lipY or 0;local down=if b:GetAttribute('Pressed') then ly else 0
   face.Size=UDim2.new(1,-2*s,1,-ly-2*s);face.Position=UDim2.fromOffset(s,s+down)
-  clip.Size=UDim2.new(1,0,0,ly);clip.Position=UDim2.new(0,0,1,-ly);lipF.Size=UDim2.new(1,0,0,h-ly);lipF.Position=UDim2.fromOffset(0,2*ly-h)
+  local see=ly>0 and down==0;local translucent=(L.fillT or 0)>0
+  lipF.Visible=see and not translucent;lipF.Size=UDim2.new(1,0,1,-ly);lipF.Position=UDim2.fromOffset(0,ly)
+  if ring then
+   ring.Visible=see and translucent
+   local w,h=localSize(b);if w and ring.Visible then ringPlace(uc.CornerRadius,w,h-ly,0,ly) end
+  end
   label.Size=UDim2.new(1,-10,1,-ly);label.Position=UDim2.fromOffset(5,down)
   if drop then drop.Size=label.Size;drop.Position=label.Position+UDim2.fromOffset(0,2) end
   if glow and L.glow then local e=L.glow.b;glow.Size=UDim2.new(1,2*e,1,2*e-ly);glow.Position=UDim2.fromOffset(-e,-e) end
@@ -304,8 +352,15 @@ function W.candy(b,base)
   if L.grad then setGrad(fg,L.grad) else fg.Enabled=false end
   fs.Thickness=if T.prefs.highContrast then math.max(2,L.stroke) else L.stroke;fs.Transparency=L.strokeT or 0
   fs:SetAttribute('BaseThickness',L.stroke);fs:SetAttribute('BaseTransparency',L.strokeT or 0)
-  shine.Visible=L.gloss==true;clip.Visible=(L.lipY or 0)>0;lipF.BackgroundColor3=L.lip or T.lip;lipF.BackgroundTransparency=L.lipT or 0
+  shine.Visible=L.gloss==true;lipF.BackgroundColor3=L.lip or T.lip;lipF.BackgroundTransparency=L.lipT or 0
+  if (L.fillT or 0)>0 and (L.lipY or 0)>0 then
+   if not ring then local g,_l,st,pl=lipRing(b,r,L.lipY,L.lip or T.lip,L.lipT,false);ring,ringS,ringPlace=g,st,pl end
+   local th,lt=L.lipY,L.lipT or 0;ringS.Color=L.lip or T.lip -- rect ring (menus): stroke Y at the lip T
+   ringS:SetAttribute('BaseThickness',th);ringS.Thickness=if T.prefs.highContrast then math.max(2,th) else th
+   ringS:SetAttribute('BaseTransparency',lt);ringS.Transparency=if T.prefs.highContrast then math.min(lt,.15) else lt
+  end
   label.TextTransparency=L.dimT or 0
+  local bs=face:FindFirstChild('BuyShine');if bs then bs.Visible=L==looks.coin end -- W.coinLook sweep: coin look only (not busy / off)
   if L.drop and not drop then
    drop=W.new('TextLabel',b,{Name='Drop',BackgroundTransparency=1,Text=label.Text,Font=label.Font,TextSize=label.TextSize,TextWrapped=true,TextScaled=true,ZIndex=1});drop:SetAttribute('Decor',true)
    W.wordFit(drop,W.new('UITextSizeConstraint',drop,{MaxTextSize=b.TextSize+3,MinTextSize=9}),b.TextSize+3,9,true)
@@ -338,6 +393,19 @@ function W.button(parent,name,label,size,pos,fn,variant,enabled)
  W.candy(b,color);if not isEnabled then W.enable(b,false) end
  b.Activated:Connect(function() if b:GetAttribute('Enabled') and fn then fn() end end)
  return b
+end
+-- P7 R5: a kit button that spends coins (hub upgrades, Train, Shop › Bats) takes the whole buy() coin recipe (§2 buy(), L245): coin look
+-- (coinBuy, glow.buyCoin, lip gold.lip, stroke 2), LG 16 and the buy shine (Frame 28 % × 120 %, Rot 20, rect-clipped by the face,
+-- Motion buy.shine). The candy label is TextSize + 3, so the button carries t.buy − 3. Disabled / busy keep the ghost (shine hidden).
+function W.coinLook(b)
+ b:SetAttribute('Look','coin');b:SetAttribute('BaseTextSize',T.t.buy-3);b.TextSize=T.size(T.t.buy-3)
+ local face=b:FindFirstChild('Face')
+ if face and not face:FindFirstChild('BuyShine') then
+  face.ClipsDescendants=true
+  local sh=W.new('Frame',face,{Name='BuyShine',Size=UDim2.fromScale(.28,1.2),Position=UDim2.fromScale(-.4,-.1),Rotation=20,BackgroundColor3=T.text,BorderSizePixel=0,ZIndex=0})
+  W.grad(sh,T.gradShine);sh:SetAttribute('Motion','buy.shine');sh:SetAttribute('Decor',true)
+ end
+ paint(b);return b
 end
 -- Disabled = ghost look with a dimmed label (intel §2 has no disabled state; G15 uses the ghost for "Coming soon").
 function W.enable(b,on,label)
@@ -606,7 +674,7 @@ function W.glass(parent,name,size,pos,opts)
  -- GAP: banner/edge rim transparency is not stated (§2 variants name only the colour); glass.rimT kept.
  gstroke(b,opts.rim or v.rim or T.glassRim,s,opts.rimT or v.rimT or T.glassRimT)
  if type(r)=='number' then W.new('Frame',b,{Name='Highlight',Size=UDim2.new(1,2*(s-r),0,2),Position=UDim2.fromOffset(r-s,2-s),BackgroundColor3=T.text,BackgroundTransparency=T.glassHiT,BorderSizePixel=0}) end
- if opts.lip~=false then lip(o,r,5,T.night,T.glassLipT,true) end
+ if opts.lip~=false then lip(o,r,5,T.night,T.glassLipT,'auto') end
  local g=if opts.glow~=nil then opts.glow else v.glow
  if g then W.glow(o,o,g) end
  return o
@@ -650,7 +718,7 @@ function W.orb(parent,name,d,opts)
  local g=get('glow');if g==nil and not opts.preset then g=T.glowOrb end
  if g then W.glow(o,o,g) end
  -- GAP: the plain cta orb (L55; the jump orb is not built, D5) has no lip height in the intel; pass opts.lipY.
- local ly=get('lipY');if ly then lip(o,r,ly,get('lipColor') or T.lip,0,flat) end
+ local ly=get('lipY');if ly then lip(o,r,ly,get('lipColor') or T.lip,0,flat and 'auto') end
  local b=body(o,r,s,if flat then get('fill') else T.text,if flat then get('fillT') else 0)
  if not flat then W.grad(b,get('gradient') or T.gradCta) end
  gstroke(b,T.text,s,0)
@@ -666,7 +734,7 @@ local function ctaCore(parent,name,label,size,pos,k)
  local o=root(if k.plate then 'Frame' else 'TextButton',parent,name,size,pos,r)
  if not k.plate then o.Text=label;o.Font=T.fontDisplay;o.TextSize=T.size(k.n);o:SetAttribute('QAControl',true);o:SetAttribute('Enabled',true) end
  if k.glow then W.glow(o,o,k.glow) end
- lip(o,r,k.lipY,k.lipColor,k.lipT,k.clipped)
+ lip(o,r,k.lipY,k.lipColor,k.lipT,k.clipped and 'rect')
  local b=body(o,r,s,k.fill or T.text,k.fillT);b.ClipsDescendants=k.shine==true
  if k.grad then W.grad(b,k.grad) end
  gstroke(b,T.text,s,k.strokeT)

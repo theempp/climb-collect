@@ -4,7 +4,9 @@
 -- intel §3 / plan §5 with the .75 px tolerance:
 --  permanent (HudClass) inside S, clear of C (116x56), T, M, each other and the native jump/thumbstick; GuiButtons off the
 --  dynamic-thumbstick region except the centred row (owner 2026-10-27); transients inside S, clear of C, no input on the
---  mountain (the sanctuary Collect is the one exception); hit areas >= 44; text fits; coverage at 844x390 (rest, chase) =
+--  mountain (the sanctuary Collect is the one exception); owner 2026-10-28 (P7 E): transients may cross T but never M (the
+--  player card launcher and the full-screen hatch reveal excepted), measured at their settled box (no Motion scale live);
+--  hit areas >= 44; text fits; coverage at 844x390 (rest, chase) =
 --  2 px grid union of permanent boxes + the native jump. Returns JSON {errors, list, coverage, ...}.
 local pg=game.Players.LocalPlayer.PlayerGui
 local gui=pg:WaitForChild('MountainHUD');local root=gui.SafeRoot
@@ -78,6 +80,7 @@ local function check(where,w,h,state)
   checked+=1
   if not inside(a.box,S) then add(where,a.piece..' outside S') end
   if overlap(a.box,Cz) then add(where,a.piece..' touches C') end
+  if a.piece~='card' and a.piece~='reveal' and overlap(a.box,M) then add(where,a.piece..' enters M') end
   if state~='sanctuary' and a.piece~='card' then
    for _,o in ipairs(a.o:GetDescendants()) do if o:IsA('GuiObject') and o.Active and visible(o,gui) then add(where,a.piece..' takes input on the mountain ('..o.Name..')') end end
   end
@@ -93,6 +96,8 @@ for _,size in ipairs(SIZES) do
  root.Size=UDim2.fromOffset(size[1],size[2]);if sprintRoot then sprintRoot.Size=root.Size end;task.wait(.2)
  for _,state in ipairs(STATES) do
   probe:Invoke('hudState',state);task.wait(1) -- P6: held messages finish their in part (RUN! settles at .95 s)
+  -- P7 E: measure the static box: wait (<= 2 s more) until no Motion scale is live under the HUD (in parts done).
+  local t0=os.clock();while os.clock()-t0<2 and gui:FindFirstChild('MotionScale',true) do task.wait(.1) end
   check(size[1]..'x'..size[2]..' '..state,size[1],size[2],state)
  end
 end

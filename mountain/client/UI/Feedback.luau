@@ -11,13 +11,13 @@ local Hud=require(script.Parent.Hud)
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local H=require(game.ReplicatedStorage.MountainShared.HudState)
 local EggOdds=require(game.ReplicatedStorage.MountainShared.EggOdds)
+local P=require(game.ReplicatedStorage.MountainShared.UIPresentation)
 local GuiService=game:GetService('GuiService')
 local UIS=game:GetService('UserInputService')
 local F={};F.__index=F
 local label,pill,textW,disc=Hud.label,Hud.pill,Hud.textW,Hud.disc
 local left=Enum.TextXAlignment.Left
 local function speciesName(id) local s=type(id)=='string' and C.byId[id] or nil;return if s then s.name else 'Creature' end
-local function place(o,r) o.Position=UDim2.fromOffset(r.x,r.y);o.Size=UDim2.fromOffset(r.w,r.h) end
 local function tag(o,piece,motion) o:SetAttribute('HudClass','transient');o:SetAttribute('HudPiece',piece);o:SetAttribute('Motion',motion);o.Active=false;return o end
 -- Held (QA fixtures, Collect moments, the reward modal): every Motion piece in o plays its in part only (Motion reads it on scan).
 local function held(o)
@@ -52,9 +52,35 @@ function F.new(root,layer)
  end)
  return self
 end
+-- Screen rect in root px (P7 R1): Controller sets self.screenRect (the full screen under CoreUISafeInsets); without it, the root.
+function F:screen()
+ local r=self.screenRect and self.screenRect();if r and r.w>0 and r.h>0 then return r end
+ local v=self.root.AbsoluteSize;return {x=0,y=0,w=v.X,h=v.Y}
+end
+-- The hatch reveal hides the HUD like an open hub (board reveal: no coin pill / gear); hooks.reveal(on) on a change only.
+function F:_revealing(on)
+ if self.revealing==on then return end;self.revealing=on
+ if self.hooks.reveal then self.hooks.reveal(on) end
+end
+function F:setHubOpen(on) if on~=self.hubOpen then self.hubOpen=on;if self.current and self.current.place then self.current.place() end end end
 function F:layout(l)
  self.l=l
  for _,slot in ipairs({'current','band','moment'}) do local m=self[slot];if m and m.place then m.place() end end
+end
+-- Top band (owner 2026-10-28, P7 E; P.bandSlot): each band message is built at its board size inside a transparent holder that
+-- carries one UIScale (W.new, so W.fit divides it out) and sits at the band slot. Motion's MotionScale stays on the tagged piece
+-- inside, so the two scales never share an object.
+local function seatHolder(parent,name,z)
+ local o=W.new('Frame',parent,{Name=name,BackgroundTransparency=1,BorderSizePixel=0,AnchorPoint=Vector2.new(.5,0),ZIndex=z or 12})
+ return o,W.new('UIScale',o,{Name='BandScale'})
+end
+local function seat(o,sc,l,w,h,under,e)
+ local r=P.bandSlot(l,w,h,under,e);o.Size=UDim2.fromOffset(w,h);o.Position=UDim2.fromOffset(l.band.cx,r.y);sc.Scale=r.f;return r
+end
+-- Band in use (a tier-2 message, or a mountain/sanctuary moment in the band): hides the boss bar and the hint card.
+function F:_busy()
+ local on=self.band~=nil or (self.moment~=nil and self.moment.band==true)
+ if on~=self.busyOn then self.busyOn=on;if self.hooks.band then self.hooks.band(on) end end
 end
 -- Legacy free text (server toasts, request results): HudState classifies it; text whose typed hud event drives the moment is
 -- skipped here (G5, P2).
@@ -103,8 +129,11 @@ function F:_nextToast()
  local rec={frame=g,text=q.text}
  rec.place=function()
   local l=self.l;if not l then return end
-  local w=math.min(l.toastMax,2+padL+textW(q.text,T.fontBody,T.t.toast)+12+2)
-  g.Size=UDim2.fromOffset(w,30);g.Position=UDim2.fromOffset(l.toast.x,l.toast.y)
+  -- P7: with a hub open the coin pill row is hidden and the panel's X/wallet sit under the tier-1 slot, so toasts move to the
+  -- top row, centred (band.top, above the title plate); back under the coin pill when the hub closes (F:setHubOpen).
+  local hub=self.hubOpen==true;local w=math.min(if hub then l.band.topMax else l.toastMax,2+padL+textW(q.text,T.fontBody,T.t.toast)+12+2)
+  g.AnchorPoint=Vector2.new(if hub then .5 else 1,0)
+  g.Size=UDim2.fromOffset(w,30);g.Position=if hub then UDim2.fromOffset(l.band.cx,l.band.top) else UDim2.fromOffset(l.toast.x,l.toast.y)
   t.Position=UDim2.fromOffset(2+padL,0);t.Size=UDim2.new(1,-(2+padL+12+2),1,0)
  end
  rec.place();self.current=rec
@@ -120,14 +149,16 @@ local function bannerCopy(m)
 end
 function F:_banner(m)
  local kicker,title=bannerCopy(m)
- local g=tag(W.glass(self.layer,'Banner',UDim2.fromOffset(200,59),nil,{radius=T.r.banner,variant='banner',glow=T.glowGlass}),'banner','banner');g.AnchorPoint=Vector2.new(.5,0);g.ZIndex=12
+ local o,sc=seatHolder(self.layer,'BannerSlot')
+ local g=tag(W.glass(o,'Banner',UDim2.fromOffset(200,59),nil,{radius=T.r.banner,variant='banner',glow=T.glowGlass}),'banner','banner');g.ZIndex=12
  local k=W.textStroke(label(g,'Kicker',kicker,T.fontBody,T.t.smallHud,T.pinkText),nil).Parent;k.Position=UDim2.fromOffset(30,8);W.fit(k,T.t.smallHud,8)
  local t=display(g,'Title',title,T.t.bannerTitle,T.text,T.lip,3);W.fit(t,T.t.bannerTitle,10)
  local d=g:FindFirstChild('TitleDrop');W.fit(d,T.t.bannerTitle,10)
- return g,function(l)
+ return o,function(l)
   local w=math.min(l.bandMax,math.max(textW(kicker,T.fontBody,T.t.smallHud),textW(title,T.fontDisplay,T.t.bannerTitle))+2*(2+28))
-  g.Size=UDim2.fromOffset(w,59);g.Position=UDim2.fromOffset(l.banner.x,l.banner.y)
+  g.Size=UDim2.fromOffset(w,59)
   k.Size=UDim2.new(1,-60,0,12);t.Position=UDim2.fromOffset(30,20);t.Size=UDim2.new(1,-60,0,29)
+  return seat(o,sc,l,w,59,nil,T.glowGlass.b+(T.glowGlass.s or 0)) -- drawn extent: the glass glow
  end
 end
 -- Carry pop-up (B.cpop L155-160): pill r30, padding 7/24/7/7, gap 12, rcg + cpopOverlay, stroke 3 white, glowRarity 26, lip night
@@ -140,7 +171,8 @@ function F:_carryPop(m)
  local kicker=if regrab then 'GOT IT BACK' else 'CARRYING'
  local name=string.upper(speciesName(d.species))
  local hint=if regrab then 'Run it to the safe gate' else 'Get it to the safe gate'
- local o=tag(W.new('Frame',self.layer,{Name='CarryPop',BackgroundTransparency=1,BorderSizePixel=0,AnchorPoint=Vector2.new(.5,0),ZIndex=12}),'carryPop','carry.pop')
+ local hold,sc=seatHolder(self.layer,'CarryPopSlot')
+ local o=tag(W.new('Frame',hold,{Name='CarryPop',BackgroundTransparency=1,BorderSizePixel=0,ZIndex=12}),'carryPop','carry.pop')
  W.glow(o,o,T.glowRarity,rc,'cpop')
  local lipF=W.new('Frame',o,{Name='Lip',Size=UDim2.fromScale(1,1),Position=UDim2.fromOffset(0,5),BackgroundColor3=T.night,BackgroundTransparency=T.glassLipT,BorderSizePixel=0,ZIndex=-1})
  W.new('UICorner',lipF,{CornerRadius=UDim.new(0,T.r.pill30)});lipF:SetAttribute('Decor',true)
@@ -166,35 +198,45 @@ function F:_carryPop(m)
  lines[2]={line('Name',name,T.fontDisplay,T.t.carryName,s+7+13,30,3,.15)}
  local hl=label(o,'Hint',hint,T.fontBody,T.t.carryHint,T.text,left);hl.Position=UDim2.fromOffset(x,s+7+43);hl.Size=UDim2.fromOffset(0,15);hl.ZIndex=3;hl.TextTransparency=T.textDimT[1];W.textStroke(hl);W.fit(hl,T.t.carryHint,8)
  lines[3]={hl}
- return o,function(l)
+ return hold,function(l)
   local tw=math.max(textW(kicker,T.fontBody,T.t.smallHud),textW(name,T.fontDisplay,T.t.carryName),textW(hint,T.fontBody,T.t.carryHint))
   local w=math.min(l.bandMax,x+tw+24+s);tw=w-x-24-s
   for _,pair in ipairs(lines) do for _,lb in ipairs(pair) do lb.Size=UDim2.fromOffset(tw,lb.Size.Y.Offset) end end
-  o.Size=UDim2.fromOffset(w,78);o.Position=UDim2.fromOffset(l.carryPop.x,l.carryPop.y)
+  o.Size=UDim2.fromOffset(w,78)
+  return seat(hold,sc,l,w,78,nil,T.glowRarity.b.cpop+(T.glowRarity.s or 0)) -- drawn extent: the rarity glow 26
  end
 end
 -- RUN! (B.run L162-167): LG 104 + gradRun fill + UIStroke 4.5 runStroke + drop +8 runDrop; awake pill h27 padX 14 r12 runAwakeBg
--- T.15, stroke 1.5 dangerRim, FO 13, 6 below; shock ring 180 (UIStroke 6 runShock + glowShock) centred at top .22, Decor.
+-- T.15, stroke 1.5 dangerRim, FO 13; shock ring 180 (UIStroke 6 runShock + glowShock), Decor. P7 E/F (owner 2026-10-28): word and
+-- pill share one row in the top band (P.bandRun: word left, pill 6 right of it, centred on the word line, the row centred). Each
+-- sits in its own holder + UIScale: the word at the band factor f of its own box (line 125, text-fitted), the pill at fp (width
+-- only). The ring is centred on the scaled word, 180 x f (P.bandShock), outside both holders.
 function F:_run(m)
  local d=m.data or {}
  local o=W.new('Frame',self.layer,{Name='Run',BackgroundTransparency=1,BorderSizePixel=0,Size=UDim2.fromScale(1,1),ZIndex=12}) -- holder; tagged boxes are its children
  local shock=W.new('Frame',o,{Name='Shock',BackgroundTransparency=1,BorderSizePixel=0,ZIndex=0});shock:SetAttribute('Decor',true);shock:SetAttribute('Motion','run.shock')
+ local blk,sc=seatHolder(o,'RunSlot',1);local pblk,psc=seatHolder(o,'AwakeSlot',2)
  local sd=W.new('Frame',shock,{Name='Ring',Size=UDim2.new(1,-12,1,-12),Position=UDim2.fromOffset(6,6),BackgroundTransparency=1,BorderSizePixel=0})
  W.new('UICorner',sd,{CornerRadius=T.r.circle});local ss=W.new('UIStroke',sd,{Color=T.runShock,Thickness=T.s.ring6});ss:SetAttribute('BaseThickness',T.s.ring6);ss:SetAttribute('BaseTransparency',0)
  W.glow(shock,shock,T.glowShock)
- local drop=label(o,'RunDrop','RUN!',T.fontDisplay,T.t.run,T.runDrop);drop.ZIndex=1;drop:SetAttribute('Decor',true)
- local word=label(o,'Word','RUN!',T.fontDisplay,T.t.run,T.text);word.ZIndex=2;W.grad(word,T.gradRun)
+ local drop=label(blk,'RunDrop','RUN!',T.fontDisplay,T.t.run,T.runDrop);drop.ZIndex=1;drop:SetAttribute('Decor',true)
+ local word=label(blk,'Word','RUN!',T.fontDisplay,T.t.run,T.text);word.ZIndex=2;W.grad(word,T.gradRun)
  local ws=W.new('UIStroke',word,{Color=T.runStroke,Thickness=T.s.text.run,ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,LineJoinMode=Enum.LineJoinMode.Round});ws:SetAttribute('BaseThickness',T.s.text.run);ws:SetAttribute('BaseTransparency',0)
  tag(word,'run','run.slam')
- local awake,al=pill(o,'Awake',27,14,T.runAwakeBg,T.pillT.awake,T.s.thin,T.dangerRim,T.r[12],T.fontBody,T.t.awake,T.text,string.upper(tostring(d.guardian or 'Guardian'))..' IS AWAKE')
- awake.AnchorPoint=Vector2.new(.5,0);awake.ZIndex=3;tag(awake,'awake','run.awake')
- local awakeFit=false
+ local awake=pill(pblk,'Awake',27,14,T.runAwakeBg,T.pillT.awake,T.s.thin,T.dangerRim,T.r[12],T.fontBody,T.t.awake,T.text,string.upper(tostring(d.guardian or 'Guardian'))..' IS AWAKE')
+ awake.ZIndex=3;tag(awake,'awake','run.awake')
  return o,function(l)
-  place(word,l.run);drop.Position=word.Position+UDim2.fromOffset(0,8);drop.Size=word.Size
-  awake.Position=UDim2.fromOffset(l.awake.x,l.awake.y)
-  if awake.Size.X.Offset>l.bandMax then awake.Size=UDim2.fromOffset(l.bandMax,27);if not awakeFit then awakeFit=true;W.fit(al,T.t.awake,8) end end
-  local e=T.glowShock.b;shock.Size=UDim2.fromOffset(l.shock.w,l.shock.h);shock.Position=UDim2.fromOffset(l.shock.x,l.shock.y)
+  -- Word box = the text width + the 4.5 stroke each side (was full width; a full-width box would cross C and the coin pill).
+  local ww=math.min(l.bandMax,textW('RUN!',T.fontDisplay,T.t.run)+2*5);local pw=awake.Size.X.Offset
+  word.Position=UDim2.fromOffset(0,0);word.Size=UDim2.fromOffset(ww,125);drop.Position=word.Position+UDim2.fromOffset(0,8);drop.Size=word.Size
+  awake.Position=UDim2.fromOffset(0,0)
+  local r,wr,pr=P.bandRun(l,ww,pw,125,27)
+  blk.Size=UDim2.fromOffset(ww,125);blk.Position=UDim2.fromOffset(wr.x+wr.w/2,wr.y);sc.Scale=wr.f
+  pblk.Size=UDim2.fromOffset(pw,27);pblk.Position=UDim2.fromOffset(pr.x+pr.w/2,pr.y);psc.Scale=pr.f
+  local k=P.bandShock(l,wr,125,wr.x+wr.w/2)
+  local e=T.glowShock.b;shock.Size=UDim2.fromOffset(k.w,k.h);shock.Position=UDim2.fromOffset(k.x,k.y)
   local g=shock:FindFirstChild('Glow');if g then g.Size=UDim2.new(1,2*e,1,2*e);g.Position=UDim2.fromOffset(-e,-e) end
+  return r
  end
 end
 -- The newest tier-2 message replaces the one showing (L532).
@@ -203,9 +245,22 @@ function F:_band(m,hold)
  local o,fit
  if m.slot=='carryPop' then o,fit=self:_carryPop(m) elseif m.slot=='run' then o,fit=self:_run(m) else o,fit=self:_banner(m) end
  if hold then held(o) end
- local rec={frame=o};rec.place=function() if self.l then fit(self.l) end end;rec.place();self.band=rec
- if self.hooks.band then self.hooks.band(true) end
- if not hold then task.delay(m.duration or 2.5,function() if self.band==rec then o:Destroy();self.band=nil;if self.hooks.band then self.hooks.band(false) end end end) end
+ local rec={frame=o};rec.place=function() if self.l then rec.slot=fit(self.l) end end;rec.place();self.band=rec
+ -- A moment showing stacks under the new message when it keeps its floor (P.bandFloorOf); otherwise it waits (re-queued first).
+ local cur=self.moment
+ if cur and cur.band then if cur.fits and not cur.fits() then self:_deferMoment() elseif cur.place then cur.place() end end
+ self:_busy()
+ if not hold then task.delay(m.duration or 2.5,function() if self.band==rec then o:Destroy();self.band=nil;self:_bandDone() end end) end
+end
+-- The band cleared: a stacked moment moves up to the top; a waiting one starts.
+function F:_bandDone()
+ if self.moment then if self.moment.place then self.moment.place() end elseif #self.moments>0 then self:_nextMoment() end
+ self:_busy()
+end
+function F:_deferMoment()
+ local cur=self.moment;if not cur then return end
+ self.moment=nil;cur.frame:Destroy();table.insert(self.moments,1,{m=cur.m,hold=cur.hold})
+ if cur.collect and self.hooks.blocking then self.hooks.blocking(false) end
 end
 -- Tier 3 (B.moment L149-151): LG 64 moment.text + UIStroke 3 lip + drop 5 lipDeep; sub pill padding 2/12 r10 night2 T.2 FO 13,
 -- 8 below. In the sanctuary a Collect CTA (reveal Collect: W.cta 190x46, LG 24) ends it; on the mountain it lasts 2.5 s.
@@ -219,16 +274,28 @@ end
 function F:_nextMoment()
  if self.moment then local cur=self.moment;self.moment=nil;cur.frame:Destroy() end
  local q=table.remove(self.moments,1)
- if not q or not self.alive then if self.hooks.blocking then self.hooks.blocking(false) end;return end
+ if not (q and self.alive and q.m.slot=='reveal') then self:_revealing(false) end
+ if not q or not self.alive then if self.hooks.blocking then self.hooks.blocking(false) end;self:_busy();return end
  local m=q.m
- if m.slot=='reveal' then self:_reveal(m);return end
+ if m.slot=='reveal' then self:_reveal(m);self:_busy();return end
  local title,sub=momentCopy(m)
+ -- P7 E (owner): the moment sits in the top band (block = line 77 [+ 8 + sub pill 20]), under a tier-2 message when one shows and
+ -- the stacked factor keeps the floor (LG 64 / FO 13 sub, P.bandFloorOf); otherwise it waits for the band to clear.
+ local floor=P.bandFloorOf(if sub then {{T.t.moment,'display'},{T.t.momentSub,'body'}} else {{T.t.moment,'display'}})
+ local function dims(l)
+  local tw=math.min(l.bandMax,textW(title,T.fontDisplay,T.t.moment)+2*T.s.text.moment)
+  local sw=if sub then math.min(l.bandMax,textW(sub,T.fontBody,T.t.momentSub)+2*12) else 0
+  return tw,math.max(tw,sw),if sub then 77+8+20 else 77
+ end
+ local function fits() local l=self.l;if not (l and self.band and self.band.slot) then return true end;local _,bw,bh=dims(l);return P.bandSlot(l,bw,bh,self.band.slot).f>=floor end
+ if not fits() then table.insert(self.moments,1,q);if self.hooks.blocking then self.hooks.blocking(false) end;self:_busy();return end
  local o=W.new('Frame',self.layer,{Name='Moment',BackgroundTransparency=1,BorderSizePixel=0,Size=UDim2.fromScale(1,1),ZIndex=13}) -- holder
- local t,td=display(o,'Title',title,T.t.moment,T.momentText,T.lipDeep,5)
+ local blk,sc=seatHolder(o,'MomentSlot',1)
+ local t,td=display(blk,'Title',title,T.t.moment,T.momentText,T.lipDeep,5)
  local ts=W.new('UIStroke',t,{Color=T.lip,Thickness=T.s.text.moment,ApplyStrokeMode=Enum.ApplyStrokeMode.Contextual,LineJoinMode=Enum.LineJoinMode.Round});ts:SetAttribute('BaseThickness',T.s.text.moment);ts:SetAttribute('BaseTransparency',0)
  tag(t,'moment','moment');W.fit(t,T.t.moment,16);W.fit(td,T.t.moment,16)
  local sp,sl
- if sub then sp,sl=pill(o,'Sub',20,12,T.night2,T.pillT.momentSub,0,T.night2,T.r[10],T.fontBody,T.t.momentSub,T.text,sub);sp.AnchorPoint=Vector2.new(.5,0);sp.ZIndex=3;tag(sp,'momentSub','moment') end
+ if sub then sp,sl=pill(blk,'Sub',20,12,T.night2,T.pillT.momentSub,0,T.night2,T.r[10],T.fontBody,T.t.momentSub,T.text,sub);sp.AnchorPoint=Vector2.new(.5,0);sp.ZIndex=3;tag(sp,'momentSub','moment') end
  local subFit=false
  local cta
  if m.collect then
@@ -237,14 +304,16 @@ function F:_nextMoment()
   if self.hooks.blocking then self.hooks.blocking(true) end
  end
  if m.collect or q.hold then held(o) end -- a Collect moment waits: title / sub / Collect stay in
- local rec={frame=o}
+ local rec={frame=o,m=m,hold=q.hold,band=true,collect=m.collect==true,fits=fits}
  rec.place=function()
   local l=self.l;if not l then return end
-  t.Position=UDim2.fromOffset(0,l.moment.y);t.Size=UDim2.fromOffset(l.moment.w,l.moment.h)
-  if sp then sp.Position=UDim2.fromOffset(l.momentSub.x,l.momentSub.y);if sp.Size.X.Offset>l.bandMax then sp.Size=UDim2.fromOffset(l.bandMax,20);if not subFit then subFit=true;W.fit(sl,T.t.momentSub,8) end end end
-  if cta then cta.Position=UDim2.fromOffset(l.collect.x,l.collect.y) end
+  local tw,bw,bh=dims(l)
+  t.Position=UDim2.fromOffset((bw-tw)/2,0);t.Size=UDim2.fromOffset(tw,77)
+  if sp then sp.Position=UDim2.fromOffset(bw/2,77+8);if sp.Size.X.Offset>l.bandMax then sp.Size=UDim2.fromOffset(l.bandMax,20);if not subFit then subFit=true;W.fit(sl,T.t.momentSub,8) end end end
+  local r=seat(blk,sc,l,bw,bh,self.band and self.band.slot);rec.slot=r
+  if cta then local c=P.bandCollect(l,r);cta.Position=UDim2.fromOffset(c.x,c.y) end
  end
- rec.place();self.moment=rec
+ rec.place();self.moment=rec;self:_busy()
  if not m.collect and not q.hold then task.delay(m.duration or 2.5,function() if self.moment==rec then self:_nextMoment() end end) end
 end
 -- Sanctuary hatch reveal strip (P5 E; intel §2 `reveal strip`, board L326-356, L538-548, L731-738). Tier-3 moment kind 'hatch'
@@ -253,7 +322,9 @@ end
 -- delay). Scope R (1i): a SafeRoot child above the hub and HUD, never HUD-scaled.
 -- Scale decision (the board has one size; §3 has no strip check): every positioned part sits in the board's 844x390 frame
 -- ('Strip'), centred, with one UIScale = min(1, W/844, H/390), so 749x330 keeps Collect and the chance line on screen. The
--- backdrop (root fill + radial), sun and band are screen-wide outside it, placed at the scaled geometry.
+-- backdrop (screen fill + radial), sun and band are screen-wide outside it, placed at the scaled geometry. W = the root width,
+-- H = the screen height (P7 R1, P.revealFrame): the backdrop also covers Roblox's topbar row and the notch margins; the 844x390 frame is
+-- centred in the root horizontally (scale by the root width) and on the screen vertically.
 -- reveal.dim (group opacity .12 = T.88, L345) is per child (intel Conversions): T = 1-(1-T0)*.12; Motion recovers
 -- T0 = 1-(1-T)/(1-revealDimT).
 local function dimT(t) return 1-(1-(t or 0))*(1-T.revealDimT) end
@@ -290,7 +361,7 @@ function F:_reveal(m)
  local key=W.rarityKey(sp.rarity);local rc=if key then T.rarityColor[key].rc else T.cardFallback
  self.tooltip.Visible=false;self.tooltipOwner=nil
  -- Root = backdrop reveal.bgOut (L326), full screen; it sinks input so the hub underneath can't be tapped.
- local o=W.new('Frame',self.root,{Name='HatchReveal',Size=UDim2.fromScale(1,1),BackgroundColor3=T.revealBgOut,BorderSizePixel=0,Active=true,ClipsDescendants=true,ZIndex=60})
+ local o=W.new('Frame',self.root,{Name='HatchReveal',BackgroundColor3=T.revealBgOut,BorderSizePixel=0,Active=true,ClipsDescendants=true,ZIndex=60})
  o:SetAttribute('HudClass','transient');o:SetAttribute('HudPiece','reveal') -- full screen by design: §3 has no strip check
  o:SetAttribute('RevealRarity',sp.rarity) -- Motion's spin title by tier (§19)
  -- U11 radial reveal.bgIn at 50 %/48 %, linear to bgOut at 75 % of the farthest-corner distance (≈702 at 844x390, est.).
@@ -318,8 +389,7 @@ function F:_reveal(m)
  -- Track = the dim group; Reel = the spinning strip (overflows the frame by design: Decor).
  local track=box(h,'Track',0,104,844,108,3);track:SetAttribute('Motion','reveal.dim');track:SetAttribute('Decor',true)
  local reel=box(track,'Reel',422-(14*108+54),0,20*108,108);reel:SetAttribute('Motion','reveal.spin')
- -- Clipped lip 4 ink (translucent card body, intel Conversions): one clip strip under the reel at y 108..112.
- local lipClip=box(reel,'LipClip',0,108,20*108,4);lipClip.ClipsDescendants=true;lipClip:SetAttribute('Decor',true)
+ -- Lip 4 ink (translucent card body): the kit's clipped crescent per card (P7 §22, W.lip 'rect'), not a flat strip.
  for i=0,19 do
   local x=i*108;local c=if i==14 then rc else T.rarityColor[TRACK_KEY[TRACK:sub(i+1,i+1)]].rc
   -- r14, border 3 ink inside the box (body inset 3 + UIStroke 3), fill rc → rc T.2, inner ring 2 white T.65, icon 68
@@ -329,7 +399,7 @@ function F:_reveal(m)
   stroke(round(box(b,'Ring',T.s.glass,T.s.glass,90-2*T.s.glass,102-2*T.s.glass),T.r.card-T.s.bold-T.s.glass),T.text,T.s.glass,dimT(.65))
   local img=W.icon(b,if i%2==0 then 'Creature' else 'Egg',UDim2.fromOffset(68,68),UDim2.fromOffset(11,17)):FindFirstChild('Image')
   if img then img.ImageTransparency=dimT(0) end
-  local lp=round(box(lipClip,'Lip'..i,x,4-108,96,108),T.r.card);lp.BackgroundColor3=T.outline;lp.BackgroundTransparency=dimT(0)
+  W.lip(box(reel,'LipHost'..i,x,0,96,108,1),T.r.card,4,T.outline,dimT(0),true)
  end
  -- Selector 120x150 at (362,82): stroke 5 gold r18, glowRevealSel (the inset glow is not ported), dimmed.
  local sel=box(h,'Selector',362,82,120,150,4);sel:SetAttribute('Motion','reveal.dim')
@@ -386,16 +456,22 @@ function F:_reveal(m)
   if cta:GetAttribute('MotionShown') and self.moment==rec then rec.trap=cta;if UIS.GamepadEnabled and not self.modal then GuiService.SelectedObject=cta end end
  end) end
  rec.place=function()
-  local v=self.root.AbsoluteSize;if v.X<=0 or v.Y<=0 then return end
-  local s=math.min(1,v.X/844,v.Y/390);scale.Scale=s
-  local dia=1.5*math.sqrt((v.X/2)^2+(.52*v.Y)^2);radial.Size=UDim2.fromOffset(dia,dia)
+  local v=self:screen();local rs=self.root.AbsoluteSize;if v.w<=0 or v.h<=0 or rs.X<=0 then return end
+  -- Backdrop = the whole screen (to the device edges); the strip, sun and radial centre sit at the frame: centred horizontally in
+  -- the root (device safe area, so Collect is never under a notch), vertically on the screen (P.revealFrame).
+  o.Position=UDim2.fromOffset(v.x,v.y);o.Size=UDim2.fromOffset(v.w,v.h)
+  local fr=P.revealFrame({x=0,y=0,w=rs.X,h=rs.Y},v);local s=fr.scale;scale.Scale=s
+  local cx,cy=fr.x-v.x+fr.w/2,fr.y-v.y+fr.h/2
+  h.Position=UDim2.fromOffset(cx,cy);sun.Position=UDim2.fromOffset(cx,cy);radial.Position=UDim2.fromOffset(cx,.48*v.h)
+  local dia=1.5*math.sqrt((math.max(cx,v.w-cx))^2+(.52*v.h)^2);radial.Size=UDim2.fromOffset(dia,dia)
   sun.Size=UDim2.fromOffset(1224*s,1224*s)
-  band.Position=UDim2.fromOffset(0,(v.Y-390*s)/2+92*s);band.Size=UDim2.new(1,0,0,130*s)
+  band.Position=UDim2.fromOffset(0,fr.y-v.y+92*s);band.Size=UDim2.new(1,0,0,130*s)
   for _,l in ipairs(lines) do l.Size=UDim2.new(1,0,0,3*s) end
   W.hit(cta,44/s) -- 44 px on screen under the UIScale (§3)
  end
  rec.place();self.moment=rec
  if self.hooks.blocking then self.hooks.blocking(true) end
+ self:_revealing(true)
  if UIS.GamepadEnabled then rec.prev=GuiService.SelectedObject;GuiService.SelectedObject=if wait then nil else cta end
 end
 function F:_collect()
@@ -405,18 +481,20 @@ function F:_collect()
 end
 -- Drop the moment queue and the moment showing (UIProbe close / reveal fixture); unblocks the HUD.
 function F:clearMoments()
- table.clear(self.moments)
+ table.clear(self.moments);self:_revealing(false)
  if self.moment then local cur=self.moment;self.moment=nil;cur.frame:Destroy();if self.hooks.blocking then self.hooks.blocking(false) end end
+ self:_busy()
 end
 -- QA fixtures and state resets: drop every message now.
 function F:clear()
  table.clear(self.queue);self:_dropToast()
- if self.band then self.band.frame:Destroy();self.band=nil;if self.hooks.band then self.hooks.band(false) end end
- self:clearMoments()
+ if self.band then self.band.frame:Destroy();self.band=nil end
+ self:clearMoments() -- also clears the band-busy state
 end
 function F:confirm(title,description,onConfirm)
  self:close();self.previousFocus=GuiService.SelectedObject
- local shade=W.frame(self.root,'Confirmation',UDim2.fromScale(1,1),nil,T.navy);shade.BackgroundTransparency=.15;shade.ZIndex=70;shade.Active=true;self.modal=shade
+ local sr=self:screen() -- P7: full-screen shade like HubShade (no untinted topbar/notch bands); the dialog stays centred
+ local shade=W.frame(self.root,'Confirmation',UDim2.fromOffset(sr.w,sr.h),UDim2.fromOffset(sr.x,sr.y),T.navy);shade.BackgroundTransparency=.15;shade.ZIndex=70;shade.Active=true;self.modal=shade
  local f=W.panel(shade,'Dialog',UDim2.new(.86,0,0,226),UDim2.fromScale(.5,.5));f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=71
  W.new('UISizeConstraint',f,{MaxSize=Vector2.new(480,226)})
  W.text(f,title,UDim2.new(1,-32,0,40),UDim2.fromOffset(16,14),T.display,22).ZIndex=72
