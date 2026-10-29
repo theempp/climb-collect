@@ -314,5 +314,5 @@ Review `evidence/hud_glassbloom_2026-10-27/final/design_review.md` (R1–R10). O
 - Popup: RUN! word and the "<GUARDIAN> IS AWAKE" pill side by side in one row (stacked would shrink the pill text to ~6–7 px). Carry pop-up shrinks/fades in place at the top while the portrait pops in (no flight through the centre).
 - Custom emulator devices GB_844x411 / GB_932x430 reserve a top safe inset that clips the coin row (ClipToDeviceSafeArea); real device profiles (iPhone 16 Pro / Pro Max) don't. Final phone evidence uses the real profiles.
 
-## 23. P7 result (2026-10-28) — STOP 4-final pending
+## 23. P7 result (2026-10-28) — STOP 4-final approved
 Design review R1–R10 fixed (R9 left: world sign); owner requests (smooth crescent lips everywhere, pop-ups in the top band with the centre clear) built by component-builder tasks A–F and motion task G, verified in Studio. All checks green (handoff "P7 results"); copy saved (SHA256 9d37d9b4…688b). Publishing not in scope.
