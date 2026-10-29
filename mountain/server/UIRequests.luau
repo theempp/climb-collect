@@ -2,6 +2,9 @@
 
 local Protocol=if script then require(game.ReplicatedStorage.MountainShared.UIProtocol) else require('../shared/UIProtocol')
 
+-- LiveOps (analytics) is Roblox-only; plain-Luau tests run without it.
+local LiveOps=if typeof(script)=='Instance' then require(script.Parent.LiveOps) else nil
+
 local U={}
 
 function U.new(options)
@@ -237,7 +240,7 @@ function U.actions(context)
    T.settle(p,context.clock(),false)
    local ok=false;local message='Action unavailable.'
    if request.op=='collect' then local amount=T.collect(p,request.slot);ok=amount>0;message=if ok then 'Collected '..amount..' production eggs.' else 'No eggs collected: storage empty or bag full.'
-   elseif request.op=='bank' then local amount=T.bank(p);ok=amount>0;message=if ok then 'Banked production eggs for '..amount..' coins.' else 'Your production egg bag is empty.'
+   elseif request.op=='bank' then local amount=T.bank(p);ok=amount>0;if ok and LiveOps then LiveOps.economy(player,'source',amount,p.coins,'bank') end;message=if ok then 'Banked production eggs for '..amount..' coins.' else 'Your production egg bag is empty.'
    elseif request.op=='assign' then ok=T.assign(p,request.slot,request.id,context.clock());message=if ok then 'Habitat assignment updated.' else 'Choose an owned creature not assigned to another habitat.'
    elseif request.op=='swap' then ok=T.swap(p,request.slot,request.other,context.clock());message=if ok then 'Habitat creatures swapped. Stored eggs preserved.' else 'Choose two unlocked owned habitats.'
    elseif request.op=='attune' then ok=T.attune(p,request.slot,request.kingdom,context.clock());message=if ok then 'Habitat attuned.' else 'Unlock that kingdom first.'
@@ -275,6 +278,7 @@ function U.actions(context)
    local ok=if action=='Incubate' then R.incubate(p,payload,context.clock()) else R.hatch(p,payload,context.clock())
 
    if not ok then return false,'Not ready or all three incubators are occupied.' end
+   if action=='Hatch' and LiveOps then local c=p.creatures[#p.creatures];LiveOps.event(player,'hatch',{context=c and type(c.rarity)=='string' and string.lower(c.rarity) or nil}) end
 
    local data=if action=='Hatch' then {creature=copyCreature(p.creatures[#p.creatures])} else {egg=table.clone(R.find(p.eggs,payload))}
 

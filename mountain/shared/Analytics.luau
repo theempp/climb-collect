@@ -14,7 +14,7 @@ for _,n in {'session_start','session_end','area_enter','loading_time',
 
 -- F1 area, F2 device, F3 context. Values outside these sets are logged as 'other'.
 A.FIELDS={
- area={sanctuary=true,lake=true,blossom=true,azure=true,sunstone=true,violet=true,inferno=true,astral=true,summit=true,menu=true},
+ area={sanctuary=true,lake=true,blossom=true,azure=true,sunstone=true,violet=true,inferno=true,astral=true,summit=true,mountain=true,menu=true},
  device={phone=true,tablet=true,desktop=true,console=true},
  context={},
 }

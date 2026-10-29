@@ -12,6 +12,7 @@ local EggOdds=require(RS.MountainShared.EggOdds)
 local Explorer=require(RS.MountainShared.ExplorerRules)
 local HomeRules=require(RS.MountainShared.HomeRules)
 local ShopRules=require(RS.MountainShared.ShopRules)
+local LiveOps=require(script.Parent.LiveOps);LiveOps.start()
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
@@ -140,7 +141,7 @@ local function onCharacter(player,character)
  local pos=if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0)
  if not pos then player:Kick('Sanctuary slot unavailable. Please rejoin.');return end
  teleport(player,pos);rebuildTeam(player);if bats then bats.equip(player) end
- h.Died:Connect(function() loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player,'death') end;respawns[player]=os.clock()+3 end)
+ h.Died:Connect(function() LiveOps.lost(player,'died');loseCargo(player);if carryVisuals then carryVisuals.clear(player) end;B.remove(player);if guardians then guardians.remove(player,'death') end;respawns[player]=os.clock()+3 end)
 end
 loadCharacter=function(player)
  player:LoadCharacterAsync()
@@ -155,10 +156,12 @@ local function join(player)
  if player.Parent~=Players then home.release(player);areas[player]=nil;P.save(player,true);return end
  R.settleIncome(p,os.time())
  loadCharacter(player);restoreRecovery(player);publish(player)
+ LiveOps.area(player,'sanctuary');LiveOps.event(player,'session_start')
 end
 Players.PlayerAdded:Connect(function(player) task.spawn(join,player) end)
 for _,p in ipairs(Players:GetPlayers()) do task.spawn(join,p) end
 Players.PlayerRemoving:Connect(function(player)
+ LiveOps.event(player,'session_end',{context='quit'})
  movement.clear(player);if bats then bats.remove(player) end
  if raids then raids.remove(player) end;if guardians then guardians.remove(player,'leave') end;if raidHazards then raidHazards.remove(player) end;if carryVisuals then carryVisuals.clear(player) end
  tycoonWorld.clear(home.plot(player));home.release(player);areas[player]=nil
@@ -187,7 +190,7 @@ raids=require(script.Parent.EggRaids).new({profiles=P,clock=os.clock,guid=functi
   return false
  end,
  alert=function(k,userId,eggId,now) if guardians then guardians.alert(k,userId,eggId,now) end end,
- changed=publish,present=function(player,data) if data.kind=='securing' then areas[player]='sanctuary' end;carryVisuals.show(player,data) end})
+ changed=publish,present=function(player,data) if data.kind=='securing' then areas[player]='sanctuary';LiveOps.event(player,'egg_banked') end;carryVisuals.show(player,data) end})
 local guardianHeights={}
 for k=1,6 do
  local m=world.Encounters:FindFirstChild('Guardian_'..k)
@@ -277,7 +280,7 @@ local function interact(player,part)
  elseif kind=='Recovery' then
   if part:GetAttribute('Owner')==player.UserId and R.recover(p,os.time()) then part:Destroy();recovering[player]=nil;send(player,'toast','Eggs recovered • extract them now.') end
  elseif kind=='Summit' then
-  if not p.discoveries.summit then p.discoveries.summit=true;p.coins+=1000 end
+  if not p.discoveries.summit then p.discoveries.summit=true;p.coins+=1000;LiveOps.economy(player,'source',1000,p.coins,'summit');LiveOps.area(player,'summit') end
   send(player,'toast','IMPOSSIBLE MOUNTAIN CONQUERED • Sovereign Explorer!')
  elseif table.find({'Incubator','Sanctuary','Training'},kind) then
   R.settleIncome(p,os.time());send(player,'open',kind)
@@ -304,7 +307,7 @@ local journey=Journey.new({profile=P.get,ready=function(player) return safe(play
   return {cf=cp.CFrame+Vector3.new(0,5,0),area='mountain'}
  end,
  move=function(player,target) return teleport(player,target.cf) end,extract=R.extract,forfeit=raids.forfeit,
- arrived=function(player,target) areas[player]=target.area end,
+ arrived=function(player,target) areas[player]=target.area;LiveOps.area(player,target.area) end,
 })
 game:GetService('ProximityPromptService').PromptTriggered:Connect(function(prompt,player)
  local rr=root(player);local p=P.get(player)
@@ -406,10 +409,10 @@ game:GetService('RunService').Heartbeat:Connect(function(dt)
     if distance>math.max(22,elapsed*75) and now>m.blockedUntil then teleport(player,m.pos);send(player,'toast','Movement corrected.');m=motion[player] end
     if h.FloorMaterial==Enum.Material.Air then m.fallTop=math.max(m.fallTop,rr.Position.Y)
     else
-     if p and m.fallTop-rr.Position.Y>require(RS.MountainShared.RaidConfig).seriousFall and not raids.protected(player) then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+     if p and m.fallTop-rr.Position.Y>require(RS.MountainShared.RaidConfig).seriousFall and not raids.protected(player) then if LiveOps then LiveOps.event(player,'fall');LiveOps.lost(player,'fall') end;loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
      m.fallTop=rr.Position.Y
     end
-    if p and rr.Position.Y < -25 then loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
+    if p and rr.Position.Y < -25 then if LiveOps then LiveOps.event(player,'fall');LiveOps.lost(player,'fall') end;loseCargo(player);teleport(player,if areas[player]=='sanctuary' then home.spawn(player) else checkpoint(p).Position+Vector3.new(0,5,0));m=motion[player] end
     m.pos=rr.Position;m.time=now
     if home.inSanctuary(rr.Position) then areas[player]='sanctuary' elseif world:GetAttribute('FreeClimbVersion') then areas[player]='mountain' end
     if p and p.run and p.run.phase=='carried' and not raids.protected(player) then task.spawn(raids.exit,player,p.run.id) end
