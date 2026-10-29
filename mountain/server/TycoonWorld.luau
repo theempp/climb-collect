@@ -7,6 +7,8 @@ local L=require(game.ReplicatedStorage.MountainShared.HomeLayout)
 local W={}
 function W.new(home)
  local plots={}
+ -- Layout C grey-box (P3): the 6-habitat yard is rebuilt in P4; until then no production dressing is built.
+ if not L.contents.tycoonZ then return {update=function() end,clear=function() end} end
  local function part(parent,name,size,cf,color,material)
   local p=Instance.new('Part');p.Name=name;p.Size=size;p.CFrame=cf;p.Color=color;p.Material=material or Enum.Material.SmoothPlastic
   p.Anchored=true;p.CanCollide=false;p.CanTouch=false;p.CanQuery=false;p.CastShadow=false;p.Parent=parent;return p

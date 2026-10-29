@@ -17,7 +17,7 @@ local function folder(children) return {GetChildren=function() return children e
 -- As FreeClimb.build: one GuardianBounds box per compact section.
 local g=FreeClimb.layout();local boxes={}
 for k,s in ipairs(g.sections) do local b=s.bounds;table.insert(boxes,part(tostring(k),cf((b.minX+b.maxX)/2,(b.minY+b.maxY)/2,(b.minZ+b.maxZ)/2),v(b.maxX-b.minX,b.maxY-b.minY,b.maxZ-b.minZ))) end
--- As HomePromenade.apply: West/East cleared, the one remaining exit spans the basin at the gate line.
+-- As HomeCommons.apply (v1 exit kept): West/East cleared, the one remaining exit spans the basin at the gate line.
 local span=HomeLayout.span();local gy=HomeLayout.groundY
 local promenadeExit=part('SanctuaryExit',cf(HomeLayout.gate.x,gy+22,HomeLayout.gate.z),v(span.maxX-span.minX+120,44,18))
 local world={SanctuaryExits=folder({promenadeExit}),GuardianBounds=folder(boxes)}

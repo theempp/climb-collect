@@ -15,7 +15,7 @@ local ShopRules=require(RS.MountainShared.ShopRules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
 local world=workspace.ImpossibleMountain
-require(game.ServerStorage.MountainWorld.HomePromenade).apply(workspace:FindFirstChild('Sanctuary'),world)
+require(game.ServerStorage.MountainWorld.HomeCommons).apply(workspace:FindFirstChild('Sanctuary'),world)
 require(game.ServerStorage.MountainWorld.MountainEntrances).apply(world,workspace:FindFirstChild('Sanctuary'))
 -- Exit volumes are final once both frontage passes above have run; the HUD draws the safe-return line from them.
 local exitBoxes={}

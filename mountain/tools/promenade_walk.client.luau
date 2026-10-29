@@ -1,6 +1,6 @@
 -- Run through Studio Client execute_luau on a fresh Play Solo (natural spawn at plot 1).
 -- Ordinary Humanoid walking, no sprint/teleports: visit each home's spawn through its front opening,
--- then home -> through the grand gate -> back home. Publishes MountainQA_PromenadeWalk.
+-- then home -> through the grand gate -> back home (layout C: plots 5-8 cross the H-street crossing). Publishes MountainQA_PromenadeWalk.
 local p=game.Players.LocalPlayer;local h=p.Character:WaitForChild('Humanoid');local rr=h.RootPart
 local L=require(game.ReplicatedStorage.MountainShared.HomeLayout)
 local log={};local start=os.clock();local failed=false;local times={}
