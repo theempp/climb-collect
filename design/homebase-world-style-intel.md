@@ -4,6 +4,8 @@ Extends the Glassbloom HUD intel to a solid, candy-glass world. Nothing built. B
 
 **Pass 4 (2026-10-29):** B10 Hatchery + Training Beast added (closes `HI:G3` forms, see G13); D hatchery/Beast rows updated.
 
+**Pass 5 (2026-10-29):** B11 tier houses (Hut / Villa / Manor / Palace) + banner + aura ring added for S4; supersedes B1 sizes/heights where they differ. G9 closed (ring r 17.5); D house/banner rows and total updated; G14-G15 added.
+
 **Pass 3 changes**
 - F1-F9 closed with the owner S0 answers (`S0.n`); REC removed from every row the owner fixed.
 - "Cottage" tier renamed **Villa** everywhere; "cottage" kept only for the base silhouette (`DEC:#5`).
@@ -201,6 +203,136 @@ Beast: static chunky quadruped statue facing -Z, top ~9.4 (~1.9x a 5-stud avatar
 | Beast + pen | pen 14 + beast 14 + collider 1 + marker 1 = 30 (body union: ~24) | ~33 | 60 / 65 |
 | Billboards | 0 + 0 | plot stays **10** of 12 | `S0.4`, B4 |
 
+### B11. Tier houses, banner, aura ring (S4, pass 5 2026-10-29)
+Silhouettes `DEC:#5, #6`, B1; footprint `S0.3`; lodge rect `HomeLayout.contents.lodge` (x -17.5..17.5, z 12..42); caps `S.caps.house` (hut 40 / villa 65 / manor 105 / palace 157); test row `PLAN-S1:127`. **No new token**: every colour is an existing `WorldStyle` key (`S.tier.<t>.*`, `S.color.*`, `S.rank[i].color`). Role assignment = REC; every size and offset = **PROPOSED**. No image in `references/` shows a house; forms come from the owner's words (`DEC:#2, #5`, `S0.11-12`) only.
+
+**Frame and rules.** Plot-local via TycoonWorld `at(x,y,z)`, y = 0 at floor top, door faces -Z (yard). Forms: `Block` (x, y, z), `Cyl` vertical (d, h), `TiltCyl` (d, len; axis X unless noted; "axis Z" = `* Angles(0, 90deg, 0)`; "yaw a" = axis turned to the wall normal), `Ball` (d, always a sphere). SmoothPlastic unless Neon is stated; 0 Glass; 0 unions on collide parts (`S2`). Anchored, CanTouch false. **Collide:** dais, steps, walls, wings, towers/turrets, roof slabs/eaves/dome bands, banner pole = yes; everything else (trims, door, knobs, portholes, rims, chimneys, caps, gems, cloth, ring) = no. Pitch 40 deg (tan .839) on gabled roofs. Lights: 0; optional 1 PointLight parented to the door (Range 22, Brightness 1.4 `HI:A1`, Color `porthole` #FFDD9B), Enabled false by default. Crest gem part = `CrestGem`, attribute `WorldMotion=crestPulse` (C row, owner plot only).
+
+**Models.** `HomeSlot` (dais, steps, banner, ring) is tier-independent and stays through tier-ups; only `House` (attribute `Tier`) is rebuilt on a tier change (`DEC:#6`, `PLAN-S1:54`). A rank band change recolours banner cloth/tip and ring in place. Replaces `Lodge_0i`; the plot's baked `RearLodgeFootprint_35x30` / `LodgeFootprintEdge` are unresolved (G14).
+
+**Home slot** (all tiers; 3 parts in the house row + banner 3 + ring 2)
+| Part | Form, size | Offset (x, y-centre, z) | Key (hex) | Material | Collide |
+|---|---|---|---|---|---|
+| Dais | Cyl d 31 h 1.2 (top 1.2) | (0, .6, 30) | paver (#CBBCF2) | SmoothPlastic | yes |
+| Step 1 | Block 9 x .4 x 1.5 (z 12..13.5) | (0, .2, 12.75) | paver (#CBBCF2) | SmoothPlastic | yes |
+| Step 2 | Block 9 x .8 x 2 (z 13.5..15.5, runs under the dais edge) | (0, .4, 14.5) | paver (#CBBCF2) | SmoothPlastic | yes |
+| Banner pole | Cyl d 1 h 13 (y 1.2..14.2, stands on the dais) | (-6.5, 7.7, 16.6) | bannerPole (#A55BEA) | SmoothPlastic | yes |
+| Banner cloth | Block 3.4 x 5 x .3, hangs outward (x -10.4..-7) facing -Z | (-8.7, 10.5, 16.6) | `S.rankBand(level).color` (#6C8CF0 / #F7A21B / #B06CF0 / #FFB8EA) | SmoothPlastic | no |
+| Banner tip | Ball d 1.6 | (-6.5, 14.9, 16.6) | rank band (as cloth) | **Neon** | no |
+| Aura ring | Cyl d 35 h .2 (outer r 17.5) | (0, .1, 30) | rank band (as cloth) | **Neon** | no, CanQuery false |
+| Ring cover | Cyl d 32.6 h .2 (top .22; shows a 1.2 band, r 16.3..17.5) | (0, .12, 30) | lawn (#2FAE8A) = floor colour | SmoothPlastic | no, CanQuery false |
+Door threshold for every tier = dais top **1.2**: walk (top .3, z 7..11.5) -> .5 lawn strip -> step .4 -> step .8 -> dais 1.2 (rises <= .4). The steps cover the ring's front arc (|x| <= 4.5), so the ring reads as passing under the stair. The banner anchor clears every tier's eave, tower and portholes (checked below). If the S4 bounds test treats the 5.75 lodge overhang as a front band, step 1 may extend to z 11.5 and close the lawn strip.
+
+**Ring radius (closes G9).** r 19 must shrink: the binding limit is z, not the hatchery. Ring centre must sit on the house axis (x 0); between the rear walk (paver top .3 ends z 11.5, `TycoonWorld` WALKS row 4) and the plot's `RearEdge` (centre z 49.75, `HomeCommons.luau:111`) there are 38 studs, so r 19 leaves 0 margin (front over the walk paver, ring hidden there for |x| <= 6). **Chosen: centre (0, 30), outer r 17.5, band 1.2.** Clearances (outer edge): hatchery dais lip x -22.3 -> 4.8; gem clusters (-23.4, 31.6) -> ~4.2; Beast pen cap x 22 -> 4.5; globe lamps (+-21, 13.5) -> 7.5; rear walk -> 1.0; yard z 6 -> 6.5; workout rect (22, 40) corner -> 6.7; hatch VFX ring r 8 at (-29, 26) -> 4.0; RearEdge -> ~2 (its Size.Z not read). **Ground rule for houses:** every ground part inside r 15.8 of (0, 30) (0.5 inside the ring), except the steps. Roofs may overhang the ring.
+
+**T1 Hut** (centre (0, 27); top ~19.9; 21 parts incl. slot 3)
+| Part | Form, size | Offset (x, y-centre, z) | Key (hex) | Material | Collide |
+|---|---|---|---|---|---|
+| Skirt | Cyl d 17 h 1.2 | (0, 1.8, 27) | tier.hut.body (#6C8CF0) | SmoothPlastic | yes |
+| Body | Cyl d 16 h 8 (y 1.2..9.2; front z 19) | (0, 5.2, 27) | tier.hut.body (#6C8CF0) | SmoothPlastic | yes |
+| Eave | Cyl d 22 h 2.4 (overhang +3; z 16..38) | (0, 10.4, 27) | tier.hut.roof (#5B78E8) | SmoothPlastic | yes |
+| Crown | Cyl d 16 h 2.4 (top 14) | (0, 12.8, 27) | tier.hut.roof (#5B78E8) | SmoothPlastic | yes |
+| Dome cap | Ball d 10.5 (top 18.05) | (0, 12.8, 27) | tier.hut.ridge (#9FB6FF) | SmoothPlastic | yes |
+| Knob | Ball d 2.4 | (0, 18.4, 27) | tier.hut.ridge (#9FB6FF) | SmoothPlastic | no |
+| Door frame | Block 5.6 x 5 x 1.2 | (0, 3.7, 19.0) | doorArch (#FFD2FF) | SmoothPlastic | no |
+| Frame arch | TiltCyl d 5.6 len 1.2, axis Z (top 9.0) | (0, 6.2, 19.0) | doorArch (#FFD2FF) | SmoothPlastic | no |
+| Door | Block 4.4 x 5 x 1 | (0, 3.7, 18.7) | door (#2B1457) | SmoothPlastic | no |
+| Door arch | TiltCyl d 4.4 len 1, axis Z (top 8.4) | (0, 6.2, 18.7) | door (#2B1457) | SmoothPlastic | no |
+| Knob | Ball d .8 | (1.4, 3.9, 18.1) | gold (#FFD84A) | SmoothPlastic | no |
+| Porthole x2 | TiltCyl d 2.6 len .6, yaw +-45 | (+-5.73, 5.6, 21.27) | porthole (#FFDD9B) | **Neon** | no |
+| Rim x2 | TiltCyl d 3.4 len .5, yaw +-45 | (+-5.62, 5.6, 21.38) | portholeRim (#FF8FE0) | SmoothPlastic | no |
+| Chimney | Cyl d 2.8 h 5 (y 12.1..17.1) | (4.5, 14.6, 31) | tier.hut.roof (#5B78E8) | SmoothPlastic | no |
+| Chimney cap | Cyl d 3.6 h .8 | (4.5, 17.5, 31) | tier.hut.ridge (#9FB6FF) | SmoothPlastic | no |
+| CrestGem | Ball d 2 (top 19.9) | (4.5, 18.9, 31) | tier.hut.gem (#6C8CF0) | **Neon** | no |
+Door 4.4 x 7.2 (oversized vs a 5-stud avatar, `DEC:#2`); landing dais z 14.5 -> door 18.2 = 3.7.
+
+**T2 Villa** (body centre (0, 30); top ~28.5; 42 parts)
+| Part | Form, size | Offset (x, y-centre, z) | Key (hex) | Material | Collide |
+|---|---|---|---|---|---|
+| Body A | Block 22 x 13 x 12.8 (x +-11, z 23.6..36.4, y 1.2..14.2) | (0, 7.7, 30) | tier.villa.body (#F7A21B) | SmoothPlastic | yes |
+| Body B | Block 18.8 x 13 x 16 (front face z 22) | (0, 7.7, 30) | tier.villa.body | SmoothPlastic | yes |
+| Corner round x4 | Cyl d 3.2 h 13 | (+-9.4, 7.7, 23.6), (+-9.4, 7.7, 36.4) | tier.villa.body | SmoothPlastic | yes |
+| Gable fill | Block 22 x 11.31 x 11.31, `Angles(45deg, 0, 0)` (lower half hidden in the body) | (0, 14.2, 30) | tier.villa.body | SmoothPlastic | yes |
+| Belt (front) | Block 18.8 x .6 x .4 | (0, 8.2, 21.85) | tier.villa.ridge (#FFD27A) | SmoothPlastic | no |
+| Roof slab front | Block 30 x 2.4 x 14.2, `Angles(-40deg, 0, 0)` (eave z 19.6 / y 12.19; top edge z ~18.1) | (0, 17.66, 24.26) | tier.villa.roof (#F0952A) | SmoothPlastic | yes |
+| Roof slab back | same, `Angles(40deg, 0, 0)` (top edge z 41.94) | (0, 17.66, 35.74) | tier.villa.roof | SmoothPlastic | yes |
+| Ridge cap | TiltCyl d 3.2 len 31 (top 25.6) | (0, 24.0, 30) | tier.villa.ridge (#FFD27A) | SmoothPlastic | no |
+| Bargeboard x4 | TiltCyl d 1.2 len 13.7 = front slabCF `* (+-14.6, 1.2, .25)`, back slabCF `* (+-14.6, 1.2, -.25)`, each `* Angles(0, 90deg, 0)` (eave end trimmed .5 so the end disc stays at z 18.04..41.96) | per slab | tier.villa.ridge | SmoothPlastic | no |
+| Wing | Block 4.5 x 9.6 x 8 (x 10.5..15, y 0..9.6, z 26..34) | (12.75, 4.8, 30) | tier.villa.body | SmoothPlastic | yes |
+| Wing roof | Block 6.4 x 1.6 x 9.6, `Angles(0, 0, -18deg)` (outer edge x 16.9) | (13.6, 9.5, 30) | tier.villa.roof | SmoothPlastic | yes |
+| Wing porthole + rim | TiltCyl d 2.6 / 3.2, len .5 / .4, axis Z | (13, 5, 25.75) / (13, 5, 25.85) | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Dormer | Block 6 x 5.5 x 5.5 (y 16.5..22, z 23.5..29) | (0, 19.25, 26.25) | tier.villa.body | SmoothPlastic | no |
+| Dormer roof | TiltCyl d 6.4 len 6.5, axis Z (top 25.2) | (0, 22.0, 26.0) | tier.villa.roof | SmoothPlastic | no |
+| Dormer porthole + rim | TiltCyl d 2.4 len .4 (z 23.1..23.5) / d 3.2 len .4 (z 23.2..23.6), axis Z | (0, 20.2, 23.3) / (0, 20.2, 23.4) | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Door frame + arch | Block 6.4 x 6 x .6; TiltCyl d 6.4 len .6 axis Z (top 10.4) | (0, 4.2, 21.8); (0, 7.2, 21.8) | doorArch (#FFD2FF) | SmoothPlastic | no |
+| Door + arch | Block 5 x 6 x .6; TiltCyl d 5 len .6 axis Z (top 9.7) | (0, 4.2, 21.6); (0, 7.2, 21.6) | door (#2B1457) | SmoothPlastic | no |
+| Knob | Ball d .8 | (1.6, 4.4, 21.2) | gold (#FFD84A) | SmoothPlastic | no |
+| Front porthole x4 + rim x4 | TiltCyl d 2.8 len .4 / d 3.6 len .4, axis Z | glass (+-6.5, 5 and 11, 21.75); rim same x/y at z 21.9 | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Chimney, cap, CrestGem | Cyl d 3 h 9 (y 16.5..25.5); Cyl d 3.8 h .8; Ball d 2.2 (top 28.5) | (-7, 21, 35); (-7, 25.9, 35); (-7, 27.4, 35) | tier.villa.roof; tier.villa.ridge; tier.villa.gem (#F7A21B) | SmoothPlastic; SmoothPlastic; **Neon** | no |
+Ridge along X so the big roof face and dormer look at the yard. Landing 7.5 (dais front z 14.5 -> door 21.3). Wing farthest ground point 15.52 from (0, 30).
+
+**T3 Manor** (body centre (0, 30), tower (-9.5, 25.5); top ~37.2; 54 parts). Main roof = Villa roof raised 2 (eave 16.2) and widened.
+| Part | Form, size | Offset (x, y-centre, z) | Key (hex) | Material | Collide |
+|---|---|---|---|---|---|
+| Body A / B | Block 26 x 15 x 12.8 / Block 22.8 x 15 x 16 (y 1.2..16.2, front z 22) | (0, 8.7, 30) both | tier.manor.body (#B06CF0) | SmoothPlastic | yes |
+| Corner round x3 (front-left is inside the tower) | Cyl d 3.2 h 15 | (11.4, 8.7, 23.6), (+-11.4, 8.7, 36.4) | tier.manor.body | SmoothPlastic | yes |
+| Gable fill | Block 26 x 11.31 x 11.31, `Angles(45deg, 0, 0)` | (0, 16.2, 30) | tier.manor.body | SmoothPlastic | yes |
+| Belt (front, tower edge -> right) | Block 16.4 x .6 x .4 | (3.2, 9.0, 21.85) | tier.manor.ridge (#C99BFF) | SmoothPlastic | no |
+| Roof slab front / back | Block 34 x 2.4 x 14.2, `Angles(-+40deg, 0, 0)` | (0, 19.66, 24.26) / (0, 19.66, 35.74) | tier.manor.roof (#8A4BE6) | SmoothPlastic | yes |
+| Ridge cap | TiltCyl d 3.2 len 34.6 (top 27.6) | (0, 26.0, 30) | tier.manor.ridge | SmoothPlastic | no |
+| Bargeboard x4 | TiltCyl d 1.2 len 13.7 = front slabCF `* (+-16.6, 1.2, .25)`, back slabCF `* (+-16.6, 1.2, -.25)`, each `* Angles(0, 90deg, 0)` (end discs z 18.04..41.96) | per slab | tier.manor.ridge | SmoothPlastic | no |
+| Tower | Cyl d 9 h 28 (y 0..28; x -14..-5, z 21..30) | (-9.5, 14, 25.5) | tier.manor.body | SmoothPlastic | yes |
+| Tower band | Cyl d 9.6 h .6 | (-9.5, 9.0, 25.5) | tier.manor.ridge | SmoothPlastic | no |
+| Tower roof eave / mid / top | Cyl d 11.5 h 1.6 / d 8.5 h 2 / d 5.5 h 2 | (-9.5, 28.8 / 30.6 / 32.6, 25.5) | tier.manor.roof | SmoothPlastic | yes / no / no |
+| Tower cap + finial | Ball d 4.5 (top 35.85); Ball d 1.6 (top 37.2) | (-9.5, 33.6, 25.5); (-9.5, 36.4, 25.5) | tier.manor.ridge | SmoothPlastic | no |
+| Tower porthole x2 + rim x2 | TiltCyl d 2.4 len .5 / d 3.2 len .4, axis Z | glass (-9.5, 6 and 22.5, 20.85); rim z 20.95 | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Bay | Cyl d 7 h 9 (y 1.2..10.2, bulges to z 18.5) | (8, 5.7, 22) | tier.manor.body | SmoothPlastic | yes |
+| Bay cap + dome | Cyl d 7.8 h .8; Ball d 6.6 (top 13.9, under the eave) | (8, 10.6, 22) both | tier.manor.roof | SmoothPlastic | no |
+| Bay porthole + rim | TiltCyl d 2.8 len 1 / d 3.6 len 1, axis Z | (8, 5.8, 18.65) / (8, 5.8, 18.8) | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Door frame + arch | Block 6.8 x 6.5 x .6; TiltCyl d 6.8 len .6 axis Z (top 11.1) | (0, 4.45, 21.8); (0, 7.7, 21.8) | doorArch | SmoothPlastic | no |
+| Door + arch | Block 5.4 x 6.5 x .6; TiltCyl d 5.4 len .6 axis Z (top 10.4) | (0, 4.45, 21.6); (0, 7.7, 21.6) | door | SmoothPlastic | no |
+| Knob; fanlight | Ball d .8; TiltCyl d 2.4 len .3 axis Z | (1.7, 4.6, 21.2); (0, 8.3, 21.25) | gold; porthole | SmoothPlastic; **Neon** | no |
+| Front upper porthole + rim | TiltCyl d 2.8 len .4 (z 21.55..21.95) / d 3.6 len .4 (z 21.7..22.1), axis Z | (0, 13.6, 21.75) / (0, 13.6, 21.9) | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Side porthole x2 + rim x2 (+X wall) | TiltCyl d 2.8 len .4 (x 13.05..13.45) / d 3.6 len .4 (x 12.9..13.3), axis X | glass (13.25, 6 and 12.5, 30); rim (13.1, same y, 30) | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Dormer; dormer roof | Block 8 x 6 x 5.5 (y 17.5..23.5); TiltCyl d 8 len 6.5 axis Z (top 27.5) | (0, 20.5, 26.25); (0, 23.5, 26.0) | tier.manor.body; tier.manor.roof | SmoothPlastic | no |
+| Dormer porthole + rim | TiltCyl d 2.6 len .4 (z 23.1..23.5) / d 3.4 len .4 (z 23.2..23.6), axis Z | (0, 22, 23.3) / (0, 22, 23.4) | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Chimney 1, cap, CrestGem | Cyl d 3 h 10.5 (y 18.5..29); Cyl d 3.8 h .8; Ball d 2.2 (top 32) | (7, 23.75, 35); (7, 29.4, 35); (7, 30.9, 35) | tier.manor.roof; ridge; tier.manor.gem (#B06CF0) | SP; SP; **Neon** | no |
+| Chimney 2, cap | Cyl d 2.6 h 12 (y 17.5..29.5); Cyl d 3.4 h .8 | (-3, 23.5, 36.5); (-3, 29.9, 36.5) | tier.manor.roof; tier.manor.ridge | SmoothPlastic | no |
+Tower farthest ground point 15.01 from (0, 30); its windows sit above the roof (y 22.5) and below the banner cloth (y 6). Landing 7.5.
+
+**T4 Palace** (keep centre (0, 29), turrets (+-11, 29); spire gem top ~42.8; 61 parts). Prism bands cycle `S.tier.palace.roofBands` 1-4 = #FF8FC0, #FFD27A, #7BD8FF, #B58CFF bottom-up (`S0.12`).
+| Part | Form, size | Offset (x, y-centre, z) | Key (hex) | Material | Collide |
+|---|---|---|---|---|---|
+| Keep | Cyl d 24 h 20 (y 1.2..21.2; front z 17) | (0, 11.2, 29) | tier.palace.body (#FFB8EA) | SmoothPlastic | yes |
+| Keep belt / crown band | Cyl d 24.6 h .8 (above the door arch and upper portholes) / Cyl d 25 h 1.2 | (0, 19.4, 29) / (0, 21.8, 29) | tier.palace.ridge (#FFD27A) | SmoothPlastic | no |
+| Dome D1-D5 | Cyl d 26 / 22 / 17.5 / 12.5 h 2 each, d 8 h 1.8 (y 22.4..32.2; D1 z 16..42) | (0, 23.4 / 25.4 / 27.4 / 29.4 / 31.3, 29) | roofBands 1 / 2 / 3 / 4 / 1 | SmoothPlastic | D1-D2 yes, rest no |
+| Dome cap | Ball d 8.6 (top 35.5) | (0, 31.2, 29) | tier.palace.ridge | SmoothPlastic | no |
+| Spire; collar | Cyl d 1.6 h 5 (y 35..40); Cyl d 2.6 h .6 | (0, 37.5, 29); (0, 39.9, 29) | tier.palace.ridge | SmoothPlastic | no |
+| CrestGem | Ball d 3 (top 42.8) | (0, 41.3, 29) | tier.palace.gem (#FFB8EA) | **Neon** | no |
+| Dome studs x4 | Ball d 1.4 on D1 at r 13.2, angle from -Z +-25 / +-65 | (+-5.58, 23.4, 17.04), (+-11.96, 23.4, 23.42) | porthole (#FFDD9B) | **Neon** | no |
+| Turret x2 | Cyl d 8 h 28 (y 0..28; x +-7..+-15) | (+-11, 14, 29) | tier.palace.body | SmoothPlastic | yes |
+| Turret band x2 | Cyl d 8.6 h .6 (in line with the crown band) | (+-11, 21.8, 29) | tier.palace.ridge | SmoothPlastic | no |
+| Turret dome T1-T3 x2 | Cyl d 9.5 h 1.6 / d 7 h 1.6 / d 4.5 h 1.4 | (+-11, 28.8 / 30.4 / 31.9, 29) | roofBands 2 / 3 / 4 | SmoothPlastic | T1 yes, rest no |
+| Turret cap x2; finial x2 | Ball d 4.6 (top 34.9); Ball d 1.4 | (+-11, 32.6, 29); (+-11, 35.4, 29) | tier.palace.ridge; tier.palace.gem | SmoothPlastic; **Neon** | no |
+| Turret porthole x4 + rim x4 | TiltCyl d 2.2 len .5 / d 3 len .4, yaw +-45 (outward-front) | glass (+-13.83, 10 and 18, 26.17); rim .1 inward | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Keep porthole x6 + rim x6 | TiltCyl d 2.4 len .5 / d 3.2 len .4, axis = keep radial normal (yaw = angle from -Z); glass centre on r 12.15, rim on r 12.05 (.1 inward), same angle and y | glass / rim (x, z): upper y 15.5 at +-22 deg (+-4.551, 17.735) / (+-4.514, 17.827); +-50 deg (+-9.307, 21.190) / (+-9.231, 21.254); lower y 6 at +-55 deg (+-9.953, 22.031) / (+-9.871, 22.088) | porthole / portholeRim | Neon / SmoothPlastic | no |
+| Door frame + arch | Block 7.6 x 8 x 1; TiltCyl d 7.6 len 1 axis Z (top 13.0) | (0, 5.2, 17.3); (0, 9.2, 17.3) | doorArch | SmoothPlastic | no |
+| Double door + arch | Block 6 x 8 x 1; TiltCyl d 6 len 1 axis Z (top 12.2) | (0, 5.2, 17.1); (0, 9.2, 17.1) | door | SmoothPlastic | no |
+| Seam | Block .25 x 7.2 x .2 (y 1.2..8.4) | (0, 4.8, 16.55) | doorArch | SmoothPlastic | no |
+| Knob x2; fanlight | Ball d .8; TiltCyl d 3 len .3 axis Z | (+-.9, 5.4, 16.45); (0, 10.0, 16.5) | gold; porthole | SmoothPlastic; **Neon** | no |
+Turrets moved in from B1's +-13.5 (extent 35) to +-11 (ground extent 30, dome 31.5) so they stay inside the ring (farthest ground point 15.05); D1 overhang +1 (not +4) so the back stays at z 42. Landing 2.5 (dais z 14.5 -> door 16.6): short but walk-up. Door 6 x 11 for the grandest tier.
+
+**Counts vs caps** (BaseParts; + 2 Models each)
+| Tier | House incl. slot 3 | + banner 3 + ring 2 | `S.caps.house` | Top | Ground extent from (0, 30) |
+|---|---|---|---|---|---|
+| Hut | 21 | 26 | 40 | ~19.9 | 15.5 (dais) |
+| Villa | 42 | 47 | 65 | ~28.5 | 15.52 (wing) |
+| Manor | 54 | 59 | 105 | ~37.2 | 15.01 (tower) |
+| Palace | 61 | 66 | 157 | ~42.8 | 15.05 (turret) |
+Every roof/eave inside x +-17.5, z 12..42 (Villa wing roof to x 16.9; Manor bargeboards to 17.2). Heights replace B1's ~16 / ~24 / ~32 / ~40 (PROPOSED); the ladder still climbs every tier.
+
+**Unowned plots (REC, extends the `S3` rule).** Show the slot (dais, steps) + **T1 Hut**, dimmed with the yard's `dim()` (DIM .6 over `BaseT`), **no banner, no ring** (no owner = no rank; a blue ring would claim L<5), PointLight off, CrestGem not tagged. On assign: build the owner's tier house, add banner + ring in the owner's band, undim. On clear: destroy the house, rebuild the dimmed Hut, remove banner + ring.
+
 ---
 ## C. Motion / ambience tokens (world)
 
@@ -234,14 +366,14 @@ Limits: per plot **<= 937** incl. creatures and billboards (`S0.4`, 750 x 1.25),
 | Hatchery | 40 | ~27 (B10) |
 | Training Beast | 60 | ~33 (B10) |
 | Decor 14 slots | 110 | ~98 |
-| House | 126 (lodge) | 28 / 50 / 85 / <=140 |
-| Banner + aura ring | 0 | 5 |
+| House (incl. dais + 2 steps) | 126 (lodge) | 21 / 42 / 54 / 61 (B11; caps 40 / 65 / 105 / 157) |
+| Banner + aura ring | 0 | 5 (B11; cap 6); 0 on unowned plots |
 | Frame / walls / garden | 80 | 80 |
 | Globe lamps (4) | in frame | 20 |
 | Path glow (B9) | 0 | 2 |
 | Billboards (10) | 60 | 70 |
-| **Total (Palace)** | **746** | **~765** (B10 -40), headroom ~170 under 937 |
-Commons: gate 44 + sparkles 3 + board 9 + shrine 12 + fountain 9 + plaza discs (4) 12 + speed lane ~77 + path glow ~16 = **~182** + commons lamps (count TBD, 5 each), inside 1,500. Lights: 0 default, <= 1 per house. Neon glow needs bloom, which the MCP cannot read: verify on the phone/emulator (G6).
+| **Total (Palace)** | **746** | **~688** (B10 -40, B11 -79), headroom ~249 under 937 |
+Commons: gate 44 + sparkles 3 + board 9 + shrine 12 + fountain 9 + plaza discs (4) 12 + speed lane ~77 + path glow ~16 = **~182** + commons lamps (count TBD, 5 each), inside 1,500. Lights: 0 default, <= 1 per house (B11: optional door PointLight, Enabled false). Neon glow needs bloom, which the MCP cannot read: verify on the phone/emulator (G6).
 
 ---
 ## E. Mountain prop restyle map — PROVISIONAL, needs a live Studio audit before S9
@@ -286,8 +418,10 @@ Not restyled: terrain, kingdom planting (`MountainQuality`, `Polish`), routes, c
 | G6 | Neon glow needs bloom (unreadable via MCP); fallback T.5 halo Ball (was F13) | CLAUDE.md gotcha |
 | G7 | E is provisional: live Studio audit of mountain decor before S9; `_Signature` and route wayfinders scope | `DEC:#21` |
 | G8 | Non-uniform Ball / unions for soft bevels; union colliders become invisible walls (was F10) | `DEC:#2, #4` |
-| G9 | Aura ring r 19 vs 35x35 slot and hatchery at x >= 22 (was F15) | `PLAN:63-65` |
+| G9 | Aura ring r 19 vs 35x35 slot and hatchery at x >= 22 (was F15) | **CLOSED 2026-10-29 (atlas pass 5, B11):** r 19 shrinks to outer **r 17.5** (band 1.2) at (0, 30). The limit is z: rear walk ends z 11.5, `RearEdge` at z 49.75, so r 19 has 0 margin and runs under the walk paver. Clears hatchery 4.8, pen 4.5, yard 6.5, walk 1.0; passes the S4 test "r <= 19" |
 | G10 | Rank coin multiplier numbers + STOP before code (was F17) | `DEC:#9` |
 | G11 | Terrain Grass beside the #2FAE8A lawn slab may clash; terrain out of scope | `HI:A1`, `DEC:#21` |
 | G12 | Flora/decor list (B7) awaits owner OK | `DEC` Open |
 | G13 | Hatchery / Training Beast forms (`HI:G3`) | **CLOSED 2026-10-29 (owner):** (a) candy statue, (b) eggs shown on cradles in P4, (c) keep vi. Was open: (a) Beast = violet candy statue vs a roster creature model; (b) show incubating eggs on the 3 cradles in P4 (needs egg models) or empty cradles until P7; (c) Beast vi body sits in the gate/lamp/machine violet family, OK or use another existing key. Hatch ring / halo colours = P7 atlas row |
+| G14 | Baked lodge footprint parts | **CLOSED 2026-10-29 (Studio read, Plot_01/02):** `RearLodgeFootprint_35x30` 35x0.2x30 at plot y ~16.1 and 4 `LodgeFootprintEdge` rails 0.6 tall, Plastic #BFAB8F / #D7C4A4, **Transparency 1, CanCollide false** -> invisible, no z-fight or colour clash; leave as is. |
+| G15 | B11 silhouette changes for the owner's S4 capture: Palace turrets brought in from x +-13.5 (extent 35) to +-11 (ground extent 30) and Hut eave overhang +3, both to stay inside the ring; tier tops now ~20 / ~28.5 / ~37 / ~43 (B1 said ~16 / 24 / 32 / 40); Hut on the constant d 31 dais leaves ~7 studs of lilac each side and may read sparse. Fallback if it does: a d 24 Hut-only dais at (0, 27) (front z 15, ring and steps unchanged). **OPEN, owner visual check at STOP** | B11, B1, `S0.3` |

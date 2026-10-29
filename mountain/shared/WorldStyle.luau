@@ -97,7 +97,9 @@ S.tier={
 -- Part caps (S0.4 plot, s1-plan §1a/§1b; kit = intel B3-B7 part counts).
 S.caps={
  plot=937,commons=1500,gate=200,billboards=12,houseLights=1,
- house={hut=40,villa=65,manor=105,palace=157},
+ house={hut=40,villa=65,manor=105,palace=157}, -- B11 "House incl. slot 3" (house + homeSlot) must fit these
+ homeSlot=3, -- B11 Home slot: dais + 2 steps
+ banner=3,aura=2, -- B11 banner pole + cloth + tip; aura ring + cover. Together within 6 (D, s1-plan §1a); 0 on unowned plots
  kit={
   globeLamp=6, -- B3 5 + soft collar Ball (chunk pass, +20%; 5 when unioned)
   pillSign=1, -- B4 billboard only; 1 invisible anchor part when no adornee is given

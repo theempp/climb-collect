@@ -41,6 +41,10 @@ local C=S.caps
 check(C.plot==937 and C.commons==1500 and C.gate==200 and C.billboards==12 and C.houseLights==1,'top caps')
 check(C.house.hut==40 and C.house.villa==65 and C.house.manor==105 and C.house.palace==157,'house caps')
 check(C.house.hut<C.house.villa and C.house.villa<C.house.manor and C.house.manor<C.house.palace,'houses grow')
+-- S4 (intel B11): home slot 3, banner 3 + ring 2 within the §1a cap 6; B11 house counts incl. slot within S.caps.house.
+check(C.homeSlot==3 and C.banner==3 and C.aura==2,'b11 slot / banner / ring counts')
+check(C.banner+C.aura<=6,'banner + ring within 6')
+for k,n in pairs({hut=21,villa=42,manor=54,palace=61}) do check(n<=C.house[k],'b11_house_'..k..'_'..n..'_le_cap') end
 for k,v in pairs(C.kit) do check(v>=1 and v<=14 and v%1==0,'kit_cap_'..k) end
 for _,k in ipairs({'lollipopTree','swirlTree','cloudTree','gumdrop','puffHedge','boulder','bloomBed','mushroom','gemCluster','daisy','gemBasin','globeLamp'}) do check(C.kit[k] and C.kit[k]<=8,'b7_le_8_'..k) end
 check(6*(C.kit.fence+C.kit.plaque)<=110,'habitats x6 within 110')

@@ -1,11 +1,13 @@
 -- Tier 1 Hut plot yard (home-base style S3). Built from WorldKit only; colours only from WorldStyle (tools/world_style_lint.py).
 -- Positions: HomeLayout.contents (plot-local, front edge z -50). Ground/lamp geometry below is PROPOSED S3 (no plan line).
--- The lodge is kept until the S4 tier houses. Unowned plots get the full yard, dimmed (S3 answer).
+-- S4 (intel B11): HomeSlot + tier House replace the baked cedar lodge (destroyed at runtime). Unowned plots get the full
+-- yard and a Hut, dimmed (S3 answer, B11 unowned rule), no banner / ring.
 local C=require(game.ReplicatedStorage.MountainShared.Catalog)
 local T=require(game.ReplicatedStorage.MountainShared.Tycoon)
 local L=require(game.ReplicatedStorage.MountainShared.HomeLayout)
 local HT=require(game.ReplicatedStorage.MountainShared.HomeTiers)
 local HR=require(game.ReplicatedStorage.MountainShared.HomeRules)
+local X=require(game.ReplicatedStorage.MountainShared.ExplorerRules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 local Kit=require(game.ServerStorage.MountainWorld.WorldKit)
 local S=require(game.ReplicatedStorage.MountainShared.WorldStyle)
@@ -59,6 +61,10 @@ function W.new(home)
   floor.Color=Kit.rgb('lawn');floor.Material=Enum.Material.SmoothPlastic
   for _,c in model:GetChildren() do if c:IsA('BasePart') and (c.Name=='PlotEdge' or c.Name=='FrontEdge' or c.Name=='RearEdge') then c.Color=Kit.rgb('kerb');c.Material=Enum.Material.SmoothPlastic end end
   local root=Kit.model(model,'TycoonProduction',base);root:SetAttribute('Width',L.plotWidth);root:SetAttribute('Depth',L.plotDepth)
+  -- B11: the baked Lodge_0i (Sanctuary.EnchantedAlpineLodges, or under the plot) goes; the footprint markers stay (G14).
+  local lodgeName=string.format('Lodge_%02d',slot);local lodges=model.Parent and model.Parent.Parent and model.Parent.Parent:FindFirstChild('EnchantedAlpineLodges')
+  local lodge=(lodges and lodges:FindFirstChild(lodgeName)) or model:FindFirstChild(lodgeName,true);if lodge then lodge:Destroy() end
+  local homeSlot=Kit.homeSlot(root,at(0,0,0));remember(homeSlot)
   -- Ground: lilac pavers with pink inlay, thin flare glow, lip kerbs, light lawn patches.
   local ground=Kit.model(root,'Ground',base)
   for _,w in WALKS do
@@ -166,7 +172,7 @@ function W.new(home)
    local yaw=if math.abs(d.z+44.5)<.01 then 0 elseif d.x<0 then -math.pi/2 else math.pi/2
    stands[i]={cf=at(d.x,0,d.z)*CFrame.Angles(0,yaw,0)}
   end
-  plots[slot]={root=root,spine=spine,habitats=habitats,machines=machines,bank=bank,stands=stands,standRoot=standRoot,hatch=hatch,cradles=cradles,beast=beast,parts={ground=ground,lamps=lamps,prod=prod,pens=pens}}
+  plots[slot]={model=model,home={slot=homeSlot,cf=at(0,0,0)},root=root,spine=spine,habitats=habitats,machines=machines,bank=bank,stands=stands,standRoot=standRoot,hatch=hatch,cradles=cradles,beast=beast,parts={ground=ground,lamps=lamps,prod=prod,pens=pens}}
   task.wait()
  end
  local function creatureOf(p,id) for _,v in ipairs(p.creatures) do if v.id==id then return v end end end
@@ -196,6 +202,30 @@ function W.new(home)
    egg.CanQuery=false;egg:SetAttribute('EggId',v.e.id);egg:SetAttribute('Cradle',i)
   end
   plot.eggs=m
+ end
+ -- B11 home: House rebuilt only on a tier change; banner + ring only with a rank band (recoloured in place on a band
+ -- change). Plot attributes DevTier / DevRank (Studio dev action below) win over the profile; any override shows the
+ -- plot undimmed. Unowned, no override: dimmed Hut, no banner / ring, CrestGem untagged.
+ local function setHome(plot)
+  local h,p=plot.home,plot.owned and plot.profile
+  local dt,dr=plot.model:GetAttribute('DevTier'),plot.model:GetAttribute('DevRank')
+  local key=Kit.houseTiers[dt or (p and HR.tier(p)) or 1];local level=dr or (p and X.summary(p).level)
+  if h.key~=key then
+   if h.house then h.house:Destroy() end
+   h.house=Kit.house(plot.root,h.cf,key);remember(h.house);h.key=key;h.dimmed=nil;h.crest=nil
+  end
+  local crest=plot.owned==true
+  if h.crest~=crest then h.house.CrestGem:SetAttribute('WorldMotion',if crest then 'crestPulse' else nil);h.crest=crest end
+  local band=level and S.rankBand(level).key
+  if h.band~=band then
+   if not band then
+    if h.banner then h.banner:Destroy();h.ring:Destroy();h.banner=nil;h.ring=nil end
+   elseif h.banner then Kit.setRank(h.banner,band);Kit.setRank(h.ring,band)
+   else h.banner=Kit.banner(h.slot,h.cf,band);h.ring=Kit.auraRing(h.slot,h.cf,band);remember(h.banner);remember(h.ring);h.dimmed=nil end
+   h.band=band
+  end
+  local dimmed=not plot.owned and dt==nil and dr==nil
+  if h.dimmed~=dimmed then dim(h.house,dimmed);dim(h.slot,dimmed);h.dimmed=dimmed end
  end
  local service={}
  function service.update(player,p)
@@ -255,7 +285,7 @@ function W.new(home)
   end
   if not plot.owned then dim(plot.hatch,false);dim(plot.beast,false) end
   setEggs(plot,p)
-  plot.owned=true
+  plot.owned=true;plot.profile=p;setHome(plot)
   plot.spine:SetAttribute('ActiveHabitats',active);plot.spine:SetAttribute('OwnerUserId',player.UserId)
  end
  function service.clear(slot)
@@ -269,9 +299,24 @@ function W.new(home)
   for _,v in ipairs(plot.machines) do dim(v.model,true);v.enabled=false;pillText(v.model,v.name..' · locked') end
   for i in ipairs(plot.stands) do bare(plot,i) end
   clearEggs(plot);dim(plot.hatch,true);dim(plot.beast,true)
-  plot.owned=false
+  plot.owned=false;plot.profile=nil;setHome(plot)
  end
  for slot=1,8 do service.clear(slot) end
+ -- Studio-only dev tier action (display override, never profile data). Server:
+ -- game.ServerStorage.HomeDevTier:Invoke(slot, tier 1..4 or nil, rank level or nil) -> House tier key, House parts,
+ -- HomeSlot parts (dais + steps + banner + ring). nil clears that override.
+ if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
+  local old=game.ServerStorage:FindFirstChild('HomeDevTier');if old then old:Destroy() end
+  local f=Instance.new('BindableFunction');f.Name='HomeDevTier'
+  f.OnInvoke=function(slot,tier,rank)
+   local plot=plots[slot];assert(plot,'slot 1..8')
+   assert(tier==nil or Kit.houseTiers[tier],'tier 1..4 or nil');assert(rank==nil or (type(rank)=='number' and rank>=1),'rank level >= 1 or nil')
+   plot.model:SetAttribute('DevTier',tier);plot.model:SetAttribute('DevRank',rank);setHome(plot)
+   local n=0;for _,d in plot.home.slot:GetDescendants() do if d:IsA('BasePart') then n+=1 end end
+   return plot.home.key,plot.home.house:GetAttribute('Parts'),n
+  end
+  f.Parent=game.ServerStorage
+ end
  return service
 end
 return W

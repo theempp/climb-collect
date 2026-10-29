@@ -220,6 +220,168 @@ function Kit.gemBasin(parent,cf,opts) -- #12 lip basin + lip pedestal + Glass fl
  part(m,'Gem','Ball',v(2),at(cf,0,3.8,0),'flare','trim') -- static: C has no basin token
  return m
 end
+-- B11 (intel pass 5, S4): home slot, tier houses, banner, aura ring. cf = the B11 frame origin: plot-local (0,0,0) on the
+-- floor top, door faces -Z; every size and offset below is the B11 row verbatim (PROPOSED there). Collide per the B11
+-- column; no unions, 0 Glass, 0 lights unless opts.light (disabled door PointLight, B11 Lights row). Motion = attributes only.
+local AZ=CFrame.Angles(0,math.pi/2,0) -- TiltCyl "axis Z"
+local CO={collide=true}
+local function rx(a) return CFrame.Angles(math.rad(a),0,0) end
+local function ry(a) return CFrame.Angles(0,math.rad(a),0) end -- B11 "yaw a"
+local function rz(a) return CFrame.Angles(0,0,math.rad(a)) end
+local function normal(nx,nz) return CFrame.Angles(0,math.atan2(-nz,nx),0) end -- TiltCyl axis X on the wall normal (nx,0,nz)
+-- b(name, shape, size, x, y, z, colour, mat='body', collide, rot) at B11 offsets from cf.
+local function piece(m,cf) return function(name,shape,size,x,y,z,col,mat,co,rot)
+ return part(m,name,shape,size,at(cf,x,y,z)*(rot or CFrame.identity),col,mat or 'body',if co then CO else nil) end end
+local function rankColor(key) for _,r in S.rank do if r.key==key then return r.color end end;error('rank band '..tostring(key)) end
+-- Door frame + arch, door + arch (all tiers): Block (w, h, len) and TiltCyl d w len axis Z at the arch y.
+local function door(b,fw,fl,fz,dw,dl,dz,h,y,ay)
+ b('DoorFrame','Block',Vector3.new(fw,h,fl),0,y,fz,'doorArch');b('FrameArch','TiltCyl',v(fw,fl),0,ay,fz,'doorArch',nil,false,AZ)
+ b('Door','Block',Vector3.new(dw,h,dl),0,y,dz,'door');b('DoorArch','TiltCyl',v(dw,dl),0,ay,dz,'door',nil,false,AZ)
+end
+-- Porthole glass (Neon) + rim, both TiltCyl on the same axis.
+local function port(b,d,l,x,y,z,rd,rl,rxp,rzp,rot)
+ b('Porthole','TiltCyl',v(d,l),x,y,z,'porthole','trim',false,rot);b('PortholeRim','TiltCyl',v(rd,rl),rxp,y,rzp,'portholeRim',nil,false,rot)
+end
+-- Gabled roof slab (Villa / Manor) + its 2 bargeboards: len 13.7 = slabCF * (+-x, 1.2, dz) * axis Z, dz .25 ridge-ward
+-- (front +.25, back -.25) so the eave end discs stay inside z 18.04..41.96.
+local function slab(m,b,t,w,y,z,a,bx,dz)
+ local s=b('RoofSlab','Block',Vector3.new(w,2.4,14.2),0,y,z,t.roof,nil,true,rx(a))
+ for _,sx in {-1,1} do part(m,'Bargeboard','TiltCyl',v(1.2,13.7),s.CFrame*CFrame.new(sx*bx,1.2,dz)*AZ,t.ridge,'body') end
+end
+function Kit.homeSlot(parent,cf,opts) -- dais + 2 steps (3); banner / ring are separate builders (owner only)
+ local m=model(parent,'HomeSlot',cf);local b=piece(m,cf)
+ b('Dais','Cyl',v(31,1.2),0,.6,30,'paver',nil,true)
+ b('Step','Block',Vector3.new(9,.4,1.5),0,.2,12.75,'paver',nil,true)
+ b('Step','Block',Vector3.new(9,.8,2),0,.4,14.5,'paver',nil,true)
+ return m
+end
+function Kit.banner(parent,cf,rank,opts) -- rank = S.rank band key; pole bannerPole, cloth + Neon tip in the band colour
+ local m=model(parent,'Banner',cf);local b=piece(m,cf);local c=rankColor(rank);m:SetAttribute('Rank',rank)
+ b('Pole','Cyl',v(1,13),-6.5,7.7,16.6,'bannerPole',nil,true)
+ b('Cloth','Block',Vector3.new(3.4,5,.3),-8.7,10.5,16.6,c)
+ b('Tip','Ball',v(1.6),-6.5,14.9,16.6,c,'trim')
+ return m
+end
+function Kit.auraRing(parent,cf,rank,opts) -- Neon band ring r 17.5 + lawn cover (shows r 16.3..17.5); C world.aura (static)
+ local m=model(parent,'AuraRing',cf);local b=piece(m,cf);m:SetAttribute('Rank',rank)
+ motion(b('Ring','Cyl',v(35,.2),0,.1,30,rankColor(rank),'trim'),'aura').CanQuery=false
+ b('RingCover','Cyl',v(32.6,.2),0,.12,30,'lawn').CanQuery=false
+ return m
+end
+local RANKED={Cloth=true,Tip=true,Ring=true}
+function Kit.setRank(m,rank) -- recolour a banner / aura ring in place on a band change (B11 Models)
+ local c=rgb(rankColor(rank));m:SetAttribute('Rank',rank)
+ for _,p in m:GetDescendants() do if p:IsA('BasePart') and RANKED[p.Name] then p.Color=c end end
+end
+local HOUSE={}
+function HOUSE.hut(m,b,t) -- B11 T1 Hut, centre (0, 27)
+ b('Skirt','Cyl',v(17,1.2),0,1.8,27,t.body,nil,true)
+ b('Body','Cyl',v(16,8),0,5.2,27,t.body,nil,true)
+ b('Eave','Cyl',v(22,2.4),0,10.4,27,t.roof,nil,true)
+ b('Crown','Cyl',v(16,2.4),0,12.8,27,t.roof,nil,true)
+ b('DomeCap','Ball',v(10.5),0,12.8,27,t.ridge,nil,true)
+ b('RoofKnob','Ball',v(2.4),0,18.4,27,t.ridge)
+ door(b,5.6,1.2,19,4.4,1,18.7,5,3.7,6.2)
+ b('Knob','Ball',v(.8),1.4,3.9,18.1,'gold')
+ for _,s in {-1,1} do port(b,2.6,.6,s*5.73,5.6,21.27,3.4,.5,s*5.62,21.38,ry(s*45)) end
+ b('Chimney','Cyl',v(2.8,5),4.5,14.6,31,t.roof)
+ b('ChimneyCap','Cyl',v(3.6,.8),4.5,17.5,31,t.ridge)
+ b('CrestGem','Ball',v(2),4.5,18.9,31,t.gem,'trim')
+end
+function HOUSE.villa(m,b,t) -- B11 T2 Villa, body centre (0, 30)
+ b('BodyA','Block',Vector3.new(22,13,12.8),0,7.7,30,t.body,nil,true)
+ b('BodyB','Block',Vector3.new(18.8,13,16),0,7.7,30,t.body,nil,true)
+ for _,x in {-9.4,9.4} do for _,z in {23.6,36.4} do b('Corner','Cyl',v(3.2,13),x,7.7,z,t.body,nil,true) end end
+ b('GableFill','Block',Vector3.new(22,11.31,11.31),0,14.2,30,t.body,nil,true,rx(45))
+ b('Belt','Block',Vector3.new(18.8,.6,.4),0,8.2,21.85,t.ridge)
+ slab(m,b,t,30,17.66,24.26,-40,14.6,.25);slab(m,b,t,30,17.66,35.74,40,14.6,-.25)
+ b('RidgeCap','TiltCyl',v(3.2,31),0,24,30,t.ridge)
+ b('Wing','Block',Vector3.new(4.5,9.6,8),12.75,4.8,30,t.body,nil,true)
+ b('WingRoof','Block',Vector3.new(6.4,1.6,9.6),13.6,9.5,30,t.roof,nil,true,rz(-18))
+ port(b,2.6,.5,13,5,25.75,3.2,.4,13,25.85,AZ)
+ b('Dormer','Block',Vector3.new(6,5.5,5.5),0,19.25,26.25,t.body)
+ b('DormerRoof','TiltCyl',v(6.4,6.5),0,22,26,t.roof,nil,false,AZ)
+ port(b,2.4,.4,0,20.2,23.3,3.2,.4,0,23.4,AZ)
+ door(b,6.4,.6,21.8,5,.6,21.6,6,4.2,7.2)
+ b('Knob','Ball',v(.8),1.6,4.4,21.2,'gold')
+ for _,x in {-6.5,6.5} do for _,y in {5,11} do port(b,2.8,.4,x,y,21.75,3.6,.4,x,21.9,AZ) end end
+ b('Chimney','Cyl',v(3,9),-7,21,35,t.roof)
+ b('ChimneyCap','Cyl',v(3.8,.8),-7,25.9,35,t.ridge)
+ b('CrestGem','Ball',v(2.2),-7,27.4,35,t.gem,'trim')
+end
+function HOUSE.manor(m,b,t) -- B11 T3 Manor, body centre (0, 30), tower (-9.5, 25.5)
+ b('BodyA','Block',Vector3.new(26,15,12.8),0,8.7,30,t.body,nil,true)
+ b('BodyB','Block',Vector3.new(22.8,15,16),0,8.7,30,t.body,nil,true)
+ for _,q in {{11.4,23.6},{-11.4,36.4},{11.4,36.4}} do b('Corner','Cyl',v(3.2,15),q[1],8.7,q[2],t.body,nil,true) end
+ b('GableFill','Block',Vector3.new(26,11.31,11.31),0,16.2,30,t.body,nil,true,rx(45))
+ b('Belt','Block',Vector3.new(16.4,.6,.4),3.2,9,21.85,t.ridge)
+ slab(m,b,t,34,19.66,24.26,-40,16.6,.25);slab(m,b,t,34,19.66,35.74,40,16.6,-.25)
+ b('RidgeCap','TiltCyl',v(3.2,34.6),0,26,30,t.ridge)
+ b('Tower','Cyl',v(9,28),-9.5,14,25.5,t.body,nil,true)
+ b('TowerBand','Cyl',v(9.6,.6),-9.5,9,25.5,t.ridge)
+ b('TowerEave','Cyl',v(11.5,1.6),-9.5,28.8,25.5,t.roof,nil,true)
+ b('TowerRoof','Cyl',v(8.5,2),-9.5,30.6,25.5,t.roof)
+ b('TowerRoof','Cyl',v(5.5,2),-9.5,32.6,25.5,t.roof)
+ b('TowerCap','Ball',v(4.5),-9.5,33.6,25.5,t.ridge)
+ b('Finial','Ball',v(1.6),-9.5,36.4,25.5,t.ridge)
+ for _,y in {6,22.5} do port(b,2.4,.5,-9.5,y,20.85,3.2,.4,-9.5,20.95,AZ) end
+ b('Bay','Cyl',v(7,9),8,5.7,22,t.body,nil,true)
+ b('BayCap','Cyl',v(7.8,.8),8,10.6,22,t.roof)
+ b('BayDome','Ball',v(6.6),8,10.6,22,t.roof)
+ port(b,2.8,1,8,5.8,18.65,3.6,1,8,18.8,AZ)
+ door(b,6.8,.6,21.8,5.4,.6,21.6,6.5,4.45,7.7)
+ b('Knob','Ball',v(.8),1.7,4.6,21.2,'gold')
+ b('Fanlight','TiltCyl',v(2.4,.3),0,8.3,21.25,'porthole','trim',false,AZ)
+ port(b,2.8,.4,0,13.6,21.75,3.6,.4,0,21.9,AZ)
+ for _,y in {6,12.5} do port(b,2.8,.4,13.25,y,30,3.6,.4,13.1,30) end -- +X wall, axis X
+ b('Dormer','Block',Vector3.new(8,6,5.5),0,20.5,26.25,t.body)
+ b('DormerRoof','TiltCyl',v(8,6.5),0,23.5,26,t.roof,nil,false,AZ)
+ port(b,2.6,.4,0,22,23.3,3.4,.4,0,23.4,AZ)
+ b('Chimney','Cyl',v(3,10.5),7,23.75,35,t.roof)
+ b('ChimneyCap','Cyl',v(3.8,.8),7,29.4,35,t.ridge)
+ b('CrestGem','Ball',v(2.2),7,30.9,35,t.gem,'trim')
+ b('Chimney','Cyl',v(2.6,12),-3,23.5,36.5,t.roof)
+ b('ChimneyCap','Cyl',v(3.4,.8),-3,29.9,36.5,t.ridge)
+end
+function HOUSE.palace(m,b,t) -- B11 T4 Palace, keep (0, 29), turrets (+-11, 29); roofBands 1-4 bottom-up
+ local B=t.roofBands
+ b('Keep','Cyl',v(24,20),0,11.2,29,t.body,nil,true)
+ b('KeepBelt','Cyl',v(24.6,.8),0,19.4,29,t.ridge)
+ b('CrownBand','Cyl',v(25,1.2),0,21.8,29,t.ridge)
+ for i,d in {{26,2,23.4,1,true},{22,2,25.4,2,true},{17.5,2,27.4,3},{12.5,2,29.4,4},{8,1.8,31.3,1}} do b('Dome'..i,'Cyl',v(d[1],d[2]),0,d[3],29,B[d[4]],nil,d[5]) end
+ b('DomeCap','Ball',v(8.6),0,31.2,29,t.ridge)
+ b('Spire','Cyl',v(1.6,5),0,37.5,29,t.ridge)
+ b('SpireCollar','Cyl',v(2.6,.6),0,39.9,29,t.ridge)
+ b('CrestGem','Ball',v(3),0,41.3,29,t.gem,'trim')
+ for _,q in {{5.58,17.04},{11.96,23.42}} do for _,s in {-1,1} do b('DomeStud','Ball',v(1.4),s*q[1],23.4,q[2],'porthole','trim') end end
+ local n=.1*math.sqrt(.5) -- turret rim ".1 inward" along the 45 deg normal
+ for _,s in {-1,1} do local x=s*11
+  b('Turret','Cyl',v(8,28),x,14,29,t.body,nil,true)
+  b('TurretBand','Cyl',v(8.6,.6),x,21.8,29,t.ridge)
+  for i,d in {{9.5,1.6,28.8,2,true},{7,1.6,30.4,3},{4.5,1.4,31.9,4}} do b('TurretDome'..i,'Cyl',v(d[1],d[2]),x,d[3],29,B[d[4]],nil,d[5]) end
+  b('TurretCap','Ball',v(4.6),x,32.6,29,t.ridge)
+  b('Finial','Ball',v(1.4),x,35.4,29,t.gem,'trim')
+  for _,y in {10,18} do port(b,2.2,.5,s*13.83,y,26.17,3,.4,s*(13.83-n),26.17+n,ry(s*45)) end
+ end
+ -- Keep portholes on the radial normal (angle from -Z): glass r 12.15, rim r 12.05; {deg, y, glass x, z, rim x, z}.
+ for _,q in {{22,15.5,4.551,17.735,4.514,17.827},{50,15.5,9.307,21.190,9.231,21.254},{55,6,9.953,22.031,9.871,22.088}} do
+  for _,s in {-1,1} do local a=math.rad(s*q[1]);port(b,2.4,.5,s*q[3],q[2],q[4],3.2,.4,s*q[5],q[6],normal(math.sin(a),-math.cos(a))) end
+ end
+ door(b,7.6,1,17.3,6,1,17.1,8,5.2,9.2)
+ b('Seam','Block',Vector3.new(.25,7.2,.2),0,4.8,16.55,'doorArch')
+ for _,s in {-1,1} do b('Knob','Ball',v(.8),s*.9,5.4,16.45,'gold') end
+ b('Fanlight','TiltCyl',v(3,.3),0,10,16.5,'porthole','trim',false,AZ)
+end
+Kit.houseTiers={'hut','villa','manor','palace'} -- HomeTiers 1..4 (s1-plan §2a style keys)
+-- House model (attribute Tier = key). opts.crest tags CrestGem WorldMotion=crestPulse (owner plot only, B11);
+-- opts.light adds the optional door PointLight, Enabled false (B11 Lights row).
+function Kit.house(parent,cf,tier,opts)
+ opts=opts or {};local t=assert(S.tier[tier],tier);local m=model(parent,'House',cf);m:SetAttribute('Tier',tier)
+ HOUSE[tier](m,piece(m,cf),t)
+ if opts.crest then motion(m.CrestGem,'crestPulse') end
+ if opts.light then local l=Instance.new('PointLight');l.Range=22;l.Brightness=1.4;l.Color=rgb('porthole');l.Enabled=false;l.Parent=m.Door end
+ return m
+end
 -- Generic piece builders for plot dressing (TycoonWorld): same rules as the kit (anchored, colour keys, Parts count).
 Kit.model=model;Kit.part=part
 -- Item list for QA (kit_sheet.luau): builder key = S.caps.kit key.
