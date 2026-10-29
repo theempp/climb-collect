@@ -51,3 +51,17 @@ Plan: `design/homebase-build-plan-2026-10-29.md` (§6 owner answers). Branch `co
 ## Glassbloom P7 merged (2026-10-28)
 - Merge `e124b97` of `codex/hud-glassbloom` `e6695c1` (P7 sign-off). Conflicts: `Screens.luau` social() kept P1 Leaderboard-only (P7 edits there touched only removed tabs); `x.sh` kept local id. Suites 43/43 (+ motion_band).
 - Synced into `outputs/ClimbCollect.HomeBase.Review01.rbxl` (PlaceId 0, opened from the P3 save 829a5a9c…): overflow 174 screens × 6 sizes 0 errors, state audit 0, p7_centre intrusion 0 (all four moments), p7_insets pass, tab sync pass, console errors 0. Evidence `evidence/homebase_2026-10-29/p7merge/`. StudioAids back off, HTTP off. **Copy saved after the P7 merge (owner OK), SHA256 f07e5019…baf0** (1,494,973 bytes, 23:29); base copy unchanged (249a2786…705a).
+
+## S2/S3 Studio sync + checks (2026-10-29, P4 start)
+- Relaunched HomeBase from the P7 save (f07e5019…baf0), MCP id `63f33fc1-a0a8-4547-badb-4c7cb9d6c65c` (`x.sh`). Other window: StampedeSpire (another project), untouched.
+- `sync_hud.py --changed 04b444a`: S2/S3 sources in (WorldStyle, WorldKit, WorldPill(s), TycoonWorld, HomeTiers, TycoonConveyors). Drift 107/108 (StudioTests absent by design). Suites 46/46, world_style_lint 0.
+- Play: yards build on all 8 plots, 310 instances / 207 parts / 10 billboards per plot (owned plot 322/219), cap 937. HUD: overflow 174×6 0, state 0, rest 527 (≤ 726), Shop 1,808, worst 24.1 ms, 0 > 33 ms, console 0. Captures `evidence/homebase_2026-10-29/p4/captures/01-03`.
+- Seen in captures (owner review): owner price pills overlap at close range; old cedar entry frame still in front of the yard.
+- P4 remaining: hatchery + Training Beast (atlas G3 pass first), tier looks (= S4 houses), 2-client owner/visitor, walk 8/8. Copy **not saved**.
+
+## P4 steps 2-3: hatchery + Training Beast (2026-10-29)
+- Atlas pass 4: intel §B10 (G3/G13 closed). Owner: Beast = violet candy statue, eggs shown on the 3 cradles now (decisions doc "P4 G3 answers").
+- Source (uncommitted): `TycoonWorld.luau` (hatchery dais/pedestal/3 cradles/rings/gems + 5 `HatchStage` anchors; Beast pen + statue + collider; incubating eggs ≤ 3 on cradles, tinted by the Theme rarity map via the tier body tokens, rebuilt only when the egg set changes); `Sanctuary.luau` (service markers invisible, `RequiresLineOfSight=false`); `HomeLayout.luau` service `y` (Incubator 6, Training 6; B10's 10 left the Train prompt 12.2 studs away from the pen gate).
+- Play: per plot 369 instances (owned 381), hatchery 27, Beast 32, billboards 10. Egg QA on an off-map stub plot: 3 incubating eggs on cradles 1-3 (#6c8cf0 / #f7a21b / #ffb8ea), un-incubated egg excluded, no rebuild on repeat update. Walk: Incubate prompt at 11.2, Train at 11.8 studs. Suites 46/46, lint 0, drift 107/108, overflow 174×6 0, state 0, rest 527, worst 22.8 ms, console 0. Captures `p4/captures/04-06`.
+- Open: eggs are spheres (Ball can't be egg-shaped; two Balls = +1 part each, owner call); dais step-up walkability not tested; tier looks = S4 houses; 2-client owner/visitor; walk 8/8. Copy **not saved**.
+- Saved 2026-10-29 17:16 (owner OK): `outputs/ClimbCollect.HomeBase.Review01.rbxl` SHA256 bc2c3c8de2434656035206657301ff62ca01319e21f1ce6f78760c581a47224b (PlaceId 0, StudioAids off, Http off, not published).

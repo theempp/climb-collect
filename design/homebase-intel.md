@@ -303,7 +303,7 @@ Arithmetic check: 8 x 750 + 1,500 = 7,500 resident home content vs a +4,000 net 
 |---|---|---|
 | G1 | Baked colours | **PARTIAL.** CLOSED for lantern, tree, planting bed, boulder, divider palette, lodge (A3, A5). OPEN: plotFloor/plotEdge use (floor, `PlotEdge`/`FrontEdge`/`RearEdge`, `RearLodgeFootprint_35x30`, `LodgeFootprintEdge` not harvested, `PROM:71-78`); Divider_01 per-part sizes/offsets (needed for the hedge prop); the 2 non-part descendants in Lodge_01/Divider_01 (lights?); bough rotations (tree bounds est.) |
 | G2 | 80x100 re-layout | **PARTIAL.** Sizes/positions in `PLAN:52-70` (PROPOSED, STOP 4). Open: creature display-scale cap (`PLAN:59`), workout track (`PLAN:66`, Q8) |
-| G3 | Hatchery / Beast / stable forms | **PARTIAL.** Footprints 14x14 (`PLAN:64-65`); stable = habitat row (`PLAN:67`, Q9). Models, materials OPEN |
+| G3 | Hatchery / Beast / stable forms | **See world-style intel B10 / G13 (closed 2026-10-29).** Was PARTIAL. Footprints 14x14 (`PLAN:64-65`); stable = habitat row (`PLAN:67`, Q9). Models, materials OPEN |
 | G4 | Decor slot | **PARTIAL.** 3x3 x 14 positions (`PLAN:68`); props A7; inspectable = habitats + decor (`SCH:67`). Pedestal material/height/shape OPEN |
 | G5 | Tier roles | **CLOSED** (A6) for role mapping. Open inside it: `azureWater`/`water` alias; T1-vs-entry-frame scope decision; pierFoot, azureWater, crest have no plot-part recipe |
 | G6 | Commons | **PARTIAL.** Sizes + materials CLOSED (C1). Forms OPEN: notice board, streak shrine, portal frame, collection hall, leaderboard stand, arrival marker line, plot side-wall length |

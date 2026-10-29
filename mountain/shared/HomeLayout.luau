@@ -36,7 +36,7 @@ end
 -- Plot contents in plot-local studs (§2 fit table). Rects are full sizes; x,z are centres.
 L.contents={
  spawn={x=0,z=-40,size=6},
- services={{kind='Incubator',x=-29,z=26,size=3},{kind='Training',x=29,z=26,size=3}},
+ services={{kind='Incubator',x=-29,z=26,size=3,y=6},{kind='Training',x=29,z=26,size=3,y=6}}, -- y = prompt-host centre above the floor (intel B10, PROPOSED; Training 10 -> 6 so the prompt reaches from the pen gate, P4 walk test)
  lodge={x=0,z=27,width=35,depth=30,overhang=5.75},
  frontWall={z0=-50,z1=-47.2,entryHalf=18},
  -- Habitat yard: 3 columns x 2 rows of pads either side of an east-west conveyor spine.

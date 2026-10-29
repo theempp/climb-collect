@@ -2,6 +2,8 @@
 
 Extends the Glassbloom HUD intel to a solid, candy-glass world. Nothing built. Branch `codex/homebase-c`.
 
+**Pass 4 (2026-10-29):** B10 Hatchery + Training Beast added (closes `HI:G3` forms, see G13); D hatchery/Beast rows updated.
+
 **Pass 3 changes**
 - F1-F9 closed with the owner S0 answers (`S0.n`); REC removed from every row the owner fixed.
 - "Cottage" tier renamed **Villa** everywhere; "cottage" kept only for the base silhouette (`DEC:#5`).
@@ -142,6 +144,63 @@ Replaces `HomeProtos` alpine clones (`HI:A5`). Flora list itself awaits owner OK
 | Motion | static | static until the mount ships (then mount-owned) |
 Readable rule: thin + continuous + edge = "walkway"; wide + dashed + centre = "fast lane". No new token. CanCollide false, CanQuery false, no width taken from lanes 29 / 22 (`PLAN:42, 47`).
 
+### B10. Hatchery and Training Beast (G3, pass 4 2026-10-29)
+Closes `HI:G3` forms. Footprints `PLAN:64-65`; P4 scope `PLAN:134-135`. **No new token**: every colour is an existing `WorldStyle.color` key (A row / `S3` cited). Role assignment = REC; all sizes and offsets = **PROPOSED**. Coordinates plot-local, y = 0 at floor top, -Z = toward the yard. All parts plain (no unions), Anchored, CanTouch false. 0 PointLights, 0 new loops (`DEC:#18`), 0 billboards.
+
+**Existing service markers** (`Sanctuary.luau:60-70`): `IncubatorService` / `TrainingService`, 3x2x3 at y 1, Wood + baked colours (`SANC:65-66`, violates `DEC:#4`). Keep each part as the prompt host (name + `Service` / `SanctuarySlot` attributes unchanged) but set Transparency 1, CastShadow false. Both sit inside a collider below, so the prompt needs `RequiresLineOfSight=false` or the marker moved to the y given below. Prompt keeps ActionText, ObjectText, MaxActivationDistance 12, HoldDuration .2 (`SANC:68-69`) and the `Incubate`/`Hatch` and `Train` wiring (`UIR:271-307`). The Beast prompt shows no Grip (`PLAN:135`, Q8).
+
+**Hatchery** (dais 14x14 at (-29, 26), x -36..-22, z 19..33)
+| Part | Form, size | Offset (x, y-centre, z) | Key (hex) | Material | Collide |
+|---|---|---|---|---|---|
+| Dais lip | Cyl d 13.4 h .5 | (-29, .25, 26) | kerb (#5A2299) | SmoothPlastic | yes |
+| Dais inlay ring | Cyl d 12.4 h .75; shows as a .4 ring under the disc | (-29, .375, 26) | plazaRing (#F46BC4) | Neon | yes |
+| Dais disc | Cyl d 11.6 h .8 (top .8) | (-29, .4, 26) | plazaDisc (#CBBCF2) | SmoothPlastic | yes |
+| Pedestal foot | Cyl d 5 h .8 | (-29, 1.2, 26) | lip (#5A2299) | SmoothPlastic | yes |
+| Pedestal column | Cyl d 3.2 h 2.4 | (-29, 2.8, 26) | vi (#A55BEA) | SmoothPlastic | yes |
+| Pedestal tray | Cyl d 5.4 h .8 (top 4.8) | (-29, 4.4, 26) | lavText (#CBBCF2) | SmoothPlastic | yes |
+| Egg cradle x3 (one per incubator, `UIR:277` "all three") | Cyl d 2 h .6 at r 1.5 on the tray, angles -90 (front, -Z) / 30 / 150 deg | y 5.1 | lip (#5A2299) | SmoothPlastic | no |
+| Cradle status ring x3 | Cyl d 2.3 h .2, under each cradle (.15 rim shows) | y 4.9 | ctaHi (#FF8FE0) | Neon | no |
+| Gem cluster x2 (`Kit.gemCluster`, B7 #9, 3 parts each) | as kit | (-34.6, 0, 31.6), (-23.4, 0, 31.6) | flare / pk / go | Neon | no |
+| Prompt host | existing marker | (-29, 6, 26) if moved | — | Transparency 1 | no |
+Source: dais = B8 plaza disc recipe scaled (`S0.5`); foot/column/tray = bank lip plinth + machine vi (`S3`); status Neon = machine status ctaHi (`S3`); clusters = approved B7 (`S2`). Steps .5 -> .75 -> .8 are walkable. Status ring stays static in P4; state colour switching is P7 (not in C).
+
+**Hatch stage anchors for P7** (5 parts, all Size .2, Transparency 1, CanCollide / CanQuery / CanTouch false, CastShadow false; folder `HatchStage`)
+| Anchor | CFrame (plot-local) | Attribute | Use (`HI:E`, `LAKE:36-39`) |
+|---|---|---|---|
+| `StageCentre` | (-29, 7, 26) | `RingRadius`=8 (`PLAN:64`) | halo, flash, confetti origin (beats 3, 6, 7) |
+| `Ring1` | centre * rotX 20 deg | `Ring`=1 | orbit ring (beat 2) |
+| `Ring2` | centre * rotZ -25 deg | `Ring`=2 | orbit ring |
+| `Ring3` | centre * rotX 55 deg * rotY 45 deg | `Ring`=3 | orbit ring; lowest point y ~.4 (clears dais top .4 at r 8, ring is VFX only) |
+| `CubeOrigin` | (-29, 5.4, 26) (tray / cradle top) | — | cube debris + egg shake (beats 1-2); P7 offsets to the hatching cradle |
+Ring tilts PROPOSED. r 8 spans x -37..-21, z 18..34: inside the plot, clear of the lodge (x >= -17.5) and habitat yard (z <= 6), so nothing overlaps (`PLAN:64` allowed it as VFX). Cube pool 16/8/0 and rings per rarity stay in `Motion.luau` (`HI:F`, `LAKE:38`), not in the anchors.
+
+**Training Beast pen** (14x14 at (29, 26), x 22..36, z 19..33; B5 geometry built with `Kit.part`, since `Kit.fence` only takes pen tints 1-6)
+| Part | Form, size | Offset (x, y-centre, z) | Key (hex) | Material | Collide |
+|---|---|---|---|---|---|
+| Pen floor | Block 12 x .2 x 12 | (29, .1, 26) | paver (#CBBCF2) | SmoothPlastic | yes |
+| Post x6 | Cyl d 1.5 h 3.2; corners +-6, gate posts x 29+-2 at z 20 (4 open, -Z) | y 1.6 | vi (#A55BEA) | SmoothPlastic | yes |
+| Cap x4 | Ball d 2 on corners (extent +-7, inside 14) | y 3.6 | ctaHi (#FF8FE0) | SmoothPlastic | no |
+| Rail x3 | TiltCyl d 1; back (len 12), left/right (len 12) | y 2.24 | vi (#A55BEA) | SmoothPlastic | yes |
+| Beast plinth | Cyl d 7 h .8 (top 1.0) | (29, .6, 27) | lip (#5A2299) | SmoothPlastic | yes |
+| Leg x4 | Cyl d 1.6 h 2 at x 29+-1.4, z 27+-1.5 | y 2.0 | vi | SmoothPlastic | no |
+| Body | Ball d 5 | (29, 5.0, 26.8) | vi | SmoothPlastic | no |
+| Rump | Ball d 4.4 | (29, 4.6, 28.6) | vi | SmoothPlastic | no |
+| Head | Ball d 3.6 | (29, 6.8, 24.6) | vi | SmoothPlastic | no |
+| Muzzle | Ball d 2.2 | (29, 6.2, 23.3) | lavText (#CBBCF2) | SmoothPlastic | no |
+| Eye x2 | Ball d .7 | (29+-.75, 7.3, 23.0) | door (#2B1457) | SmoothPlastic | no |
+| Horn x2 | TiltCyl d .8 len 1.8, tipped out 25 deg | (29+-1.1, 8.5, 24.8) | pinkText (#FFD0F0) | SmoothPlastic | no |
+| Collar | TiltCyl d 3.8 len .5, axis along Z | (29, 6.1, 25.6) | ctaHi (#FF8FE0) | Neon | no |
+| Beast collider | Block 4.6 x 8.4 x 8, Transparency 1, CanQuery true | (29, 5.2, 26.6) | — | — | yes |
+| Prompt host | existing marker | (29, 10, 26) if moved | — | Transparency 1 | no |
+Beast: static chunky quadruped statue facing -Z, top ~9.4 (~1.9x a 5-stud avatar, `DEC:#2`), rump 0.7 clear of the back rail, muzzle 1.9 behind the gate line. Body pieces may be unioned per colour (`S2`); the plain collider then blocks. Source: posts/rails vi = lamp pole + machine body (`DEC:#14`, `S3`); caps ctaHi = lamp ring (B3); plinth lip = bank plinth (`S3`); eyes deep = door (`S0.11`); horns pinkText (B7 #6/#8); collar Neon ctaHi = machine status (`S3`). No Grip meter, workout track or Grip sign (`PLAN:66, 135`).
+
+**Counts vs budget** (parts + prompt; + 1-2 Model containers each)
+| Item | Parts | Instances | Budget / cap (`PLAN:76`) |
+|---|---|---|---|
+| Hatchery | dais 3 + pedestal 3 + cradles 3 + rings 3 + clusters 6 + anchors 5 + marker 1 = 24 | ~27 | 40 / 45 |
+| Beast + pen | pen 14 + beast 14 + collider 1 + marker 1 = 30 (body union: ~24) | ~33 | 60 / 65 |
+| Billboards | 0 + 0 | plot stays **10** of 12 | `S0.4`, B4 |
+
 ---
 ## C. Motion / ambience tokens (world)
 
@@ -172,8 +231,8 @@ Limits: per plot **<= 937** incl. creatures and billboards (`S0.4`, 750 x 1.25),
 | Habitats (6) | 80 | 102 (B5) |
 | Creatures | 150 | 150 |
 | Spine / bank / machines | 40 | 40 (unrestyled, OPEN G5) |
-| Hatchery | 40 | 40 |
-| Training Beast | 60 | 60 |
+| Hatchery | 40 | ~27 (B10) |
+| Training Beast | 60 | ~33 (B10) |
 | Decor 14 slots | 110 | ~98 |
 | House | 126 (lodge) | 28 / 50 / 85 / <=140 |
 | Banner + aura ring | 0 | 5 |
@@ -181,7 +240,7 @@ Limits: per plot **<= 937** incl. creatures and billboards (`S0.4`, 750 x 1.25),
 | Globe lamps (4) | in frame | 20 |
 | Path glow (B9) | 0 | 2 |
 | Billboards (10) | 60 | 70 |
-| **Total (Palace)** | **746** | **~805**, headroom ~130 under 937 |
+| **Total (Palace)** | **746** | **~765** (B10 -40), headroom ~170 under 937 |
 Commons: gate 44 + sparkles 3 + board 9 + shrine 12 + fountain 9 + plaza discs (4) 12 + speed lane ~77 + path glow ~16 = **~182** + commons lamps (count TBD, 5 each), inside 1,500. Lights: 0 default, <= 1 per house. Neon glow needs bloom, which the MCP cannot read: verify on the phone/emulator (G6).
 
 ---
@@ -231,3 +290,4 @@ Not restyled: terrain, kingdom planting (`MountainQuality`, `Polish`), routes, c
 | G10 | Rank coin multiplier numbers + STOP before code (was F17) | `DEC:#9` |
 | G11 | Terrain Grass beside the #2FAE8A lawn slab may clash; terrain out of scope | `HI:A1`, `DEC:#21` |
 | G12 | Flora/decor list (B7) awaits owner OK | `DEC` Open |
+| G13 | Hatchery / Training Beast forms (`HI:G3`) | **CLOSED 2026-10-29 (owner):** (a) candy statue, (b) eggs shown on cradles in P4, (c) keep vi. Was open: (a) Beast = violet candy statue vs a roster creature model; (b) show incubating eggs on the 3 cradles in P4 (needs egg models) or empty cradles until P7; (c) Beast vi body sits in the gate/lamp/machine violet family, OK or use another existing key. Hatch ring / halo colours = P7 atlas row |

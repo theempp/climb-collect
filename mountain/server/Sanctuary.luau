@@ -61,12 +61,12 @@ function S.new(model)
   for j,row in ipairs(L.contents.services) do
    local kind=row.kind
    local marker=Instance.new('Part');marker.Name=kind..'Service';marker.Size=Vector3.new(row.size,2,row.size)
-   marker.CFrame=plot.floor.CFrame*CFrame.new(row.x,plot.floor.Size.Y/2+1,row.z)
-   marker.Anchored=true;marker.CanCollide=false;marker.CanTouch=false;marker.Material=Enum.Material.Wood
-   marker.Color=if j==1 then Color3.fromRGB(133,187,177) else Color3.fromRGB(204,168,105)
+   -- Intel B10: invisible prompt host above the hatchery pedestal / Beast statue (TycoonWorld builds the visible forms).
+   marker.CFrame=plot.floor.CFrame*CFrame.new(row.x,plot.floor.Size.Y/2+(row.y or 1),row.z)
+   marker.Anchored=true;marker.CanCollide=false;marker.CanTouch=false;marker.Transparency=1;marker.CastShadow=false
    marker:SetAttribute('SanctuarySlot',i);marker:SetAttribute('Service',kind)
    local prompt=Instance.new('ProximityPrompt');prompt.ActionText=if j==1 then 'Incubate / hatch' else 'Train companions'
-   prompt.ObjectText='Your sanctuary';prompt.MaxActivationDistance=12;prompt.HoldDuration=.2;prompt.Parent=marker
+   prompt.ObjectText='Your sanctuary';prompt.MaxActivationDistance=12;prompt.HoldDuration=.2;prompt.RequiresLineOfSight=false;prompt.Parent=marker
    marker.Parent=plot.model
   end
  end

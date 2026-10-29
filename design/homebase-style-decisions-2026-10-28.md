@@ -69,3 +69,7 @@ S1 plan `design/homebase-style-s1-plan-2026-10-29.md` + atlas pass 3 approved. D
 - Empty decor stand: usable slot = coin + price pill with the cheapest prop the tier can buy; slots beyond `usable` = bare stand. Pills drawn by the owner's client, nearest 4 (plan R2), so plot billboards stay <= 12.
 - Tycoon cosmetic tint dropped in the candy world (data kept, visual later).
 - Unowned plots: full yard, dimmed (locked look) as before.
+
+## P4 G3 answers (owner popup, 2026-10-29)
+- Training Beast = violet candy statue (intel B10), not a roster creature; violet `vi` body kept.
+- Hatchery cradles **show incubating eggs in P4** (not deferred to P7).
