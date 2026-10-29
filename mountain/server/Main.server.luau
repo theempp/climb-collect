@@ -5,7 +5,6 @@ local C=require(RS.MountainShared.Catalog)
 local R=require(RS.MountainShared.Rules)
 local P=require(script.Parent.Profiles)
 local B=require(script.Parent.Combat)
-local Competition=require(script.Parent.Competition)
 local UIRequests=require(script.Parent.UIRequests)
 local UIProtocol=require(RS.MountainShared.UIProtocol)
 local BatRules=require(RS.MountainShared.BatRules)
@@ -277,9 +276,9 @@ local function interact(player,part)
  elseif kind=='Recovery' then
   if part:GetAttribute('Owner')==player.UserId and R.recover(p,os.time()) then part:Destroy();recovering[player]=nil;send(player,'toast','Eggs recovered • extract them now.') end
  elseif kind=='Summit' then
-  if not p.discoveries.summit then p.discoveries.summit=true;p.coins+=1000;p.trophies+=100 end
+  if not p.discoveries.summit then p.discoveries.summit=true;p.coins+=1000 end
   send(player,'toast','IMPOSSIBLE MOUNTAIN CONQUERED • Sovereign Explorer!')
- elseif table.find({'Incubator','Sanctuary','Training','Competition'},kind) then
+ elseif table.find({'Incubator','Sanctuary','Training'},kind) then
   R.settleIncome(p,os.time());send(player,'open',kind)
  end
  publish(player,true)
@@ -317,7 +316,7 @@ game:GetService('ProximityPromptService').PromptTriggered:Connect(function(promp
  else send(player,'open',kind) end
  publish(player)
 end)
-local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,competition=Competition,clock=os.time,
+local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,clock=os.time,
  safe=safe,atHome=atHome,atRefuge=atRefuge,nearCheckpoint=nearCheckpoint,publish=publish,rebuildTeam=rebuildTeam,send=send,
  save=function(player) task.spawn(function() local saved=P.save(player,false);send(player,'save',saved) end) end,
  travel=journey.go,raids=raids,putDown=carryVisuals.clear,

@@ -9,7 +9,7 @@ local refuge=true;local safe=true;local near=true;local published=0;local rebuil
 local handle=Requests.actions({profiles=profileService,rules=Rules,clock=function() return 200 end,safe=function() return safe end,atRefuge=function() return refuge end,nearCheckpoint=function() return near end,
  publish=function() published+=1 end,rebuildTeam=function() rebuilt+=1 end,send=function() end,
  travel=function(_,target) if target~='refuge' then return false end;Rules.extract(p);traveled=target;return true end,
- combat={special=function() return false end,dodge=function() return false end},competition={register=function() return false end,challenge=function() return false,'Unavailable.' end}})
+ combat={special=function() return false end,dodge=function() return false end}})
 check(not handle({},'Train','missing') and p.coins==100,'invalid creature never spends')
 refuge=false;check(not handle({},'Train','c1') and p.coins==100,'training proximity enforced')
 refuge=true;local ok,message,data=handle({},'Train','c1')
@@ -17,7 +17,7 @@ check(ok and p.coins==85 and data.previousLevel==1 and data.creature.level==2 an
 p.coins=0;check(not handle({},'Train','c1') and p.coins==0,'insufficient balance denied')
 p.creatures[1].level=50;check(not handle({},'Train','c1'),'max level training denied')
 check(not handle({},'Special',{slot=1}) and not handle({},'Dodge',nil),'combat failures never acknowledge success')
-check(not handle({},'RegisterDefense',nil) and not handle({},'ChallengeDefense',0),'unavailable defense service failure')
+local okR,msgR=handle({},'RegisterDefense',nil);local okC,msgC=handle({},'ChallengeDefense',0);check(not okR and msgR=='Unknown action.' and not okC and msgC=='Unknown action.','removed defense actions are rejected as unknown')
 Rules.collect(p,'mossbun','egg',100);Rules.extract(p)
 local id=p.eggs[1].id
 check(handle({},'Incubate',id),'real incubation accepted')
@@ -117,10 +117,6 @@ inSanct=false;ok,message=shop(shopper,'Skin',{op='clear'});check(not ok and mess
 inSanct=true;ok,message=shop(shopper,'Skin',{op='clear'})
 check(ok and message=='Bat skin cleared.' and bp.cosmetics.batSkin==nil and bp.cosmetics.skins.candy_swirl and skinEquips==2 and skinSaves==2 and writes==2,'skin clear keeps ownership')
 for _=1,8 do shop(shopper,'Skin',{op='clear'}) end;check(skinEquips==2 and skinSaves==2,'repeated clear spam never saves')
--- Q4 cap: a capped win keeps the existing toast; the cap shows only as coins=0 in the data.
-local cap=Requests.actions({profiles={get=function() return p end},rules=Rules,safe=function() return true end,atRefuge=function() return true end,send=function() end,
- competition={challenge=function() return true,{won=true,coins=0,trophies=5} end}})
-ok,message,data=cap({},'ChallengeDefense',0);check(ok and message=='Defense challenge won.' and data.coins==0,'capped competition win keeps the existing toast')
 -- The Bat action through the dispatcher (equip, upgrade, refusals).
 local BatRules=require('../shared/BatRules')
 local bat=Rules.newProfile(100);bat.coins=100;local equipped,saved=0,0

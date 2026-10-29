@@ -25,7 +25,7 @@ mapping={
  'ServerStorage.MountainWorld.TraversalArt':'world/TraversalArt.luau',
  'ServerScriptService.MountainServer.Traversal':'server/Traversal.luau',
  **{'ServerStorage.MountainWorld.'+n:'world/'+n+'.luau' for n in ('Art','Landmarks','World','CreatureDetails','Polish')},
- **{'ServerScriptService.MountainServer.'+n:'server/'+n+'.luau' for n in ('Store','Profiles','Combat','Competition','StudioTests')},
+ **{'ServerScriptService.MountainServer.'+n:'server/'+n+'.luau' for n in ('Store','Profiles','Combat','StudioTests')},
  'ServerScriptService.MountainServer.Main':'server/Main.server.luau',
  'StarterPlayer.StarterPlayerScripts.MountainClient.HUD':'client/HUD.client.luau',
  'StarterPlayer.StarterPlayerScripts.MountainClient.CreatureMotion':'client/CreatureMotion.client.luau',

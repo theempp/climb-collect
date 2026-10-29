@@ -53,7 +53,6 @@ local manifest={
  {"ServerStorage.MountainWorld", "World", "ModuleScript", "mountain/world/World.luau"},
  {"ServerScriptService.MountainServer", "CarryVisuals", "ModuleScript", "mountain/server/CarryVisuals.luau"},
  {"ServerScriptService.MountainServer", "Combat", "ModuleScript", "mountain/server/Combat.luau"},
- {"ServerScriptService.MountainServer", "Competition", "ModuleScript", "mountain/server/Competition.luau"},
  {"ServerScriptService.MountainServer", "EggRaids", "ModuleScript", "mountain/server/EggRaids.luau"},
  {"ServerScriptService.MountainServer", "Guardians", "ModuleScript", "mountain/server/Guardians.luau"},
  {"ServerScriptService.MountainServer", "Journey", "ModuleScript", "mountain/server/Journey.luau"},

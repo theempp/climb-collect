@@ -286,27 +286,6 @@ function U.actions(context)
 
    local amount=R.settleIncome(p,context.clock());return true,'Collected '..amount..' sanctuary coins.',{coins=amount}
 
-  elseif action=='RegisterDefense' then
-
-   if not context.atRefuge(player) then return false,'Register a defense on your own plot or at the refuge.' end
-
-   local ok=context.competition.register(p,player.UserId)
-
-   return ok,if ok then 'Defense snapshot saved • others can challenge your UserId while you are offline.' else 'Defense save unavailable. Try again later.'
-
-  elseif action=='ChallengeDefense' then
-
-   if not context.atRefuge(player) then return false,'Challenge a defense on your own plot or at the refuge.' end
-
-   local ok,value=context.competition.challenge(p,player.UserId,payload)
-
-   if not ok then return false,value end
-
-   context.send(player,'competition',value);if context.save then context.save(player) end
-
-   -- Toast copy unchanged (P2): the Q4 daily coin cap shows only as value.coins==0.
-   return true,if value.won then 'Defense challenge won.' else 'Defense challenge complete.',value
-
   end
 
   return false,'Unknown action.'

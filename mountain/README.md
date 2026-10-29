@@ -6,7 +6,7 @@ Open ../evidence/mountain_2026-10-24/ImpossibleMountain.ArtPassVerified.rbxlx in
 
 Start at the Expedition Refuge. Follow the flags and climb the ladders. Hold E or tap proximity prompts to rest/extract, investigate nests, fight creatures, and challenge Guardians. Normal Guardian victories unlock the next kingdom. A separate altar begins each Legendary Trial; mastery guarantees its one permanent capture.
 
-Use 1, 2, 3 or the onscreen Special buttons for your equipped companions. Q or Dodge grants a short invulnerability window. A1–A4 cycles the selected collectible Guardian ability. Collection equips up to three companions. Travel works at discovered checkpoints and the refuge. Eggs must be extracted before free incubation/hatching at the refuge. Common eggs take 30 seconds; the other durations are shown in the UI. Training, income and defense snapshots are available at refuge stations. Competition accepts another player's UserId; 0 is explicitly labeled practice.
+Use 1, 2, 3 or the onscreen Special buttons for your equipped companions. Q or Dodge grants a short invulnerability window. A1–A4 cycles the selected collectible Guardian ability. Collection equips up to three companions. Travel works at discovered checkpoints and the refuge. Eggs must be extracted before free incubation/hatching at the refuge. Common eggs take 30 seconds; the other durations are shown in the UI. Training and income are available at refuge stations. (The async defense/competition system was removed 2026-10-29, home-base P1.)
 
 Studio uses an isolated in-memory profile and resets on Stop. Published games use MountainEmpire_FirstDraft_v1 with session locking; live persistence has not been certified. Do not point this schema at legacy player data.
 

@@ -7,7 +7,7 @@ local function intent(id,action,payload) return Protocol.validate(id,action,payl
 check(intent('test:1','State',nil),'valid correlated request')
 for _,id in ipairs({'',string.rep('x',65),'no-sequence','token:0','token:NaN'}) do check(not intent(id,'State',nil),'malformed IDs denied') end
 for _,payload in ipairs({{slot=0/0},{slot=math.huge},{slot=1,ability=0/0},{slot=1,ability=5},{slot=1,extra=true}}) do check(not intent('test:1','Special',payload),'malformed specials denied') end
-check(not intent('test:1','ChallengeDefense',0/0),'NaN target denied')
+check(not intent('test:1','ChallengeDefense',0) and not intent('test:1','RegisterDefense',nil),'removed defense actions denied')
 check(not intent('test:1','Anything',nil),'unknown action denied')
 check(not intent('test:1','Train',{}),'wrong payload denied')
 check(not intent('test:1','Equip',{'c1','c1'}),'duplicate slots denied')

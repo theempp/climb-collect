@@ -12,9 +12,9 @@ local Motion=require(script.Parent.Motion)
 local TycoonHub=require(script.Parent.TycoonHub)
 local Shop=require(script.Parent.Shop)
 local S={};S.__index=S
-local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Party','Challenges','Defense'},Profile={'Overview','Achievements','Recognition'},Shop={'Featured','Coins','Passes','Eggs','Skins'},Settings={'Audio','Graphics','HUD','Controls','Account'}}
-local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain',Competition='Social'}
-local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests',Competition='Challenges'}
+local tabs={Creatures={'Collection','Team','Training','Evolution'},Discovery={'Eggs','Field guide'},Sanctuary={'Overview','Habitats','Upgrades','Automation','Cosmetics','Facilities'},Mountain={'Map','Quests','Trials'},Social={'Leaderboard'},Profile={'Overview','Achievements','Recognition'},Shop={'Featured','Coins','Passes','Eggs','Skins'},Settings={'Audio','Graphics','HUD','Controls','Account'}}
+local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery',Eggs='Discovery',Travel='Mountain',Journal='Mountain'}
+local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests'}
 -- Side-tab icons only where the board draws them (Collection All/Team/Index/Evolve, L630; Shop gift/coin/gem/egg/bat, L631); others have none.
 local tabIcons={Creatures={Collection='Creature',Team='Heart',Training='Scroll',Evolution='EggCracked'},Shop={Featured='Gift',Coins='Coin',Passes='Gem',Eggs='Egg',Skins='Bat'}}
 -- Section-jump hubs (intel §2 per-menu): their tabs are sections of one scroll.
@@ -617,54 +617,12 @@ function S:mountain(data)
  end
 end
 function S:social(data)
- local compact=self.compact
- if self.tab=='Party' then
-  local battle=self.store.battle
-  self:banner('Social','Climb together','Friends can join the same Guardian at its altar while the encounter is open. Teammates attack automatically.',T.alt)
-  if battle and battle.members then
-   local g=self:grid('Members',#battle.members,170,if compact then 120 else 140)
-   for i,m in ipairs(battle.members) do
-    local card=W.card(g,'Member_'..i,nil,nil,T.alt,m.name or tostring(m.userId));card.LayoutOrder=i
-    if m.userId then local a=if compact then 48 else 64;local img=W.new('ImageLabel',card,{Name='Avatar',Size=UDim2.fromOffset(a,a),Position=UDim2.new(.5,-a/2,0,34),BackgroundColor3=T.navy,Image='rbxthumb://type=AvatarHeadShot&id='..m.userId..'&w=150&h=150'});W.round(img,a/2);W.stroke(img,T.outline,2) end
-    W.label(card,'In your Guardian encounter',UDim2.new(1,-16,0,18),UDim2.new(0,8,1,-24),nil,12,T.ink,Enum.TextXAlignment.Center)
-   end
-  else self:info('Map','No active co-op encounter','Meet other climbers at a Guardian altar to battle together.',64) end
-  self:blocked('Party finder & invitations','Persistent parties and invitations are not connected. No invitations are sent from here.','Invitations unavailable')
- elseif self.tab=='Defense' then
-  -- Defense strip: your equipped team as three slots + register (layout E slots).
-  -- P5 F3 (overflow audit 749x330): compact / narrow rows take S:blocked's 130 register width, and compact grows the strip so
-  -- the description fits at the row() description size (FO 11, L311-314); slots + levels stay centred. Other sizes unchanged.
-  local art=if compact then 66 else 86;local regW=if compact or self.rowW<520 then 130 else 180
-  local tx=10+3*(art+10)+6
-  local desc='Register a snapshot for asynchronous challenges. Creatures and eggs cannot be stolen. UserId '..Players.LocalPlayer.UserId
-  local h=art+30;if compact then h=math.max(h,46+wrapH(desc,T.t.small,self.rowW-tx-regW-24)) end
-  local sy=math.floor((h-art-30)/2)
-  local strip=W.panel(self.body,'DefenseTeam',UDim2.new(1,-8,0,h),nil,T.navy)
-  for i=1,3 do
-   local id=data.team[i];local c=id and R.find(data.creatures,id)
-   W.slot(strip,c and C.byId[c.species],UDim2.fromOffset(art,art),UDim2.fromOffset(10+(i-1)*(art+10),sy+8)).Name='DefenseSlot'..i
-   W.label(strip,if c then 'Lv '..c.level else 'Empty',UDim2.fromOffset(art,16),UDim2.fromOffset(10+(i-1)*(art+10),sy+art+10),T.display,12,T.ink,Enum.TextXAlignment.Center)
-  end
-  W.label(strip,'YOUR TEAM IS YOUR DEFENSE',UDim2.new(1,-tx-regW-24,0,26),UDim2.fromOffset(tx,10),T.label,20,T.ink).Name='Title'
-  W.label(strip,desc,UDim2.new(1,-tx-regW-24,1,-46),UDim2.fromOffset(tx,38),nil,12,T.muted,nil,true)
-  self:action(strip,'RegisterDefense','Register defense','RegisterDefense',nil,data.ui and data.ui.atRefuge,UDim2.new(1,-regW-12,.5,-24),UDim2.fromOffset(regW,44),'gold')
-  self:blocked('Sanctuary defense layout','Raid defense buildings are not available yet. Team registration is above.')
- else
-  local _,slot,sw=self:banner('Bat','Sanctuary challenges','Challenge a saved defense. Opponents can be offline; practice is separate.',T.panelPurple,{w=138,h=30})
-  W.pill(slot,nil,data.trophies..' trophies',sw,30,UDim2.new())
-  local f=W.panel(self.body,'ChallengeDefense',UDim2.new(1,-8,0,if compact then 92 else 100),nil,T.navy)
-  W.label(f,'CHALLENGE A DEFENSE',UDim2.new(.4,-14,0,24),UDim2.fromOffset(14,8),T.label,20,T.ink).Name='Title'
-  W.label(f,'Enter a numeric UserId. 0 = practice defense.',UDim2.new(.4,-14,0,30),UDim2.fromOffset(14,34),nil,12,T.muted,nil,true)
-  local timer=W.label(f,'',UDim2.new(.4,-14,0,18),UDim2.new(0,14,1,-24),T.display,13,T.gold)
-  local box=W.round(W.new('TextBox',f,{Name='OpponentId',Size=UDim2.new(.36,-10,0,44),Position=UDim2.new(.4,0,.5,-22),Text=self.opponent or '',PlaceholderText='Player UserId (0 = practice)',ClearTextOnFocus=false,TextColor3=T.ink,PlaceholderColor3=T.muted,BackgroundColor3=T.outline,Font=T.body,TextSize=T.size(15),TextTruncate=Enum.TextTruncate.AtEnd,BorderSizePixel=0}),8)
-  box.FocusLost:Connect(function() self.opponent=box.Text;if self.deferredRender then task.defer(function() self:render(true) end) end end)
-  self:action(f,'ChallengeDefense','Challenge','ChallengeDefense',function() self.opponent=box.Text;return tonumber(box.Text) end,data.ui and data.ui.atRefuge,UDim2.new(.76,0,.5,-24),UDim2.new(.24,-12,0,44),'gold')
-  table.insert(self.tickers,function() local n=P.remaining(data.competitionAt,self.store:now());timer.Text=if n>0 then 'Next challenge in '..P.formatTime(n) else 'Ready at refuge' end)
-  self:blocked('Raids & friend challenges','Live raids and friend matchmaking are not connected. Saved defense challenges use the server rules.','Live raids unavailable')
- end
+ -- Leaderboard only (home-base P1): Party, Challenges and Defense are removed. This server's ranks arrive with the commons (plan P5/P6).
+ self:blocked('Leaderboard','Explorer ranks for the climbers on this server arrive with the home-base commons. No sample players or invented ranks are shown.','Leaderboard coming soon')
 end
 function S:profile(data)
  local compact=self.compact
+ local ex=data.ui and data.ui.explorer
  local captures,wins=0,0;for _ in pairs(data.captures) do captures+=1 end;for _ in pairs(data.wins) do wins+=1 end
  if self.tab=='Overview' then
   -- Player card (robloxf1-v2/22): avatar card + big stat cells.
@@ -678,7 +636,7 @@ function S:profile(data)
   local x=a+22;local w=self.rowW-x-10
   W.label(card,string.upper(Players.LocalPlayer.DisplayName),UDim2.fromOffset(w,34),UDim2.fromOffset(x,8),T.title,30,T.ink).Name='Name'
   local cw=math.floor((w-24)/4);local ch=h-60
-  for i,v in ipairs({{'Creature','Creatures',#data.creatures},{'Bat','Guardians',wins..' / 6'},{'Gem','Captures',captures..' / 6'},{'Gift','Trophies',data.trophies}}) do
+  for i,v in ipairs({{'Creature','Creatures',#data.creatures},{'Bat','Guardians',wins..' / 6'},{'Gem','Captures',captures..' / 6'},{'Scroll','Rank',if ex then 'Lv '..ex.level else '—'}}) do
    W.stat(card,v[1],v[2],v[3],cw,math.min(ch,64),UDim2.fromOffset(x+(i-1)*(cw+8),48))
   end
   local track=W.panel(self.body,'ExpeditionTrack',UDim2.new(1,-8,0,96),nil,T.navy)
@@ -706,7 +664,7 @@ function S:profile(data)
   W.chip(card,if summit then '✓ Summit reached' else 'Summit',if summit then T.ok.base else T.navy,UDim2.new(1,-16,0,22),UDim2.new(0,8,0,38+a))
   W.label(card,if summit then 'The crown is yours' else 'Defeat Caeloryn and reach the summit',UDim2.new(1,-16,1,-(74+a)),UDim2.fromOffset(8,66+a),nil,12,T.ink,Enum.TextXAlignment.Center,true)
  else
-  self:banner('Gift',data.trophies..' trophies','Earned in the mountain and challenge systems. Captures and summit achievements appear in your profile.',T.panelPurple)
+  self:banner('Scroll',if ex then 'Rank '..ex.level else 'Rank','Explorer XP from Guardian wins and secured creatures raises your rank. Captures and summit achievements appear in your profile.',T.panelPurple)
   self:blocked('Leaderboards & rankings','A ranking service is not connected. No sample players or invented ranks are shown.','Rankings unavailable')
   self:blocked('Badges & equipped titles','Badge awards and title selection need platform services. Milestones stay in Achievements.','Titles unavailable')
  end

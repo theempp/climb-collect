@@ -240,7 +240,7 @@ function W.build()
  terrain:FillBlock(CFrame.new(0,66,502),Vector3.new(30,100,62),Enum.Material.Air)
  arch(refuge,Vector3.new(0,16,515),C.kingdoms[1],14)
  local spawn=Instance.new('SpawnLocation');spawn.Name='MountainArrival';spawn.Anchored=true;spawn.Size=Vector3.new(8,1,8);spawn.CFrame=CFrame.new(0,17,555);spawn.Transparency=1;spawn.Neutral=true;spawn.Duration=0;spawn.Parent=refuge
- for i,name in ipairs({'Incubator','Sanctuary','Training','Competition'}) do
+ for i,name in ipairs({'Incubator','Sanctuary','Training'}) do
   local pos=Vector3.new(-45+(i-1)*30,16,585)
   deck(refuge,name..'Dais',pos,Vector3.new(21,2,18),Color3.fromRGB(194,183,159),Enum.Material.Cobblestone)
   local p=A.part(interactions,name,Vector3.new(5,4,5),CFrame.new(pos+Vector3.new(0,2,0)),Color3.fromRGB(171,218,203),Enum.Material.Marble)

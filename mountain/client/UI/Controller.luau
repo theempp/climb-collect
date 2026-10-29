@@ -60,7 +60,7 @@ end
 if not remotes then feedback:destroy();hud:destroy();return {} end
 store=ClientState.new(remotes)
 local memory=H.new()
-local connections={};local saveFailed=false;local previousProfile;local memberStamp='';local wasInBattle=false;local age=0;local lastSecond=-1;local fixture=nil
+local connections={};local saveFailed=false;local previousProfile;local wasInBattle=false;local age=0;local lastSecond=-1;local fixture=nil
 local function connect(signal,fn) local c=signal:Connect(fn);table.insert(connections,c);return c end
 -- Hint card (hints pref): not on the board; kept on tall screens, in the tier-2 band while it is free.
 local hint=W.panel(root,'Hint',UDim2.fromOffset(320,64),UDim2.new(.5,-160,0,78));hint.Visible=false;hint.ZIndex=25
@@ -158,8 +158,6 @@ local disconnect=store:subscribe(function(kind,payload)
  if kind=='state' or kind=='context' or kind=='production' then updateProfile()
  elseif kind=='battle' then
   local active=payload~=nil and payload~=false;if active~=wasInBattle then wasInBattle=active;layout() end
-  local stamp=game:GetService('HttpService'):JSONEncode(if payload then payload.members or {} else {})
-  if stamp~=memberStamp then memberStamp=stamp;if screens.hub=='Social' and screens.tab=='Party' then screens:render(true) end end
  elseif kind=='hud' then deliver(H.event(memory,payload,inSanctuary()))
  elseif kind=='open' then open(payload)
  elseif kind=='toast' then feedback:toast(payload)
@@ -169,7 +167,6 @@ local disconnect=store:subscribe(function(kind,payload)
    sound();local d=payload.data
    if payload.action=='Hatch' and d and d.creature then feedback:hatchReveal(C.byId[d.creature.species],{}) -- sanctuary reveal strip (P5 E)
    elseif payload.action=='Train' and d and d.creature and d.stage and d.previousStage and d.stage>d.previousStage then feedback:reveal('Evolution unlocked!',C.byId[d.creature.species].name..' reached evolution stage '..d.stage..'.',C.byId[d.creature.species])
-   elseif payload.action=='ChallengeDefense' and d then feedback:reveal(if d.won then 'Challenge won!' else 'Challenge complete',(if d.practice then 'Practice defense' else 'Opponent '..tostring(d.opponent))..' · '..tostring(d.rounds)..' rounds\n'..tostring(d.trophies)..' trophies awarded.')
    elseif payload.action~='Special' and payload.action~='Dodge' then feedback:toast(payload.message or 'Confirmed.') end
   elseif not payload.ok and payload.data and payload.data.confirmAbandon then
    local d=payload.data
