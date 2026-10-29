@@ -39,7 +39,7 @@ check(p.tycoon.slots==6 and T.maxSlots==6 and not T.upgrade(p,'habitats',nil,400
 check(#T.snapshot(p).habitats==6 and T.upgradeEffect(p,'habitats')=='Active habitats: 6 → 6','snapshot shows the 6 that can unlock')
 -- Home-base P2: plot tier caps habitat comfort (tier 1 = 1, absent home = tier 1); levels bought before stay.
 check(T.upgrade(p,'habitat',1,4000) and p.tycoon.habitats[1].level==1,'tier 1 allows comfort 1')
-local q=T.quote(p,'habitat',1);check(not T.upgrade(p,'habitat',1,4000) and p.tycoon.habitats[1].level==1 and q and not q.ready and q.tier==2 and q.requirement=='Raise your plot to Cedar Cloister','comfort 2 needs tier 2, no debit')
+local q=T.quote(p,'habitat',1);check(not T.upgrade(p,'habitat',1,4000) and p.tycoon.habitats[1].level==1 and q and not q.ready and q.tier==2 and q.requirement=='Raise your plot to Villa','comfort 2 needs tier 2, no debit')
 local coins=p.coins;p.home={v=1,tier=2,decor={},stock={}};check(T.upgrade(p,'habitat',1,4000) and p.coins==coins-75 and not T.upgrade(p,'habitat',1,4000),'tier 2 allows comfort 2 only')
 p.home.tier=4;check(T.upgrade(p,'habitat',1,4000) and T.upgrade(p,'habitat',1,4000) and not T.quote(p,'habitat',1),'tier 4 reaches comfort 4 max')
 p.home.tier=1;check(p.tycoon.habitats[1].level==4 and T.valid(p.tycoon),'a lower tier never strips bought comfort')

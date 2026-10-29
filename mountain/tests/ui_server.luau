@@ -148,7 +148,7 @@ ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Reach a 
 hp.explorer.repeatXp=Explorer.start(5);atHome=false;ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Use your own sanctuary plot.' and hp.home.tier==1,'tier needs own plot')
 atHome=true;hp.run={id='r'};ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Finish your current creature run first.' and homeWrites==0,'tier refused mid-run');hp.run=nil
 ok,message,data=homeAct(owner,'Home',{op='tier'})
-check(ok and message=='Plot raised to Cedar Cloister.' and hp.home.tier==2 and hp.coins==4000 and homeWrites==1 and data.home.tier==2 and changedOps[1]=='tier' and homePublished==1,'tier raise commits once, publishes after commit')
+check(ok and message=='Plot raised to Villa.' and hp.home.tier==2 and hp.coins==4000 and homeWrites==1 and data.home.tier==2 and changedOps[1]=='tier' and homePublished==1,'tier raise commits once, publishes after commit')
 ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Reach a higher rank to raise your plot.' and hp.coins==4000 and homeWrites==1,'next tier rank-gated')
 ok,message,data=homeAct(owner,'Home',{op='place',slot=1,kind='prop',id='lantern'})
 check(ok and message=='Bought and placed.' and hp.coins==3200 and data.home.decor[1].id=='lantern' and homeWrites==2,'prop bought on place')
@@ -172,5 +172,5 @@ visitorAt=2;ok,message=homeAct(owner,'Inspect',{plot=5,kind='decor',index=1});ch
 visitorAt=3;inSanctHome=false;ok,message=homeAct(owner,'Inspect',{plot=3,kind='decor',index=2});check(not ok and message=='Visit the sanctuary to look closer.','inspect needs the sanctuary')
 -- Tycoon comfort cap message names the tier.
 hp.home.tier=1;hp.tycoon.habitats[1].level=1;hp.coins=1000
-ok,message=homeAct(owner,'Tycoon',{op='upgrade',path='habitat',slot=1});check(not ok and message=='Raise your plot to Cedar Cloister to upgrade further.' and hp.coins==1000,'comfort cap names the tier, no debit')
+ok,message=homeAct(owner,'Tycoon',{op='upgrade',path='habitat',slot=1});check(not ok and message=='Raise your plot to Villa to upgrade further.' and hp.coins==1000,'comfort cap names the tier, no debit')
 print('PASS '..count..' server action checks')

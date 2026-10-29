@@ -10,9 +10,11 @@ local function fresh(level,coins)
 end
 -- Table (PROPOSED numbers, STOP 3).
 check(#T.tiers==4 and T.slots==14 and T.stockCap==4,'four tiers, fourteen slots, stock cap 4')
-local want={{'Dry-stone Yard',1,0,1,4},{'Cedar Cloister',5,1000,2,7},{'Brass & Lantern',15,5000,3,10},{'Azure Terrace',30,15000,4,14}}
+local want={{'Hut',1,0,1,4},{'Villa',5,1000,2,7},{'Manor',15,5000,3,10},{'Palace',30,15000,4,14}}
 for i,w in ipairs(want) do local t=T.tiers[i];check(t.name==w[1] and t.rank==w[2] and t.fee==w[3] and t.habitatCap==w[4] and t.usable==w[5],'tier_row_'..i) end
-for i=2,4 do check(T.tiers[i].rank>T.tiers[i-1].rank and T.tiers[i].fee>T.tiers[i-1].fee and T.tiers[i].usable>T.tiers[i-1].usable and #T.tiers[i].roles>#T.tiers[i-1].roles,'tier_'..i..'_strictly_above') end
+for i=2,4 do check(T.tiers[i].rank>T.tiers[i-1].rank and T.tiers[i].fee>T.tiers[i-1].fee and T.tiers[i].usable>T.tiers[i-1].usable,'tier_'..i..'_strictly_above') end
+local WS=require('../shared/WorldStyle');local styles={}
+for i,t in ipairs(T.tiers) do check(t.roles==nil and WS.tier[t.style]~=nil and not styles[t.style],'tier_style_'..i);styles[t.style]=true end
 local props=0;for _,id in ipairs(T.propOrder) do local d=T.props[id];props+=1;check(d and d.id==id and d.price>0 and d.price%1==0 and d.tier>=1 and d.tier<=4 and #d.name<=24,'prop_row_'..id) end
 check(props==6,'six props');for id in pairs(T.props) do check(table.find(T.propOrder,id)~=nil,'prop_ordered_'..id) end
 -- Seed.
@@ -69,11 +71,11 @@ local bad={'x',{},{v=2,tier=1,decor={},stock={}},{v=1,tier=5,decor={},stock={}},
 for i,b in ipairs(bad) do check(not H.valid(b),'invalid_home_'..i) end
 check(H.valid({v=1,tier=4,decor={['14']={kind='prop',id='future_prop'},['1']={kind='creature',id='gone'}},stock={future_prop=2}}),'valid is structural: unknown prop and stale creature load (normalize handles meaning)')
 -- Snapshot and inspect (public view only).
-local s=H.snapshot(p);check(s.tier==4 and s.name=='Azure Terrace' and s.usable==14 and #s.decor==14 and s.decor[14].id=='basin' and s.decor[1]==false and s.next==nil,'snapshot')
+local s=H.snapshot(p);check(s.tier==4 and s.name=='Palace' and s.usable==14 and #s.decor==14 and s.decor[14].id=='basin' and s.decor[1]==false and s.next==nil,'snapshot')
 check(H.snapshot(fresh(5,1000)).next.ready,'snapshot carries the next quote')
 R.tycoon.assign(p,1,'c2',100)
 local v=H.inspect(p,'habitat',1);check(v and v.species=='petalyn' and v.rarity=='Common' and v.level==1 and v.kind=='creature' and v.id==nil and v.coins==nil,'inspect habitat creature, no ids')
 v=H.inspect(p,'decor',13);check(v and v.species=='mossbun','inspect displayed creature')
-v=H.inspect(p,'decor',14);check(v and v.kind=='prop' and v.name=='Azure basin','inspect prop')
+v=H.inspect(p,'decor',14);check(v and v.kind=='prop' and v.name=='Gem basin','inspect prop')
 check(H.inspect(p,'decor',2)==nil and H.inspect(p,'habitat',2)==nil and H.inspect(p,'habitat',7)==nil and H.inspect(p,'bag',1)==nil and H.inspect(p,'decor',0)==nil,'inspect empty or out of range is nil')
 print('PASS '..n..' home rules checks')

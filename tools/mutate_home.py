@@ -2,7 +2,7 @@
 import json, pathlib, subprocess, sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 L = 'C:/Users/HOME!/Desktop/climb&collect/tools/.luau/luau.exe'
-SUITES = [[L, 'mountain/tests/' + n] for n in ('home_rules.luau', 'home_profile.luau', 'tycoon.luau', 'explorer_rules.luau', 'egg_raids.luau', 'ui_protocol.luau', 'ui_server.luau')] \
+SUITES = [[L, 'mountain/tests/' + n] for n in ('home_rules.luau', 'world_style.luau', 'home_profile.luau', 'tycoon.luau', 'explorer_rules.luau', 'egg_raids.luau', 'ui_protocol.luau', 'ui_server.luau')] \
     + [[sys.executable, 'mountain/tests/' + n] for n in ('run_persistence.py', 'run_ui_server.py')]
 M = [  # (file, old, new, gate)
  ('shared/HomeRules.luau', "if level<def.rank then 'rank'", "if false then 'rank'", 'tier rank gate'),
@@ -36,6 +36,9 @@ M = [  # (file, old, new, gate)
  ('server/UIRequests.luau', "if not context.inSanctuary or not context.inSanctuary(player) then return false,'Visit the sanctuary to look closer.' end\n   local now", "local now", 'Inspect needs sanctuary'),
  ('shared/UIProtocol.luau', "if payload.op=='tier' then valid=fields(payload,{op=true})", "if payload.op=='tier' then valid=true", 'Home tier payload strict'),
  ('shared/UIProtocol.luau', "payload.index<=(if payload.kind=='habitat' then 6 else 14)", "payload.index<=14", 'Inspect habitat index <= 6'),
+ ('shared/HomeTiers.luau', "usable=4,style='hut'", "usable=4,style='villa'", 'tier style keys distinct (S2)'),
+ ('shared/WorldStyle.luau', "{min=5,key='gold'", "{min=6,key='gold'", 'rank band edge 5 (S0.1)'),
+ ('shared/WorldStyle.luau', "{min=30,key='prism'", "{min=29,key='prism'", 'rank band edge 30 (S0.1)'),
 ]
 def caught():
     for cmd in SUITES:

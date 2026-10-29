@@ -57,3 +57,9 @@ Final tier names; exact flora/decor list; aura multiplier numbers; whether the s
 
 ## S1 STOP (owner, 2026-10-29): approved
 S1 plan `design/homebase-style-s1-plan-2026-10-29.md` + atlas pass 3 approved. Decor display names: Candy boulder, Bloom bed, Puff hedge, Globe lamp, Cloud tree, Gem basin (ids unchanged). Max 6 creatures shown on decor stands per plot. Gate: the two lantern globes share one pulse loop (6 loops = idle cap). Flare split: plan §5 positions + atlas B9 dash pitch.
+
+## S2 answers (owner, 2026-10-29)
+- Flora/decor list B7 (12 types) approved.
+- Coin props = gold coin token + price pill on an **empty** decor stand; a bought prop replaces it.
+- Globe lamps: warm #FFDD9B, every 3rd lamp pink #F78AD0.
+- Rounded forms: **unions allowed**; every union CanCollide false, with a plain collider part where it must block.
