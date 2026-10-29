@@ -1,0 +1,3 @@
+Theme:11071 Widgets:79006 Motion:39466 Controller:24621 Hud:35050 Screens:56275 Shop:45426 Feedback:36296 TycoonHub:12766 ClientState:9497 Sprint:6218 UIPresentation:15013 UIProtocol:7090 HudState:11823 Main:32524 UIRequests:14436
+skipped: mountain/server/Competition.luau, mountain/server/StudioTests.luau
+World:19679 competitionGone:true

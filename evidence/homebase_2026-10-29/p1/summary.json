@@ -1,0 +1,70 @@
+{
+ "commit": "f666634",
+ "suites": "SUITES pass=40 fail=0",
+ "suiteDeltas": {
+  "ui_server": "67 -> 66 (capped competition toast case removed; removed actions now asserted Unknown action)",
+  "run_combat_raids": "58 -> 43 (Competition snapshot + 14 Q4 coin-win cases removed; Robux-origin cases kept)",
+  "egg_raids/bat_rules/guardian_rules/raid_hazards/run_raid_events": "unchanged"
+ },
+ "grep": "ChallengeDefense|RegisterDefense|Competition|partyInvites|'Party' in mountain code: only the 3 new rejection assertions (tests); docs PLAN.md/BUILD-REPORT.md are historical",
+ "inertFields": "trophies, competitionAt kept in Rules.newProfile and Profiles.valid (old builds require them); no reads/writes left",
+ "studioSync": [
+  "Theme:11071 Widgets:79006 Motion:39466 Controller:24621 Hud:35050 Screens:56275 Shop:45426 Feedback:36296 TycoonHub:12766 ClientState:9497 Sprint:6218 UIPresentation:15013 UIProtocol:7090 HudState:11823 Main:32524 UIRequests:14436",
+  "skipped: mountain/server/Competition.luau, mountain/server/StudioTests.luau",
+  "World:19679 competitionGone:true"
+ ],
+ "drift": {
+  "sources": 63,
+  "match": 62,
+  "drift": [
+   [
+    "mountain/server/StudioTests.luau",
+    "missing"
+   ]
+  ]
+ },
+ "overflow": {
+  "objects": 33576,
+  "sizes": 6,
+  "errors": 0,
+  "screens": 174
+ },
+ "state": {
+  "coverage": {
+   "rest": 10.9,
+   "chase": 10.4
+  },
+  "errors": 0
+ },
+ "perf_counts": {
+  "shopPerf": {
+   "over33": 0,
+   "avg": 16.6,
+   "worst": 21.8
+  },
+  "restPerf": {
+   "over33": 0,
+   "avg": 16.6,
+   "worst": 21
+  },
+  "shopDescendants": 1747,
+  "restDescendants": 499
+ },
+ "p5": {
+  "restAfterClose": 499,
+  "restBefore": 499,
+  "buttons": 288,
+  "robuxLive": [],
+  "robuxButtons": 90,
+  "screens": 29,
+  "unselectable": []
+ },
+ "consoleErrorsOrWarnings": 0,
+ "captures": "hubs/ (29 tabs + detail); Social = Leaderboard only (16_Social_Leaderboard.png); Profile rank tiles (17, 19)",
+ "legacyBanners": [
+  "climb&collect/design/v1-big-scope-design-decisions-2026-10-28.md",
+  "climb&collect/design/publishing-checklist.md",
+  "climb&collect/design/core-loop-upgrade-spec-2026-10-28.md (untracked file)"
+ ],
+ "legacyRepoCommits": "none (banner lines only, left uncommitted)"
+}
