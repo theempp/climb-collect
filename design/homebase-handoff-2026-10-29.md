@@ -36,3 +36,4 @@ Plan: `design/homebase-build-plan-2026-10-29.md` (§6 owner answers). Branch `co
 - Open: no player notice for the 7-8 refund (P6); `TycoonWorld` still builds 8 habitat pads (P4 rewrite).
 - **STOP 3 approved** (owner popup): all as built except **no daily secure-XP cap** (owner wants grind; monetisation later). `ExplorerRules.secureCountMax` bounds the daily counter only. 42/42 suites (explorer_rules 116), 31/31 mutants.
 - **Saved** 22:35 after STOP 3 (PowerShell foreground on PID 4744 only, title verified; PlaceId 0, StudioAids false, Http off; Glassbloom PID 2060 untouched). SHA256 `4017297bff61e2374eb345f92c490ab4ad699b13d32440667c6b5730932d98f8`, 1,479,481 bytes; base copy unchanged (`249a2786…`). Contains the P2 build (HomeRules/HomeTiers). Next: P3 layout C (atlas pass 2 → HomeLayout rewrite → grey-box generator).
+- New-chat prompt for P3: `design/homebase-p3-new-chat-prompt-2026-10-29.md`.
