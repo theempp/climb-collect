@@ -59,6 +59,9 @@ for x=L.promenadeWidth/2+4,L.armReach-4,8 do for _,side in {-1,1} do
 end end
 for x=-50,50,10 do for z=cm.gatePlaza.minZ+4,cm.gatePlaza.maxZ-2,8 do surface(L.axisX+x,z,'gate plaza '..x..':'..z) end end
 for _,x in {-30,-20,20,30} do for z=L.cross.z0+3,L.cross.z1-3,8 do surface(L.axisX+x,z,'crossing '..x..':'..z) end end
+-- East-west on foot through the crossing (channels stop at the plaza edges, the pool sits alone).
+for _,x in {-34,-26,-18,18,26,34} do for _,z in {L.cross.z0+2,L.cross.z,L.cross.z1-2} do surface(L.axisX+x,z,'crossing east-west '..x..':'..z) end end
+for _,z in {L.cross.z0+2,L.cross.z1-2} do for x=-30,30,10 do surface(L.axisX+x,z,'crossing north-south '..x..':'..z) end end
 -- Every new commons part stays inside the kept basin.
 local hc=S:FindFirstChild('HomeCommons');local hcParts=0
 if hc then for _,d in hc:GetDescendants() do if d:IsA('BasePart') then hcParts+=1

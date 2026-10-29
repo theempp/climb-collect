@@ -61,10 +61,12 @@ local function tile(r,cuts)
  return out
 end
 
-function H.apply(sanctuary,world)
+-- opts.rebuild (Edit only): rebuild an existing v2 commons in place; plots already on Plot_80x100 do not move.
+function H.apply(sanctuary,world,opts)
  assert(sanctuary and world,'Sanctuary and mountain required')
- if sanctuary:GetAttribute('PromenadeVersion')==H.version then return false end
- assert(sanctuary:GetAttribute('PromenadeVersion')==1,'Expected the v1 promenade')
+ local v=sanctuary:GetAttribute('PromenadeVersion')
+ if v==H.version and not (opts and opts.rebuild) then return false end
+ assert(v==1 or v==H.version,'Expected the v1 promenade')
  local P=game.ServerStorage:FindFirstChild('HomeProtos');assert(P,'HomeProtos missing')
  for _,n in {'Lantern','Tree','PlantingBed','Boulder'} do assert(P:FindFirstChild(n) and P[n]:GetAttribute('PlacedScale'),'Proto '..n..' missing') end
  -- Clone a proto at an absolute scale (same meaning as the v1 place() scale).
@@ -80,15 +82,17 @@ function H.apply(sanctuary,world)
  local report={removedParts=0,builtParts=0,lodgePartsOutside=0}
 
  -- Tear down v1.
- local old=sanctuary:FindFirstChild('HomePromenade')
- if old then for _,d in old:GetDescendants() do if d:IsA('BasePart') then report.removedParts+=1 end end;old:Destroy() end
+ for _,name in {'HomePromenade','HomeCommons'} do
+  local old=sanctuary:FindFirstChild(name)
+  if old then for _,d in old:GetDescendants() do if d:IsA('BasePart') then report.removedParts+=1 end end;old:Destroy() end
+ end
 
  -- Plots refit to 80x100, fronts on the vertical street.
- local shift=L.contents.lodge.z-V1_LODGE_Z
  for i,p in L.plots do
   local plot=sanctuary.SanctuaryPlots[string.format('Plot_%02d',i)]
   local floor=plot:FindFirstChild('Plot_140x180') or plot:FindFirstChild(L.floorName)
   assert(floor,'Plot floor missing: '..plot.Name)
+  local shift=if floor.Name==L.floorName then 0 else L.contents.lodge.z-V1_LODGE_Z
   local oldCF=floor.CFrame;local newCF=yawFrame(p.x,gy-1,p.z,p.yaw)
   local function move(inst)
    local rel=oldCF:ToObjectSpace(inst:IsA('Model') and inst:GetPivot() or inst.CFrame)
@@ -120,12 +124,12 @@ function H.apply(sanctuary,world)
  if report.lodgePartsOutside>0 then warn('HomeCommons: lodge parts outside plots: '..report.lodgePartsOutside) end
 
  local root=folder(sanctuary,'HomeCommons');local span=L.span()
- -- Cut-outs shared by the ground slab and the crossing plaza paving.
- local vCut=rect(a-cw,a+cw,L.firstZ,poolZ-pr)
- local hCuts={rect(a-hr,a-pr,cr.z-cw,cr.z+cw),rect(a+pr,a+hr,cr.z-cw,cr.z+cw)}
+ -- Cut-outs shared by the ground slab and the crossing plaza paving. Channels stop at the crossing plaza edges
+ -- so the plaza is one walkable square around the pool (east-west and north-south crossing on foot).
+ local vSegs={rect(a-cw,a+cw,L.firstZ,cr.z0),rect(a-cw,a+cw,cr.z1,poolZ-pr)}
+ local hCuts={rect(a-hr,a-pw,cr.z-cw,cr.z+cw),rect(a+pw,a+hr,cr.z-cw,cr.z+cw)}
  local crossPool=rect(a-pr,a+pr,cr.z-pr,cr.z+pr);local southPool=rect(a-pr,a+pr,poolZ-pr,poolZ+pr)
- local cuts={vCut,hCuts[1],hCuts[2],crossPool,southPool}
- local vSegs={rect(a-cw,a+cw,L.firstZ,cr.z-pr),rect(a-cw,a+cw,cr.z+pr,poolZ-pr)}
+ local cuts={vSegs[1],vSegs[2],hCuts[1],hCuts[2],crossPool,southPool}
 
  -- Ground: meadow slab tiling the basin minus channels/pools; foundations and beds below the cuts.
  local ground=folder(root,'Ground')
@@ -153,24 +157,28 @@ function H.apply(sanctuary,world)
  end
  -- Horizontal street arms: two lanes either side of the channel, end plaza with a head coping.
  for _,side in {-1,1} do
-  local xi,xo,xc=a+side*pw,a+side*hr,a+side*pr
+  local xi,xo,xc=a+side*pw,a+side*hr,a+side*pw
   for _,z in {{cr.z0,cr.z0+L.crossLane},{cr.z1-L.crossLane,cr.z1}} do box(streets,'WalkingLane',xi,xo,z[1],z[2],gy-.4,1,K.approach,M.Cobblestone) end
   for _,z in {{cr.z0,cr.z0+1.5},{cr.z1-1.5,cr.z1}} do box(streets,'LaneKerb',xi,xo,z[1],z[2],gy-.3,1.1,K.pale,M.Slate) end
   for _,z in {{cr.z-cw,cr.z-cw+1},{cr.z+cw-1,cr.z+cw}} do box(streets,'ChannelCoping',xc,xo,z[1],z[2],gy,1.4,K.stoneCoping,M.Slate) end
   water(streets,'ChannelWater',xc,xo,cr.z-(cw-1),cr.z+(cw-1),gy-.5)
   for _,dz in {-2.5,2.5} do box(streets,'ConveyorGuide',xc,xo,cr.z+dz-.15,cr.z+dz+.15,gy-.64,.12,K.brass,M.Metal,false) end
   box(streets,'ChannelHeadCoping',xo-side,xo,cr.z-cw,cr.z+cw,gy,1.4,K.stoneCoping,M.Slate)
+  box(streets,'ChannelHeadCoping',xi,xi+side,cr.z-cw,cr.z+cw,gy,1.4,K.stoneCoping,M.Slate)
   pave(streets,'EndPlazaPaving',rect(xo,a+side*L.armReach,cr.z0,cr.z1))
  end
- -- Crossing plaza paving around the pool and the four channel mouths.
+ -- V channel heads at the crossing plaza edges.
+ box(streets,'ChannelHeadCoping',a-cw,a+cw,cr.z0-1,cr.z0,gy,1.4,K.stoneCoping,M.Slate)
+ box(streets,'ChannelHeadCoping',a-cw,a+cw,cr.z1,cr.z1+1,gy,1.4,K.stoneCoping,M.Slate)
+ -- Crossing plaza paving around the pool.
  for _,r in tile(rect(a-pw,a+pw,cr.z0,cr.z1),cuts) do pave(streets,'CrossingPaving',r) end
  box(streets,'PoolBasin',a-pr,a+pr,cr.z-pr,cr.z+pr,gy-1.2,1,K.pierFoot,M.Slate)
  water(streets,'PoolWater',a-(pr-1),a+(pr-1),cr.z-(pr-1),cr.z+(pr-1),gy-.5)
- -- Coping: z edges carry the corners, x edges stop short of them; 12-wide mouths stay open.
- for _,e in {-pr,pr} do for _,s in {-1,1} do
-  box(streets,'PoolCoping',a+s*cw,a+s*(pr+1),cr.z+e-1,cr.z+e+1,gy,1.4,K.stoneCoping,M.Slate)
-  box(streets,'PoolCoping',a+e-1,a+e+1,cr.z+s*cw,cr.z+s*(pr-1),gy,1.4,K.stoneCoping,M.Slate)
- end end
+ -- Coping on all four sides: z edges carry the corners.
+ for _,e in {-pr,pr} do
+  box(streets,'PoolCoping',a-pr-1,a+pr+1,cr.z+e-1,cr.z+e+1,gy,1.4,K.stoneCoping,M.Slate)
+  box(streets,'PoolCoping',a+e-1,a+e+1,cr.z-pr+1,cr.z+pr-1,gy,1.4,K.stoneCoping,M.Slate)
+ end
 
  -- Gate plaza and the north channel head.
  local gate=folder(root,'GatePlaza')
