@@ -1,0 +1,2 @@
+Theme:11071 Widgets:79006 Motion:39466 Controller:24621 Hud:35050 Screens:56275 Shop:45426 Feedback:36296 TycoonHub:12764 ClientState:9520 Sprint:6218 UIPresentation:15013 UIProtocol:8142 HudState:11823 Main:32961 Profiles:10952 UIRequests:17498 ExplorerRules:5976 +HomeRules:8107 +HomeTiers:1748 Tycoon:10077 TycoonConfig:1066
+skipped: mountain/server/Competition.luau, mountain/server/StudioTests.luau
