@@ -15,3 +15,6 @@ Next (needs owner approval, touches files other chats own): server bootstrap tha
 - `UIRequests.luau`: hatch (rarity context), production bank coins as economy source. Loaded only when `typeof(script)=='Instance'`.
 - Bank/Inventory/Progression from the old `src/core` are not in the live mountain build; the equivalents above were hooked instead.
 - Not yet: flags do not gate anything (kill switches need Shop/UIRequests decisions); egg_lost from bats/Guardians; onboarding funnel steps; Open Cloud owner script; Studio play check (`AnalyticsService` calls, `LiveFlags` folder). Unverified in Studio.
+
+## Owner script (2026-10-28)
+`tools/liveconfig.py` (show / set / unset / revert / log). Env `ROBLOX_API_KEY` (DataStore read+write; MessagingService publish only for `--nudge`) and `ROBLOX_UNIVERSE_ID`, never printed. Schema parsed from `LiveConfig.luau`, so refusals match the game. Writes need `--yes` (dry run otherwise); each write appends `liveops/config-log.jsonl` (version, time, user, note, old, new); revert re-applies a logged version as a new, higher version. The log is local: commit it after writes, or reverts only work on this machine. Offline test `mountain/tests/run_liveconfig_tool.py` (19 checks). Never run against Roblox yet.
