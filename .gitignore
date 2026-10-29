@@ -7,3 +7,10 @@ graphify-out/
 tools/.audit-deps/
 tools/.luau/
 **/__pycache__/
+
+# Local agent state and bulky reference footage (kept on disk, not versioned).
+.superpowers/
+.claude/agent-memory/
+design/.claude/
+references/**/*.mov
+references/**/*.mp4
