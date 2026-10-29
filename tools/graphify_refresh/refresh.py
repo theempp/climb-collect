@@ -257,7 +257,9 @@ def vault_files():
 
 def backup_vault():
     before = {sf: digest(p) for sf, p in vault_files().items()}
-    target = Path.home() / 'Documents' / f'vault-backup-graphify-{STAMP}.zip'
+    backup_dir = Path.home() / 'Desktop/ClimbCollect/archive/vault-backups'
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    target = backup_dir / f'vault-backup-graphify-{STAMP}.zip'
     all_files = [p for folder in ('Climb & Collect', 'Roblox Shared') for p in (VAULT / folder).rglob('*') if p.is_file()]
     with zipfile.ZipFile(target, 'x', zipfile.ZIP_DEFLATED) as z:
         for p in all_files:
@@ -265,6 +267,11 @@ def backup_vault():
     with zipfile.ZipFile(target) as z:
         assert len(z.namelist()) == len(all_files)
         assert all(hashlib.sha256(z.read(p.relative_to(VAULT).as_posix())).hexdigest() == digest(p) for p in all_files)
+    # Retention: keep the newest five backups plus the verify.py baseline; older ones are redundant.
+    old = sorted(backup_dir.glob('vault-backup-graphify-*.zip'), key=lambda p: p.stat().st_mtime, reverse=True)[5:]
+    for p in old:
+        if p.name != 'vault-backup-graphify-2026-10-22-204958.zip':
+            p.unlink()
     return target, before
 
 

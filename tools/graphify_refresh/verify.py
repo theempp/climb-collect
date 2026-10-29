@@ -50,7 +50,7 @@ def main():
     assert quality['coverage']['missing_vault_notes'] == []
     assert quality['graph']['broken_edges'] == 0 and quality['graph']['weak_community_ids'] == []
     assert read(OUT / 'query-benchmark.json')['recall_at_8'] == 1
-    backups = sorted((Path.home() / 'Documents').glob('vault-backup-graphify-2026-10-22-204958.zip'))
+    backups = sorted((Path.home() / 'Desktop/ClimbCollect/archive/vault-backups').glob('vault-backup-graphify-2026-10-22-204958.zip'))
     assert len(backups) == 1
     before = {}
     with zipfile.ZipFile(backups[0]) as z:
