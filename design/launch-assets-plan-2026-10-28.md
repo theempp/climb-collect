@@ -60,3 +60,15 @@ Some items are available for Robux. Paid eggs show their odds before you buy.
 2. Trailer: yes/no and length.
 3. Who produces final key art: me from captures, or an outside artist for the icon (best ROI for click-through).
 4. Official specs check on Creator Hub.
+
+## Verified specs (create.roblox.com, checked 2026-10-28)
+- Icon: square, **at least 512x512**; preview at ~150x150. Must pass moderation before others see it. Upload: Creator Dashboard > game > Configurations > Places > start place > Icon. Format and file-size limit not stated on the page. ([game icons](https://create.roblox.com/docs/production/promotion/game-icons))
+- Thumbnails: **16:9, ideally 1920x1080**. ([thumbnails](https://create.roblox.com/docs/production/promotion/thumbnails)) The 3 MB and 50 px figures are third-party only.
+
+## Resolved (owner popup, 2026-10-28)
+- Icon made **by me from game captures** (no outside artist for now).
+- Hero creature: I shortlist 3 after the first test upload passes Studio import + phone check; owner picks from captures.
+- Copy fixes needed: remove "weekly season" (dropped for v1, 2026-10-29) and duo/party mentions; keep "up to 8 players" only if hosted MaxPlayers 8 is set.
+- Creature readiness (read-only check 2026-10-28): 43 GLBs in `creatures/build/out/` (~2.5-3k tris, 16 parts, flat colours, budget 3,500); `asset_ids.json` absent, so **none uploaded**; `ROBLOX_API_KEY`/`ROBLOX_USER_ID` not set in shell, User or Machine env. Studio import, scale and phone perf unverified. A phone-ready test creature cannot ship until the owner sets the env vars and authorizes one upload, then a Studio + phone check. `creatures/` is also uncommitted in this repo.
+
+Launch blockers: [launch-readiness-checklist](launch-readiness-checklist-2026-10-28.md).

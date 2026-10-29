@@ -8,8 +8,14 @@ Design only. No code, Studio or Creator Hub change. **Roblox `AnalyticsService` 
 - Funnels: up to **10** funnel tabs; one-time funnels exist for once-per-user conversions.
 - Charts can lag **up to 24 h**; the **View Events** button on the Economy, Funnel and Custom pages shows recent events near real time (use it to test).
 - Events roll off after 90 days with no data. Reserved field names (currency, funnel_name, event_name) can be dropped.
-- Possible global rate limit tied to players (a forum-derived figure of 120 + 20 x CCU requests/min; **unverified**). Design for it: batch and aggregate, never log per frame.
-- Method names and argument order for funnel/progression calls are poorly documented in places: confirm the exact signatures in the AnalyticsService reference first.
+- Global rate limit **120 + 20 x CCU requests/min** (verified on [event types](https://create.roblox.com/docs/production/analytics/event-types)); limits reset daily. Batch and aggregate, never log per frame. Economy: 10 resource types, transactionType values beyond 20 and itemSku beyond 100 go to "Other". Funnels: 10, up to 100 steps; only the 10 most recent funnelSessionIds per user per funnel are tracked; steps expire after 180 days idle.
+- Signatures (verified, [AnalyticsService](https://create.roblox.com/docs/reference/engine/classes/AnalyticsService)):
+  `LogOnboardingFunnelStepEvent(player, step, stepName, customFields?)`;
+  `LogFunnelStepEvent(player, funnelName, funnelSessionId, step, stepName, customFields?)`;
+  `LogProgressionStartEvent/CompleteEvent/FailEvent(player, pathName, level, levelName, customFields?)`;
+  `LogCustomEvent(player, eventName, value?, customFields?)`;
+  `LogEconomyEvent(player, flowType, currencyType, amount, endingBalance, transactionType, itemSku, customFields?)`.
+  F1 uses the onboarding call; F8 kingdom progression can use progression events instead of a funnel.
 
 ## Questions the data must answer
 1. **Where do players leave, and why?** Onboarding drop-off, last area/action before quitting, deaths/falls per section, device class.
@@ -99,3 +105,9 @@ Keep `Analytics` in a shared module with a game-agnostic core (session, funnel w
 1. Confirm exact AnalyticsService funnel/progression signatures and current rate limits from the reference.
 2. Who owns the daily review: owner or a scheduled task (Roblox login is needed to read the dashboard, so I cannot do it unattended).
 3. Final event names/enums reviewed by the owner before hooks are written.
+
+## Resolved (2026-10-28)
+- Open 1 closed: signatures and limits verified above.
+- Weekly seasons were dropped for v1 (2026-10-29): `season.enabled` and any season event go; F7 keeps login/quest/streak. Party/duo events are not logged.
+
+Launch blockers: [launch-readiness-checklist](launch-readiness-checklist-2026-10-28.md).

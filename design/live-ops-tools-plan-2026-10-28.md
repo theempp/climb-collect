@@ -78,3 +78,10 @@ Both write a change log (who, when, old/new) so a bad edit can be reverted by re
 2. Which flags matter most for launch day (suggest shop, ladders, eggs, each kingdom).
 3. Exact banner message set and who writes them (owner).
 4. Confirm DataStore budget use for config polling stays small (1 read/min/server is fine; verify against current limits).
+
+## Resolved / verified (2026-10-28)
+- Owner controls: **A, Open Cloud script** (owner popup). No in-game panel.
+- DataStore budget (verified, [limits](https://create.roblox.com/docs/cloud-services/data-stores/error-codes-and-limits)): reads 60 + 40 x players per server per minute; per-key throughput 25 MB/min read across all servers. 1 config read/min/server is trivial even at many servers (config JSON is a few KB).
+- Stale flags: `party.enabled` and `season.enabled` drop (duo parties and weekly seasons removed for v1, 2026-10-29). Add `economy.coinMultCap` (100) tunable.
+
+Launch blockers: [launch-readiness-checklist](launch-readiness-checklist-2026-10-28.md).

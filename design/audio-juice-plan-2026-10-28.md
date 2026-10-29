@@ -51,3 +51,10 @@ Music -18 dB below SFX peaks; ambience under music; UI quietest of the SFX; stin
 1. Owner approves tier order and the haptics default (on).
 2. Source for footsteps and egg/hatch stings (search found none).
 3. Who edits HUD-adjacent files, since the HUD chat owns them.
+
+## Resolved (owner popup, 2026-10-28)
+- Haptics **on by default**, own Settings toggle, off under Reduce effects. Tier order approved as written.
+- Footsteps + egg/hatch stings: manual **Creator Store browse**; I shortlist, owner auditions. Roblox default footsteps until then.
+- Open 3 stands: HUD-adjacent edits wait for the merge; `Sfx.luau` is a new standalone module.
+
+Launch blockers: [launch-readiness-checklist](launch-readiness-checklist-2026-10-28.md).

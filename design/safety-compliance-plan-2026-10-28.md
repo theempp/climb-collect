@@ -67,3 +67,16 @@ Minimal/Mild labels unlock Roblox's Kids/Select audiences but add publishing req
 1. ~~Player-written text at launch~~ — decided: none.
 2. Target audience: broad/Kids-Select (Minimal/Mild) versus 9+ or 13+? This changes the monetization risk.
 3. Who owns the runbook and the Creator Hub questionnaire answers: owner.
+
+## Verified: Kids and Select (create.roblox.com, checked 2026-10-28)
+Source: [Kids and Select](https://create.roblox.com/docs/production/publishing/kids-and-select). Rolling out; recheck at launch.
+- Kids (5-8): Minimal or Mild. Select (9-15): Minimal, Mild or Moderate (another Roblox page says Minimal/Mild only; conflicting).
+- Creator: age-checked + verified account, 2-Step Verification, and either a refundable per-game fee or Roblox Plus/Premium held 2+ months.
+- Evaluation: game first releases to age-checked 16+ users; needs **250 unique plays from highly engaged age-checked players within 60 days** plus a safety review. Optional expedited review: refundable 50,000 R$.
+- Kids chat off by default; Select chat off for self-declared accounts.
+
+## Resolved (owner popup, 2026-10-28)
+- Audience: **all ages first, Select later**. Aim for a Mild label; apply for Select after evaluation.
+- `OpponentId` (Screens.luau:697): still present on `codex/hud-glassbloom`, absent on `codex/homebase-c` (P1 removed Competition). Re-check after the merge; it must be gone in the launch build.
+
+Launch blockers: [launch-readiness-checklist](launch-readiness-checklist-2026-10-28.md).

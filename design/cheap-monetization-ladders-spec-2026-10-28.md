@@ -45,3 +45,13 @@ Name tags, sparkle trails, small creature auras. Cosmetic only, no stats. List a
 
 ## Build order (after the other chat finishes merging)
 Server ladder rules and tests with product ids 0 -> receipt wiring -> Shop UI step card -> Studio pass -> hosted alpha -> owner authorizes product creation.
+
+## Resolved (owner popup, 2026-10-28)
+- Open 1: split ladder (doubling to x32, then +8x flat to x72). Open 3: 60 s floor. (Both already approved above.)
+- Open 2: combined multiplier is **additive** (ladder + VIP + 2x Coins), hard cap **x100**, value held in LiveConfig (`economy.coinMultCap`).
+- Open 4: first cosmetic batch = sparkle trails, creature auras, preset name-tag styles (frame/colour only, no typed text). Egg skins later. Art still to make.
+- Open 5: request to HUD chat: Shop **Boosts tab**, one step card per ladder showing only the next step. HUD chat builds it.
+- Streak saver: owner wants one (prompt, 2026-10-28). Not yet specced; must not be pushed right after a streak break (safety plan s4).
+- Still open: 6 (hosted receipt test before real Robux).
+
+Launch blockers: [launch-readiness-checklist](launch-readiness-checklist-2026-10-28.md).
