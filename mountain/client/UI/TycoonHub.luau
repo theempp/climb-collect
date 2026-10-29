@@ -49,7 +49,7 @@ function Hub.render(screen,data)
    W.button(pageRow,'RosterNext','Next page',UDim2.fromOffset(138,44),UDim2.new(1,-150,.5,-24),function() screen.tycoonPage=page%pages+1;screen:render(false) end)
    return
   end
-  screen:info('Heart','Production assignments','Two habitats to start, eight at full expansion. Matching kingdoms add +5%; shared kingdoms add up to +10%.',64)
+  screen:info('Heart','Production assignments','Two habitats to start, six at full expansion. Matching kingdoms add +5%; shared kingdoms add up to +10%.',64)
   -- Habitat card: creature portrait, storage bar, rate/kingdom pills, one row of five actions.
   local rowW=screen.rowW;local bw=math.floor((rowW-20-4*8)/5)
   for i,h in ipairs(s.habitats) do

@@ -1,6 +1,6 @@
 -- Shared wire validation only; all ownership, proximity and costs remain server rules.
 local U={}
-local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true,Buy=true,Skin=true}
+local actions={Strike=true,Pickup=true,PutDown=true,Tycoon=true,State=true,Equip=true,Train=true,Specialize=true,Incubate=true,Hatch=true,Travel=true,TravelAbandon=true,CollectIncome=true,Special=true,Dodge=true,Settings=true,Swing=true,Bat=true,Buy=true,Skin=true,Home=true,Inspect=true}
 local defaults={reducedMotion=false,largeText=false,highContrast=false,simplifiedVFX=false,musicVolume=.7,sfxVolume=.8,hints=true,cameraShake=true,altitudeRail=true,hudScale=.5,effectsTier=1,sprintMode=1}
 -- Per-key enums (patch path strict; saved values snap to the nearest step, ties to the default, else the lower). sprintMode 0=HOLD, 1=TOGGLE.
 local steps={hudScale={0,.5,1},effectsTier={0,.5,1},sprintMode={0,1}}
@@ -84,6 +84,18 @@ function U.validate(id,action,payload)
    elseif payload.op=='cosmetic' then valid=fields(payload,{op=true,id=true}) and text(payload.id)
    elseif payload.op=='upgrade' then valid=fields(payload,{op=true,path=true,slot=true}) and table.find({'habitats','habitat','production','storage','bag','banking','automation'},payload.path)~=nil and (if payload.path=='habitat' then slot(payload.slot,false) else payload.slot==nil) end
   end
+ -- Home-base P2: tier and decor writes; the client never sends a tier, price or XP (all server rules).
+ elseif action=='Home' then
+  local function slot(v) return finite(v) and v%1==0 and v>=1 and v<=14 end
+  if type(payload)=='table' then
+   if payload.op=='tier' then valid=fields(payload,{op=true})
+   elseif payload.op=='place' then valid=fields(payload,{op=true,slot=true,kind=true,id=true}) and slot(payload.slot) and (payload.kind=='creature' or payload.kind=='prop') and text(payload.id)
+   elseif payload.op=='clear' then valid=fields(payload,{op=true,slot=true}) and slot(payload.slot) end
+  end
+ -- Visitor read of one displayed creature on any plot.
+ elseif action=='Inspect' then
+  valid=fields(payload,{plot=true,kind=true,index=true}) and finite(payload.plot) and payload.plot%1==0 and payload.plot>=1 and payload.plot<=8
+   and (payload.kind=='habitat' or payload.kind=='decor') and finite(payload.index) and payload.index%1==0 and payload.index>=1 and payload.index<=(if payload.kind=='habitat' then 6 else 14)
  elseif action=='Bat' then valid=fields(payload,{op=true,id=true}) and (payload.op=='equip' or payload.op=='upgrade') and text(payload.id)
  -- C21: shop actions are correlated only; the legacy remote (id 'legacy:1') never buys or equips a skin.
  elseif action=='Buy' then valid=id~='legacy:1' and fields(payload,{item=true,receipt=true}) and text(payload.item) and type(payload.receipt)=='string' and #payload.receipt>=8 and #payload.receipt<=64 and payload.receipt:match('^[%w%-]+$')~=nil

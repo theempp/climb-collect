@@ -1,9 +1,18 @@
 local C=if script then require(script.Parent.Catalog) else require('./Catalog')
 local Config=if script then require(script.Parent.TycoonConfig) else require('./TycoonConfig')
+local Tiers=if script then require(script.Parent.HomeTiers) else require('./HomeTiers')
 local T={config=Config}
 local function integer(v,lo,hi) return type(v)=='number' and v==v and v%1==0 and v>=lo and v<=hi end
 local function fraction(v) return type(v)=='number' and v==v and v>=0 and v<1 end
 local function find(p,id) for _,c in ipairs(p.creatures) do if c.id==id then return c end end end
+-- The plot tier caps habitat comfort (an absent or unknown tier is tier 1); levels bought before P2 are kept.
+local function comfortCap(p) local h=p.home;return (Tiers.tiers[type(h)=='table' and h.tier] or Tiers.tiers[1]).habitatCap end
+local function displayed(p,id)
+ if type(p.home)~='table' or type(p.home.decor)~='table' then return false end
+ for _,d in pairs(p.home.decor) do if type(d)=='table' and d.kind=='creature' and d.id==id then return true end end
+ return false
+end
+T.maxSlots=2+#Config.paths.habitats.costs
 local function storeValid(s) return type(s)=='table' and integer(s.eggs,0,Config.maxCount) and integer(s.value,0,Config.maxCount*100) and ((s.eggs==0 and s.value==0) or (s.eggs>0 and s.value>=s.eggs)) end
 function T.valid(t)
  if type(t)~='table' or t.version~=1 or not integer(t.slots,2,8) or not integer(t.lastAt,0,9007199254740991) or not storeValid(t.bag) or not fraction(t.bankCarry) or not table.find(Config.cosmetics,t.cosmetic) then return false end
@@ -101,7 +110,8 @@ function T.settle(p,now,offline)
 end
 function T.assign(p,index,id,now)
  local t=p.tycoon
- if not integer(index,1,t.slots) or (id~=nil and (type(id)~='string' or not find(p,id))) then return false end
+ -- A creature on a home display stand cannot also stand in a habitat.
+ if not integer(index,1,t.slots) or (id~=nil and (type(id)~='string' or not find(p,id) or displayed(p,id))) then return false end
  for i,h in ipairs(t.habitats) do if id and h.creature==id and i~=index then return false end end
  T.settle(p,now,false)
  t.habitats[index].creature=id;t.habitats[index].progress=0
@@ -124,7 +134,7 @@ function T.swap(p,first,second,now)
 end
 function T.upgradeEffect(p,path)
  local t=p.tycoon
- if path=='habitats' then return 'Active habitats: '..t.slots..' → '..math.min(8,t.slots+1)
+ if path=='habitats' then return 'Active habitats: '..t.slots..' → '..math.min(T.maxSlots,t.slots+1)
  elseif path=='habitat' then return '+10% base egg rate · +10 egg storage'
  elseif path=='production' then return '+15% base egg rate in every habitat'
  elseif path=='storage' then return 'Each habitat: +30 egg storage'
@@ -141,6 +151,10 @@ function T.quote(p,path,index)
  local cost=def.costs[level+1];if not cost then return nil end
  local ready=true
  if path=='automation' and level>=1 then ready=t.levels.production>=math.min(level,4) and t.levels.storage>=math.min(level,4) and t.levels.banking>=math.max(0,level-2) end
+ if path=='habitat' and level+1>comfortCap(p) then
+  local need=1;for n,def in ipairs(Tiers.tiers) do if def.habitatCap>=level+1 then need=n;break end end
+  return {cost=cost,level=level,next=level+1,ready=false,tier=need,requirement='Raise your plot to '..Tiers.tiers[need].name}
+ end
  return {cost=cost,level=level,next=level+1,ready=ready,requirement=if ready then '' else 'Requires production/storage '..math.min(level,4)..' and banking '..math.max(0,level-2)}
 end
 function T.upgrade(p,path,index,now)
@@ -155,8 +169,9 @@ function T.cosmetic(p,id)
 end
 function T.snapshot(p)
  local t=p.tycoon;local rows={};local eggs,value,rate=0,0,0
- for i,h in ipairs(t.habitats) do
-  local r,v,bonus=T.rate(p,i);eggs+=h.eggs;value+=h.value;rate+=r
+ -- The stored array keeps 8 entries (rollback-safe); only the 6 that can ever unlock are shown.
+ for i=1,T.maxSlots do
+  local h=t.habitats[i];local r,v,bonus=T.rate(p,i);eggs+=h.eggs;value+=h.value;rate+=r
   rows[i]={creature=h.creature,level=h.level,kingdom=h.kingdom,eggs=h.eggs,value=h.value,capacity=T.capacity(p,i),rate=r,bonus=bonus,unlocked=i<=t.slots}
  end
  return {slots=t.slots,habitats=rows,eggs=eggs,value=value,rate=rate,bag=table.clone(t.bag),bagCapacity=T.bagCapacity(p),levels=table.clone(t.levels),cosmetic=t.cosmetic,offlineSeconds=Config.offlineSeconds}

@@ -31,12 +31,12 @@ for _,cost in ipairs({20,25,40,50,100}) do print(string.format('ECONOMY starter 
 check(first[20]<15*60 and first[50]<30*60,'starter purchases within a session with both starters assigned')
 local profiles={}
 for player=1,8 do
- local v=fresh();v.coins=100000
- for _=1,6 do assert(T.upgrade(v,'habitats',nil,0),'fixture expansion') end
+ local v=fresh();v.coins=100000;v.home={v=1,tier=4,decor={},stock={}} -- tier 4: comfort cap 4
+ for _=1,4 do assert(T.upgrade(v,'habitats',nil,0),'fixture expansion') end
  for _,path in ipairs({'production','storage','banking','bag'}) do for _=1,4 do assert(T.upgrade(v,path,nil,0),'fixture '..path) end end
  for _=1,5 do assert(T.upgrade(v,'automation',nil,0),'fixture automation') end
  v.creatures={}
- for i=1,8 do
+ for i=1,6 do
   table.insert(v.creatures,{id='p'..player..'c'..i,species=C.guardians[(i-1)%6+1].id,level=1,xp=0})
   assert(T.assign(v,i,v.creatures[i].id,0),'fixture assignment')
   for _=1,4 do assert(T.upgrade(v,'habitat',i,0),'fixture comfort') end
@@ -53,7 +53,7 @@ for i,v in ipairs(profiles) do
  check(not T.assign(v,1,'p'..(i%8+1)..'c1',3600),'foreign profile creature rejected')
  local coins=v.coins;T.settle(v,3600,false);check(v.coins==coins,'replayed tick cannot mint')
  T.settle(v,3600+86400,true);check(v.coins==coins,'offline cannot autobank')
- for index,h in ipairs(v.tycoon.habitats) do check(h.eggs==T.capacity(v,index),'offline storage capped') end
+ for index=1,v.tycoon.slots do check(v.tycoon.habitats[index].eggs==T.capacity(v,index),'offline storage capped') end
  local saved=v.tycoon.habitats[1].eggs;T.settle(v,3600+2*86400,true)
  check(v.tycoon.habitats[1].eggs==saved,'stored eggs survive next day')
 end

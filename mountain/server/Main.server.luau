@@ -10,6 +10,7 @@ local UIProtocol=require(RS.MountainShared.UIProtocol)
 local BatRules=require(RS.MountainShared.BatRules)
 local EggOdds=require(RS.MountainShared.EggOdds)
 local Explorer=require(RS.MountainShared.ExplorerRules)
+local HomeRules=require(RS.MountainShared.HomeRules)
 local ShopRules=require(RS.MountainShared.ShopRules)
 local A=require(game.ServerStorage.MountainWorld.Art)
 if not workspace:FindFirstChild('ImpossibleMountain') then require(game.ServerStorage.MountainWorld.FreeClimb).build() end
@@ -109,7 +110,7 @@ local function publish(player,visual)
  tycoonWorld.update(player,p)
  -- false (not nil) outside every section, so a context merge on the client clears the previous one.
  local rr=root(player);local section=rr and sectionOf(rr.Position) or false
- s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings),bats=if bats then bats.snapshot(p) else nil,section=section,exits=exitBoxes,explorer=Explorer.summary(p)}
+ s.ui={nearestEgg=nearestEgg(player),atHome=atHome(player),sanctuaryConnected=true,plot=home.plot(player),inSanctuary=root(player)~=nil and home.inSanctuary(root(player).Position),atRefuge=atRefuge(player),nearCheckpoint=nearCheckpoint(player),serverClock=serverClock,cooldowns=cooldowns,dodgeReadyAt=dodgeReadyAt,settings=UIProtocol.settings(nil,p.settings),bats=if bats then bats.snapshot(p) else nil,section=section,exits=exitBoxes,explorer=Explorer.summary(p),home=HomeRules.snapshot(p)}
  send(player,'state',s)
  if visual then rebuildTeam(player) end
 end
@@ -322,6 +323,9 @@ local dispatch=UIRequests.actions({profiles=P,rules=R,combat=B,clock=os.time,
  travel=journey.go,raids=raids,putDown=carryVisuals.clear,
  bats=bats,batRules=BatRules,equipBat=function(player) bats.equip(player) end,batSnapshot=function(p) return bats.snapshot(p) end,
  shop=ShopRules,rollOdds=function() return rng:NextNumber()*100 end,inBattle=inBattle,inSanctuary=function(player) local rr=root(player);return rr~=nil and home.inSanctuary(rr.Position) end,
+ home=HomeRules,guid=function() return game:GetService('HttpService'):GenerateGUID(false) end,
+ -- Inspect: the plot's owner name and live profile (nil while it is saving or nobody holds the plot).
+ plotProfile=function(index) for _,other in ipairs(Players:GetPlayers()) do if home.plot(other)==index then return other.DisplayName,P.get(other) end end end,
 })
 local function handle(player,action,data,correlated)
  local ok,message,result=dispatch(player,action,data)

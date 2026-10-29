@@ -1,0 +1,156 @@
+{
+ "mutants": 30,
+ "killed": 30,
+ "rows": [
+  {
+   "gate": "tier rank gate",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "tier coin gate",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "tier fee debit",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "usable slot cap",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "occupied slot",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "creature ownership",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "habitat/display exclusive",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "one display per creature",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "prop tier gate",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "prop coin gate",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "prop debit",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "stock cap",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "newer home version refused",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "unknown home key refused",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "comfort refund",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_profile.luau"
+  },
+  {
+   "gate": "module refund",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_profile.luau"
+  },
+  {
+   "gate": "load normalize",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_profile.luau"
+  },
+  {
+   "gate": "inspect hides ids",
+   "file": "shared/HomeRules.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "profile fails closed on bad home",
+   "file": "server/Profiles.luau",
+   "caught_by": "run_persistence.py"
+  },
+  {
+   "gate": "load migration",
+   "file": "server/Profiles.luau",
+   "caught_by": "run_persistence.py"
+  },
+  {
+   "gate": "displayed creature not in habitat",
+   "file": "shared/Tycoon.luau",
+   "caught_by": "home_rules.luau"
+  },
+  {
+   "gate": "comfort tier cap",
+   "file": "shared/Tycoon.luau",
+   "caught_by": "tycoon.luau"
+  },
+  {
+   "gate": "six module cap",
+   "file": "shared/TycoonConfig.luau",
+   "caught_by": "home_profile.luau"
+  },
+  {
+   "gate": "secure XP by rarity",
+   "file": "shared/ExplorerRules.luau",
+   "caught_by": "explorer_rules.luau"
+  },
+  {
+   "gate": "Home needs own plot",
+   "file": "server/UIRequests.luau",
+   "caught_by": "ui_server.luau"
+  },
+  {
+   "gate": "Home refused mid-run",
+   "file": "server/UIRequests.luau",
+   "caught_by": "ui_server.luau"
+  },
+  {
+   "gate": "Inspect rate limit",
+   "file": "server/UIRequests.luau",
+   "caught_by": "ui_server.luau"
+  },
+  {
+   "gate": "Inspect needs sanctuary",
+   "file": "server/UIRequests.luau",
+   "caught_by": "ui_server.luau"
+  },
+  {
+   "gate": "Home tier payload strict",
+   "file": "shared/UIProtocol.luau",
+   "caught_by": "ui_protocol.luau"
+  },
+  {
+   "gate": "Inspect habitat index <= 6",
+   "file": "shared/UIProtocol.luau",
+   "caught_by": "ui_protocol.luau"
+  }
+ ]
+}

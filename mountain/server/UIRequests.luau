@@ -115,6 +115,7 @@ function U.actions(context)
  local monotonic=context.monotonic or os.clock
 
  local buyAt=setmetatable({},{__mode='k'})
+ local inspectAt=setmetatable({},{__mode='k'})
 
  -- C12: Buy and Skin only in the sanctuary, empty-handed, out of battle and with nothing saving (a pending draft freezes P.get).
  local function shopRefusal(player,p)
@@ -178,6 +179,42 @@ function U.actions(context)
     busy='Purchase is saving. It appears once saving resumes.',save_pending='Purchase is saving. It appears once saving resumes.'}
    return false,messages[reason] or 'Purchase unavailable. No coins were spent.'
   end
+  -- Home-base P2: tier and decor writes are durable before the reply (P.transact); the client effect waits for ok.
+  if action=='Home' then
+   local Home=context.home;if not Home or not P.transact or not context.guid then return false,'Home upgrades are unavailable.' end
+   if not context.atHome or not context.atHome(player) then return false,'Use your own sanctuary plot.' end
+   if P.pending and P.pending(player) then return false,'Saving in progress. Try again shortly.' end
+   if p.run then return false,'Finish your current creature run first.' end
+   local bought=false
+   local ok,reason=P.transact(player,'home:'..context.guid(),function(draft)
+    local done,why
+    if payload.op=='tier' then done,why=Home.raise(draft)
+    elseif payload.op=='place' then done,why,bought=Home.place(draft,payload.slot,payload.kind,payload.id)
+    else done,why=Home.clear(draft,payload.slot) end
+    return done,why
+   end)
+   if ok then
+    if context.homeChanged then context.homeChanged(player,payload.op) end
+    context.publish(player)
+    local done={tier='Plot raised to '..Home.tiers.tiers[Home.tier(p)].name..'.',place=if bought then 'Bought and placed.' else 'Placed on display.',clear='Display cleared.'}
+    return true,done[payload.op],{home=Home.snapshot(p)}
+   end
+   local messages={max='Your plot is at the top tier.',rank='Reach a higher rank to raise your plot.',coins='Not enough coins.',slot='Unknown display slot.',
+    locked='Raise your plot to use this slot.',occupied='Clear this slot first.',owned='Choose a creature you own.',habitat='Take this creature out of its habitat first.',
+    displayed='This creature is already on display.',unknown='Unknown decoration.',tier='Raise your plot to buy this decoration.',kind='Unknown decoration.',
+    empty='This slot is already empty.',stock='Your storage for this decoration is full.',busy='Saving in progress. Try again shortly.',save_pending='Saving in progress. Try again shortly.'}
+   return false,(messages[reason] or 'Home action unavailable. No coins were spent.'),{home=Home.snapshot(p)}
+  end
+  -- Any player, read-only: one displayed creature (or prop) on a plot, never inventory or coins.
+  if action=='Inspect' then
+   local Home=context.home;if not Home or not context.plotProfile then return false,'Inspect is unavailable.' end
+   if not context.inSanctuary or not context.inSanctuary(player) then return false,'Visit the sanctuary to look closer.' end
+   local now=monotonic();if now<(inspectAt[player] or -math.huge) then return false,'Please wait a moment.' end;inspectAt[player]=now+.5
+   local owner,profile=context.plotProfile(payload.plot)
+   local view=profile and Home.inspect(profile,payload.kind,payload.index)
+   if not view then return false,if profile then 'Nothing on display there.' else 'Nobody is home on that plot.' end
+   view.owner=owner;return true,'Inspect.',{inspect=view}
+  end
   if action=='Swing' then
    if not context.bats then return false,'Bats are unavailable.' end
    local _,result=context.bats.swing(player)
@@ -204,7 +241,9 @@ function U.actions(context)
    elseif request.op=='assign' then ok=T.assign(p,request.slot,request.id,context.clock());message=if ok then 'Habitat assignment updated.' else 'Choose an owned creature not assigned to another habitat.'
    elseif request.op=='swap' then ok=T.swap(p,request.slot,request.other,context.clock());message=if ok then 'Habitat creatures swapped. Stored eggs preserved.' else 'Choose two unlocked owned habitats.'
    elseif request.op=='attune' then ok=T.attune(p,request.slot,request.kingdom,context.clock());message=if ok then 'Habitat attuned.' else 'Unlock that kingdom first.'
-   elseif request.op=='upgrade' then ok=T.upgrade(p,request.path,request.slot,context.clock());message=if ok then 'Upgrade installed.' else 'Check coins, prerequisites and maximum level.'
+   elseif request.op=='upgrade' then
+    ok=T.upgrade(p,request.path,request.slot,context.clock());local q=not ok and T.quote(p,request.path,request.slot)
+    message=if ok then 'Upgrade installed.' elseif q and q.tier then q.requirement..' to upgrade further.' else 'Check coins, prerequisites and maximum level.'
    elseif request.op=='cosmetic' then ok=T.cosmetic(p,request.id);message=if ok then 'Sanctuary palette updated.' else 'Unknown palette.' end
    if ok and context.save then context.save(player) end
    return ok,message,{tycoon=T.snapshot(p)}

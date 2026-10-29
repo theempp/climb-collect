@@ -37,7 +37,7 @@ exit=false;failSave=false;now+=120;e.forfeit(b,'reset');e.strike(b,'b')
 available=false;now+=120;e.tick(now);available=true;e.tick(now)
 check(not ps[b].run,'expiry_deferred_until_mutation_resumes')
 now+=120;check(e.strike(b,'b'),'failed_save_expiry_does_not_strand_full_hands')
--- Player XP on secure (C3, C4): 10k once, +50 new species, Trial only its derived 150k, stolen 0, 20/day.
+-- Player XP on secure (C3, C4; home-base P2 rarity table): Common 6 once, +50 new species, Trial only its derived 150k, stolen 0, 20/day.
 local X=require('../shared/ExplorerRules')
 local day=20000;local c={UserId=3};local d={UserId=4};local twice=false;local huds={}
 ps[c]=R.newProfile(100);ps[d]=R.newProfile(100);alive[c]=true;alive[d]=true;distance[c]=0;distance[d]=0;exit=false;failSave=false
@@ -61,8 +61,8 @@ local function bank(player,id)
 end
 local id1=carry(c,'s1');check(ps[c].run.firstCarrier==3,'pickup_sets_first_carrier')
 twice=true;local ok1,why1,gain1,added1=bank(c,id1);twice=false
-check(ok1 and why1=='already_secured' and gain1==10 and added1==1 and ps[c].explorer.secures==1,'secure_pays_10k_once_and_already_secured_pays_0')
-local hx=huds[#huds];check(#huds==1 and hx.kind=='xp' and hx.player==c and hx.data.source=='secure' and hx.data.amount==10,'secure_xp_event')
+check(ok1 and why1=='already_secured' and gain1==6 and added1==1 and ps[c].explorer.secures==1,'secure_pays_common_6_once_and_already_secured_pays_0')
+local hx=huds[#huds];check(#huds==1 and hx.kind=='xp' and hx.player==c and hx.data.source=='secure' and hx.data.amount==6,'secure_xp_event')
 local _,_,gain3=bank(c,carry(c,'s3'));check(gain3==80 and ps[c].explorer.species.glimfox,'secure_new_species_plus_50')
 -- Trial: only the derived 150k capture row; no counter slot and no species.
 ps[c].wins['1']=true;local secures=ps[c].explorer.secures;local okT,trialId=x.reward(c,1,'floravelle',{})
@@ -76,7 +76,7 @@ local okA,stolenId=x.adopt(d,snap,{});check(okA and ps[d].run.firstCarrier==3,'r
 local count=#huds;local okS,_,gainS,addedS=bank(d,stolenId)
 check(okS and addedS==1 and gainS==0 and ps[d].explorer.secures==0 and not ps[d].explorer.species.coralfen and #huds==count,'stolen_secure_pays_0')
 now+=120;carry(c,'s2');snap=x.drop(c);local okR,regrabId=x.adopt(c,snap,{})
-local okG,_,gainG=bank(c,regrabId);check(okR and okG and gainG==70 and ps[c].explorer.species.coralfen,'first_carrier_regrab_pays')
+local okG,_,gainG=bank(c,regrabId);check(okR and okG and gainG==62 and ps[c].explorer.species.coralfen,'first_carrier_regrab_pays')
 -- Malformed draft.explorer still secures exactly once.
 for _,bad in ipairs({'junk',{repeatXp=0/0,secures=-4,day=-1,species='x',won=5}}) do
  ps[c].explorer=bad;local okM,whyM,_,addedM=bank(c,carry(c,'s1'))
@@ -85,5 +85,5 @@ end
 -- Daily cap: the 21st secure of the day pays 0; the next day pays again.
 ps[c].explorer.secures=20;ps[c].explorer.day=day
 local okC,_,gainC=bank(c,carry(c,'s1'));check(okC and gainC==0 and ps[c].explorer.secures==20,'twenty_first_secure_pays_0')
-day+=1;local _,_,gainN=bank(c,carry(c,'s1'));check(gainN==10 and ps[c].explorer.secures==1,'next_day_secure_pays')
+day+=1;local _,_,gainN=bank(c,carry(c,'s1'));check(gainN==6 and ps[c].explorer.secures==1,'next_day_secure_pays')
 print('PASS '..n..' egg raid checks')

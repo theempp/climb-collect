@@ -94,4 +94,16 @@ check(intent('legacy:1','Train','c1'),'legacy remote keeps other actions')
 check(intent('raid:1','Strike','1:egg1'),'strike server egg ID')
 check(intent('raid:2','Pickup','run-1'),'pickup server run ID')
 check(not intent('raid:3','Pickup',{species='floravelle'}),'cannot supply reward species')
+-- Home-base P2: Home{op=tier|place|clear} and Inspect{plot,kind,index}; never a tier, price or XP from the client.
+check(intent('home:1','Home',{op='tier'}),'home tier accepted')
+check(intent('home:1','Home',{op='place',slot=1,kind='creature',id='c1'}) and intent('home:1','Home',{op='place',slot=14,kind='prop',id='bed'}),'home place accepted')
+check(intent('home:1','Home',{op='clear',slot=7}),'home clear accepted')
+for i,payload in ipairs({'tier',{op='tier',tier=4},{op='tier',coins=0},{op='raise'},{op='place',slot=0,kind='prop',id='bed'},{op='place',slot=15,kind='prop',id='bed'},{op='place',slot=1.5,kind='prop',id='bed'},
+ {op='place',slot=0/0,kind='prop',id='bed'},{op='place',slot=1,kind='egg',id='x'},{op='place',slot=1,kind='prop'},{op='place',slot=1,kind='prop',id=''},{op='place',slot=1,kind='prop',id=string.rep('a',81)},
+ {op='place',slot=1,kind='prop',id='bed',price=0},{op='clear'},{op='clear',slot=1,id='bed'},{op='clear',slot='1'}}) do check(not intent('home:1','Home',payload),'malformed home denied '..i) end
+check(not intent('home:1','Home',nil),'home without payload denied')
+check(intent('look:1','Inspect',{plot=8,kind='habitat',index=6}) and intent('look:1','Inspect',{plot=1,kind='decor',index=14}),'inspect accepted')
+for i,payload in ipairs({{plot=0,kind='habitat',index=1},{plot=9,kind='decor',index=1},{plot=1,kind='habitat',index=7},{plot=1,kind='decor',index=15},{plot=1,kind='bag',index=1},
+ {plot=1,kind='decor',index=1,owner=1},{plot=1.5,kind='decor',index=1},{plot=1,kind='decor'},'1'}) do check(not intent('look:1','Inspect',payload),'malformed inspect denied '..i) end
+check(not intent('look:1','Inspect',nil),'inspect without payload denied')
 print('PASS '..count..' UI protocol/request checks')

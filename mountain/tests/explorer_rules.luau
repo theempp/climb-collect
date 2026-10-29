@@ -26,16 +26,21 @@ local full=fresh();for k=1,6 do for _,kind in ipairs({'entrance','recovery','gua
 local pool=0;for _,sp in ipairs(C.species) do if X.ledgerable(sp.id) then full.explorer.species[sp.id]=true;pool+=1 end end
 check(pool==33 and X.xp(full)==8475,'one_time_pool_8475_over_33_species')
 check(not X.ledgerable('mossbun') and not X.ledgerable('petalyn') and not X.ledgerable('fernox') and not X.ledgerable('floravelle') and not X.ledgerable('nope') and not X.ledgerable(7) and X.ledgerable('glimfox'),'ledger_pool_excludes_starters_legendary_unknown')
--- X4/X5: secure 10k (20/day); a new ledgerable species +50 on first insert only.
+-- X4/X5 (home-base P2): secure pays by rarity (20/day); a new ledgerable species +50 on first insert only.
+check(X.secureXp.Common==6 and X.secureXp.Uncommon==12 and X.secureXp.Rare==30 and X.secureXp.Epic==70 and X.secureXp.Mythic==150 and X.secureXp.Legendary==nil,'secure_rarity_table')
+check(X.secureFor('mossbun')==6 and X.secureFor('fernox')==12 and X.secureFor('glimfox')==30 and X.secureFor('thorncub')==70 and X.secureFor('floramoth')==150,'secure_for_species')
+check(X.secureFor('caeloryn')==0 and X.secureFor('nope')==0 and X.secureFor(nil)==0 and X.secureFor(7)==0,'secure_for_legendary_unknown_is_0')
 local D=20000
 p=fresh()
-check(X.award(p,'secure',3,D,'glimfox')==80 and p.explorer.secures==1 and p.explorer.day==D,'secure_10k_plus_new_species')
+check(X.award(p,'secure',3,D,'glimfox')==80 and p.explorer.secures==1 and p.explorer.day==D,'secure_rare_30_plus_new_species')
 check(X.award(p,'secure',3,D,'glimfox')==30,'second_same_species_no_bonus')
 table.insert(p.creatures,{id='c9',species='glimfox',level=1,xp=0});table.remove(p.creatures)
-check(X.award(p,'secure',1,D,'glimfox')==10 and X.award(p,'secure',1,D,'mossbun')==10,'ledger_first_insert_only_and_starter_pays_secure_only')
-check(X.award(p,'secure',6,D,'caeloryn')==60 and not p.explorer.species.caeloryn,'legendary_never_in_ledger')
+check(X.award(p,'secure',1,D,'glimfox')==30 and X.award(p,'secure',1,D,'mossbun')==6,'ledger_first_insert_only_and_starter_pays_secure_only_section_ignored')
+check(X.award(p,'secure',6,D,'caeloryn')==0 and not p.explorer.species.caeloryn,'legendary_never_in_ledger_and_pays_0')
 p=fresh();p.explorer.secures=19;p.explorer.day=D
-check(X.award(p,'secure',2,D,'mossbun')==20 and p.explorer.secures==20,'twentieth_secure_pays')
+check(X.award(p,'secure',2,D,'mossbun')==6 and p.explorer.secures==20,'twentieth_secure_pays')
+p=fresh();for i=1,25 do X.award(p,'secure',1,D,'floramoth') end
+check(p.explorer.secures==20 and p.explorer.repeatXp==3000,'daily_secure_max_20_mythic_3000')
 check(X.award(p,'secure',2,D,'mossbun')==0 and p.explorer.secures==20,'secure_cap_20_per_day')
 check(X.award(p,'secure',2,D,'coralfen')==50 and p.explorer.species.coralfen,'capped_secure_still_ledgers_a_new_species')
 -- X2/X3: first win per section 100k (derived from won), repeats 10k up to 5/day.

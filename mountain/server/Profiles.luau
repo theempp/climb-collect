@@ -4,6 +4,7 @@ local UIProtocol=require(game.ReplicatedStorage.MountainShared.UIProtocol)
 local Bats=require(game.ReplicatedStorage.MountainShared.BatRules)
 local Explorer=require(game.ReplicatedStorage.MountainShared.ExplorerRules)
 local Shop=require(game.ReplicatedStorage.MountainShared.ShopRules)
+local Home=require(game.ReplicatedStorage.MountainShared.HomeRules)
 local Store=require(script.Parent.Store)
 local Http=game:GetService('HttpService')
 local Run=game:GetService('RunService')
@@ -23,6 +24,8 @@ local function valid(p)
  for _,key in ipairs({'serial','unlocked','coins','trophies','lastIncome','competitionAt'}) do if type(p[key])~='number' or p[key]~=p[key] or math.abs(p[key])==math.huge then return false end end
  if p.unlocked<1 or p.unlocked>6 then return false end
  if p.tycoon~=nil and not R.tycoon.valid(p.tycoon) then return false end
+ -- Home-base P2: a malformed or newer home refuses the load (store untouched), like tycoon; an absent one is seeded.
+ if p.home~=nil and not Home.valid(p.home) then return false end
  if p.settings~=nil and not UIProtocol.savedSettings(p.settings) then return false end
  -- Type only: every explorer bound is enforced by ExplorerRules, so XP data can never kick or freeze a profile.
  if p.explorer~=nil and type(p.explorer)~='table' then return false end
@@ -68,6 +71,8 @@ function P.load(player)
   if p.cosmetics~=nil then Shop.normalizeCosmetics(p) end
   Custody.forfeit(p,'leave')
   if not p.tycoon then R.settleIncome(p,now);R.tycoon.ensure(p,now) else R.tycoon.settle(p,now,true) end
+  -- Seed home, retire habitat modules 7-8 with a refund (owner Q10), drop stale displays; persisted in this same write.
+  Home.migrate(p)
   accepted=true;return {profile=p,lock={owner=owner,expires=now+180}}
  end)
  if not ok or not accepted or not data or not valid(data.profile) then return nil,err or 'Profile unavailable or in use; no data overwritten.' end

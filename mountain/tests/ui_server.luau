@@ -130,4 +130,47 @@ bat.coins=500;ok,message,data=bats({},'Bat',{op='upgrade',id='trail'})
 check(ok and message=='Bat upgraded.' and bat.coins==500-BatRules.upgradeCost(1) and data.bats.level==2 and saved==2,'bat upgrade debits and saves')
 bat.bats.levels[BatRules.bats[2].id]=1;ok,message=bats({},'Bat',{op='upgrade',id=BatRules.bats[2].id});check(not ok and message=='Equip this bat to upgrade it.','upgrade needs the bat equipped')
 bat.bats.levels.trail=BatRules.maxLevel;ok,message=bats({},'Bat',{op='upgrade',id='trail'});check(not ok and message=='This bat is at maximum level.','max level refused')
+-- Home-base P2: Home and Inspect through the dispatcher. The stub transact applies the mutate to a copy (one write on ok).
+local Home=require('../shared/HomeRules');local Explorer=require('../shared/ExplorerRules')
+local hp=Rules.newProfile(100);Rules.tycoon.ensure(hp,100);Home.ensure(hp);hp.coins=5000
+local atHome=true;local homeWrites=0;local homePending=nil;local commitHome='ok';local changedOps={};local homePublished=0
+local homeService={get=function() return hp end,pending=function() return homePending end,
+ transact=function(_,id,mutate)
+  local draft=deep(hp);local done,why=mutate(draft);if not done then return false,why end
+  if commitHome=='save_pending' then homePending=id;return false,'save_pending' end
+  homeWrites+=1;table.clear(hp);for k,v in pairs(draft) do hp[k]=v end;return true,why
+ end}
+local owner={UserId=7};local visitorAt=0;local inSanctHome=true
+local homeAct=Requests.actions({profiles=homeService,rules=Rules,clock=function() return 200 end,safe=function() return true end,home=Home,atHome=function() return atHome end,
+ guid=function() return 'g' end,publish=function() homePublished+=1 end,homeChanged=function(_,op) table.insert(changedOps,op) end,monotonic=function() return visitorAt end,
+ inSanctuary=function() return inSanctHome end,plotProfile=function(i) if i==3 then return 'Ada',hp end end})
+ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Reach a higher rank to raise your plot.' and hp.coins==5000 and homeWrites==0,'tier below rank refused, no write')
+hp.explorer.repeatXp=Explorer.start(5);atHome=false;ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Use your own sanctuary plot.' and hp.home.tier==1,'tier needs own plot')
+atHome=true;hp.run={id='r'};ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Finish your current creature run first.' and homeWrites==0,'tier refused mid-run');hp.run=nil
+ok,message,data=homeAct(owner,'Home',{op='tier'})
+check(ok and message=='Plot raised to Cedar Cloister.' and hp.home.tier==2 and hp.coins==4000 and homeWrites==1 and data.home.tier==2 and changedOps[1]=='tier' and homePublished==1,'tier raise commits once, publishes after commit')
+ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Reach a higher rank to raise your plot.' and hp.coins==4000 and homeWrites==1,'next tier rank-gated')
+ok,message,data=homeAct(owner,'Home',{op='place',slot=1,kind='prop',id='lantern'})
+check(ok and message=='Bought and placed.' and hp.coins==3200 and data.home.decor[1].id=='lantern' and homeWrites==2,'prop bought on place')
+ok,message=homeAct(owner,'Home',{op='place',slot=1,kind='creature',id='c1'});check(not ok and message=='Clear this slot first.' and homeWrites==2,'occupied refused')
+ok,message=homeAct(owner,'Home',{op='place',slot=8,kind='creature',id='c1'});check(not ok and message=='Raise your plot to use this slot.','locked slot refused')
+ok,message=homeAct(owner,'Home',{op='place',slot=2,kind='prop',id='basin'});check(not ok and message=='Raise your plot to buy this decoration.' and hp.coins==3200,'tier-locked prop, no debit')
+ok,message=homeAct(owner,'Home',{op='place',slot=2,kind='creature',id='zz'});check(not ok and message=='Choose a creature you own.','unowned refused')
+ok,message=homeAct(owner,'Home',{op='place',slot=2,kind='creature',id='c2'});check(ok and message=='Placed on display.' and homeWrites==3,'creature placed')
+ok,message=homeAct(owner,'Home',{op='clear',slot=1});check(ok and message=='Display cleared.' and hp.home.stock.lantern==1 and hp.coins==3200,'clear stocks the prop')
+ok,message=homeAct(owner,'Home',{op='clear',slot=1});check(not ok and message=='This slot is already empty.','clear twice refused')
+commitHome='save_pending';ok,message=homeAct(owner,'Home',{op='place',slot=3,kind='prop',id='bed'})
+check(not ok and message=='Saving in progress. Try again shortly.' and hp.coins==3200 and hp.home.decor['3']==nil,'failed commit: live profile unchanged')
+ok,message=homeAct(owner,'Home',{op='tier'});check(not ok and message=='Saving in progress. Try again shortly.','pending blocks the next home write');commitHome='ok';homePending=nil
+-- Inspect: read-only, sanctuary only, rate-limited, never inventory.
+local coinsBefore,writesBefore=hp.coins,homeWrites
+ok,message,data=homeAct(owner,'Inspect',{plot=3,kind='decor',index=2})
+check(ok and data.inspect.species=='petalyn' and data.inspect.owner=='Ada' and data.inspect.id==nil and data.inspect.coins==nil and hp.coins==coinsBefore and homeWrites==writesBefore,'inspect returns the public view only')
+ok,message=homeAct(owner,'Inspect',{plot=3,kind='decor',index=1});check(not ok and message=='Please wait a moment.','inspect rate-limited')
+visitorAt=1;ok,message=homeAct(owner,'Inspect',{plot=3,kind='decor',index=1});check(not ok and message=='Nothing on display there.','empty display')
+visitorAt=2;ok,message=homeAct(owner,'Inspect',{plot=5,kind='decor',index=1});check(not ok and message=='Nobody is home on that plot.','empty plot')
+visitorAt=3;inSanctHome=false;ok,message=homeAct(owner,'Inspect',{plot=3,kind='decor',index=2});check(not ok and message=='Visit the sanctuary to look closer.','inspect needs the sanctuary')
+-- Tycoon comfort cap message names the tier.
+hp.home.tier=1;hp.tycoon.habitats[1].level=1;hp.coins=1000
+ok,message=homeAct(owner,'Tycoon',{op='upgrade',path='habitat',slot=1});check(not ok and message=='Raise your plot to Cedar Cloister to upgrade further.' and hp.coins==1000,'comfort cap names the tier, no debit')
 print('PASS '..count..' server action checks')

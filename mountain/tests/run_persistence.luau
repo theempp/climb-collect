@@ -154,4 +154,31 @@ tick+=2;writes=shopBackend.calls.update;check(order('receipt-a003') and shopBack
 check(shops.save(buyer,true),'buyer_releases')
 local back=shops.load(buyer)
 check(back.coins==1500 and #back.eggs==3 and #back.receipts==3 and back.eggs[3].origin=='coin' and ShopRules.has(back,'receipt-a001'),'coins_eggs_receipts_survive_release_and_reload')
+-- Home-base P2: home fails closed, the 7-8 refund is durable once, and a failed tier commit changes nothing.
+local homeBackend=Store.memory();local homes=Profiles.newForTests(homeBackend,'home')
+for i,bad in ipairs({{v=2,tier=1,decor={},stock={}},{v=1,tier=7,decor={},stock={}},'home',{v=1,tier=1,decor={['1']={kind='egg',id='x'}},stock={}}}) do
+ local prof=Rules.newProfile(os.time());prof.coins=77;prof.home=bad;local key='u'..(140+i);homeBackend.backend[key]={profile=prof}
+ local loaded=homes.load({UserId=140+i});local stored=homeBackend.backend[key]
+ check(loaded==nil and stored.lock==nil and stored.profile.coins==77 and stored.profile.home==bad,'bad_home_'..i..'_refuses_load_store_untouched')
+end
+local legacyHome=Rules.newProfile(os.time());legacyHome.home=nil;legacyHome.coins=5;Tycoon.ensure(legacyHome,os.time())
+legacyHome.tycoon.slots=8;legacyHome.tycoon.habitats[8].creature='c1';legacyHome.tycoon.habitats[8].level=1
+homeBackend.backend.u150={profile=legacyHome}
+local owner={UserId=150};local hp=homes.load(owner);local durableHome=homeBackend.backend.u150.profile
+check(hp and hp.tycoon.slots==6 and hp.coins==5+750+1200+25 and hp.home.tier==1,'legacy_8_modules_migrated_with_refund')
+check(durableHome.tycoon.slots==6 and durableHome.coins==hp.coins and durableHome.home.v==1 and durableHome.tycoon.habitats[8].creature==nil,'migration_persisted_in_load_write')
+check(homes.save(owner,true),'home_owner_releases');hp=homes.load(owner)
+check(hp.coins==5+750+1200+25 and hp.tycoon.slots==6,'reload_pays_no_second_refund')
+-- Tier raise through the real dispatcher: rank gate, failed commit, then autosave commits one debit.
+local guid=0
+local homeAct=UIRequests.actions({profiles=homes,rules=Rules,safe=function() return true end,home=HomeRules,atHome=function() return true end,
+ guid=function() guid+=1;return 'g'..guid end,publish=function() end})
+hp.coins=1000;local okH,msgH=homeAct(owner,'Home',{op='tier'})
+check(not okH and msgH=='Reach a higher rank to raise your plot.' and hp.home.tier==1 and hp.coins==1000,'tier_refused_below_rank_no_debit')
+hp.explorer.repeatXp=ExplorerRules.start(5);homeBackend.failNext=3
+okH,msgH=homeAct(owner,'Home',{op='tier'})
+check(not okH and msgH=='Saving in progress. Try again shortly.' and not homes.get(owner) and homeBackend.backend.u150.profile.home.tier==1 and homeBackend.backend.u150.profile.coins==1980,'failed_commit_leaves_durable_tier_and_coins')
+check(homes.save(owner,false) and homes.get(owner).home.tier==2 and homes.get(owner).coins==0 and homeBackend.backend.u150.profile.home.tier==2,'autosave_commits_one_tier_raise')
+okH,msgH,dataH=homeAct(owner,'Home',{op='place',slot=1,kind='creature',id='c1'})
+check(okH and dataH.home.decor[1].id=='c1' and homeBackend.backend.u150.profile.home.decor['1'].id=='c1','place_durable_before_reply')
 print('PASS '..checks..' durable exit/migration checks (isolated adapter)')
