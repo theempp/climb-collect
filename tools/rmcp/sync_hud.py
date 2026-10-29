@@ -6,7 +6,7 @@ Asserts game.PlaceId==0 before writing. --preview-icons points Theme.icons at rb
 import json, pathlib, re, subprocess, sys
 
 ROOTS = {'mountain/server': 'ServerScriptService.MountainServer', 'mountain/shared': 'ReplicatedStorage.MountainShared',
-         'mountain/client': 'StarterPlayer.StarterPlayerScripts.MountainClient'}
+         'mountain/client': 'StarterPlayer.StarterPlayerScripts.MountainClient', 'mountain/world': 'ServerStorage.MountainWorld'}  # world: S3
 SKIP = {'mountain/server/StudioTests.luau'}  # QA module, stripped from the phone-candidate lineage
 HUD = ['mountain/client/UI/Theme.luau', 'mountain/client/UI/Widgets.luau', 'mountain/client/UI/Motion.luau',
        'mountain/client/UI/Controller.luau', 'mountain/client/UI/Hud.luau', 'mountain/client/UI/Screens.luau',

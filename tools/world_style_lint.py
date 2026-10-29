@@ -3,9 +3,11 @@ Banned: Color3.fromRGB / Color3.new / Color3.fromHSV / Color3.fromHex, BrickColo
 tagged `-- WorldStyle rgb helper` per file is allowed (it maps WorldStyle triples to Color3)."""
 import pathlib, re, sys
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-FILES = [  # (path, enabled) : TycoonWorld + HomeCommons join at S3/S5 restyle
+FILES = [  # (path, enabled) : TycoonWorld joined at S3, HomeCommons at S5
  ('mountain/world/WorldKit.luau', True),
- ('mountain/world/TycoonWorld.luau', False),
+ ('mountain/shared/WorldPill.luau', True),
+ ('mountain/server/TycoonWorld.luau', True),
+ ('mountain/client/WorldPills.client.luau', True),
  ('mountain/world/HomeCommons.luau', False),
 ]
 BAN = re.compile(r'Color3\s*\.\s*(fromRGB|new|fromHSV|fromHex)\b|BrickColor|#[0-9A-Fa-f]{6}\b')

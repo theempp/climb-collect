@@ -63,3 +63,9 @@ S1 plan `design/homebase-style-s1-plan-2026-10-29.md` + atlas pass 3 approved. D
 - Coin props = gold coin token + price pill on an **empty** decor stand; a bought prop replaces it.
 - Globe lamps: warm #FFDD9B, every 3rd lamp pink #F78AD0.
 - Rounded forms: **unions allowed**; every union CanCollide false, with a plain collider part where it must block.
+
+## S3 answers (owner popup, 2026-10-29)
+- Spine / bank / machines (G5): reuse A-row hexes, roles REC: spine lavText #CBBCF2 + lip #5A2299 edges + flare #7BD8FF Neon flow line; bank gold #FFD84A body, gold.hi #FFE07A Neon rim, lip plinth; machines vi #A55BEA, ctaHi #FF8FE0 Neon status.
+- Empty decor stand: usable slot = coin + price pill with the cheapest prop the tier can buy; slots beyond `usable` = bare stand. Pills drawn by the owner's client, nearest 4 (plan R2), so plot billboards stay <= 12.
+- Tycoon cosmetic tint dropped in the candy world (data kept, visual later).
+- Unowned plots: full yard, dimmed (locked look) as before.

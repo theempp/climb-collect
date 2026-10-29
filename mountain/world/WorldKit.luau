@@ -62,19 +62,8 @@ local function dome(m,name,d,t,cf,color,mat,opts)
 end -- (d, h) for Cyl, (d) for Ball
 local function at(cf,x,y,z) return cf*CFrame.new(x,y,z) end
 local function motion(p,token) p:SetAttribute('WorldMotion',token);return p end -- driver = WorldFx (S6)
--- B4 pill billboard (homebase-intel A8: h 25, padX 9, r11, stroke 1.5, FO 12, MaxDistance 45, no AlwaysOnTop).
-local function pill(adornee,text,stroke,offset)
- local b=Instance.new('BillboardGui');b.Name='Pill';b.Size=UDim2.fromOffset(160,25) -- 160 = legacy container width (A8), REC
- b.StudsOffset=offset or Vector3.new(0,3,0);b.MaxDistance=S.sign.maxDistance;b.AlwaysOnTop=false;b.LightInfluence=0;b.Adornee=adornee
- local f=Instance.new('Frame');f.Size=UDim2.fromScale(1,1);f.BackgroundColor3=rgb('signNight');f.BackgroundTransparency=S.signT;f.Parent=b
- local c=Instance.new('UICorner');c.CornerRadius=UDim.new(0,S.sign.radius);c.Parent=f
- local s=Instance.new('UIStroke');s.Thickness=S.sign.stroke;s.Color=rgb(stroke or 'signStroke');s.ApplyStrokeMode=Enum.ApplyStrokeMode.Border;s.Parent=f
- local pd=Instance.new('UIPadding');pd.PaddingLeft=UDim.new(0,9);pd.PaddingRight=UDim.new(0,9);pd.Parent=f
- local t=Instance.new('TextLabel');t.Name='Label';t.Size=UDim2.fromScale(1,1);t.BackgroundTransparency=1;t.Text=text or ''
- t.TextColor3=rgb('signText');t.TextSize=S.sign.textSize;t.Font=Enum.Font[S.fonts.body];t.TextTruncate=Enum.TextTruncate.AtEnd;t.Parent=f
- -- TODO(atlas): A8 text outline (1 px `outline` T.2) has no world-style A/B row; 7th instance left out.
- b.Parent=adornee;return b
-end
+-- B4 pill billboard: shared recipe (mountain/shared/WorldPill.luau), also used by the owner client price pills.
+local pill=require(game.ReplicatedStorage.MountainShared.WorldPill)
 
 -- B3 globe lamp: foot + collar (lip) with a soft Ball shoulder, pole (vi), ctaHi ring, Neon globe. Every 3rd lamp pink.
 -- Chunk pass: pole d 2 (was .9) h 6.4 (was 9), globe d 3.6 (was 2.4); 6 plain parts, 5 with the collar union.
@@ -124,16 +113,20 @@ function Kit.fence(parent,cf,opts)
  return m
 end
 -- B6 coin marker on an EMPTY decor stand (S2 answer): lavText stand + lip ring, gold coin + Neon gold.hi rim,
--- T.5 Neon halo, price pill (gold stroke). opts.price (number), opts.halo=false drops the halo.
+-- T.5 Neon halo, price pill (gold stroke). opts.price (number), opts.halo=false drops the halo, opts.pill=false leaves
+-- the pill to the owner client (S3 answer, plan R2; model attribute Price), opts.bare=true builds the stand only.
+Kit.standTop=.9 -- stand top above the ground point (props and displayed creatures sit here)
 function Kit.coinMarker(parent,cf,opts)
- opts=opts or {};local m=model(parent,'CoinMarker',cf)
+ opts=opts or {};local m=model(parent,if opts.bare then 'DecorStand' else 'CoinMarker',cf)
  part(m,'StandLip','Cyl',v(3.4,.3),at(cf,0,.15,0),'coinStandLip','body')
  part(m,'Stand','Cyl',v(3,.6),at(cf,0,.6,0),'coinStand','body')
+ if opts.bare then return m end
+ if opts.price then m:SetAttribute('Price',opts.price) end
  local face=at(cf,0,2.6,0)*CFrame.Angles(0,math.pi/2,0) -- coin face toward -Z (TiltCyl axis X turned to Z)
  part(m,'Coin','TiltCyl',v(2.2,.8),face,'coin','body') -- no intel C token for coin motion
  part(m,'Rim','TiltCyl',v(2.5,.5),face,'coinRim','trim')
  if opts.halo~=false then local hl=part(m,'Halo','Ball',v(3.4),face,'coinHalo','trim');hl.Transparency=S.haloT;hl.CanQuery=false end
- pill(m.Coin,opts.price and (tostring(opts.price)..' coins') or '','coinStroke',Vector3.new(0,2.4,0))
+ if opts.pill~=false then pill(m.Coin,opts.price and (tostring(opts.price)..' coins') or '','coinStroke',Vector3.new(0,2.4,0)) end
  return m
 end
 
@@ -227,6 +220,8 @@ function Kit.gemBasin(parent,cf,opts) -- #12 lip basin + lip pedestal + Glass fl
  part(m,'Gem','Ball',v(2),at(cf,0,3.8,0),'flare','trim') -- static: C has no basin token
  return m
 end
+-- Generic piece builders for plot dressing (TycoonWorld): same rules as the kit (anchored, colour keys, Parts count).
+Kit.model=model;Kit.part=part
 -- Item list for QA (kit_sheet.luau): builder key = S.caps.kit key.
 Kit.items={'globeLamp','pillSign','plaque','fence','coinMarker','lollipopTree','swirlTree','cloudTree','gumdrop','puffHedge',
  'boulder','bloomBed','mushroom','gemCluster','daisy','gemBasin'}

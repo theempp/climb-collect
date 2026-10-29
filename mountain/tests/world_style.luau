@@ -50,5 +50,7 @@ check(C.billboards*C.pillInstances<=84,'billboards within 84')
 -- spine 45, hatchery 45, beast 65, lamps 25, flora 30, stands 28, decor 84, billboards 84.
 local sum=50+30+C.house.palace+6+110+150+45+45+65+25+30+28+84+C.billboards*C.pillInstances
 check(sum<=C.plot,'plot caps sum '..sum..' <= 937')
+-- S3: every catalog prop's `proto` names a WorldKit builder with a kit cap (decor stand contents).
+for _,id in ipairs(T.propOrder) do local p=T.props[id];check(type(p.proto)=='string' and C.kit[p.proto]~=nil,'prop_proto_'..id) end
 check(S.fonts.display=='LuckiestGuy' and S.fonts.body=='FredokaOne' and S.sign.maxDistance==45,'fonts, sign')
 print('world_style: '..n..' checks passed')

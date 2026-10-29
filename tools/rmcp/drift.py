@@ -2,7 +2,7 @@
 Same normalisation as sync_hud.py (CRLF->LF, strip, one trailing newline); hash h=(h*31+byte)%(2^31-1)."""
 import json, pathlib, re, subprocess, sys
 ROOTS = {'mountain/server': 'ServerScriptService.MountainServer', 'mountain/shared': 'ReplicatedStorage.MountainShared',
-         'mountain/client': 'StarterPlayer.StarterPlayerScripts.MountainClient'}
+         'mountain/client': 'StarterPlayer.StarterPlayerScripts.MountainClient', 'mountain/world': 'ServerStorage.MountainWorld'}  # world: S3
 def target(rel):
     for base, studio in ROOTS.items():
         if rel.startswith(base + '/'):
