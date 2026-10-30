@@ -156,3 +156,6 @@ Owner-authorized local review: C:/Users/HOME!/Desktop/climb-collect-free-climb-b
 
 ## HUD v2 Review03 — October 27, 2026
 Owner-approved and saved in `outputs/ClimbCollect.HUDv2.Review01.rbxl` (SHA256 2a3bff90…6343, StudioAids off, not published). Top HUD row now sits in Roblox's topbar row; team + Manage Sanctuary centred; all hub tabs redesigned; 17 icons uploaded to the owner account and set in `Theme.icons`. Tests 288/46/50/42 pass; overflow audit 108 screens / 4 sizes and phone audit 27 screens both 0 errors. Details, tools and limits: [design/hud-v2-handoff-2026-10-27.md](design/hud-v2-handoff-2026-10-27.md). Studio ids change per launch; the published place's Studio window must never be touched.
+
+## HUD polish — October 29, 2026
+Owner plan tasks 1–7 built in `codex/homebase-c` (uncommitted at handoff) and checked in `outputs/ClimbCollect.HomeBase.PhonePublish01.rbxl` (fresh process, PlaceId 0; the original publish window stays untouched). Shared title pill, tighter centred tabs, native health bar off, compact/expandable profile card with client-derived coins/s. Suites 46/46, HUD audits 0 errors, taps 6/6. Details: `design/homebase-handoff-2026-10-29.md` § HUD polish. Gotcha: `p6_checks.sh` syncs only the HUD file set; run `sync_hud.py <id> --changed HEAD` first when shared modules change. Device icons blank = asset delivery, not code.

@@ -176,4 +176,13 @@ function T.snapshot(p)
  end
  return {slots=t.slots,habitats=rows,eggs=eggs,value=value,rate=rate,bag=table.clone(t.bag),bagCapacity=T.bagCapacity(p),levels=table.clone(t.levels),cosmetic=t.cosmetic,offlineSeconds=Config.offlineSeconds}
 end
+-- Coins per second at the base rate (hud-polish D, owner Q2): Σ over unlocked, assigned habitats of eggs/h × coins per egg ÷ 3600.
+-- Bank bonus and the every-10th bonus egg are excluded; a Robux creature gives 0 (T.rate). Pure (reads only); client display, the
+-- server never calls it.
+function T.coinRate(p)
+ local t=type(p)=='table' and p.tycoon;if type(t)~='table' or type(t.habitats)~='table' then return 0 end
+ local sum=0
+ for i=1,math.min(t.slots or 0,#t.habitats) do if t.habitats[i].creature then local r,v=T.rate(p,i);sum+=r*v end end
+ return sum/3600
+end
 return T

@@ -18,6 +18,14 @@ local aliases={Collection='Creatures',Training='Creatures',Incubator='Discovery'
 local aliasTabs={Training='Training',Incubator='Eggs',Eggs='Eggs',Travel='Map',Journal='Quests'}
 -- Side-tab icons only where the board draws them (Collection All/Team/Index/Evolve, L630; Shop gift/coin/gem/egg/bat, L631); others have none.
 local tabIcons={Creatures={Collection='Creature',Team='Heart',Training='Scroll',Evolution='EggCracked'},Shop={Featured='Gift',Coins='Coin',Passes='Gem',Eggs='Egg',Skins='Bat'}}
+-- Tab column (hud-polish A6b): one width for every hub = min(colMax, the widest built tab by W.tabWidth), so the content column never
+-- shifts between hubs. Measured once per tab text size (Large text +2 changes it).
+local colW={}
+local function tabColumn()
+ local n=T.size(T.t.tab);if colW[n] then return colW[n] end
+ local w=0;for hub,list in pairs(tabs) do local ic=tabIcons[hub] or {};for _,name in ipairs(list) do w=math.max(w,W.tabWidth(name,ic[name])) end end
+ colW[n]=math.min(T.box.tab.colMax,w);return colW[n]
+end
 -- Section-jump hubs (intel §2 per-menu): their tabs are sections of one scroll.
 local sectionHubs={Settings=true,Shop=true}
 function S.new(root,store,feedback,onClose)
@@ -221,12 +229,11 @@ function S:sideFooter(label,fn)
  local b=W.cta(f,'SideFooter',label,UDim2.fromOffset(self.sideW,36),UDim2.new(0,12,1,-12-36),fn,{n=T.t.btnSide});b.ZIndex=2
  self.tabScroll.Size-=UDim2.fromOffset(0,36+5);self.footer=b;return b
 end
--- Title plate (board .ttl, L180): W.cta look h 42, padX 20, LG 23, centred on the panel's top edge (top −21). Text only.
--- The Shop hub uses its gold plate (Shop.titlePlate, L214-218).
+-- Title (board .ttl, L180): the shared W.titlePill, centred on the panel's top edge. Text only.
+-- The Shop hub uses its gold pill (Shop.titlePlate, L214-218).
 function S:titlePlate(f,text)
  if self.hub=='Shop' and not self.detail then return Shop.titlePlate(f,text) end
- local p=W.ctaPlate(f,'TitleRibbon',text,UDim2.fromOffset(W.plateWidth(text,T.t.menuTitle,20),42),UDim2.new(.5,0,0,-21),T.t.menuTitle,20)
- p.AnchorPoint=Vector2.new(.5,0);p.ZIndex=2;p:SetAttribute('Overhang',true);return p
+ return W.titlePill(f,text)
 end
 function S:tick()
  if self.deferredRender then self:render(true) end
@@ -269,21 +276,21 @@ function S:render(preserve)
  local back=W.closeX(f,'Back',UDim2.new(1,10-36-4,0,-13-4),function() self:back() end);back.ZIndex=3;back:SetAttribute('Overhang',true)
  local short=panel.short;self.compact=short
  self.sectionMode=sectionHubs[self.hub]==true and not self.detail
- -- Columns (L177-179): padding 26 top / 12 sides+bottom, side column 128, gap 12, scroll area = the rest.
- local side=128;local sx=12+side+12;local sw=width-sx-12;local sh=height-26-12
+ -- Columns (L177-179): padding 26 top / 12 sides+bottom, side column = tabColumn() (≤ 128, A6b), gap 12, scroll area = the rest.
+ local side=tabColumn();local sx=12+side+12;local sw=width-sx-12;local sh=height-26-12
  self.sideW=side;self.scrollX=sx;self.scrollW=sw;self.bodyHeight=sh
  -- tabs() (L182-186): vertical list gap 5 in a Y scroll (a hub may hold more tabs than fit). The frame keeps a glowTabOn-blur (12)
  -- margin on every side so the on-tab glow stays inside it; its right margin ends where the scroll area starts.
  local m=T.glowTabOn.b
  local tabScroll=W.new('ScrollingFrame',f,{Name='Tabs',Size=UDim2.fromOffset(side+2*m,sh+2*m),Position=UDim2.fromOffset(12-m,26-m),BackgroundTransparency=1,BorderSizePixel=0,CanvasSize=UDim2.new(),AutomaticCanvasSize=Enum.AutomaticSize.Y,ScrollingDirection=Enum.ScrollingDirection.Y,ScrollBarThickness=0})
- W.padding(tabScroll,m);W.list(tabScroll,5);self.tabScroll=tabScroll
+ local tk=T.box.tab;W.padding(tabScroll,m);W.list(tabScroll,tk.gap);self.tabScroll=tabScroll
  local icons=tabIcons[self.hub] or {}
  for i,name in ipairs(tabs[self.hub]) do
   local t=W.tab(tabScroll,'Tab'..name,name,icons[name],name==self.tab,function()
    if self.sectionMode then self:jumpTo(name) else self.tab=name;self.detail=nil;self.page=1;self:render(false) end
   end)
-  -- STOP 1 G1: side-tab hit areas trimmed to the 39 px pitch (full column width).
-  t.LayoutOrder=i;W.hit(t,44,Vector2.new(math.huge,39));self.tabButtons[name]=t
+  -- STOP 1 G1: side-tab hit areas trimmed to the tab pitch h + gap (35, owner answer 2; full column width).
+  t.LayoutOrder=i;W.hit(t,44,Vector2.new(math.huge,tk.h+tk.gap));self.tabButtons[name]=t
  end
  -- Scroll area (L188-195, P§2). Normal hubs keep the 10 px gap their stacked rows rely on; section hubs use sectionHeader margins.
  local body,holder=W.scrollArea(f,'Content',UDim2.fromOffset(sw,sh),UDim2.fromOffset(sx,26))

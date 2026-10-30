@@ -491,33 +491,37 @@ function F:clear()
  if self.band then self.band.frame:Destroy();self.band=nil end
  self:clearMoments() -- also clears the band-busy state
 end
-function F:confirm(title,description,onConfirm)
+-- pill (internal): the title pill style, nil = pink (confirm), 'goldPlain' = reward (F:reveal; owner O3).
+function F:confirm(title,description,onConfirm,pill)
  self:close();self.previousFocus=GuiService.SelectedObject
  local sr=self:screen() -- P7: full-screen shade like HubShade (no untinted topbar/notch bands); the dialog stays centred
  local shade=W.frame(self.root,'Confirmation',UDim2.fromOffset(sr.w,sr.h),UDim2.fromOffset(sr.x,sr.y),T.navy);shade.BackgroundTransparency=.15;shade.ZIndex=70;shade.Active=true;self.modal=shade
- local f=W.panel(shade,'Dialog',UDim2.new(.86,0,0,226),UDim2.fromScale(.5,.5));f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=71
- W.new('UISizeConstraint',f,{MaxSize=Vector2.new(480,226)})
- W.text(f,title,UDim2.new(1,-32,0,40),UDim2.fromOffset(16,14),T.display,22).ZIndex=72
- local descriptionLabel=W.text(f,description,UDim2.new(1,-32,0,86),UDim2.fromOffset(16,58),nil,15,T.muted);descriptionLabel.Name='Description';descriptionLabel.ZIndex=72
+ -- Title = the shared pill on the Dialog's top edge (hud-polish A4b); the old in-dialog title row (y 14-58) is gone, so the rows start
+ -- at 28 (panel padding 26 + border 2) and the dialog loses those 30 px (226 → 196) with every row gap kept.
+ local f=W.panel(shade,'Dialog',UDim2.new(.86,0,0,196),UDim2.fromScale(.5,.5));f.AnchorPoint=Vector2.new(.5,.5);f.ZIndex=71
+ W.new('UISizeConstraint',f,{MaxSize=Vector2.new(480,196)})
+ W.titlePill(f,title,pill).ZIndex=73
+ local descriptionLabel=W.text(f,description,UDim2.new(1,-32,0,86),UDim2.fromOffset(16,28),nil,15,T.muted);descriptionLabel.Name='Description';descriptionLabel.ZIndex=72
  W.button(f,'Cancel','Cancel',UDim2.new(.5,-24,0,48),UDim2.new(0,16,1,-64),function() self:close() end,'quiet').ZIndex=72
  local confirm=W.button(f,'Confirm','Confirm',UDim2.new(.5,-24,0,48),UDim2.new(.5,8,1,-64),function() self:close();onConfirm() end,'gold');confirm.ZIndex=72
  if game:GetService('UserInputService').GamepadEnabled then GuiService.SelectedObject=confirm end
 end
 function F:reveal(title,description,species)
  -- Called only by authoritative state transitions or acknowledged outcomes.
- self:confirm(title,description,function() end)
+ self:confirm(title,description,function() end,'goldPlain')
  local f=self.modal and self.modal:FindFirstChild('Dialog')
  if f then
-  -- Reward moment (intel §4 + owner decision): purple panel, LuckiestGuy gold title, green confirm. Static end state; Motion
-  -- owns the pop-in ('moment').
+  -- Reward moment (intel §4 + owner decision): purple panel, gold title pill without chest/tails (owner O3), green confirm. Static
+  -- end state; Motion owns the pop-in ('moment').
   f:SetAttribute('Motion','moment');f:SetAttribute('MotionHold',true) -- the modal waits for Continue: in part only
-  f.BackgroundColor3=T.panelPurple;f.Text.Font=T.title;f.Text.TextColor3=T.gold;f.Text.TextXAlignment=Enum.TextXAlignment.Center;f.Text.TextSize=T.size(28);f.Text.UIStroke.Thickness=3
+  f.BackgroundColor3=T.panelPurple
   f.Confirm:SetAttribute('ButtonColor',T.ok.base);f.Confirm.BackgroundColor3=T.ok.base
   f.Confirm.Text='Continue';f.Cancel.Visible=false;f.Confirm.Size=UDim2.new(1,-32,0,48);f.Confirm.Position=UDim2.new(0,16,1,-64)
   if species then
-   f.Size=UDim2.new(.86,0,0,300);f.UISizeConstraint.MaxSize=Vector2.new(480,300)
-   f.Description.Position=UDim2.fromOffset(16,158);f.Description.Size=UDim2.new(1,-32,0,64);f.Description.TextXAlignment=Enum.TextXAlignment.Center
-   local portrait=W.portrait(f,species,UDim2.fromOffset(80,80),UDim2.new(.5,-40,0,70));portrait.ZIndex=72
+   -- Rows start at 28 (A4b): portrait 70 → 28, description 158 → 116, dialog 300 → 258 (the 42 px above the portrait; gaps kept).
+   f.Size=UDim2.new(.86,0,0,258);f.UISizeConstraint.MaxSize=Vector2.new(480,258)
+   f.Description.Position=UDim2.fromOffset(16,116);f.Description.Size=UDim2.new(1,-32,0,64);f.Description.TextXAlignment=Enum.TextXAlignment.Center
+   local portrait=W.portrait(f,species,UDim2.fromOffset(80,80),UDim2.new(.5,-40,0,28));portrait.ZIndex=72
    for _,o in ipairs(portrait:GetDescendants()) do if o:IsA('GuiObject') then o.ZIndex=73 end end
   end
  end

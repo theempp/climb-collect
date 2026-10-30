@@ -14,10 +14,10 @@ local probe=gui:WaitForChild('UIProbe',10)
 if not probe then return 'NO PROBE' end
 local sprintGui=pg:FindFirstChild('MountainSprint');local sprintRoot=sprintGui and sprintGui:FindFirstChild('SafeRoot')
 local SIZES=SIZES or {{749,330},{844,390},{932,430}}
-local STATES=STATES or {'rest','carry','chase','sanctuary','battle'}
+local STATES=STATES or {'rest','carry','chase','sanctuary','sanctuaryOpen','battle'} -- sanctuaryOpen = the sanctuary, card expanded
 local TOL=.75
 local CENTRED={dock=true,team=true,ability=true,card=true}
-local errors,coverage,instances,checked={},{},{},0
+local errors,coverage,instances,checked,cardBottoms={},{},{},0,{}
 local function add(where,msg) if #errors<300 then table.insert(errors,where..' '..msg) end end
 local function visible(o,top) local p=o while p and p~=top do if p:IsA('GuiObject') and not p.Visible then return false end;if p:IsA('LayerCollector') and not p.Enabled then return false end;p=p.Parent end return true end
 local function tagged(o,k,top) local p=o while p and p~=top do if p:GetAttribute(k) then return true end;p=p.Parent end return false end
@@ -81,8 +81,24 @@ local function check(where,w,h,state)
   if not inside(a.box,S) then add(where,a.piece..' outside S') end
   if overlap(a.box,Cz) then add(where,a.piece..' touches C') end
   if a.piece~='card' and a.piece~='reveal' and overlap(a.box,M) then add(where,a.piece..' enters M') end
-  if state~='sanctuary' and a.piece~='card' then
+  if state~='sanctuary' and state~='sanctuaryOpen' and a.piece~='card' then
    for _,o in ipairs(a.o:GetDescendants()) do if o:IsA('GuiObject') and o.Active and visible(o,gui) then add(where,a.piece..' takes input on the mountain ('..o.Name..')') end end
+  end
+ end
+ -- hud-polish E: sanctuary = compact card shown, launcher hidden; sanctuaryOpen = expanded (launcher shown). Both on the dock axis,
+ -- the same bottom per size, ending >= 10 (x HUD scale) above the dock top.
+ if state=='sanctuary' or state=='sanctuaryOpen' then
+  local layer=root:FindFirstChild('Hud');local card=layer and layer:FindFirstChild('PlayerCard');local dock=layer and layer:FindFirstChild('Dock',true)
+  local open=state=='sanctuaryOpen';local us=layer and layer:FindFirstChildOfClass('UIScale');local s=if us then us.Scale else 1
+  if not (card and card.Visible) then add(where,'player card hidden')
+  elseif card.Launcher.Visible~=open then add(where,'launcher '..(if open then 'hidden when expanded' else 'shown when compact'))
+  else
+   local cb=box(card,origin);local bottom=cb.y+cb.h;local key=w..'x'..h;cardBottoms[key]=cardBottoms[key] or bottom
+   if math.abs(bottom-cardBottoms[key])>1 then add(where,'card bottom moved between compact and expanded') end
+   if dock then local db=box(dock,origin)
+    if math.abs(cb.x+cb.w/2-(db.x+db.w/2))>1 then add(where,'card off the dock axis') end
+    if bottom>db.y-10*s+TOL then add(where,'card within 10 of the dock') end
+   end
   end
  end
  instances[where]=#gui:GetDescendants()

@@ -1,0 +1,47 @@
+PASS alpine_profile.luau | PASS 4779 alpine profile checks
+PASS arrival_readiness.luau | PASS arrival readiness: real completion, bounded wait, failed asset retry
+PASS bat_rules.luau | PASS 30 bat rules checks
+PASS compact_geometry.luau | PASS compact geometry: six connected sections, shorter route, preserved escape and hazard 
+PASS egg_raids.luau | PASS 36 egg raid checks
+PASS entrances_cli.luau | PASS 19 entrance geometry checks
+PASS explorer_rules.luau | PASS 116 explorer rules checks
+PASS free_climb_geometry.luau | PASS 62 free climb geometry checks
+PASS guardian_rules.luau | PASS 12 guardian state checks
+PASS home_layout.luau | PASS 230 home layout checks (farthest spawn-to-gate 422 studs)
+PASS home_profile.luau | PASS 15 home profile checks
+PASS home_rules.luau | PASS 95 home rules checks
+PASS hud_layout.luau | PASS 115544 Glassbloom layout checks (rest 10.7 %, chase 11.1 %, 256 stacked moments)
+PASS hud_state.luau | PASS 102 hud state checks
+PASS journey.luau | PASS 8 journey checks
+PASS motion_band.luau | PASS 3250 band motion checks (gap to M top 749/844: word 2.0/2.0 pill 23.6/30.8 ring 2.0/2
+PASS movement_cli.luau | PASS 17 movement policy checks
+PASS quality_geometry.luau | PASS 98981 mountain surface geometry checks
+PASS raid_hazards.luau | PASS 30 authored hazard checks
+PASS route_geometry.luau | Route geometry checks passed: 657
+PASS rules.luau | PASS 170 mountain rules checks
+PASS run_journey.luau | PASS 6 run journey checks
+PASS run_rules.luau | PASS 23 run custody checks
+PASS sanctuary_sessions.luau | PASS 18 sanctuary reservation checks
+PASS shop_rules.luau | PASS 234 shop rules checks
+PASS summit_flight.luau | PASS 3614 summit flight checks (door peak 1.000 at t=8.00, depart(20)=1)
+PASS traversal.luau | Traversal checks passed: 131
+PASS tycoon.luau | PASS 76 tycoon checks
+PASS tycoon_economy.luau | PASS 109 tycoon economy checks
+PASS tycoon_progression.luau | PASS 34 tycoon progression checks
+PASS tycoon_requests.luau | PASS 11 tycoon request checks
+PASS ui_client_state.luau | PASS 52 UI client state checks
+PASS ui_presentation.luau | PASS 62 UI presentation checks
+PASS ui_protocol.luau | PASS 126 UI protocol/request checks
+PASS ui_server.luau | PASS 87 server action checks
+PASS world_style.luau | world_style: 199 checks passed
+PASS run_carry_pose.py | PASS 8 legacy/current carry joint checks
+PASS run_combat_raids.py | PASS 43 combat raid integration checks
+PASS run_context.py | PASS 39 Main context and section checks
+PASS run_lifecycle.py | PASS 8 Main lifecycle checks
+PASS run_movement.py | PASS 14 movement authority checks
+PASS run_origin_gates.py | PASS 8 origin grep gates
+PASS run_persistence.py | PASS 73 durable exit/migration checks (isolated adapter)
+PASS run_raid_events.py | PASS 33 raid hud event checks
+PASS run_ui_server.py | PASS 55 profile/combat adapter checks (service fixtures, no live DataStore)
+PASS world_style_lint.py | world_style_lint: 5 file(s), 0 violation(s)
+SUITES pass=46 fail=0

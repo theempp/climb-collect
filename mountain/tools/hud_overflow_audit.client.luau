@@ -5,6 +5,7 @@
 -- Glassbloom P5: touch is measured on the kit's invisible Hit child (W.hit; owner-approved trims at neighbour midpoints use
 -- the Hit's UISizeConstraint.MaxSize); Hit areas are exempt from spill/overlap. Also: no horizontal canvas, and the panel and
 -- Overhang parts stay clear of the core zone (x<116, y<56 from the root's top-left, intel §3).
+local TS=game:GetService('TextService')
 local pg=game.Players.LocalPlayer.PlayerGui
 local gui=pg:WaitForChild('MountainHUD')
 local root=gui.SafeRoot
@@ -31,6 +32,29 @@ local function check(where)
  local hub=root.HubShade.Hub
  if not inside(hub,root,0) then add(where,'hub outside root') end
  if core(hub) then add(where,'hub in core zone') end
+ -- hud-polish §3: the title pill sits on the panel's axis (centre X = Hub centre ±1) and straddles its top edge (top = −h/2 ±1).
+ local tr=hub:FindFirstChild('TitleRibbon')
+ if not tr then add(where,'no TitleRibbon') else
+  local dx=tr.AbsolutePosition.X+tr.AbsoluteSize.X/2-(hub.AbsolutePosition.X+hub.AbsoluteSize.X/2);local dy=tr.AbsolutePosition.Y-hub.AbsolutePosition.Y+tr.AbsoluteSize.Y/2
+  if math.abs(dx)>1 or math.abs(dy)>1 then add(where,string.format('title off axis: dx %.1f dy %.1f',dx,dy)) end
+ end
+ -- hud-polish B (A6): tab labels fit with centred text, equal tab heights and gaps; the stress labels fit the column (FO base size).
+ local tabsF=hub:FindFirstChild('Tabs');local tl={}
+ if tabsF then for _,t in ipairs(tabsF:GetChildren()) do if t:IsA('TextButton') and t.Name:sub(1,3)=='Tab' and visible(t) then table.insert(tl,t) end end end
+ table.sort(tl,function(a,b) return a.AbsolutePosition.Y<b.AbsolutePosition.Y end)
+ local function gap(i) return tl[i].AbsolutePosition.Y-tl[i-1].AbsolutePosition.Y-tl[i-1].AbsoluteSize.Y end
+ for i,t in ipairs(tl) do
+  local l=t:FindFirstChild('Label')
+  if not l or l.TextXAlignment~=Enum.TextXAlignment.Center or not l.TextFits then add(where,'tab label: '..t.Name) end
+  if math.abs(t.AbsoluteSize.Y-tl[1].AbsoluteSize.Y)>.5 then add(where,'tab height: '..t.Name) end
+  if i>2 and math.abs(gap(i)-gap(2))>1 then add(where,'tab gap: '..t.Name) end
+ end
+ local l=tl[1] and tl[1]:FindFirstChild('Label')
+ if l then
+  -- Label spans x+icon .. W−x, so −(Size.X.Offset + Position.X.Offset) = x (stroke + padX); inner = column − 2x (layout px, pre-UIScale).
+  local x=-(l.Size.X.Offset+l.Position.X.Offset);local pad=tabsF:FindFirstChildOfClass('UIPadding');local inner=tabsF.Size.X.Offset-2*(if pad then pad.PaddingLeft.Offset else 0)-2*x
+  for _,s in ipairs({'Accessibility','Convenience'}) do if TS:GetTextSize(s,l:GetAttribute('BaseTextSize') or 13,l.Font,Vector2.new(1e4,1e4)).X>inner then add(where,'stress label: '..s) end end
+ end
  for _,o in ipairs(root.HubShade:GetDescendants()) do
   if o:IsA('GuiObject') and visible(o) and not tagged(o,'Decor') and hitArea(o) then
    local nx,ny=needs(o);if o.AbsoluteSize.X<nx-.5 or o.AbsoluteSize.Y<ny-.5 then add(where,'touch: '..o.Parent.Name) end

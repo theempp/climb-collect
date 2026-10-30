@@ -97,4 +97,14 @@ check(earnedBonus==.05 and coinBonus>earnedBonus and T.snapshot(kin).habitats[2]
 local solo=fresh();table.insert(solo.creatures,{id='rx',species='violette',level=1,xp=0,origin='robux'});T.assign(solo,1,'rx',100)
 T.settle(solo,36100,false);T.collect(solo,0)
 check(solo.tycoon.habitats[1].eggs==0 and T.bank(solo)==0 and solo.coins==0,'robux habitat adds 0 coins')
+-- hud-polish D: coins/s = Σ unlocked, assigned slots of eggs/h × coins/egg ÷ 3600 (base rate), pure.
+local function dump(v) if type(v)~='table' then return tostring(v) end;local k={};for x in pairs(v) do table.insert(k,tostring(x)) end;table.sort(k);local s='{';for _,x in ipairs(k) do s..=x..'='..dump(v[x] or v[tonumber(x)])..',' end;return s..'}' end
+check(T.coinRate(fresh())==0 and T.coinRate({})==0 and T.coinRate(nil)==0,'coin rate: empty habitats / no tycoon give 0')
+local cr=fresh();cr.tycoon.habitats[3].creature='c3' -- slot 3 is locked (slots 2): never counted
+check(T.coinRate(cr)==0,'coin rate: a locked slot gives 0')
+check(T.coinRate(solo)==0,'coin rate: a Robux creature gives 0')
+T.assign(cr,1,'c1',100);T.assign(cr,2,'c2',100)
+local r1,v1=T.rate(cr,1);local r2,v2=T.rate(cr,2);local before=dump(cr)
+check(r1*v1>0 and math.abs(T.coinRate(cr)-(r1*v1+r2*v2)/3600)<1e-12,'coin rate: sum of rate × value / 3600 over unlocked slots')
+check(dump(cr)==before,'coin rate: profile unchanged')
 print('PASS '..n..' tycoon checks')

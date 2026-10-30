@@ -100,10 +100,23 @@ for _,v in ipairs(SIZES) do
   -- areas trim to the pitch. The floor is 44 at M/L and the dock pitch at S (flagged for the owner).
   local floor=44 -- owner 2026-10-28: the dock/launcher pitch stays 48 on screen at every HUD scale
   local db=l.dockButtons
-  local card=l.card;local launch={};for i=1,5 do launch[i]={x=card.x+14+(i-1)*(42+l.dockGap),y=card.y+70,w=42,h=42} end
+  -- hud-polish E: launcher rects from the expanded card (x 14, y 69); the compact card's info toggle = its top 69 (border +
+  -- padding + rows + padding), the expanded one the same 69 under the launcher (the launcher sits above it in Z).
+  local card=l.card;local launch={};for i=1,5 do launch[i]={x=card.x+14+(i-1)*(42+l.dockGap),y=card.y+69,w=42,h=42} end
+  local cc=l.cardCompact;local info={x=cc.x,y=cc.y,w=cc.w,h=69}
   hitsOk(scaled({l.coin,l.gear,db[1],db[2],db[3],db[4],db[5],l.bat,l.pickup,l.sprint}),where..' rest',floor)
   hitsOk(scaled({l.coin,l.gear,db[1],db[2],db[3],l.bat,l.sprint}),where..' chase',floor)
   hitsOk(scaled({l.coin,l.gear,db[1],db[2],db[3],db[4],db[5],l.sprint,launch[1],launch[2],launch[3],launch[4],launch[5]}),where..' sanctuary',floor)
+  hitsOk(scaled({l.coin,l.gear,db[1],db[2],db[3],db[4],db[5],l.sprint,info}),where..' sanctuary compact card',floor)
+  -- Expanded: the launcher hits (44 real px, centred on 42) overlap the info toggle by (44/s - 42)/2 from above in Z; the rest >= 44.
+  check((69-math.max(0,(44/s-42)/2))*s>=44-TOL,where..' expanded card info toggle >= 44 under the launcher hits')
+  -- Both cards: same bottom (H - 78), centred on the dock axis, at least 10 above the dock top, clear of the coin pill / gear.
+  check(near(card.y+card.h,cc.y+cc.h) and near(card.y+card.h,h/s-78) and card.h==123 and cc.h==71 and card.w==cc.w,where..' compact 71 / expanded 123 share the bottom H - 78')
+  for nm,r in pairs({card=card,cardCompact=cc}) do
+   check(near(r.x+r.w/2,l.dock.x+l.dock.w/2),where..' '..nm..' on the dock axis')
+   check(r.y+r.h<=l.dock.y-10+1e-6 and r.y+r.h<=l.dockChase.y-10+1e-6,where..' '..nm..' ends 10 above the dock top')
+   check(not overlap(R(r,s),R(l.tr,s)),where..' '..nm..' clear of the coin pill / gear')
+  end
   hitsOk(scaled({l.coin,l.gear,l.slots[1],l.slots[2],l.slots[3],l.dodge,l.ability,l.sprint}),where..' battle',floor)
   for i=1,5 do check(inside(launch[i],card),where..' launcher '..i..' inside the player card') end
   -- Transients (§3): inside S, clear of C. Owner 2026-10-28 (P7 E): every mountain transient is also clear of M, and the band
@@ -111,7 +124,7 @@ for _,v in ipairs(SIZES) do
   -- The player card (D2 launcher, opened by the player) is exempt from M.
   local tw=l.toastMax
   local transients={
-   toast={x=l.toast.x-tw,y=l.toast.y,w=tw,h=l.toast.h},xpLine=l.xpLine,card=l.card,
+   toast={x=l.toast.x-tw,y=l.toast.y,w=tw,h=l.toast.h},xpLine=l.xpLine,card=l.card,cardCompact=l.cardCompact,
    railLabel={x=l.railLabel.x,y=l.railLabel.y,w=math.min(171,l.railLabelMax),h=l.railLabel.h},
   }
   -- Band transients at their natural board boxes (Feedback / Hud): banner h59, carry pop-up h78, boss bar h76, RUN! row
@@ -168,7 +181,7 @@ for _,v in ipairs(SIZES) do
    local r=R(t,s)
    check(inside(r,Z.S),where..' transient '..name..' outside S')
    check(not overlap(r,Z.C),where..' transient '..name..' touches C')
-   if name~='card' then check(not overlap(r,Z.M),where..' transient '..name..' enters M') end
+   if name~='card' and name~='cardCompact' then check(not overlap(r,Z.M),where..' transient '..name..' enters M') end
   end
   for name,t in pairs(glows) do check(not overlap(R(t,s),Z.M),where..' '..name..' glow enters M') end
   -- Coverage gates (§3, P§4): 844x390, scale M, normal text, touch (sprint + native jump), permanent boxes only.
@@ -193,7 +206,7 @@ check(is(b.xpLine,304,312,236,6) and is(b.gear,788,7,44,44) and b.toast.x==832 a
 check(b.band.top==7 and b.band.low==60 and near(b.band.topMax,494) and b.band.lowMax==612 and near(b.band.keep,93.6),'board band rows')
 check(is(P.bandSlot(b,300,59),272,7,300,59),'board section banner: top row, full size')
 do local r,wd,pl=P.bandRun(b,241,185,125,27);check(near(r.f,84.6/125) and r.y==7 and pl.f==1 and near(r.w,241*84.6/125+6+185),'board RUN! row: word top row scaled to end 2 px above M, pill full size') end
-check(is(b.card,297,390-78-124,262,124),'board player card')
+check(is(b.card,422-131,390-78-123,262,123) and is(b.cardCompact,422-131,390-78-71,262,71),'board player card: expanded 262x123 / compact 262x71, dock axis, bottom -78')
 check(is(b.team,327,310,190,70) and is(b.ability,380,279,84,27) and b.dodge==b.bat,'G6 battle: specials dock, ability chip above, dodge in the bat slot')
 local short=P.hudLayout(749,330,{},false,nil,{scale=1})
 check(short.rail.h<110 and short.railNode==10 and short.railSummit==13 and short.railFits,'G9: short rail uses 10/13 nodes')

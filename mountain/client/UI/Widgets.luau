@@ -744,9 +744,8 @@ local function ctaCore(parent,name,label,size,pos,k)
   local sh=W.new('Frame',b,{Name='Shine',Size=UDim2.fromScale(.28,1.2),Position=UDim2.fromScale(-.4,-.1),Rotation=20,BackgroundColor3=T.text,BorderSizePixel=0})
   W.grad(sh,T.gradShine);sh:SetAttribute('Motion','buy.shine');sh:SetAttribute('Decor',true)
  end
- local padL=k.padL or pad
  local function label_(name_,color,y,z)
-  local l=W.fit(gtext(o,name_,label,T.fontDisplay,k.n,color),k.n,8,false,true);l.Size=UDim2.new(1,-(padL+pad),1,0);l.Position=UDim2.fromOffset(padL,y);l.ZIndex=z;return l
+  local l=W.fit(gtext(o,name_,label,T.fontDisplay,k.n,color),k.n,8,false,true);l.Size=UDim2.new(1,-2*pad,1,0);l.Position=UDim2.fromOffset(pad,y);l.ZIndex=z;return l
  end
  local drop=if k.drop then label_('Drop',k.drop,2,1) else nil;if drop then drop:SetAttribute('Decor',true) end
  local l=label_('Label',k.ink or T.text,0,2)
@@ -755,15 +754,35 @@ local function ctaCore(parent,name,label,size,pos,k)
  W.hit(o);W.focus(o);return o
 end
 -- Title plate (panel() title, L180): the W.cta look as a non-interactive Frame (no GuiButton, so no 44 px rule). n default menuTitle 23;
--- padX (board .ttl 20) insets the label from the plate's border box. style (optional, Shop gold title L214): grad, glow, lip (lip and
--- drop colour), padL (left label inset).
+-- padX insets the label from the plate's border box on both sides. style (optional, Shop gold title L214): grad, glow, lip (lip and
+-- drop colour), lipY (default 6).
 function W.ctaPlate(parent,name,label,size,pos,n,padX,style)
  style=style or {}
- return ctaCore(parent,name,label,size,pos,{plate=true,stroke=T.s.bold,grad=style.grad or T.gradCta,gloss=true,glow=style.glow or T.glowCta,lipY=6,lipColor=style.lip or T.lip,drop=style.lip or T.lip,n=n or T.t.menuTitle,padX=padX,padL=style.padL})
+ return ctaCore(parent,name,label,size,pos,{plate=true,stroke=T.s.bold,grad=style.grad or T.gradCta,gloss=true,glow=style.glow or T.glowCta,lipY=style.lipY or 6,lipColor=style.lip or T.lip,drop=style.lip or T.lip,n=n or T.t.menuTitle,padX=padX})
 end
 -- Plate width that fits `label` on one line: text + 2 padX + 2 bold strokes (the CSS border sits inside the box).
 function W.plateWidth(label,n,padX)
  return math.ceil(TextService:GetTextSize(label,T.size(n or T.t.menuTitle),T.fontDisplay,Vector2.new(1e4,1e4)).X)+2*(padX or 0)+2*T.s.bold
+end
+-- Shared title pill (hud-polish tokens A1-A5, A4b): W.ctaPlate h T.box.titlePill.h, LG t.menuTitle, text-fit width with symmetric padX,
+-- AnchorPoint (.5,.5) at the parent's top-centre (top = −h/2), so it straddles the top edge on the parent's own axis. Name TitleRibbon +
+-- Overhang (audits). style: nil = pink cta (hubs, confirm dialogs); 'gold' = Shop gold (L214-218) + chest and U6 tails as Decor, which
+-- never move the text; 'goldPlain' = the gold recipe without chest/tails (reward dialogs, owner O3/O4).
+local goldTitle={grad=T.gradGoldTitle,glow=T.glowGoldTitle,lip=T.goldLip,lipY=T.box.titlePill.lipY}
+local pinkTitle={lipY=T.box.titlePill.lipY}
+function W.titlePill(parent,text,style)
+ local b=T.box.titlePill;local gold=style=='gold' or style=='goldPlain'
+ local p=W.ctaPlate(parent,'TitleRibbon',text,UDim2.fromOffset(W.plateWidth(text,T.t.menuTitle,b.padX),b.h),UDim2.new(.5,0,0,0),T.t.menuTitle,b.padX,if gold then goldTitle else pinkTitle)
+ p.AnchorPoint=Vector2.new(.5,.5);p.ZIndex=2;p:SetAttribute('Overhang',true)
+ if style=='gold' then
+  -- Chest 50 rot −10 (L215): centre 58 % of its height above the plate centre (y h/2 − 29 = −11), right edge chestGap left of the text
+  -- (x padX + stroke − chestGap − 50 = −41). Tails 24×30 goldTail at x −20 / right −20 (L216-218), top h − 28 = 8 (O4).
+  local ic=W.icon(p,'Chest',UDim2.fromOffset(50,50),UDim2.fromOffset(b.padX+T.s.bold-b.chestGap-50,b.h/2-29));ic.Rotation=-10;ic.ZIndex=3;ic:SetAttribute('Decor',true)
+  for i,pos in ipairs({UDim2.fromOffset(-20,b.h-28),UDim2.new(1,-4,0,b.h-28)}) do
+   W.new('ImageLabel',p,{Name='Tail',Size=UDim2.fromOffset(24,30),Position=pos,Rotation=if i==2 then 180 else 0,BackgroundTransparency=1,Image=asset(T.images.ribbonTail),ImageColor3=T.goldTail,ZIndex=-1}):SetAttribute('Decor',true)
+  end
+ end
+ return p
 end
 -- Menu X (§2 panel(), L181): 36 drawn circle, gradClose, stroke 3 white, glowX, lip closeLip 3, "×" FO 20. The named TextButton
 -- is the 44 px hit area (audit: every GuiButton >= 44); the circle is centred inside it. Text stays 'X' for lookups.
@@ -841,15 +860,20 @@ function W.buy(parent,name,price,currency,size,pos,fn,opts)
   task.delay(3,function() if armed and serial==mine then idle() end end)
  end)
 end
--- tabs() Tab (§2, L182-186): h 34 r11, padX 9, icon 22, gap 7, FO 13; off night T.5 + stroke 1.5 white T.82; on gradCta
--- Rot 0 + stroke white + glowTabOn. Fills the column width. Toggle with W.setOn(tab,on); fn optional (or W.bind).
+-- tabs() Tab (§2, L182-186; hud-polish A6): h T.box.tab.h r11, padX 9, FO 13; off night T.5 + stroke 1.5 white T.82; on gradCta
+-- Rot 0 + stroke white + glowTabOn. Icon 22 + gap 7 (only when present) and label are one group centred both ways: the label spans
+-- the body right of the icon slot with centred text, so the group centre = the tab centre; the icon sits just left of the text.
+-- Fills the column width (W.tabWidth sizes the column). Toggle with W.setOn(tab,on); fn optional (or W.bind).
+local function tabIconW(iconKind) local k=T.box.tab;return if iconKind then k.icon+k.iconGap else 0 end
+-- Column width that fits `label` on one tab line (A6b): text at FO t.tab + icon group + 2 padX + 2 strokes.
+function W.tabWidth(label,iconKind) return math.ceil(textW(label,T.fontBody,T.size(T.t.tab)))+tabIconW(iconKind)+2*T.box.tab.padX+2*T.s.thin end
 function W.tab(parent,name,label,iconKind,on,fn)
- local r=T.r[11];local s=T.s.thin;local x=s+9
- local o=root('TextButton',parent,name,UDim2.new(1,0,0,34),nil,r);o.Text=label;o:SetAttribute('QAControl',true)
+ local k=T.box.tab;local r=T.r[11];local s=T.s.thin;local x=s+k.padX;local ig=tabIconW(iconKind)
+ local o=root('TextButton',parent,name,UDim2.new(1,0,0,k.h),nil,r);o.Text=label;o:SetAttribute('QAControl',true)
  local glow=W.glow(o,o,T.glowTabOn)
  local b=body(o,r,s,T.night,T.wellT.tab);local g=W.grad(b,T.gradCta,nil,0);local st=gstroke(b,T.text,s,.82)
- if iconKind then W.icon(o,iconKind,UDim2.fromOffset(22,22),UDim2.fromOffset(x,6));x+=22+7 end
- local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,T.t.tab,T.text,Enum.TextXAlignment.Left)),T.t.tab,8,false,true);l.Size=UDim2.new(1,-x-s-9,1,0);l.Position=UDim2.fromOffset(x,0)
+ if iconKind then local tw=textW(label,T.fontBody,T.size(T.t.tab));W.icon(o,iconKind,UDim2.fromOffset(k.icon,k.icon),UDim2.new(.5,-(tw+ig)/2,.5,-k.icon/2)) end
+ local l=W.fit(inked(gtext(o,'Label',label,T.fontBody,T.t.tab)),T.t.tab,8,false,true);l.Size=UDim2.new(1,-(2*x+ig),1,0);l.Position=UDim2.fromOffset(x+ig,0)
  states[o]=function(v)
   b.BackgroundColor3=if v then T.text else T.night;b.BackgroundTransparency=if v then 0 else T.wellT.tab;g.Enabled=v;glow.Visible=v
   st.Transparency=if v then 0 else .82;st:SetAttribute('BaseTransparency',st.Transparency)

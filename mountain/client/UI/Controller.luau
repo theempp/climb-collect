@@ -17,6 +17,9 @@ local gui=W.new('ScreenGui',pg,{Name='MountainHUD',ResetOnSpawn=false,DisplayOrd
 -- edges; everything else is placed in SafeRoot coordinates (CoreUISafeInsets) and stays inside the safe area.
 gui:SetAttribute('BlueprintVersion',2);gui:SetAttribute('VisualSystem','Glassbloom')
 local root=W.frame(gui,'SafeRoot',UDim2.fromScale(1,1));root.BackgroundTransparency=1
+-- hud-polish C: hide only Roblox's native health bar (it sat in the topbar row by TopRight; plan §0, risk R2 accepted). Retried while
+-- the CoreScripts are still registering (the usual SetCoreGuiEnabled race at start).
+task.spawn(function() local SG=game:GetService('StarterGui');for _=1,10 do if pcall(SG.SetCoreGuiEnabled,SG,Enum.CoreGuiType.Health,false) then return end;task.wait(.5) end end)
 Motion.attach(root) -- P6: every Motion-tagged piece under SafeRoot (HUD, messages, hubs, reveal)
 local loading=W.frame(root,'Loading',UDim2.fromScale(1,1),nil,T.navy);loading.ZIndex=90
 local mountain=W.mountain(loading);mountain.Size=UDim2.fromScale(.7,.8);mountain.Position=UDim2.fromScale(.15,.1)
@@ -210,7 +213,7 @@ local function liveView(data,rr)
  local ex=ui.explorer;local st=H.state(memory,data,store.battle)
  local v={ready=ready,hubOpen=screens.hub~=nil or feedback.modal~=nil,state=st,coins=data.coins,
   level=if ex then ex.level else 1,xp=if ex and ex.need and ex.need>0 then ex.into/ex.need elseif ex then 1 else 0,
-  name=player.DisplayName,creatures=#(data.creatures or {}),summit=data.discoveries and data.discoveries.summit==true,
+  name=player.DisplayName,creatures=#(data.creatures or {}),cash=R.tycoon.coinRate(data),summit=data.discoveries and data.discoveries.summit==true,
   section=H.section(ui,rr and sectionFallback(rr)),height=if rr then math.max(0,math.floor(rr.Position.Y-16)) else 0,
   rail=T.prefs.altitudeRail~=false,daily=true,pickup=data.run~=nil and data.run.phase=='revealed'}
  local wait=math.ceil(swingReadyAt-os.clock())
@@ -236,8 +239,8 @@ end
 local function fixtureView(name,data)
  local exits=data and data.ui and data.ui.exits
  local rare;for _,s in ipairs(C.species) do if s.rarity=='Rare' then rare=s;break end end
- local v={ready=true,hubOpen=false,state=if name=='regrab' then 'carry' else name,coins=data and data.coins or 1240,level=12,xp=.6,name=player.DisplayName,
-  creatures=data and #(data.creatures or {}) or 7,summit=false,section=2,height=320,rail=true,daily=true,pickup=name=='rest',bat={enabled=true,text='Bat'}}
+ local v={ready=true,hubOpen=false,state=if name=='regrab' then 'carry' elseif name=='sanctuaryOpen' then 'sanctuary' else name,coins=data and data.coins or 1240,level=12,xp=.6,name=player.DisplayName,
+  creatures=data and #(data.creatures or {}) or 7,cash=if data then R.tycoon.coinRate(data) else .03,summit=false,section=2,height=320,rail=true,daily=true,pickup=name=='rest',bat={enabled=true,text='Bat'}}
  if name=='carry' or name=='regrab' or name=='chase' or name=='battle' then v.carry={species=rare and rare.id,runId='fixture',exits=exits,fixed={distance=84,progress=.4,offscreen=name=='chase'}} end
  if name=='battle' then
   v.battle={name=C.guardians[1].name,hp=640,max=1000,kicker='Phase 2 · 1 climber',ability='Ability 1',dodge={enabled=true,text='Dodge [Q]'},
@@ -253,7 +256,7 @@ local function showFixture(name)
  elseif name=='carry' then feedback:show(H.message('carry',{species=sp,runId='fixture'}),true)
  elseif name=='regrab' then feedback:show(H.message('regrab',{species=sp,runId='fixture'}),true)
  elseif name=='chase' then feedback:show(H.message('alert',{guardian=C.guardians[2].name,section=2}),true)
- elseif name=='sanctuary' then hud:toggleCard(true);feedback:show(H.message('toast',{text='Welcome home'}),true) end
+ elseif name=='sanctuary' or name=='sanctuaryOpen' then hud:toggleCard(name=='sanctuaryOpen');feedback:show(H.message('toast',{text='Welcome home'}),true) end
 end
 local start=os.clock();local elapsed=0
 connect(Run.Heartbeat,function(dt)
@@ -321,16 +324,20 @@ if require(game.ReplicatedStorage.MountainShared.BuildFlags).studioAids() then
   end
   if action=='open' and table.find(hubNames,value) then open(value)
   elseif action=='close' then screens:close();feedback:clearMoments()
+  elseif action=='card' and (value=='compact' or value=='expanded') then hud:toggleCard(value=='expanded') -- hud-polish E
   elseif action=='reveal' then
    -- Hatch reveal fixture (P5 E): a species id, else the first Epic in the catalog. Replaces any moment showing.
    local s=C.byId[value];if not s then for _,x in ipairs(C.species) do if x.rarity=='Epic' then s=x;break end end end
    feedback:clearMoments();feedback:hatchReveal(s,{})
+  -- hud-polish A: QA-only dialog fixtures for title-pill evidence (confirm = live Abandon copy, no-op callback; reward = Train evolution copy).
+  elseif action=='dialog' and value=='confirm' then feedback:confirm('Abandon this creature?','Travel loses your unsecured attempt. Your owned creatures and coins stay safe. Cancel to keep climbing.',function() end)
+  elseif action=='dialog' and value=='reward' then local s=C.species[1];feedback:reveal('Evolution unlocked!',s.name..' reached evolution stage 2.',s)
   elseif action=='detail' and screens.hub=='Creatures' and store.profile and store.profile.creatures[1] then screens.detail=value or store.profile.creatures[1].id;screens:render(false)
   elseif action=='tab' and screens.hub and screens.shade.Hub.Tabs:FindFirstChild('Tab'..tostring(value)) then screens.tab=value;screens.detail=nil;screens.page=1;screens:render(false)
   elseif action=='hudState' then
-   -- Fixtures rest/carry/regrab/chase/sanctuary/battle; 'live' returns to the live state.
+   -- Fixtures rest/carry/regrab/chase/sanctuary (compact card)/sanctuaryOpen (expanded card)/battle; 'live' returns to the live state.
    if value=='live' then fixture=nil;gui:SetAttribute('HudFixture',nil);feedback:clear();hud:clearTransients();hud:setChaseRestored(false)
-   elseif H.states[value] or value=='regrab' then fixture=value;gui:SetAttribute('HudFixture',value);showFixture(value) end
+   elseif H.states[value] or value=='regrab' or value=='sanctuaryOpen' then fixture=value;gui:SetAttribute('HudFixture',value);showFixture(value) end
   end
   local rv=feedback.moment and feedback.moment.trap and feedback.moment.frame
   return {ready=ready,hub=screens.hub,tab=screens.tab,hudState=fixture or (store.profile and H.state(memory,store.profile,store.battle)),view={root.AbsoluteSize.X,root.AbsoluteSize.Y},instances=#gui:GetDescendants(),reveal=rv and #rv:GetDescendants()+1 or nil,pending=store.pending,status=store.status}

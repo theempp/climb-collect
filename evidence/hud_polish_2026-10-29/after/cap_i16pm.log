@@ -1,0 +1,8 @@
+on iphone_16_pro_max
+Game Started
+root 830x381 vp 830x439
+rest True
+sanctuary True
+sanctuaryOpen True
+confirm dialog x175 w480 y63 | pill cx415.0 top-18.0 h36 w315 True
+reward dialog x175 w480 y32 | pill cx415.0 top-18.0 h36 w271 True

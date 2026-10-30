@@ -97,17 +97,9 @@ local function trail(parent,key,size,pos,icon)
  local b=W.icon(t,'Bat',UDim2.fromOffset(icon,icon),UDim2.new(.5,-icon/2,.5,-icon/2));b.ZIndex=2;b:SetAttribute('Motion','trail.swing')
  return t
 end
--- Gold title (shop panel, L214-218): the panel() plate with gradGoldTitle, glowGoldTitle, lip/drop goldLip, left padding 44; chest 50 at
--- x -12 rotated -10°, its centre 58 % of its height above the plate centre (L215); U6 tails 24×30 at top 14, x -20 / right -20 (Rot 180).
-function Shop.titlePlate(f,text)
- local p=W.ctaPlate(f,'TitleRibbon',text,UDim2.fromOffset(W.plateWidth(text,T.t.menuTitle,0)+44+20,42),UDim2.new(.5,0,0,-21),T.t.menuTitle,20,{grad=T.gradGoldTitle,glow=T.glowGoldTitle,lip=T.goldLip,padL=44})
- p.AnchorPoint=Vector2.new(.5,0);p.ZIndex=2;p:SetAttribute('Overhang',true)
- local ic=decor(W.icon(p,'Chest',UDim2.fromOffset(50,50),UDim2.fromOffset(-12,21-29)));ic.Rotation=-10;ic.ZIndex=3
- for i,pos in ipairs({UDim2.fromOffset(-20,14),UDim2.new(1,-4,0,14)}) do
-  decor(W.new('ImageLabel',p,{Name='Tail',Size=UDim2.fromOffset(24,30),Position=pos,Rotation=if i==2 then 180 else 0,BackgroundTransparency=1,Image=asset(T.images.ribbonTail),ImageColor3=T.goldTail,ZIndex=-1}))
- end
- return p
-end
+-- Gold title (shop panel, L214-218): the shared W.titlePill 'gold' (gradGoldTitle, glowGoldTitle, goldLip; symmetric padding, the
+-- chest and U6 tails are Decor overhangs; hud-polish tokens A5).
+function Shop.titlePlate(f,text) return W.titlePill(f,text,'gold') end
 -- Panel rays (L211-212): U2 rays.tint T.91, size = panel diagonal / .919, centred, rect-clipped to the panel body, behind the columns.
 local function panelRays(f)
  local b=f:FindFirstChild('Body');if not b then return end

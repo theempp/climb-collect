@@ -176,6 +176,7 @@ function P.hudLayout(w,h,obstacles,touch,topbar,opts)
  local function dockRect(n) local dw=2*8+n*42+(n-1)*dgap;return rect(W/2-dw/2,H-10-58,dw,58) end
  local dock,dockChase=dockRect(5),dockRect(3)
  local dockButtons={};for i=1,5 do dockButtons[i]=rect(dock.x+8+(i-1)*pitch,dock.y+8,42,42) end
+ local cardW=2+12+5*42+4*dgap+12+2 -- player card / launcher row width (below)
  -- Orbs (L123-124): sprint 54 at AP(1,1) (1,-96, 1,-20); bat 52 at (1,-20, 1,-96). They cleared the board's 70 px jump orb by
  -- 10 px, so the same 10 px clearance moves them off a native jump/thumbstick (G10): sprint left, bat up.
  local sprint=rect(W-96-54,H-20-54,54,54);local bat=rect(W-20-52,H-96-52,52,52)
@@ -217,9 +218,10 @@ function P.hudLayout(w,h,obstacles,touch,topbar,opts)
  -- rows (short phones).
   toast=rect(edge,trY+53,0,30),toastMax=math.max(0,edge-(if trY+53+30+18>Z.M.y then Z.M.x+Z.M.w+18+2 else Z.C.x+Z.C.w)),
   band=B,bandMax=B.lowMax,
-  -- B.pcard (L170-174, G7): AP(0,1) (.5,-125, 1,-78); widened to the 5-button launcher row: 2+12+5x42+4x6+12+2 = 262; height
-  -- 2+10+48 (ring row)+10 (gap)+42 (launcher)+10+2 = 124.
-  card=rect(W/2-125,H-78-124,2+12+5*42+4*dgap+12+2,124),dockGap=dgap,
+  -- B.pcard (L170-174, G7; hud-polish A7/A8, owner O5): centred on the dock axis (x = W/2 − w/2), bottom H − 78 (10 above the
+  -- dock top) in both sizes, so expanding raises the top only. w = the 5-button launcher row 2+12+5x42+4xdgap+12+2 (262 at dgap 6).
+  -- cardCompact h 71 = 2+10+17 (meta)+4+10 (XP)+3+13 (sub)+10+2; card (expanded) h 123 = that + gap 10 + launcher 42 (card y 69).
+  card=rect(W/2-cardW/2,H-78-123,cardW,123),cardCompact=rect(W/2-cardW/2,H-78-71,cardW,71),dockGap=dgap,
   screen=scr,
  }
 end

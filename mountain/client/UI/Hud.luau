@@ -5,6 +5,7 @@
 -- (P6: Motion.to / show / value / play, no tweens here). Every piece is tagged
 -- HudClass = permanent | transient (audits, §3) and HudPiece = its layout key. Distance/edge update at 10 Hz while carrying.
 local Players=game:GetService('Players')
+local UIS=game:GetService('UserInputService')
 local TextService=game:GetService('TextService')
 local T=require(script.Parent.Theme)
 local W=require(script.Parent.Widgets)
@@ -78,7 +79,7 @@ local function glass(parent,name,size,radius,variant)
 end
 -- cb: open(hub,tab), card(), swing(), pickup(), dodge(), special(slot), ability(), sound().
 function Hud.new(root,cb)
- local self=setmetatable({root=root,cb=cb,hits={},e={},restored=false,cardOpen=false,bandBusy=false,blocked=false,scale=1,alive=true,railSerial=0,xpSerial=0,tapSerial=0},Hud)
+ local self=setmetatable({root=root,cb=cb,hits={},e={},restored=false,expanded=false,bandBusy=false,blocked=false,scale=1,alive=true,railSerial=0,xpSerial=0,tapSerial=0},Hud)
  local e=self.e
  local layer=frame(root,'Hud',{Size=UDim2.fromScale(1,1),ZIndex=30});self.layer=layer
  self.uiScale=W.new('UIScale',layer,{Scale=1})
@@ -95,6 +96,7 @@ function Hud.new(root,cb)
   local f=W.new('Frame',host,{Name=if host==vig then v[1] else 'Fill',Size=if host==vig then v[2] else UDim2.fromScale(1,1),Position=if host==vig then v[3] else UDim2.new(),BackgroundColor3=T.vignette,BorderSizePixel=0})
   W.new('UIGradient',f,{Rotation=v[4],Transparency=NumberSequence.new(v[5][1],v[5][2])})
  end
+ -- R1: the coin and gear icons are rbxassetid images; on device they render only once asset delivery works (dashboard, plan §4).
  -- B.tr (L97-100): coin pill (glass h34 r18, padding L38 R14, FO 15, coin icon 40 at x -2) + gear (glass circle 44, icon 26), gap 8.
  local tr=tag(frame(layer,'TopRight',{AnchorPoint=Vector2.new(1,0),Size=UDim2.fromOffset(155,44),ZIndex=2}),'permanent','tr');e.tr=tr
  W.new('UIListLayout',tr,{FillDirection=Enum.FillDirection.Horizontal,HorizontalAlignment=Enum.HorizontalAlignment.Right,VerticalAlignment=Enum.VerticalAlignment.Center,Padding=UDim.new(0,8),SortOrder=Enum.SortOrder.LayoutOrder})
@@ -201,27 +203,45 @@ function Hud.new(root,cb)
  local et=label(ea,'Label','Safe — m',T.fontBody,T.t.edge,T.goText,left);et.Position=UDim2.fromOffset(2+6+18+3,0);et.Size=UDim2.new(1,-(2+6+18+3+11+2),1,0);W.textStroke(et);e.edgeText=et
  local function fitEdge() ea.Size=UDim2.fromOffset(2+6+18+3+textW(et.Text,T.fontBody,T.t.edge)+11+2,36) end
  et:GetPropertyChangedSignal('Text'):Connect(fitEdge);et:GetPropertyChangedSignal('TextSize'):Connect(fitEdge);fitEdge()
- -- B.pcard player card / launcher (L170-174, G7): glass r18, padding 10/12, ring 48 (t3, conic) icon 32, meta FO 14, XP bar h10
- -- (margin 4/3), sub FO 11 T.15, then one row of 5 dock buttons (Creatures, Profile, Social, Discovery, Sanctuary; D2).
- local card=tag(glass(layer,'PlayerCard',UDim2.fromOffset(262,124),T.r.glass),'transient','card');card.Visible=false;card.ZIndex=4;card:SetAttribute('Motion','pcard.open');e.card=card
- -- GAP: the card ring's track T and inner disc are not stated; the dock XP ring's (.84, deep) are used. Its icon (kind not
- -- stated) repeats the dock ring's creature icon.
- local pr=W.ring(card,48,T.s.ring3,T.pk,T.ringTrackT.xp,T.deep);pr.Frame.Position=UDim2.fromOffset(14,12);e.cardRing=pr
- for _,o in ipairs(pr.Frame:GetDescendants()) do
-  if o:IsA('UIStroke') and o.Parent.Name~='Track' then
-   local g=o:FindFirstChildOfClass('UIGradient') or W.new('UIGradient',o,{})
-   local k={};for i,st in ipairs(T.gradRingConic.stops) do k[i]=ColorSequenceKeypoint.new(st[1],st[2]) end;g.Color=ColorSequence.new(k)
-  end
- end
- W.icon(card,'Creature',UDim2.fromOffset(32,32),UDim2.fromOffset(22,20)).ZIndex=3
- local meta=W.textStroke(label(card,'Meta','Player · Lv 1',T.fontBody,T.t.pcardMeta,T.text,left),nil).Parent;meta.Position=UDim2.fromOffset(72,12);meta.Size=UDim2.fromOffset(176,17);W.fit(meta,T.t.pcardMeta,8);e.cardMeta=meta
- e.cardXp=W.progress(card,0,UDim2.fromOffset(176,10),UDim2.fromOffset(72,12+17+4));e.cardXp.Parent.ZIndex=2
- local sub=W.textStroke(label(card,'Sub','',T.fontBody,T.t.smallHud,T.text,left),nil).Parent;sub.Position=UDim2.fromOffset(72,12+17+4+10+3);sub.Size=UDim2.fromOffset(176,13);sub.TextTransparency=T.textDimT[3];W.fit(sub,T.t.smallHud,8);e.cardSub=sub
- local lrow=frame(card,'Launcher',{Position=UDim2.fromOffset(14,70),Size=UDim2.fromOffset(234,42),ZIndex=2});e.launcher=lrow
+ -- B.pcard player card / launcher (L170-174, G7; hud-polish A7/A8, Q3): glass r18, padding 10/12, meta FO 14 "Name · Lv N", XP bar
+ -- h10 (margin 4/3), sub FO 11 T.15 "N creatures · X.XX coins/s"; expanded adds gap 10 + one row of 5 dock buttons (Creatures,
+ -- Profile, Social, Discovery, Sanctuary; D2). No ring / creature icon (Q3). Compact (71) and expanded (123) share the bottom
+ -- (P.hudLayout cardCompact / card). Static end states: Motion hooks pcard.expand (card height) and pcard.launcher (row).
+ local pk=T.box.pcard;local x0=pk.border+pk.padX;local y0=pk.border+pk.padY
+ local card=tag(glass(layer,'PlayerCard',UDim2.fromOffset(262,71),T.r.glass),'transient','card');card.Visible=false;card.ZIndex=4;card:SetAttribute('Motion','pcard.open');e.card=card
+ card:SetAttribute('MotionExpand','pcard.expand') -- the root's Motion slot holds the first show (pcard.open); tag only (wired: seatCard)
+ local meta=W.textStroke(label(card,'Meta','Player · Lv 1',T.fontBody,T.t.pcardMeta,T.text,left),nil).Parent;meta.Position=UDim2.fromOffset(x0,y0);meta.Size=UDim2.new(1,-2*x0,0,pk.meta);W.fit(meta,T.t.pcardMeta,8);e.cardMeta=meta
+ local xy=y0+pk.meta+pk.xpTop
+ e.cardXp=W.progress(card,0,UDim2.new(1,-2*x0,0,pk.xpH),UDim2.fromOffset(x0,xy));e.cardXp.Parent.ZIndex=2
+ local sub=W.textStroke(label(card,'Sub','',T.fontBody,T.t.smallHud,T.text,left),nil).Parent;sub.Position=UDim2.fromOffset(x0,xy+pk.xpH+pk.xpBottom);sub.Size=UDim2.new(1,-2*x0,0,pk.sub);sub.TextTransparency=T.textDimT[3];W.fit(sub,T.t.smallHud,8);e.cardSub=sub
+ -- Info block toggle: the card's top 69 (border + padding + rows + padding; the launcher starts there), >= 44, gamepad-selectable,
+ -- under the launcher in Z. Tap = expand / collapse.
+ local infoH=xy+pk.xpH+pk.xpBottom+pk.sub+pk.padY
+ local info=W.new('TextButton',card,{Name='Info',Size=UDim2.new(1,0,0,infoH),BackgroundTransparency=1,BorderSizePixel=0,Text='',TextTransparency=1,AutoButtonColor=false,ZIndex=3})
+ info:SetAttribute('QAControl',true);info:SetAttribute('Enabled',true);info:SetAttribute('CornerRadius',UDim.new(0,T.r.glass))
+ W.bind(info,function() cb.sound();self:toggleCard() end);W.focus(info);e.cardInfo=info
+ local lrow=frame(card,'Launcher',{Position=UDim2.fromOffset(x0,infoH),Size=UDim2.fromOffset(262-2*x0,pk.launch),ZIndex=4,Visible=false});lrow:SetAttribute('Motion','pcard.launcher');e.launcher=lrow
  e.launchList=W.new('UIListLayout',lrow,{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,6),SortOrder=Enum.SortOrder.LayoutOrder})
  for i,name in ipairs({'Creatures','Profile','Social','Discovery','Sanctuary'}) do
-  dockButton(self,lrow,'Launch'..name,name,function() self.cardOpen=false;cb.sound();cb.open(name);self:render(self.view) end,i)
+  dockButton(self,lrow,'Launch'..name,name,function() self.expanded=false;self.cardSnap=true;cb.sound();cb.open(name);self:render(self.view) end,i) -- a hub opens: collapse at once
  end
+ -- pcard.expand (A9, Motion.value): the card at height h on the shared bottom (A8). While it glides the launcher row is clipped to
+ -- the card's padding box (its rest bottom padding kept), so it never hangs below the glass; at rest it has its built size, unclipped.
+ -- BP R7: this glides the glass root itself (one .2 s tween per toggle; the HUD lip CanvasGroup refits each frame of it).
+ self.seatCard=function(h)
+  self.cardH=h;local l=self.l;if not l then return end
+  local c,full=l.card,pk.launch;local rest=h>=c.h or h<=l.cardCompact.h
+  card.Position=UDim2.fromOffset(c.x,c.y+c.h-h);card.Size=UDim2.fromOffset(c.w,h)
+  lrow.Size=UDim2.fromOffset(c.w-2*x0,if rest then full else math.clamp(h-c.h+full,0,full));lrow.ClipsDescendants=not rest
+ end
+ -- Tap outside the expanded card collapses it. Read only (never sinks): the dock, jump, thumbstick and camera still act. A press
+ -- on the card or on the dock Creatures ring (it toggles the card itself) is ignored.
+ self.outside=UIS.InputBegan:Connect(function(i)
+  if not self.expanded or not card.Visible or (i.UserInputType~=Enum.UserInputType.Touch and i.UserInputType~=Enum.UserInputType.MouseButton1) then return end
+  local p=i.Position
+  for _,o in ipairs({card,cr:FindFirstChild('Hit') or cr}) do local a,s=o.AbsolutePosition,o.AbsoluteSize;if p.X>=a.X and p.X<=a.X+s.X and p.Y>=a.Y and p.Y<=a.Y+s.Y then return end end
+  self.expanded=false;if self.view then self:render(self.view) end
+ end)
  -- B.beacon (L131-133): BillboardGui (AlwaysOnTop) on the nearest SanctuaryExit; pillar x56 y26 w12 r6 + glowBeacon, label pill h23.
  -- GAP G19: no distance scaling on the board; drawn at the board's 124x150 px.
  self.anchor=W.new('Attachment',workspace.Terrain,{Name='MountainSafeGate'})
@@ -233,7 +253,7 @@ function Hud.new(root,cb)
  bp.AnchorPoint=Vector2.new(.5,0);bp.Position=UDim2.fromScale(.5,0);bp.ZIndex=3;e.beaconText=bl
  for _,k in ipairs({'tr','railCanvas','dockCanvas','bat','pickup','dodge','team','ability','boss','portrait','edge'}) do e[k].Visible=false end
  -- Motion.value setters (rings / XP fill are drawn by :set or Size, not one property).
- self.setXpRing=function(p) e.xpRing:set(p) end;self.setCardRing=function(p) e.cardRing:set(p) end
+ self.setXpRing=function(p) e.xpRing:set(p) end
  self.setXpFill=function(p) e.xpFill.Size=UDim2.fromScale(math.clamp(p,0,1),1) end
  return self
 end
@@ -266,7 +286,9 @@ function Hud:apply(l)
  e.ability.Position=UDim2.fromOffset(l.ability.x,l.ability.y)
  self:_seatBoss();self:_fitRailLabel()
  place(e.portrait,l.portrait);e.edge.Position=UDim2.fromOffset(l.edge.x+l.edge.w,l.edge.y);M.rebase(e.edge) -- edge.nudge restarts from the new spot
- place(e.card,l.card);local gap=UDim.new(0,l.dockGap or 6);e.dockList.Padding=gap;e.launchList.Padding=gap;e.launcher.Size=UDim2.fromOffset(l.card.w-28,42);place(e.vignette,l.screen)
+ self.seatCard(self.cardH or (if self.expanded then l.card.h else l.cardCompact.h)) -- card + launcher row at the shown height (a glide keeps going)
+ local gap=UDim.new(0,l.dockGap or 6);e.dockList.Padding=gap;e.launchList.Padding=gap
+ place(e.vignette,l.screen)
  if self.view then self:render(self.view) end
 end
 -- Chase dock (L134): 3 buttons at group T .75; restored = all 5 at T 0. Motion owns the tap/focus restore timing (3 s).
@@ -281,7 +303,8 @@ function Hud:_dockTap(b,focus)
  if slim then self:setChaseRestored(true) end
  return slim
 end
-function Hud:toggleCard(open) if open==nil then open=not self.cardOpen end;self.cardOpen=open;if self.view then self:render(self.view) end end
+-- Player card: expanded (launcher) or not. Not expanded = the compact card in the sanctuary, hidden on the mountain (owner Q1).
+function Hud:toggleCard(open) if open==nil then open=not self.expanded end;self.expanded=open==true;if self.view then self:render(self.view) end end
 -- Boss bar seat (P7 E): the top band at its fitted width, one UIScale factor.
 function Hud:_seatBoss()
  local l=self.l;if not l then return end;local e=self.e
@@ -321,8 +344,10 @@ function Hud:xpLine(m,hold)
  if not hold then task.delay(m and m.duration or 1.5,function() if self.xpSerial==mine and self.alive then self.xpShown=false;if self.view then self:render(self.view) end end end) end
 end
 function Hud:clearTransients()
- self.railSerial+=1;self.xpSerial+=1;self.tapSerial+=1;self.railBright=false;self.xpShown=false;self.cardOpen=false
+ self.railSerial+=1;self.xpSerial+=1;self.tapSerial+=1;self.railBright=false;self.xpShown=false;self.expanded=false
  M.stop(self.e.xpLine);M.show(self.e.railLabel,false,nil,{instant=true}) -- QA resets land at once
+ local l=self.l;if l then M.value(self.e.card,l.cardCompact.h,'pcard.expand',self.seatCard,{instant=true,from=l.cardCompact.h}) end
+ M.show(self.e.launcher,false,nil,{instant=true});self.e.launcher.Interactable=false
 end
 local function nearestExit(exits,pos)
  local best,bd=nil,math.huge
@@ -366,7 +391,7 @@ function Hud:_track(on)
   task.spawn(function() while self.tracking and self.alive do self:_carryTick();task.wait(.1) end end)
  elseif not on then self.tracking=false;self.carryRun=nil;self.offscreen=false;self.e.beacon.Enabled=false end
 end
--- v: {ready, hubOpen, state, coins, level, xp (0..1), name, creatures, summit, section, height, rail (pref), daily, sanctuary,
+-- v: {ready, hubOpen, state, coins, level, xp (0..1), name, creatures, cash (coins/s), summit, section, height, rail (pref), daily, sanctuary,
 -- bat={enabled,text}, pickup, carry={species,runId,exits,fixed?}, battle={name,kicker,hp,max,slots={{text,enabled}},
 -- dodge={enabled,text}, ability}}.
 function Hud:render(v)
@@ -374,7 +399,7 @@ function Hud:render(v)
  local show=v.ready==true and not v.hubOpen and not self.revealing;local st=v.state
  local battle=st=='battle';local sanctuary=st=='sanctuary';local chase=st=='chase'
  if st~=self.lastState then
-  if sanctuary then self.cardOpen=true elseif self.lastState=='sanctuary' then self.cardOpen=false end -- board L628: card shown in the sanctuary
+  if sanctuary or self.lastState=='sanctuary' then self.expanded=false end -- entering or leaving the sanctuary starts collapsed
   if chase then self.restored=false end
   self.lastState=st
  end
@@ -431,21 +456,28 @@ function Hud:render(v)
   local w=math.max(textW(e.bossKicker.Text,T.fontBody,T.t.smallHud),textW(e.bossTitle.Text,T.fontDisplay,T.t.bannerTitle))+2*(2+28)
   e.boss.Size=UDim2.fromOffset(math.min(if l then l.bandMax else w,w),76);self:_seatBoss()
  end
- -- Player card (D2 launcher): opened by the ring; open by default in the sanctuary (L628); not in chase or battle.
- -- pcard.open (§19 as rendered): from (-115, +40) α 0 in .2 s ease-out; hide instant. Its ring tweens like the dock ring while
- -- shown and lands at once when the card opens.
- local cardOn=show and self.cardOpen and not battle and not chase and not self.blocked
- local opened=cardOn and not e.card.Visible
+ -- Player card (D2 launcher; owner Q1): compact by default in the sanctuary (L628), hidden on the mountain until the dock ring
+ -- expands it; not in chase or battle. A hub, modal or reveal collapses it and it stays collapsed after (no reopen).
+ -- pcard.open (§19 as rendered): from (-115, +40) α 0 in .2 s ease-out; hide instant.
+ if v.hubOpen or self.revealing then self.expanded=false end
+ local cardOn=show and (sanctuary or self.expanded) and not battle and not chase and not self.blocked
+ -- pcard.expand / pcard.launcher (A9): while the card stays on screen, the height glides compact ↔ expanded and the launcher row
+ -- fades in / out with it. Everything else lands at once: the first show (pcard.open then plays on the landed card, the row set
+ -- first so it fades with the card), a hide (hub / modal / reveal opening, chase, battle: nothing left to fight panel.open), a
+ -- launcher tap (a hub opens), a toggle during pcard.open. The row takes no input once collapsing (visible for its .15 s fade).
+ local snap=not (cardOn and e.card.Visible) or M.playing(e.card) or self.cardSnap==true;self.cardSnap=nil
+ if l then local h=if self.expanded then l.card.h else l.cardCompact.h;M.value(e.card,h,'pcard.expand',self.seatCard,{instant=snap,from=if snap and self.cardH~=h then h else nil}) end
+ e.launcher.Interactable=self.expanded
+ M.show(e.launcher,self.expanded,'pcard.launcher',{instant=snap})
  M.show(e.card,cardOn,'pcard.open')
  if e.card.Visible then
   e.cardMeta.Text=(v.name or 'Player')..' · Lv '..tostring(v.level or 1);e.cardXp.Size=UDim2.fromScale(math.clamp(v.xp or 0,0,1),1)
-  M.value(e.cardRing,v.xp or 0,'xpRing',self.setCardRing,{instant=opened,from=if up and not opened then 0 else nil})
-  -- GAP: no summit counter exists in the profile (board "3 summits"); a reached summit is shown instead.
-  e.cardSub.Text=tostring(v.creatures or 0)..' creatures'..(if v.summit then ' · summit reached' else '')
+  -- A7/A10 (owner O1): "N creatures · X.XX coins/s" (base rate, Tycoon.coinRate).
+  e.cardSub.Text=tostring(v.creatures or 0)..' creatures · '..string.format('%.2f coins/s',v.cash or 0)
  end
 end
 function Hud:destroy()
- self.alive=false;self.tracking=false
+ self.alive=false;self.tracking=false;if self.outside then self.outside:Disconnect() end
  if self.e.beacon then self.e.beacon:Destroy() end;if self.anchor then self.anchor:Destroy() end;self.layer:Destroy()
 end
 return Hud

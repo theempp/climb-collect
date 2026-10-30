@@ -78,7 +78,7 @@ M.tokens={
  ['rail.idle']={kind='hold',hold=3}, -- L416 board text; the timer is Hud:checkpoint's HudState duration
  ['rail.bright']={kind='tween',dur=.49,out=.56,ease='inOut',reducedFade=true}, -- L107 railcp 55→62 %, 82→90 % of 7 s
  ['rail.label']={kind='show',show={dur=.49,ease='inOut',keys={{0,a=0,x=-6},{.49,a=1,x=0}}},hide={dur=.56,ease='inOut',keys={{0,a=1},{.56,a=0}}}}, -- L109
- ['pcard.open']={kind='show',show={dur=.2,ease='out',keys={{0,a=0,x=-115,y=40},{.2,a=1,x=0,y=0}}}}, -- L138/L171 as rendered (§19, G23); hide instant
+ ['pcard.open']={kind='show',show={dur=.2,ease='out',keys={{0,a=0,x=-115,y=40},{.2,a=1,x=0,y=0}}}}, -- L138/L171 as rendered (§19, G23); hide instant. pcard.expand / pcard.launcher: below the table (copies)
  ['edge.nudge']={kind='loop',cat='hud',dur=.5,ease='inOut',to={x=-4},rev=true}, -- L130 nudge 1 s (50 % key)
  ['vignette.pulse']={kind='loop',cat='hud',dur=.55,ease='inOut',to={a=.45},rev=true}, -- L69/L139 vigp 1.1 s
  -- Menus / shop (Task B wires these).
@@ -136,6 +136,12 @@ M.tokens={
   pulse=1.2, -- ring / orb glow period = the `pulse` token's reversing cycle (.6 s x 2, L39/L253)
   ease={widen='out',lift='inOut',shock='out',contract='inOut',settle='out',reveal='out',fade='linear'}}, -- M.ease keys; reveal / settle = entries (ease-out)
 }
+-- Player card expand / collapse (hud-polish A9), copies of existing tokens (clones: stats ids and the key cache stay per token).
+-- pcard.expand = hero.mini: the card height glides compact ↔ expanded, bottom-anchored (Hud seatCard via Motion.value; the glass root
+-- itself, BP R7). pcard.launcher = the launcher row, show hero.fade, hide panel.close, started with the glide. The first show keeps
+-- pcard.open. Reduce effects / LOW: instant (no reducedFade: Motion.value and Motion.show land at once).
+M.tokens['pcard.expand']=table.clone(M.tokens['hero.mini'])
+M.tokens['pcard.launcher']={kind='show',show=table.clone(M.tokens['hero.fade']),hide=table.clone(M.tokens['panel.close'])}
 for k,v in pairs(M.tokens) do v.id=k;if v.show then v.show.id=k..'.show' end;if v.hide then v.hide.id=k..'.hide' end end -- stats names
 local AUTO_SHOT={toast=true,banner=true,moment=true,['carry.pop']=true,['carry.iconTwist']=true,['run.slam']=true,['run.awake']=true,['run.shock']=true}
 local CAPS={holo=1,shine=3,idle=6} -- plan §6, per open menu (one menu at a time; the reveal covers the rest). rays: 1 per token

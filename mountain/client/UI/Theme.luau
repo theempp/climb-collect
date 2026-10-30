@@ -37,6 +37,12 @@ local T={
   shield={20,20,50,50},roundTop={60,60,18,18}},
  -- 1e stroke widths (UIStroke Thickness).
  s={hair=1,thin=1.5,glass=2,bold=3,ring3=3,ring4=4,reveal=5,ring6=6,text={moment=3,run=4.5},focus=2},
+ -- Geometry (design/hud-polish-tokens-2026-10-29.md). Title pill: h A1 (L186), padX A2 (L242), lip A4 (Wi cta lip 6), chest gap A5 (est.).
+ -- Side tab A6/A6b (owner: h 30, gap 5): h L141/L219/L307, gap L182, padX/icon/iconGap L183-186, colMax L179.
+ box={titlePill={h=36,padX=12,lipY=6,chestGap=6},
+  tab={h=30,gap=5,padX=9,icon=22,iconGap=7,colMax=128},
+  -- Player card A7/A8: border/padding L170, meta line Hud:217, XP L606/L51, sub line GB:14, gap L170, launcher Hud:220.
+  pcard={border=2,padY=10,padX=12,gap=10,meta=17,xpH=10,xpTop=4,xpBottom=3,sub=13,launch=42}},
  -- 1f gradients: stops = {position, colour, transparency?}. CSS θ → rot θ−90.
  gradGlass={rot=90,stops={{0,rgb(130,70,220),.45},{1,rgb(50,20,110),.38}}},
  gradCta={rot=90,stops={{0,rgb(255,143,224)},{1,rgb(165,91,234)}}},

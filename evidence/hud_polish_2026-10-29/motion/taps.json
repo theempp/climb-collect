@@ -1,0 +1,11 @@
+{
+ "setup": "Players.Actuallytherealzo.PlayerGui.MountainHUD.SafeRoot.Hud.PlayerCard.Info|Players.Actuallytherealzo.PlayerGui.MountainHUD.SafeRoot.Hud.DockFade.Dock.Buttons.Creatures",
+ "0_start": "launcher=false h=71 y=194 hub=nil",
+ "1_tap": "launcher=true h=123 y=142 hub=nil",
+ "2_tapAgain": "launcher=false h=71 y=194 hub=nil",
+ "3_tap": "launcher=true h=123 y=142 hub=nil",
+ "4_tapOutsideAbove": "launcher=false h=71 y=194 hub=nil",
+ "5_tap": "launcher=true h=123 y=142 hub=nil",
+ "6_dockTap": "launcher=false h=71 y=194 hub=nil",
+ "dockButton": "LocalPlayer.PlayerGui.MountainHUD.SafeRoot.Hud.DockFade.Dock.Buttons.Creatures"
+}
