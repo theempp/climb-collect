@@ -1,0 +1,1725 @@
+{
+"Z1_Track_01": {
+"pos": [
+-0.0,
+8.485,
+-49.275
+],
+"size": [
+73.0,
+74.186,
+394.757
+],
+"tris": 5200,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z1_Track_02": {
+"pos": [
+0.22,
+64.921,
+-369.575
+],
+"size": [
+73.44,
+48.139,
+247.51
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z1_Track_03": {
+"pos": [
+7.383,
+108.333,
+-617.051
+],
+"size": [
+86.872,
+48.139,
+250.948
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z1_Track_04": {
+"pos": [
+30.378,
+151.933,
+-860.681
+],
+"size": [
+104.25,
+48.514,
+253.401
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z2_Track_05": {
+"pos": [
+72.644,
+202.149,
+-1101.556
+],
+"size": [
+104.369,
+61.325,
+251.733
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z2_Track_06": {
+"pos": [
+114.957,
+258.203,
+-1341.452
+],
+"size": [
+104.342,
+61.694,
+251.725
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z2_Track_07": {
+"pos": [
+156.734,
+314.44,
+-1581.017
+],
+"size": [
+103.298,
+61.694,
+251.072
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z2_Track_08": {
+"pos": [
+186.794,
+370.86,
+-1820.432
+],
+"size": [
+81.459,
+62.057,
+248.167
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z3_Track_09": {
+"pos": [
+187.079,
+432.856,
+-2065.732
+],
+"size": [
+74.469,
+72.778,
+244.68
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z3_Track_10": {
+"pos": [
+157.053,
+501.585,
+-2302.338
+],
+"size": [
+95.375,
+73.139,
+246.649
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z3_Track_11": {
+"pos": [
+115.829,
+570.494,
+-2538.752
+],
+"size": [
+96.387,
+73.139,
+247.149
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z3_Track_12": {
+"pos": [
+75.95,
+639.645,
+-2775.06
+],
+"size": [
+92.683,
+73.622,
+246.436
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z4_Track_13": {
+"pos": [
+35.526,
+716.625,
+-3009.148
+],
+"size": [
+82.707,
+88.705,
+240.089
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z4_Track_14": {
+"pos": [
+11.301,
+801.897,
+-3242.11
+],
+"size": [
+61.177,
+89.17,
+238.476
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z4_Track_15": {
+"pos": [
+4.507,
+887.402,
+-3477.694
+],
+"size": [
+48.404,
+89.17,
+236.542
+],
+"tris": 3224,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z4_Track_16": {
+"pos": [
+4.305,
+976.394,
+-3731.866
+],
+"size": [
+48.0,
+96.143,
+274.469
+],
+"tris": 3744,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "track",
+"castShadow": false
+},
+"Z1_Terrain_L_-420": {
+"pos": [
+-654.075,
+-316.079,
+361.554
+],
+"size": [
+1244.15,
+1013.706,
+723.108
+],
+"tris": 5927,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z1_Terrain_R_-420": {
+"pos": [
+664.447,
+-315.787,
+356.129
+],
+"size": [
+1264.893,
+1014.291,
+712.257
+],
+"tris": 5927,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z1_Terrain_L_0": {
+"pos": [
+-660.125,
+-230.209,
+-254.44
+],
+"size": [
+1257.131,
+1039.582,
+508.881
+],
+"tris": 6512,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z1_Terrain_R_0": {
+"pos": [
+664.129,
+-233.988,
+-245.994
+],
+"size": [
+1264.257,
+1032.024,
+491.988
+],
+"tris": 6512,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z1_Terrain_L_500": {
+"pos": [
+-624.657,
+-62.236,
+-853.346
+],
+"size": [
+1298.917,
+1201.881,
+721.059
+],
+"tris": 6562,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z1_Terrain_R_500": {
+"pos": [
+714.44,
+-42.561,
+-726.325
+],
+"size": [
+1364.011,
+1241.23,
+500.775
+],
+"tris": 6562,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z2_Terrain_L_1000": {
+"pos": [
+-593.713,
+162.276,
+-1346.133
+],
+"size": [
+1406.256,
+1476.484,
+720.087
+],
+"tris": 4777,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z2_Terrain_R_1000": {
+"pos": [
+790.117,
+163.191,
+-1100.406
+],
+"size": [
+1424.272,
+1478.313,
+712.348
+],
+"tris": 4752,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z2_Terrain_L_1500": {
+"pos": [
+-539.813,
+262.944,
+-1704.904
+],
+"size": [
+1426.252,
+1453.635,
+477.895
+],
+"tris": 4802,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z2_Terrain_R_1500": {
+"pos": [
+861.444,
+252.99,
+-1582.107
+],
+"size": [
+1397.699,
+1433.727,
+723.49
+],
+"tris": 4752,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z3_Terrain_L_2000": {
+"pos": [
+-501.493,
+261.832,
+-2179.976
+],
+"size": [
+1349.612,
+1225.695,
+472.249
+],
+"tris": 4727,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z3_Terrain_R_2000": {
+"pos": [
+852.901,
+260.517,
+-2295.598
+],
+"size": [
+1386.373,
+1223.067,
+703.493
+],
+"tris": 4727,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z3_Terrain_L_2500": {
+"pos": [
+-516.338,
+328.967,
+-2542.61
+],
+"size": [
+1260.519,
+1085.086,
+694.646
+],
+"tris": 4727,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z3_Terrain_R_2500": {
+"pos": [
+748.979,
+333.619,
+-2761.866
+],
+"size": [
+1352.784,
+1094.389,
+675.382
+],
+"tris": 4752,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z4_Terrain_L_3000": {
+"pos": [
+-543.596,
+384.831,
+-3023.04
+],
+"size": [
+1155.551,
+920.173,
+673.724
+],
+"tris": 4727,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z4_Terrain_R_3000": {
+"pos": [
+623.619,
+385.087,
+-3135.641
+],
+"size": [
+1198.796,
+920.685,
+477.872
+],
+"tris": 4727,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z4_Terrain_L_3500": {
+"pos": [
+-560.218,
+555.032,
+-3587.902
+],
+"size": [
+1090.884,
+919.543,
+484.193
+],
+"tris": 4752,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z4_Terrain_R_3500": {
+"pos": [
+572.432,
+555.088,
+-3595.203
+],
+"size": [
+1097.255,
+919.655,
+469.592
+],
+"tris": 4752,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z4_Terrain_L_4000": {
+"pos": [
+-546.655,
+644.866,
+-4049.34
+],
+"size": [
+1062.919,
+757.19,
+438.681
+],
+"tris": 2932,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z4_Terrain_R_4000": {
+"pos": [
+555.908,
+644.802,
+-4051.218
+],
+"size": [
+1064.207,
+757.062,
+442.439
+],
+"tris": 2907,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z4_SummitDeck": {
+"pos": [
+4.305,
+648.18,
+-4070.122
+],
+"size": [
+55.0,
+750.029,
+404.043
+],
+"tris": 205,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z1_StartDeck": {
+"pos": [
+-0.0,
+-424.073,
+392.122
+],
+"size": [
+80.0,
+797.718,
+508.498
+],
+"tris": 278,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "terrain",
+"castShadow": true
+},
+"Z1_Pines_01": {
+"pos": [
+-490.805,
+75.817,
+177.531
+],
+"size": [
+915.984,
+292.419,
+481.521
+],
+"tris": 8965,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "pines",
+"castShadow": true
+},
+"Z1_Pines_02": {
+"pos": [
+-489.966,
+170.675,
+-328.885
+],
+"size": [
+906.445,
+312.158,
+557.924
+],
+"tris": 8924,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "pines",
+"castShadow": true
+},
+"Z1_Pines_03": {
+"pos": [
+-5.781,
+242.05,
+-347.241
+],
+"size": [
+1773.128,
+629.436,
+1527.418
+],
+"tris": 8996,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "pines",
+"castShadow": true
+},
+"Z1_Pines_04": {
+"pos": [
+486.788,
+83.939,
+84.216
+],
+"size": [
+907.939,
+276.46,
+523.683
+],
+"tris": 8995,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "pines",
+"castShadow": true
+},
+"Z1_Pines_05": {
+"pos": [
+491.526,
+186.977,
+-388.317
+],
+"size": [
+908.811,
+305.422,
+447.255
+],
+"tris": 8996,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "pines",
+"castShadow": true
+},
+"Z1_Pines_06": {
+"pos": [
+451.547,
+323.644,
+-778.161
+],
+"size": [
+817.022,
+422.359,
+378.37
+],
+"tris": 5970,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "pines",
+"castShadow": true
+},
+"Z1_Rocks_01": {
+"pos": [
+16.337,
+161.321,
+-360.232
+],
+"size": [
+913.214,
+423.565,
+1325.72
+],
+"tris": 3400,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "rocks",
+"castShadow": true
+},
+"Z1_River": {
+"pos": [
+-259.346,
+131.681,
+-310.393
+],
+"size": [
+296.499,
+370.213,
+1448.024
+],
+"tris": 240,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "river",
+"castShadow": false
+},
+"Z2_Shards_01": {
+"pos": [
+127.193,
+446.839,
+-1454.872
+],
+"size": [
+780.433,
+532.504,
+940.187
+],
+"tris": 5700,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "ice",
+"castShadow": true
+},
+"Z2_Ledges_01": {
+"pos": [
+125.582,
+287.257,
+-1470.064
+],
+"size": [
+217.559,
+219.811,
+913.8
+],
+"tris": 1400,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "rocks",
+"castShadow": true
+},
+"Z2_Bridge_1": {
+"pos": [
+90.322,
+285.173,
+-1202.185
+],
+"size": [
+143.316,
+36.659,
+44.354
+],
+"tris": 346,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "bridge",
+"castShadow": true
+},
+"Z2_Bridge_2": {
+"pos": [
+134.313,
+335.926,
+-1451.673
+],
+"size": [
+143.316,
+36.119,
+44.354
+],
+"tris": 346,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "bridge",
+"castShadow": true
+},
+"Z2_Bridge_3": {
+"pos": [
+178.571,
+410.826,
+-1710.701
+],
+"size": [
+143.401,
+35.551,
+40.065
+],
+"tris": 346,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "bridge",
+"castShadow": true
+},
+"Z3_Spires_01": {
+"pos": [
+104.576,
+723.186,
+-2482.828
+],
+"size": [
+1651.882,
+619.698,
+1072.167
+],
+"tris": 4500,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "obsidian",
+"castShadow": true
+},
+"Z3_Basalt_01": {
+"pos": [
+200.321,
+572.836,
+-2324.131
+],
+"size": [
+541.257,
+311.575,
+701.806
+],
+"tris": 8804,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "basalt",
+"castShadow": true
+},
+"Z3_Basalt_02": {
+"pos": [
+112.676,
+691.115,
+-2754.494
+],
+"size": [
+574.267,
+166.992,
+314.627
+],
+"tris": 4076,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "basalt",
+"castShadow": true
+},
+"Z3_Lava_01": {
+"pos": [
+150.873,
+604.57,
+-2360.411
+],
+"size": [
+1166.908,
+419.752,
+1072.083
+],
+"tris": 4020,
+"fidelity": "Automatic",
+"material": "Neon",
+"kind": "lava",
+"castShadow": false,
+"color": "#F46E1E"
+},
+"Z3_Vents_01": {
+"pos": [
+147.141,
+547.426,
+-2432.255
+],
+"size": [
+417.817,
+238.567,
+886.412
+],
+"tris": 528,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "vents",
+"castShadow": true
+},
+"Z4_Crystals_01": {
+"pos": [
+14.296,
+639.067,
+-3189.902
+],
+"size": [
+1495.313,
+510.049,
+591.465
+],
+"tris": 9000,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "crystal",
+"castShadow": false
+},
+"Z4_Crystals_02": {
+"pos": [
+-83.506,
+783.584,
+-3686.161
+],
+"size": [
+1256.982,
+554.818,
+457.869
+],
+"tris": 7848,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "crystal",
+"castShadow": false
+},
+"Z4_Rocks_01": {
+"pos": [
+22.142,
+846.278,
+-3369.342
+],
+"size": [
+126.212,
+339.303,
+922.651
+],
+"tris": 1600,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "rocks",
+"castShadow": true
+},
+"Z4_Crown": {
+"pos": [
+-0.606,
+1082.825,
+-3899.828
+],
+"size": [
+275.77,
+166.863,
+251.909
+],
+"tris": 468,
+"fidelity": "Automatic",
+"material": "SmoothPlastic",
+"kind": "crystal",
+"castShadow": true
+},
+"Z4_Glow": {
+"pos": [
+21.222,
+718.679,
+-3426.155
+],
+"size": [
+1444.061,
+665.44,
+1046.991
+],
+"tris": 6228,
+"fidelity": "Automatic",
+"material": "Neon",
+"kind": "crystal",
+"castShadow": false,
+"color": "#B5ECFD"
+},
+"BG_Peak_01": {
+"pos": [
+718.89,
+551.948,
+-6679.122
+],
+"size": [
+1326.872,
+1271.355,
+1409.725
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_02": {
+"pos": [
+449.486,
+401.554,
+-6331.763
+],
+"size": [
+1675.447,
+970.566,
+1606.444
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_03": {
+"pos": [
+-675.036,
+401.53,
+-6285.619
+],
+"size": [
+1525.837,
+970.518,
+1540.21
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_04": {
+"pos": [
+-2700.663,
+529.5,
+-6182.386
+],
+"size": [
+1481.079,
+1226.459,
+1566.358
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_05": {
+"pos": [
+2307.298,
+613.49,
+-6084.832
+],
+"size": [
+1409.458,
+1394.438,
+1355.997
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_06": {
+"pos": [
+-1252.81,
+601.32,
+-5648.661
+],
+"size": [
+1361.878,
+1370.099,
+1482.933
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_07": {
+"pos": [
+-2254.257,
+373.821,
+-5561.844
+],
+"size": [
+1283.607,
+915.101,
+1263.346
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_08": {
+"pos": [
+-1665.808,
+562.441,
+-5287.074
+],
+"size": [
+1353.402,
+1292.341,
+1460.519
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_09": {
+"pos": [
+-2719.517,
+390.674,
+-4089.087
+],
+"size": [
+1581.664,
+400.0,
+1554.406
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_10": {
+"pos": [
+-2552.182,
+479.431,
+-4088.396
+],
+"size": [
+1495.386,
+400.0,
+1606.497
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_11": {
+"pos": [
+1304.81,
+454.692,
+-4129.447
+],
+"size": [
+1565.243,
+400.0,
+1535.101
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_12": {
+"pos": [
+1627.405,
+553.179,
+-3768.25
+],
+"size": [
+1357.669,
+400.0,
+1313.517
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_13": {
+"pos": [
+-1435.887,
+678.109,
+-3658.756
+],
+"size": [
+1377.253,
+400.0,
+1380.487
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_14": {
+"pos": [
+2264.31,
+578.056,
+-3461.47
+],
+"size": [
+1223.423,
+400.0,
+1167.958
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_15": {
+"pos": [
+-1587.838,
+533.795,
+-3227.631
+],
+"size": [
+1115.276,
+436.893,
+1045.057
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 4
+},
+"BG_Peak_16": {
+"pos": [
+1615.606,
+546.133,
+-3189.715
+],
+"size": [
+1269.256,
+661.818,
+1232.306
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 3
+},
+"BG_Peak_17": {
+"pos": [
+-2125.774,
+561.461,
+-2184.711
+],
+"size": [
+1478.654,
+759.844,
+1384.207
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 3
+},
+"BG_Peak_18": {
+"pos": [
+-2406.985,
+464.213,
+-1951.752
+],
+"size": [
+1186.642,
+816.031,
+1154.886
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 3
+},
+"BG_Peak_19": {
+"pos": [
+2294.905,
+643.52,
+-2759.195
+],
+"size": [
+1613.963,
+1157.947,
+1694.961
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 3
+},
+"BG_Peak_20": {
+"pos": [
+-2566.83,
+681.339,
+-2024.583
+],
+"size": [
+1590.365,
+1498.054,
+1408.442
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 2
+},
+"BG_Peak_21": {
+"pos": [
+2692.35,
+494.862,
+-1410.373
+],
+"size": [
+1470.22,
+1116.662,
+1577.867
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 2
+},
+"BG_Peak_22": {
+"pos": [
+-1627.415,
+555.158,
+-1839.215
+],
+"size": [
+1221.937,
+1482.349,
+1258.814
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 2
+},
+"BG_Peak_23": {
+"pos": [
+2891.647,
+410.322,
+-994.465
+],
+"size": [
+1295.619,
+1176.604,
+1360.544
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 2
+},
+"BG_Peak_24": {
+"pos": [
+2321.945,
+394.367,
+-652.038
+],
+"size": [
+1195.655,
+1344.979,
+1041.334
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_25": {
+"pos": [
+-1664.682,
+208.887,
+-1204.048
+],
+"size": [
+1350.483,
+1004.605,
+1268.27
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_26": {
+"pos": [
+2081.15,
+404.331,
+-428.804
+],
+"size": [
+1483.72,
+1563.376,
+1290.888
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_27": {
+"pos": [
+-1464.876,
+254.673,
+-384.971
+],
+"size": [
+1296.075,
+1269.383,
+1473.147
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_28": {
+"pos": [
+-2431.233,
+252.916,
+97.889
+],
+"size": [
+1253.089,
+1457.593,
+1322.198
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_29": {
+"pos": [
+1526.027,
+143.396,
+181.114
+],
+"size": [
+1623.697,
+1290.981,
+1610.681
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_30": {
+"pos": [
+1681.711,
+401.075,
+138.152
+],
+"size": [
+1446.268,
+1750.0,
+1315.654
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_31": {
+"pos": [
+-1401.981,
+137.552,
+297.332
+],
+"size": [
+1351.463,
+1279.292,
+1318.524
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_32": {
+"pos": [
+2445.056,
+246.907,
+1842.619
+],
+"size": [
+1351.386,
+1493.813,
+1399.451
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_33": {
+"pos": [
+1873.758,
+306.597,
+1953.088
+],
+"size": [
+1292.743,
+1613.194,
+1272.885
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_34": {
+"pos": [
+296.61,
+199.617,
+2058.72
+],
+"size": [
+1549.396,
+1399.234,
+1511.513
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_35": {
+"pos": [
+-2235.679,
+328.262,
+2079.386
+],
+"size": [
+1527.84,
+1656.524,
+1440.86
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_36": {
+"pos": [
+-2458.226,
+171.145,
+2467.213
+],
+"size": [
+1495.156,
+1342.29,
+1490.263
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_37": {
+"pos": [
+286.245,
+295.647,
+2687.409
+],
+"size": [
+1371.7,
+1591.295,
+1262.49
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+},
+"BG_Peak_38": {
+"pos": [
+-386.445,
+270.101,
+2697.012
+],
+"size": [
+1429.85,
+1540.201,
+1299.373
+],
+"tris": 338,
+"fidelity": "Performance",
+"material": "SmoothPlastic",
+"kind": "backdrop",
+"castShadow": false,
+"zone": 1
+}
+}

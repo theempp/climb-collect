@@ -1,0 +1,38 @@
+name	mesh_m6	texture	mesh_m5_now_unused
+Z1_Pines_01	rbxassetid://106241158739792	rbxassetid://134121364428178	rbxassetid://114999447558950
+Z1_Pines_02	rbxassetid://123753344043077	rbxassetid://134121364428178	rbxassetid://109996275615248
+Z1_Pines_03	rbxassetid://114289730721408	rbxassetid://134121364428178	rbxassetid://119566031801714
+Z1_Pines_04	rbxassetid://105696603169782	rbxassetid://134121364428178	rbxassetid://106754972081649
+Z1_Pines_05	rbxassetid://134832453541501	rbxassetid://134121364428178	rbxassetid://76786697025087
+Z1_Pines_06	rbxassetid://77332587246147	rbxassetid://134121364428178	rbxassetid://115057237798265
+Z1_River	rbxassetid://98986558379620	rbxassetid://134121364428178	rbxassetid://84554911135060
+Z1_Rocks_01	rbxassetid://112309662284618	rbxassetid://134121364428178	rbxassetid://101078684793892
+Z1_StartDeck	rbxassetid://114083807055107	rbxassetid://134121364428178	rbxassetid://79032361479639
+Z1_Terrain_L_-420	rbxassetid://108940372099017	rbxassetid://134121364428178	rbxassetid://100513787847735
+Z1_Terrain_L_0	rbxassetid://94008125859280	rbxassetid://134121364428178	rbxassetid://87658850295066
+Z1_Terrain_L_500	rbxassetid://82323859945248	rbxassetid://134121364428178	rbxassetid://109708559927070
+Z1_Terrain_R_-420	rbxassetid://139106598354675	rbxassetid://134121364428178	rbxassetid://87046970977167
+Z1_Terrain_R_0	rbxassetid://78289515959344	rbxassetid://134121364428178	rbxassetid://101668416540518
+Z1_Terrain_R_500	rbxassetid://120551940576459	rbxassetid://134121364428178	rbxassetid://100602827998702
+Z2_Terrain_L_1000	rbxassetid://91015444381789	rbxassetid://134121364428178	rbxassetid://125536112861504
+Z2_Terrain_L_1500	rbxassetid://71457275387438	rbxassetid://134121364428178	rbxassetid://130309519925742
+Z2_Terrain_R_1000	rbxassetid://121849686543130	rbxassetid://134121364428178	rbxassetid://115595578819929
+Z2_Terrain_R_1500	rbxassetid://71739261528036	rbxassetid://134121364428178	rbxassetid://129208614117803
+Z3_Basalt_01	rbxassetid://93260011175884	rbxassetid://134121364428178	rbxassetid://108175559669652
+Z3_Basalt_02	rbxassetid://124213112281870	rbxassetid://134121364428178	rbxassetid://104207463775007
+Z3_Terrain_L_2000	rbxassetid://78577545489626	rbxassetid://134121364428178	rbxassetid://88572927330174
+Z3_Terrain_L_2500	rbxassetid://90372815839967	rbxassetid://134121364428178	rbxassetid://102566462442483
+Z3_Terrain_R_2000	rbxassetid://78964329682858	rbxassetid://134121364428178	rbxassetid://120357190738036
+Z3_Terrain_R_2500	rbxassetid://100768272654432	rbxassetid://134121364428178	rbxassetid://123768351054711
+Z4_SummitDeck	rbxassetid://137212996886453	rbxassetid://134121364428178	rbxassetid://104710881627683
+Z4_Terrain_L_3000	rbxassetid://103477671860270	rbxassetid://134121364428178	rbxassetid://111304981290082
+Z4_Terrain_L_3500	rbxassetid://93700087090450	rbxassetid://134121364428178	rbxassetid://94701264011767
+Z4_Terrain_L_4000	rbxassetid://86465089773292	rbxassetid://134121364428178	rbxassetid://139579893578145
+Z4_Terrain_R_3000	rbxassetid://113076566206739	rbxassetid://134121364428178	rbxassetid://102981756119460
+Z4_Terrain_R_3500	rbxassetid://137098284627315	rbxassetid://134121364428178	rbxassetid://99750539239750
+Z4_Terrain_R_4000	rbxassetid://119263857110360	rbxassetid://134121364428178	rbxassetid://136729381967984
+SKY_side	rbxassetid://107253105174203	(image, in use)	
+SKY_up	rbxassetid://133457787937137	(image, in use)	
+SKY_down	rbxassetid://75604857964706	(image, in use)	
+ss_sky quads (3 meshes)	model 132321077284217	(helper, unused)	
+z4b_up duplicate image	(id not shown in Asset Manager)	(unused)	

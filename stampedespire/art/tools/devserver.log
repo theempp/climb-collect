@@ -1,0 +1,626 @@
+=== 01:11:25
+hello
+=== 01:12:11
+SSTEST Model 1
+SS_TestRamp pos=-100, 54, 200 size=20, 12, 30 rot=0, 0, 0 tex=rbxassetid://134121364428178 mesh=rbxassetid://140430428237025 anch=true parent=Workspace.ss_test mat=Enum.Material.Plastic sa=nil
+=== 01:12:28
+z=188 hitY=52.80 | z=212 hitY=59.20 | x=-108 hitY=56.00 | x=-92 hitY=56.00
+=== 01:30:20
+WS Camera(Camera,0) Baseplate(Part,1) Terrain(Terrain,0) ss_test(Model,1) ss_zone1(Model,18) ss_zone2(Model,13) ss_zone3(Model,13) ss_zone4(Model,15) ss_backdrop(Model,38)
+=== 01:30:35
+POSTIMPORT meshes=194/97 maxPosErr=0.001 fixed=0 unknown=0  
+=== 01:34:56
+SYNC SS_Config=9342 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20698 SS_Env=11837
+=== 01:38:10
+SYNC SS_Config=9403 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20698 SS_Env=11847 SS_Bot=6253
+=== 01:40:15
+STREAM enabled=true mode=Enum.ModelStreamingMode.Persistent
+=== 01:40:25
+SYNC SS_Config=9403 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20698 SS_Env=11847 SS_Bot=6485
+=== 01:42:49
+SYNC SS_Config=9664 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20698 SS_Env=12153 SS_Bot=6485
+=== 01:44:26
+SYNC SS_Config=9664 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20698 SS_Env=12159 SS_Bot=6485
+=== 01:46:01
+SYNC SS_Config=9786 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20698 SS_Env=12368 SS_Bot=6485
+=== 01:48:21
+SYNC SS_Config=9788 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20711 SS_Env=12460 SS_Bot=6872
+=== 01:52:21
+PATCHPREP removed=true
+=== 01:53:10
+POSTIMPORT meshes=98/97 maxPosErr=0.001 fixed=0 unknown=0  
+SYNC SS_Config=9789 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20711 SS_Env=12460 SS_Bot=6872
+=== 01:58:14
+GLASS->SMOOTH 4
+=== 01:59:43
+POSTIMPORT meshes=97/97 maxPosErr=0.001 fixed=0 unknown=0  
+SYNC SS_Config=9789 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20711 SS_Env=12633 SS_Bot=6872
+=== 02:02:23
+POSTIMPORT meshes=99/98 maxPosErr=0.001 fixed=0 unknown=0  
+SYNC SS_Config=9788 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20711 SS_Env=12668 SS_Bot=6872
+=== 02:06:27
+LOG total=106 errors=1
+SS_Debug is not a valid member of ReplicatedStorage "ReplicatedStorage"
+=== 09:55:50
+probe
+=== 09:56:05
+PATCHPREP removed=4
+=== 09:56:58
+POSTIMPORT meshes=102/98 maxPosErr=0.001 fixed=0 unknown=0  
+SYNC SS_Config=9788 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20711 SS_Env=12668 SS_Bot=6872
+=== 09:58:32
+SYNC SS_Config=9903 SS_Path=2943 SS_Markers=7191 SS_Track=2582 SS_Ride=20711 SS_Env=12668 SS_Bot=6872
+=== 11:49:46
+PATCHPREP removed=41 of 42
+=== 11:51:16
+POSTIMPORT meshes=141/99 maxPosErr=0.001 fixed=0 unknown=0  
+SYNC SS_Config=9903 SS_Path=2943 SS_Markers=7037 SS_Track=2582 SS_Ride=20711 SS_Env=12668 SS_Bot=6872
+=== 11:51:39
+DEDUPE unique=99 dups=0 removed=0 sameGeomDiffUpload=0 
+=== 12:15:10
+SYNC SS_Config=10884 SS_Path=2943 SS_Markers=7037 SS_Track=2582 SS_Ride=25581 SS_Env=12823 SS_Bot=10928
+=== 12:18:03
+SYNC SS_Config=10884 SS_Path=2943 SS_Markers=7037 SS_Track=2582 SS_Ride=25738 SS_Env=12823 SS_Bot=11184
+=== 12:21:52
+SYNC SS_Config=10884 SS_Path=2943 SS_Markers=7037 SS_Track=2582 SS_Ride=26581 SS_Env=12824 SS_Bot=11809
+=== 12:25:21
+CHECK meshparts=99 workspace=[Camera,SS_Mountain,Terrain]
+=== 12:32:38
+PATCHPREP prefix=Z removed=61
+=== 12:34:23
+POSTIMPORT meshes=160/99 maxPosErr=505.696 fixed=26 unknown=0  
+SYNC SS_Config=11421 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26581 SS_Env=12824 SS_Bot=13425
+DEDUPE unique=99 dups=0 removed=0 sameGeomDiffUpload=0 
+CHECK meshparts=99 workspace=[Camera,SS_Mountain,Terrain]
+=== 12:34:45
+POSTIMPORT meshes=99/99 maxPosErr=0.001 fixed=0 unknown=0  
+CHECK meshparts=99 workspace=[Camera,SS_Mountain,Terrain]
+=== 12:37:27
+SYNC SS_Config=11421 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26581 SS_Env=12824 SS_Bot=13480
+=== 12:44:35
+SYNC SS_Config=11421 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26581 SS_Env=12824 SS_Bot=14687
+=== 12:49:57
+ASSETIDS 99
+BG_Peak_01	rbxassetid://100866229999957	rbxassetid://134121364428178
+BG_Peak_02	rbxassetid://107432863207523	rbxassetid://134121364428178
+BG_Peak_03	rbxassetid://71502260644863	rbxassetid://134121364428178
+BG_Peak_04	rbxassetid://72671113196734	rbxassetid://134121364428178
+BG_Peak_05	rbxassetid://130669743350047	rbxassetid://134121364428178
+BG_Peak_06	rbxassetid://121136508848430	rbxassetid://134121364428178
+BG_Peak_07	rbxassetid://78976433310616	rbxassetid://134121364428178
+BG_Peak_08	rbxassetid://100312347048337	rbxassetid://134121364428178
+BG_Peak_09	rbxassetid://109061698218582	rbxassetid://134121364428178
+BG_Peak_10	rbxassetid://139305875230360	rbxassetid://134121364428178
+BG_Peak_11	rbxassetid://123636202205021	rbxassetid://134121364428178
+BG_Peak_12	rbxassetid://125128149351749	rbxassetid://134121364428178
+BG_Peak_13	rbxassetid://115015666886277	rbxassetid://134121364428178
+BG_Peak_14	rbxassetid://72949237903202	rbxassetid://134121364428178
+BG_Peak_15	rbxassetid://137034558827300	rbxassetid://134121364428178
+BG_Peak_16	rbxassetid://75465680463633	rbxassetid://134121364428178
+BG_Peak_17	rbxassetid://114711862888290	rbxassetid://134121364428178
+BG_Peak_18	rbxassetid://97414890027309	rbxassetid://134121364428178
+BG_Peak_19	rbxassetid://117164459870848	rbxassetid://134121364428178
+BG_Peak_20	rbxassetid://83876676810168	rbxassetid://134121364428178
+BG_Peak_21	rbxassetid://111306119710945	rbxassetid://134121364428178
+BG_Peak_22	rbxassetid://92129112460445	rbxassetid://134121364428178
+BG_Peak_23	rbxassetid://90101967141557	rbxassetid://134121364428178
+BG_Peak_24	rbxassetid://102234389760913	rbxassetid://134121364428178
+BG_Peak_25	rbxassetid://82040585123303	rbxassetid://134121364428178
+BG_Peak_26	rbxassetid://101172585182151	rbxassetid://134121364428178
+BG_Peak_27	rbxassetid://94523354749976	rbxassetid://134121364428178
+BG_Peak_28	rbxassetid://131235760313446	rbxassetid://134121364428178
+BG_Peak_29	rbxassetid://115319148825331	rbxassetid://134121364428178
+BG_Peak_30	rbxassetid://86647657636448	rbxassetid://134121364428178
+BG_Peak_31	rbxassetid://108967877190419	rbxassetid://134121364428178
+BG_Peak_32	rbxassetid://127817446934862	rbxassetid://134121364428178
+BG_Peak_33	rbxassetid://103186109501421	rbxassetid://134121364428178
+BG_Peak_34	rbxassetid://121715749726514	rbxassetid://134121364428178
+BG_Peak_35	rbxassetid://120186242147874	rbxassetid://134121364428178
+BG_Peak_36	rbxassetid://100374476659443	rbxassetid://134121364428178
+BG_Peak_37	rbxassetid://121374318748877	rbxassetid://134121364428178
+BG_Peak_38	rbxassetid://84867786695806	rbxassetid://134121364428178
+Z1_Pines_01	rbxassetid://114999447558950	rbxassetid://134121364428178
+Z1_Pines_02	rbxassetid://109996275615248	rbxassetid://134121364428178
+Z1_Pines_03	rbxassetid://119566031801714	rbxassetid://134121364428178
+Z1_Pines_04	rbxassetid://106754972081649	rbxassetid://134121364428178
+Z1_Pines_05	rbxassetid://76786697025087	rbxassetid://134121364428178
+Z1_Pines_06	rbxassetid://115057237798265	rbxassetid://134121364428178
+Z1_River	rbxassetid://84554911135060	rbxassetid://134121364428178
+Z1_Rocks_01	rbxassetid://101078684793892	rbxassetid://134121364428178
+Z1_StartDeck	rbxassetid://79032361479639	rbxassetid://134121364428178
+Z1_Terrain_L_-420	rbxassetid://100513787847735	rbxassetid://134121364428178
+Z1_Terrain_L_0	rbxassetid://87658850295066	rbxassetid://134121364428178
+Z1_Terrain_L_500	rbxassetid://109708559927070	rbxassetid://134121364428178
+Z1_Terrain_R_-420	rbxassetid://87046970977167	rbxassetid://134121364428178
+Z1_Terrain_R_0	rbxassetid://101668416540518	rbxassetid://134121364428178
+Z1_Terrain_R_500	rbxassetid://100602827998702	rbxassetid://134121364428178
+Z1_Track_01	rbxassetid://126125985078195	rbxassetid://134121364428178
+Z1_Track_02	rbxassetid://124837848124515	rbxassetid://134121364428178
+Z1_Track_03	rbxassetid://118920970102815	rbxassetid://134121364428178
+Z1_Track_04	rbxassetid://106645385814402	rbxassetid://134121364428178
+Z2_Bridge_1	rbxassetid://118531126219910	rbxassetid://134121364428178
+Z2_Bridge_2	rbxassetid://90252685875756	rbxassetid://134121364428178
+Z2_Bridge_3	rbxassetid://82591662362820	rbxassetid://134121364428178
+Z2_Ledges_01	rbxassetid://127594625708783	rbxassetid://134121364428178
+Z2_Shards_01	rbxassetid://120120781540898	rbxassetid://134121364428178
+Z2_Terrain_L_1000	rbxassetid://125536112861504	rbxassetid://134121364428178
+Z2_Terrain_L_1500	rbxassetid://130309519925742	rbxassetid://134121364428178
+Z2_Terrain_R_1000	rbxassetid://115595578819929	rbxassetid://134121364428178
+Z2_Terrain_R_1500	rbxassetid://129208614117803	rbxassetid://134121364428178
+Z2_Track_05	rbxassetid://79998159909678	rbxassetid://134121364428178
+Z2_Track_06	rbxassetid://89789061529731	rbxassetid://134121364428178
+Z2_Track_07	rbxassetid://105933814711239	rbxassetid://134121364428178
+Z2_Track_08	rbxassetid://108554882722834	rbxassetid://134121364428178
+Z3_Basalt_01	rbxassetid://108175559669652	rbxassetid://134121364428178
+Z3_Basalt_02	rbxassetid://104207463775007	rbxassetid://134121364428178
+Z3_Lava_01	rbxassetid://96720480199159	rbxassetid://134121364428178
+Z3_Spires_01	rbxassetid://100707366361960	rbxassetid://134121364428178
+Z3_Terrain_L_2000	rbxassetid://88572927330174	rbxassetid://134121364428178
+Z3_Terrain_L_2500	rbxassetid://102566462442483	rbxassetid://134121364428178
+Z3_Terrain_R_2000	rbxassetid://120357190738036	rbxassetid://134121364428178
+Z3_Terrain_R_2500	rbxassetid://123768351054711	rbxassetid://134121364428178
+Z3_Track_09	rbxassetid://77807334888721	rbxassetid://134121364428178
+Z3_Track_10	rbxassetid://114396096274449	rbxassetid://134121364428178
+Z3_Track_11	rbxassetid://73564439915111	rbxassetid://134121364428178
+Z3_Track_12	rbxassetid://93560451830285	rbxassetid://134121364428178
+Z3_Vents_01	rbxassetid://136877149004267	rbxassetid://134121364428178
+Z4_Crown	rbxassetid://126181840902478	rbxassetid://134121364428178
+Z4_Crystals_01	rbxassetid://86418918030770	rbxassetid://134121364428178
+Z4_Crystals_02	rbxassetid://137609712032754	rbxassetid://134121364428178
+Z4_Glow	rbxassetid://137407776406573	rbxassetid://134121364428178
+Z4_Rocks_01	rbxassetid://106812156623695	rbxassetid://134121364428178
+Z4_SummitDeck	rbxassetid://104710881627683	rbxassetid://134121364428178
+Z4_Terrain_L_3000	rbxassetid://111304981290082	rbxassetid://134121364428178
+Z4_Terrain_L_3500	rbxassetid://94701264011767	rbxassetid://134121364428178
+Z4_Terrain_L_4000	rbxassetid://139579893578145	rbxassetid://134121364428178
+Z4_Terrain_R_3000	rbxassetid://102981756119460	rbxassetid://134121364428178
+Z4_Terrain_R_3500	rbxassetid://99750539239750	rbxassetid://134121364428178
+Z4_Terrain_R_4000	rbxassetid://136729381967984	rbxassetid://134121364428178
+Z4_Track_13	rbxassetid://107413656066647	rbxassetid://134121364428178
+Z4_Track_14	rbxassetid://122747604519155	rbxassetid://134121364428178
+Z4_Track_15	rbxassetid://83015870386797	rbxassetid://134121364428178
+Z4_Track_16	rbxassetid://112483232703521	rbxassetid://134121364428178
+=== 12:55:20
+SYNC SS_Config=12034 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26581 SS_Env=13936 SS_Bot=14687
+=== 12:57:58
+SYNC SS_Config=12034 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26646 SS_Env=13936 SS_Bot=14687
+=== 13:00:45
+SYNC SS_Config=12034 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26646 SS_Env=13936 SS_Bot=14687
+=== 17:17:55
+PATCHPREP names=32 removed=32
+=== 17:19:04
+POSTIMPORT meshes=131/99 maxPosErr=0.001 fixed=0 unknown=0  
+=== 17:19:28
+DEDUPE unique=99 dups=0 removed=0 sameGeomDiffUpload=0 
+=== 17:19:42
+POSTIMPORT meshes=99/99 maxPosErr=0.001 fixed=0 unknown=0  
+=== 17:20:03
+SYNC SS_Config=12034 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26646 SS_Env=13936 SS_Bot=14687
+=== 17:29:14
+SKYIDS SkyQuad_down=rbxassetid://75604857964706 Enum.AssetFetchStatus.Success SkyQuad_side=rbxassetid://107253105174203 Enum.AssetFetchStatus.Success SkyQuad_up=rbxassetid://133457787937137 Enum.AssetFetchStatus.Success
+=== 17:31:39
+SYNC SS_Config=12134 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26646 SS_Env=13936 SS_Bot=14687
+=== 17:38:28
+SYNC SS_Config=12266 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26646 SS_Env=14021 SS_Bot=14687
+=== 17:40:48
+SYNC SS_Config=12266 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26954 SS_Env=14021 SS_Bot=14687
+=== 17:43:20
+SYNC SS_Config=12395 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=26954 SS_Env=14411 SS_Bot=14687
+=== 18:17:34
+ASSETIDS 99
+BG_Peak_01	rbxassetid://100866229999957	rbxassetid://134121364428178
+BG_Peak_02	rbxassetid://107432863207523	rbxassetid://134121364428178
+BG_Peak_03	rbxassetid://71502260644863	rbxassetid://134121364428178
+BG_Peak_04	rbxassetid://72671113196734	rbxassetid://134121364428178
+BG_Peak_05	rbxassetid://130669743350047	rbxassetid://134121364428178
+BG_Peak_06	rbxassetid://121136508848430	rbxassetid://134121364428178
+BG_Peak_07	rbxassetid://78976433310616	rbxassetid://134121364428178
+BG_Peak_08	rbxassetid://100312347048337	rbxassetid://134121364428178
+BG_Peak_09	rbxassetid://109061698218582	rbxassetid://134121364428178
+BG_Peak_10	rbxassetid://139305875230360	rbxassetid://134121364428178
+BG_Peak_11	rbxassetid://123636202205021	rbxassetid://134121364428178
+BG_Peak_12	rbxassetid://125128149351749	rbxassetid://134121364428178
+BG_Peak_13	rbxassetid://115015666886277	rbxassetid://134121364428178
+BG_Peak_14	rbxassetid://72949237903202	rbxassetid://134121364428178
+BG_Peak_15	rbxassetid://137034558827300	rbxassetid://134121364428178
+BG_Peak_16	rbxassetid://75465680463633	rbxassetid://134121364428178
+BG_Peak_17	rbxassetid://114711862888290	rbxassetid://134121364428178
+BG_Peak_18	rbxassetid://97414890027309	rbxassetid://134121364428178
+BG_Peak_19	rbxassetid://117164459870848	rbxassetid://134121364428178
+BG_Peak_20	rbxassetid://83876676810168	rbxassetid://134121364428178
+BG_Peak_21	rbxassetid://111306119710945	rbxassetid://134121364428178
+BG_Peak_22	rbxassetid://92129112460445	rbxassetid://134121364428178
+BG_Peak_23	rbxassetid://90101967141557	rbxassetid://134121364428178
+BG_Peak_24	rbxassetid://102234389760913	rbxassetid://134121364428178
+BG_Peak_25	rbxassetid://82040585123303	rbxassetid://134121364428178
+BG_Peak_26	rbxassetid://101172585182151	rbxassetid://134121364428178
+BG_Peak_27	rbxassetid://94523354749976	rbxassetid://134121364428178
+BG_Peak_28	rbxassetid://131235760313446	rbxassetid://134121364428178
+BG_Peak_29	rbxassetid://115319148825331	rbxassetid://134121364428178
+BG_Peak_30	rbxassetid://86647657636448	rbxassetid://134121364428178
+BG_Peak_31	rbxassetid://108967877190419	rbxassetid://134121364428178
+BG_Peak_32	rbxassetid://127817446934862	rbxassetid://134121364428178
+BG_Peak_33	rbxassetid://103186109501421	rbxassetid://134121364428178
+BG_Peak_34	rbxassetid://121715749726514	rbxassetid://134121364428178
+BG_Peak_35	rbxassetid://120186242147874	rbxassetid://134121364428178
+BG_Peak_36	rbxassetid://100374476659443	rbxassetid://134121364428178
+BG_Peak_37	rbxassetid://121374318748877	rbxassetid://134121364428178
+BG_Peak_38	rbxassetid://84867786695806	rbxassetid://134121364428178
+Z1_Pines_01	rbxassetid://106241158739792	rbxassetid://134121364428178
+Z1_Pines_02	rbxassetid://123753344043077	rbxassetid://134121364428178
+Z1_Pines_03	rbxassetid://114289730721408	rbxassetid://134121364428178
+Z1_Pines_04	rbxassetid://105696603169782	rbxassetid://134121364428178
+Z1_Pines_05	rbxassetid://134832453541501	rbxassetid://134121364428178
+Z1_Pines_06	rbxassetid://77332587246147	rbxassetid://134121364428178
+Z1_River	rbxassetid://98986558379620	rbxassetid://134121364428178
+Z1_Rocks_01	rbxassetid://112309662284618	rbxassetid://134121364428178
+Z1_StartDeck	rbxassetid://114083807055107	rbxassetid://134121364428178
+Z1_Terrain_L_-420	rbxassetid://108940372099017	rbxassetid://134121364428178
+Z1_Terrain_L_0	rbxassetid://94008125859280	rbxassetid://134121364428178
+Z1_Terrain_L_500	rbxassetid://82323859945248	rbxassetid://134121364428178
+Z1_Terrain_R_-420	rbxassetid://139106598354675	rbxassetid://134121364428178
+Z1_Terrain_R_0	rbxassetid://78289515959344	rbxassetid://134121364428178
+Z1_Terrain_R_500	rbxassetid://120551940576459	rbxassetid://134121364428178
+Z1_Track_01	rbxassetid://126125985078195	rbxassetid://134121364428178
+Z1_Track_02	rbxassetid://124837848124515	rbxassetid://134121364428178
+Z1_Track_03	rbxassetid://118920970102815	rbxassetid://134121364428178
+Z1_Track_04	rbxassetid://106645385814402	rbxassetid://134121364428178
+Z2_Bridge_1	rbxassetid://118531126219910	rbxassetid://134121364428178
+Z2_Bridge_2	rbxassetid://90252685875756	rbxassetid://134121364428178
+Z2_Bridge_3	rbxassetid://82591662362820	rbxassetid://134121364428178
+Z2_Ledges_01	rbxassetid://127594625708783	rbxassetid://134121364428178
+Z2_Shards_01	rbxassetid://120120781540898	rbxassetid://134121364428178
+Z2_Terrain_L_1000	rbxassetid://91015444381789	rbxassetid://134121364428178
+Z2_Terrain_L_1500	rbxassetid://71457275387438	rbxassetid://134121364428178
+Z2_Terrain_R_1000	rbxassetid://121849686543130	rbxassetid://134121364428178
+Z2_Terrain_R_1500	rbxassetid://71739261528036	rbxassetid://134121364428178
+Z2_Track_05	rbxassetid://79998159909678	rbxassetid://134121364428178
+Z2_Track_06	rbxassetid://89789061529731	rbxassetid://134121364428178
+Z2_Track_07	rbxassetid://105933814711239	rbxassetid://134121364428178
+Z2_Track_08	rbxassetid://108554882722834	rbxassetid://134121364428178
+Z3_Basalt_01	rbxassetid://93260011175884	rbxassetid://134121364428178
+Z3_Basalt_02	rbxassetid://124213112281870	rbxassetid://134121364428178
+Z3_Lava_01	rbxassetid://96720480199159	rbxassetid://134121364428178
+Z3_Spires_01	rbxassetid://100707366361960	rbxassetid://134121364428178
+Z3_Terrain_L_2000	rbxassetid://78577545489626	rbxassetid://134121364428178
+Z3_Terrain_L_2500	rbxassetid://90372815839967	rbxassetid://134121364428178
+Z3_Terrain_R_2000	rbxassetid://78964329682858	rbxassetid://134121364428178
+Z3_Terrain_R_2500	rbxassetid://100768272654432	rbxassetid://134121364428178
+Z3_Track_09	rbxassetid://77807334888721	rbxassetid://134121364428178
+Z3_Track_10	rbxassetid://114396096274449	rbxassetid://134121364428178
+Z3_Track_11	rbxassetid://73564439915111	rbxassetid://134121364428178
+Z3_Track_12	rbxassetid://93560451830285	rbxassetid://134121364428178
+Z3_Vents_01	rbxassetid://136877149004267	rbxassetid://134121364428178
+Z4_Crown	rbxassetid://126181840902478	rbxassetid://134121364428178
+Z4_Crystals_01	rbxassetid://86418918030770	rbxassetid://134121364428178
+Z4_Crystals_02	rbxassetid://137609712032754	rbxassetid://134121364428178
+Z4_Glow	rbxassetid://137407776406573	rbxassetid://134121364428178
+Z4_Rocks_01	rbxassetid://106812156623695	rbxassetid://134121364428178
+Z4_SummitDeck	rbxassetid://137212996886453	rbxassetid://134121364428178
+Z4_Terrain_L_3000	rbxassetid://103477671860270	rbxassetid://134121364428178
+Z4_Terrain_L_3500	rbxassetid://93700087090450	rbxassetid://134121364428178
+Z4_Terrain_L_4000	rbxassetid://86465089773292	rbxassetid://134121364428178
+Z4_Terrain_R_3000	rbxassetid://113076566206739	rbxassetid://134121364428178
+Z4_Terrain_R_3500	rbxassetid://137098284627315	rbxassetid://134121364428178
+Z4_Terrain_R_4000	rbxassetid://119263857110360	rbxassetid://134121364428178
+Z4_Track_13	rbxassetid://107413656066647	rbxassetid://134121364428178
+Z4_Track_14	rbxassetid://122747604519155	rbxassetid://134121364428178
+Z4_Track_15	rbxassetid://83015870386797	rbxassetid://134121364428178
+Z4_Track_16	rbxassetid://112483232703521	rbxassetid://134121364428178
+=== 18:19:16
+SYNC SS_Config=12886 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=28973 SS_Env=14411 SS_Bot=15240
+=== 18:21:53
+SYNC SS_Config=12940 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=29048 SS_Env=14411 SS_Bot=15240
+=== 18:24:27
+SYNC SS_Config=13035 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=29036 SS_Env=14411 SS_Bot=15240
+=== 18:29:18
+SYNC SS_Config=13140 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=29248 SS_Env=14411 SS_Bot=15240
+=== 18:34:40
+CREATURE Folder=1 ObjectValue=1 Bone=22 CFrameValue=72 AnimationController=1 MeshPart=1 extents=5.67063045501709, 13.274288177490234, 10.83468246459961
+MESH taiga_elk size=5.670709133148193, 10.834945678710938, 13.274286270141602 mesh=rbxassetid://72684696076729 tex=rbxassetid://138962762800153 cf=3.35990238, -22.0396042, 123.495445, 1, 0, 0, 0, 1, 0, 0, 0, 1
+BONE root parent=taiga_elk cf=0.00151538849, -5.28925133, 1.50789905, 1, 3.6739575e-16, 1.19209275e-07, 1.90542603e-14, 1, -1.62920671e-07, -1.19209275e-07, 1.62920671e-07, 1
+BONE head parent=neck cf=2.60342858e-11, 2.17400646, 1.47819519e-05, 1, 1.0666961e-07, 5.32006652e-08, -1.18053137e-07, 0.824494004, 0.565870881, 1.64975926e-08, -0.565870881, 0.824494004
+=== 18:34:59
+ANIMWHERE
+Folder Workspace.taiga_elk.InitialPoses parent=taiga_elk
+ObjectValue Workspace.taiga_elk.AnimSaves parent=taiga_elk value=taiga_elk(ObjectValue) kids=1
+CFV Workspace.taiga_elk.InitialPoses.Rig_Composited
+=== 18:35:16
+ANIMREF
+AnimSaves.Value=ServerStorage.RBX_ANIMSAVES.taiga_elk (ObjectValue)
+KeyframeSequence Scene keyframes=201 last=6.67 loop=true
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe Keyframe
+ Keyframe End
+=== 18:38:28
+CREATURES taiga_elk headZ=-4.42 flip=false seatUp=1.52 idle=61,swap_jump=21,gallop=25,faceplant=49 | pine_boar headZ=-3.58 flip=false seatUp=2.83 idle=61,swap_jump=21,gallop=25,faceplant=49 | snowshoe_hare_hound headZ=-3.66 flip=false seatUp=1.03 idle=61,swap_jump=21,gallop=25,faceplant=49 | woolly_reindeer headZ=-3.76 flip=false seatUp=1.24 idle=61,swap_jump=21,gallop=25,faceplant=49 | musk_ox_calfrunner headZ=-4.20 flip=false seatUp=3.54 idle=61,swap_jump=21,gallop=25,faceplant=49
+=== 18:39:21
+SYNC SS_Config=13488 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=31835 SS_Env=14411 SS_Bot=15240
+=== 18:47:33
+SYNC SS_Config=14598 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=40297 SS_Env=14411 SS_Bot=15275
+=== 18:51:07
+SYNC SS_Config=14598 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=40430 SS_Env=14411 SS_Bot=15275
+=== 19:17:47
+SYNC SS_Config=17515 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=43320 SS_Env=14411 SS_Bot=15440
+=== 19:23:48
+SYNC SS_Config=18403 SS_Path=6081 SS_Markers=15388 SS_Track=2582 SS_Ride=44671 SS_Env=14463 SS_Bot=15588
+=== 19:25:04
+SYNC SS_Config=18403 SS_Path=6081 SS_Markers=15388 SS_Timeline=7866 SS_Track=2582 SS_Ride=44671 SS_Env=14463 SS_Bot=17176
+=== 19:45:14
+SYNC SS_Config=18403 SS_Path=6081 SS_Markers=15388 SS_Timeline=7935 SS_Track=2582 SS_Ride=44836 SS_Env=14463 SS_Bot=17508
+=== 20:14:04
+HIDEART parked SS_Mountain (104 descendants)
+=== 20:19:52
+SYNC SS_Config=27526 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=44841 SS_Env=14837 SS_Bot=18438
+=== 20:57:09
+SYNC SS_Config=28187 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=55962 SS_Env=14837 SS_Bot=20556
+=== 21:02:58
+SYNC SS_Config=28369 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=56856 SS_Env=14837 SS_Bot=20786
+=== 21:09:30
+CENSUS Workspace(2): Camera,Terrain | ReplicatedStorage(18927): SS_Bot,SS_Config,SS_Creatures,SS_Markers,SS_Path,SS_Timeline | ServerStorage(23834): RBX_ANIMSAVES,SS_Mountain_Parked | ServerScriptService(1): SS_Track | StarterPlayerScripts(2): SS_Env,SS_Ride | selection 0
+=== 21:10:32
+SYNC SS_Config=28369 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=57125 SS_Env=14837 SS_Bot=20786
+=== 21:38:25
+SYNC SS_Config=30704 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=59122 SS_Env=14837 SS_Bot=27369 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 21:48:52
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=60782 SS_Env=14837 SS_Bot=31339 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 22:01:19
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=60782 SS_Env=14837 SS_Bot=31386 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 22:11:32
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=60782 SS_Env=14837 SS_Bot=31557 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 22:22:12
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=60782 SS_Env=14837 SS_Bot=31557 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 22:38:52
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=60919 SS_Env=14837 SS_Bot=31667 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 22:52:17
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=60919 SS_Env=14837 SS_Bot=33384 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 22:56:45
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=60919 SS_Env=14837 SS_Bot=33865 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 23:02:51
+SYNC SS_Config=31437 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=61142 SS_Env=14837 SS_Bot=34061 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 23:14:12
+SYNC SS_Config=31671 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=61295 SS_Env=14837 SS_Bot=34061 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 23:18:52
+SYNC SS_Config=31671 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=61490 SS_Env=14837 SS_Bot=34061 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 23:46:17
+SYNC SS_Config=31671 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=61490 SS_Env=14837 SS_Bot=38679 SS_Shop=5605 SS_Progress=12407 SS_Save=4777
+=== 23:56:44
+SYNC SS_Config=33299 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=63517 SS_Env=14837 SS_Bot=37835 SS_Shop=5605 SS_Progress=12407 SS_Save=4777 SS_Stream=3742
+=== 00:03:21
+SYNC SS_Config=33713 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=66422 SS_Env=14837 SS_Bot=38931 SS_Shop=5605 SS_Progress=12407 SS_Save=4777 SS_Stream=3742
+=== 00:13:16
+SYNC SS_Config=34715 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=66823 SS_Env=14837 SS_Bot=39849 SS_Shop=5605 SS_Journal=9510 SS_Progress=16729 SS_Save=5590 SS_Stream=3742
+=== 10:55:34
+SYNC SS_Config=34951 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=69283 SS_Env=14837 SS_Bot=41517 SS_Shop=5605 SS_Journal=10290 SS_Progress=18465 SS_Save=5800 SS_Stream=4896
+=== 11:08:03
+SYNC SS_Config=35520 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=69977 SS_Env=14837 SS_Bot=40986 SS_Shop=5605 SS_Journal=10290 SS_Progress=18465 SS_Save=5800 SS_Stream=4896
+=== 11:32:23
+SYNC SS_Config=35459 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=70003 SS_Env=14837 SS_Bot=43374 SS_Shop=5605 SS_Journal=10443 SS_Progress=18465 SS_Save=5800 SS_Stream=4896
+=== 11:47:57
+SYNC SS_Config=36247 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=71295 SS_Env=14837 SS_Bot=43634 SS_Shop=5605 SS_Journal=10678 SS_Progress=18885 SS_Save=6100 SS_Stream=5129
+=== 12:08:50
+STREAMING StreamingEnabled=true | ModelStreamingBehavior=MISSING (set failed: ModelStreamingBehavior is not a valid member of Workspace "Workspace") | StreamingMinRadius=MISSING (set failed: StreamingMinRadius is not a valid member of Workspace "Workspace") | StreamingTargetRadius=MISSING (set failed: StreamingTargetRadius is not a valid member of Workspace "Workspace") | StreamOutBehavior=MISSING (set failed: StreamOutBehavior is not a valid member of Workspace "Workspace") | StreamingIntegrityMode=MISSING (set failed: StreamingIntegrityMode is not a valid member of Workspace "Workspace")
+=== 12:09:51
+SYNC SS_Config=36839 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=72057 SS_Env=14837 SS_Bot=44622 SS_Shop=5605 SS_Journal=10678 SS_Perf=9854 SS_Progress=18885 SS_Save=6100 SS_Stream=5129
+=== 14:31:24
+SYNC SS_Config=37019 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=72988 SS_Env=14837 SS_Bot=44622 SS_Shop=5605 SS_Journal=10678 SS_Perf=9854 SS_Progress=18885 SS_Save=6100 SS_Stream=5129
+=== 14:35:42
+SYNC SS_Config=37400 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=72988 SS_Env=14837 SS_Bot=44622 SS_Shop=5605 SS_Journal=10678 SS_Perf=9854 SS_Progress=18885 SS_Save=6100 SS_Stream=5129
+=== 15:05:47
+SYNC SS_Config=37575 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=74910 SS_Env=14837 SS_Bot=44622 SS_Shop=5605 SS_Journal=10678 SS_Perf=10187 SS_Progress=18885 SS_Save=6100 SS_Stream=5129
+=== 15:07:38
+CENSUS
+ReplicatedStorage total=18930 | SS_Creatures:Folder=18921, SS_Shop:ModuleScript=0, SS_Journal:ModuleScript=0, SS_Perf:ModuleScript=0, SS_Timeline:ModuleScript=0, SS_Markers:ModuleScript=0, SS_Bot:ModuleScript=0, SS_Path:ModuleScript=0
+ReplicatedFirst total=0 | 
+StarterPlayer total=4 | StarterPlayerScripts:StarterPlayerScripts=2, StarterCharacterScripts:StarterCharacterScripts=0
+StarterGui total=0 | 
+Lighting total=5 | Sky:Sky=0, Bloom:BloomEffect=0, Atmosphere:Atmosphere=0, SunRays:SunRaysEffect=0, DepthOfField:DepthOfFieldEffect=0
+SoundService total=0 | 
+Workspace total=2 | Terrain:Terrain=0, Camera:Camera=0
+CLIPS taiga_elk/idle=1464, taiga_elk/swap_jump=504, taiga_elk/gallop=600, taiga_elk/faceplant=1176, pine_boar/idle=1464, pine_boar/swap_jump=504, pine_boar/gallop=600, pine_boar/faceplant=1176, snowshoe_hare_hound/idle=1464, snowshoe_hare_hound/swap_jump=504, snowshoe_hare_hound/gallop=600, snowshoe_hare_hound/faceplant=1176, woolly_reindeer/idle=1464, woolly_reindeer/swap_jump=504, woolly_reindeer/gallop=600, woolly_reindeer/faceplant=1176, musk_ox_calfrunner/idle=1342, musk_ox_calfrunner/swap_jump=462, musk_ox_calfrunner/gallop=550, musk_ox_calfrunner/faceplant=1078
+ServerStorage total=23834
+StreamingEnabled=true
+=== 15:08:06
+MOVECLIPS moved=true ReplicatedStorage 18930 -> 496, ServerStorage 42268
+=== 15:08:06
+SYNC SS_Config=37575 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=75158 SS_Env=14837 SS_Bot=44622 SS_Shop=5605 SS_Journal=10678 SS_Perf=10187 SS_Progress=18885 SS_Save=6100 SS_Stream=5129
+=== 15:54:25
+SYNC SS_Config=38113 SS_Path=6340 SS_Markers=43659 SS_Timeline=7935 SS_Track=2582 SS_Ride=75324 SS_Env=14837 SS_Loading=6309 SS_Bot=44622 SS_Shop=5605 SS_Journal=10678 SS_Perf=10187 SS_Progress=18885 SS_Save=6100 SS_Stream=5129

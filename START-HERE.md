@@ -13,3 +13,6 @@ Updated 2026-10-28. The full workspace map is **`C:\Users\HOME!\Desktop\ClimbCol
 3. `python tools/graphify_refresh/status.py` (refresh if STALE), then query the graph; verify claims in source.
 
 The previous long start page is preserved in git history (commit `28e3ce4`).
+
+## Stampede Spire (added 2026-10-30)
+All Spire art, scripts, plans and place checkpoints are in stampedespire/ on branch claude/stampedespire-2026-10-30. Start with stampedespire/README.md and stampedespire/MASTER-PLAN.md.

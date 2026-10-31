@@ -1,0 +1,59 @@
+dressed 1 taiga
+dressed 2 rime
+dressed 3 crevasse
+dressed 4 icecave
+dressed 5 springs
+dressed 6 obsidian
+dressed 7 storm
+dressed 8 spires
+dressed 9 cloudsea
+dressed 10 aurora
+Info: Saved as "ss_sections.blend"
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s01.fbx'
+export finished in 0.0701 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s02.fbx'
+export finished in 0.0818 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s03.fbx'
+export finished in 0.0394 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s04.fbx'
+export finished in 0.0505 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s05.fbx'
+export finished in 0.0776 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s06.fbx'
+export finished in 0.0627 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s07.fbx'
+export finished in 0.0567 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s08.fbx'
+export finished in 0.0956 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s09.fbx'
+export finished in 0.0866 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_s10.fbx'
+export finished in 0.1001 sec.
+
+FBX export starting... 'C:/Users/HOME!/Documents/StampedeSpire/art/export/sections\\ss_backdrop.fbx'
+export finished in 0.0593 sec.
+BUILD OK meshes=368 tris=1048053
+ s01 taiga     meshes= 19 tris=  97730
+ s02 rime      meshes= 24 tris= 141205
+ s03 crevasse  meshes= 18 tris=  47340
+ s04 icecave   meshes= 29 tris=  59705
+ s05 springs   meshes= 26 tris= 107392
+ s06 obsidian  meshes= 21 tris=  85067
+ s07 storm     meshes= 20 tris=  73355
+ s08 spires    meshes= 31 tris= 151087
+ s09 cloudsea  meshes= 50 tris= 114442
+ s10 aurora    meshes= 36 tris= 138958
+ backdrop meshes=94 tris=31772
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+
+Blender quit

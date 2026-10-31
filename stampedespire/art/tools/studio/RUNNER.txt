@@ -1,0 +1,1 @@
+local H=game:GetService('HttpService') H.HttpEnabled=true local ok,e=pcall(function() local m=Instance.new('ModuleScript') m.Source=H:GetAsync('http://127.0.0.1:8798/task/task.luau?'..os.clock()) local out=require(m)() H:PostAsync('http://127.0.0.1:8798/log',tostring(out)) end) H.HttpEnabled=false print('SSDONE',ok,e)

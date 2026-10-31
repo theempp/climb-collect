@@ -1,0 +1,141 @@
+{
+ "avatarStuds": 5.2,
+ "fps": 30,
+ "clips": {
+  "taiga_elk": {
+   "gallop": {
+    "start": 0.0,
+    "stop": 0.8,
+    "loop": true
+   },
+   "idle": {
+    "start": 1.3333333333333333,
+    "stop": 3.3333333333333335,
+    "loop": true
+   },
+   "swap_jump": {
+    "start": 3.8666666666666667,
+    "stop": 4.533333333333333,
+    "loop": false
+   },
+   "faceplant": {
+    "start": 5.066666666666666,
+    "stop": 6.666666666666667,
+    "loop": false
+   },
+   "_seat": {
+    "up": 1.516325343212094,
+    "fwd": 2.3971000945929326,
+    "headY": -1.683038055896759
+   }
+  },
+  "woolly_reindeer": {
+   "gallop": {
+    "start": 0.0,
+    "stop": 0.8,
+    "loop": true
+   },
+   "idle": {
+    "start": 1.3333333333333333,
+    "stop": 3.3333333333333335,
+    "loop": true
+   },
+   "swap_jump": {
+    "start": 3.8666666666666667,
+    "stop": 4.533333333333333,
+    "loop": false
+   },
+   "faceplant": {
+    "start": 5.066666666666666,
+    "stop": 6.666666666666667,
+    "loop": false
+   },
+   "_seat": {
+    "up": 1.2437263691816667,
+    "fwd": 2.123924397458934,
+    "headY": -1.4306549429893494
+   }
+  },
+  "musk_ox_calfrunner": {
+   "gallop": {
+    "start": 0.0,
+    "stop": 0.8,
+    "loop": true
+   },
+   "idle": {
+    "start": 1.3333333333333333,
+    "stop": 3.3333333333333335,
+    "loop": true
+   },
+   "swap_jump": {
+    "start": 3.8666666666666667,
+    "stop": 4.533333333333333,
+    "loop": false
+   },
+   "faceplant": {
+    "start": 5.066666666666666,
+    "stop": 6.666666666666667,
+    "loop": false
+   },
+   "_seat": {
+    "up": 3.53936955709048,
+    "fwd": 1.9181714154253102,
+    "headY": -1.5980993509292603
+   }
+  },
+  "snowshoe_hare_hound": {
+   "gallop": {
+    "start": 0.0,
+    "stop": 0.8,
+    "loop": true
+   },
+   "idle": {
+    "start": 1.3333333333333333,
+    "stop": 3.3333333333333335,
+    "loop": true
+   },
+   "swap_jump": {
+    "start": 3.8666666666666667,
+    "stop": 4.533333333333333,
+    "loop": false
+   },
+   "faceplant": {
+    "start": 5.066666666666666,
+    "stop": 6.666666666666667,
+    "loop": false
+   },
+   "_seat": {
+    "up": 1.026015393435955,
+    "fwd": 1.8961429174500282,
+    "headY": -1.3946270942687988
+   }
+  },
+  "pine_boar": {
+   "gallop": {
+    "start": 0.0,
+    "stop": 0.8,
+    "loop": true
+   },
+   "idle": {
+    "start": 1.3333333333333333,
+    "stop": 3.3333333333333335,
+    "loop": true
+   },
+   "swap_jump": {
+    "start": 3.8666666666666667,
+    "stop": 4.533333333333333,
+    "loop": false
+   },
+   "faceplant": {
+    "start": 5.066666666666666,
+    "stop": 6.666666666666667,
+    "loop": false
+   },
+   "_seat": {
+    "up": 2.8344736620783806,
+    "fwd": 2.035793029900753,
+    "headY": -1.3632326126098633
+   }
+  }
+ }
+}

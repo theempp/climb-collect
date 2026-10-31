@@ -1,0 +1,237 @@
+{
+ "elk.coat_shadow": {
+  "hex": "#392D28",
+  "trace": "Z1 (120,260)-(220,305) p15",
+  "n": 4500
+ },
+ "elk.coat": {
+  "hex": "#58483F",
+  "trace": "Z1 (120,260)-(220,305) p50",
+  "n": 4500
+ },
+ "elk.coat_light": {
+  "hex": "#7B685C",
+  "trace": "Z1 (120,260)-(220,305) p85",
+  "n": 4500
+ },
+ "elk.mane": {
+  "hex": "#94887E",
+  "trace": "Z1 (245,240)-(310,315) p70",
+  "n": 4875
+ },
+ "elk.mane_shadow": {
+  "hex": "#5F544E",
+  "trace": "Z1 (245,240)-(310,315) p20",
+  "n": 4875
+ },
+ "elk.antler": {
+  "hex": "#B4B3B4",
+  "trace": "Z1 (245,150)-(370,220) p70 unblue bg-masked",
+  "n": 1923
+ },
+ "elk.leg": {
+  "hex": "#242223",
+  "trace": "Z1 (50,340)-(130,390) p40 bg-masked",
+  "n": 1791
+ },
+ "elk.hoof": {
+  "hex": "#202124",
+  "trace": "Z1 (25,387)-(40,405) p20 bg-masked",
+  "n": 236
+ },
+ "elk.muzzle": {
+  "hex": "#332D29",
+  "trace": "Z1 (340,250)-(365,265) p20 bg-masked",
+  "n": 348
+ },
+ "reindeer.coat_shadow": {
+  "hex": "#695E58",
+  "trace": "Z1 (545,270)-(620,320) p15",
+  "n": 3750
+ },
+ "reindeer.coat": {
+  "hex": "#877C75",
+  "trace": "Z1 (545,270)-(620,320) p50",
+  "n": 3750
+ },
+ "reindeer.coat_light": {
+  "hex": "#ACA097",
+  "trace": "Z1 (545,270)-(620,320) p85",
+  "n": 3750
+ },
+ "reindeer.antler": {
+  "hex": "#897B73",
+  "trace": "Z1 (710,172)-(780,220) p50 unblue bg-masked",
+  "n": 1022
+ },
+ "reindeer.leather": {
+  "hex": "#5C4E47",
+  "trace": "Z1 (610,240)-(730,330) p40 leather bg-masked",
+  "n": 3489
+ },
+ "reindeer.bell": {
+  "hex": "#BE905A",
+  "trace": "Z1 (690,237)-(730,317) p60 gold bg-masked",
+  "n": 72
+ },
+ "reindeer.hoof": {
+  "hex": "#313034",
+  "trace": "Z1 (480,380)-(495,398) p20 bg-masked",
+  "n": 210
+ },
+ "muskox.coat_shadow": {
+  "hex": "#161414",
+  "trace": "Z1 (975,280)-(1125,350) p15",
+  "n": 10500
+ },
+ "muskox.coat": {
+  "hex": "#262120",
+  "trace": "Z1 (975,280)-(1125,350) p50",
+  "n": 10500
+ },
+ "muskox.coat_light": {
+  "hex": "#3D3430",
+  "trace": "Z1 (975,280)-(1125,350) p85",
+  "n": 10500
+ },
+ "muskox.frost": {
+  "hex": "#B0B0B2",
+  "trace": "Z1 (975,245)-(1125,270) p97 bg-masked",
+  "n": 3536
+ },
+ "muskox.horn": {
+  "hex": "#80756C",
+  "trace": "Z1 (1150,237)-(1175,275) p70 unblue bg-masked",
+  "n": 950
+ },
+ "muskox.sock": {
+  "hex": "#726F70",
+  "trace": "Z1 (915,365)-(930,380) p70 bg-masked",
+  "n": 225
+ },
+ "muskox.hoof": {
+  "hex": "#2D2A2B",
+  "trace": "Z1 (965,385)-(1000,407) p10 bg-masked",
+  "n": 598
+ },
+ "hare.coat_shadow": {
+  "hex": "#6A6F78",
+  "trace": "Z1 (215,570)-(290,615) p15",
+  "n": 3375
+ },
+ "hare.coat": {
+  "hex": "#8F959E",
+  "trace": "Z1 (215,570)-(290,615) p50",
+  "n": 3375
+ },
+ "hare.coat_light": {
+  "hex": "#B6BEC8",
+  "trace": "Z1 (215,570)-(290,615) p90",
+  "n": 3375
+ },
+ "hare.ear_tip": {
+  "hex": "#7A7E84",
+  "trace": "Z1 (420,465)-(435,500) p20 bg-masked",
+  "n": 375
+ },
+ "hare.saddle": {
+  "hex": "#5D4940",
+  "trace": "Z1 (285,545)-(340,570) p50 leather bg-masked",
+  "n": 383
+ },
+ "hare.strap": {
+  "hex": "#382D26",
+  "trace": "Z1 (320,575)-(345,625) p40 leather bg-masked",
+  "n": 134
+ },
+ "hare.claw": {
+  "hex": "#313032",
+  "trace": "Z1 (420,677)-(435,690) p15 bg-masked",
+  "n": 138
+ },
+ "boar.coat_shadow": {
+  "hex": "#1F1D1D",
+  "trace": "Z1 (740,560)-(865,630) p15",
+  "n": 8750
+ },
+ "boar.coat": {
+  "hex": "#2E2A29",
+  "trace": "Z1 (740,560)-(865,630) p50",
+  "n": 8750
+ },
+ "boar.coat_light": {
+  "hex": "#4B433E",
+  "trace": "Z1 (740,560)-(865,630) p85",
+  "n": 8750
+ },
+ "boar.frost": {
+  "hex": "#B2B2B3",
+  "trace": "Z1 (765,525)-(880,560) p98 bg-masked",
+  "n": 3796
+ },
+ "boar.tusk": {
+  "hex": "#938D86",
+  "trace": "Z1 (920,600)-(935,622) p70 unblue bg-masked",
+  "n": 308
+ },
+ "boar.snout": {
+  "hex": "#625D64",
+  "trace": "Z1 (940,605)-(960,620) p30 bg-masked",
+  "n": 234
+ },
+ "boar.hoof": {
+  "hex": "#212123",
+  "trace": "Z1 (860,677)-(880,687) p15 bg-masked",
+  "n": 181
+ },
+ "elk.eye": {
+  "hex": "#0C0A0A",
+  "trace": "Z1 (322,236)-(334,243) p5",
+  "n": 84
+ },
+ "reindeer.eye": {
+  "hex": "#12100F",
+  "trace": "Z1 (751,231)-(762,239) p5",
+  "n": 88
+ },
+ "muskox.eye": {
+  "hex": "#181516",
+  "trace": "Z1 (1164,261)-(1174,269) p5",
+  "n": 80
+ },
+ "hare.eye": {
+  "hex": "#161212",
+  "trace": "Z1 (432,522)-(443,531) p5",
+  "n": 99
+ },
+ "boar.eye": {
+  "hex": "#141111",
+  "trace": "Z1 (912,578)-(921,586) p5",
+  "n": 72
+ },
+ "elk.eye_glint": {
+  "hex": "#B0B0B2",
+  "trace": "Z1 (975,245)-(1125,270) p97 bg-masked",
+  "n": 3536
+ },
+ "reindeer.eye_glint": {
+  "hex": "#B0B0B2",
+  "trace": "Z1 (975,245)-(1125,270) p97 bg-masked",
+  "n": 3536
+ },
+ "muskox.eye_glint": {
+  "hex": "#B0B0B2",
+  "trace": "Z1 (975,245)-(1125,270) p97 bg-masked",
+  "n": 3536
+ },
+ "hare.eye_glint": {
+  "hex": "#B0B0B2",
+  "trace": "Z1 (975,245)-(1125,270) p97 bg-masked",
+  "n": 3536
+ },
+ "boar.eye_glint": {
+  "hex": "#B2B2B3",
+  "trace": "Z1 (765,525)-(880,560) p98 bg-masked",
+  "n": 3796
+ }
+}
