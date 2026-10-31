@@ -1,5 +1,7 @@
 # Mountain Empire publishing checklist
 
+> **SUPERSEDED 2026-10-29** for C01-C05 (parties, offline raid/defense, friend challenges, trophy rankings) and the trophy gallery in C06: removed by the home-base redesign; a server-local Leaderboard tab replaces rankings for now. Mountain egg raids stay. Plan: `C:/Users/HOME!/Desktop/ClimbCollect/game/homebase-c/design/homebase-build-plan-2026-10-29.md`.
+
 > October 25, 2026 status overlay: use [current workspace review](workspace-review-2026-10-25.md) before interpreting historical unchecked items. Integration is built; habitats/production/automation and newest HUD are implemented in separate durable feature clones; actual eight-client tycoon and Review06 cold-start tests are recorded. Latest branch consolidation, premium visual acceptance, hosted persistence, phones and remaining advanced services are still open. Original full public-release scope remains. Historical acceptance checkboxes below are retained, not silently treated as current evidence.
 
 Updated October 24, 2026 (America/New_York). **Owner target: full Mountain Empire vision before public release, including advanced services.** Private alpha/beta tests are steps toward that release. No feature below is silently deferred. [Overview](../START-HERE.md) Â· [Evidence/workspace audit](project-audit-2026-10-24.md).

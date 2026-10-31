@@ -1,5 +1,7 @@
 # v1 big-scope design decisions — 2026-10-28
 
+> **SUPERSEDED 2026-10-29** (home-base redesign, owner popups): the Defense Outpost, vault, shields, revenge, friend raids, weekly seasons, party portal and duo seating in this doc are dropped. Mountain egg raids and bat theft stay. Current plan: `C:/Users/HOME!/Desktop/ClimbCollect/game/homebase-c/design/homebase-build-plan-2026-10-29.md`.
+
 Design only. No game, place, Studio, publishing or Robux changes. Source: owner popups in this chat. Vault: `Climb & Collect/Decisions.md`, `Open Questions.md`. HUD (Glassbloom) chat untouched.
 
 Status key: **LOCKED** = owner picked it. **PROPOSED** = numbers/details I supplied, untested.
